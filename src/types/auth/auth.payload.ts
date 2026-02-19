@@ -46,3 +46,7 @@ export interface AuthResendVerificationPayload {
   email: string
   phoneNumber: string
 }
+
+export interface AuthGithubOAuthUrlResponse {
+  authUrl: string
+}

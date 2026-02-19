@@ -10,6 +10,7 @@ import type {
   AuthCheckEmailResponse,
   AuthCreatePasswordPayload,
   AuthForgotPasswordPayload,
+  AuthGithubOAuthUrlResponse,
   AuthLoginErrorResponse,
   AuthLoginPayload,
   AuthResendVerificationPayload,
@@ -44,6 +45,7 @@ interface AuthStore {
   checkEmailSubmitting: boolean
   updateProfileSubmitting: boolean
   updateAvatarSubmitting: boolean
+  githubOAuthSubmitting: boolean
   loadingUser: boolean
   // Messages
   loginError: boolean
@@ -51,6 +53,7 @@ interface AuthStore {
   messageAlert: AlertsCore
   successMessage: string | null
   errorMessage: string | null
+  githubOAuthError: string | null
   errorBack: unknown | null
   // Session
   pendingVerifyEmail: string | null
@@ -65,6 +68,8 @@ interface AuthStore {
   checkEmailAvailability: (email: string) => Promise<boolean | null>
   verifyEmail: (payload: AuthVerifyEmailPayload) => Promise<string | null>
   forgotPassword: (payload: AuthForgotPasswordPayload) => Promise<boolean>
+  startGithubOAuth: () => Promise<boolean>
+  clearGithubOAuthStatus: () => void
   resendVerification: (payload: AuthResendVerificationPayload) => Promise<boolean>
   createPassword: (payload: AuthCreatePasswordPayload) => Promise<boolean>
   getCurrentUser: () => Promise<void>
@@ -100,6 +105,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   checkEmailSubmitting: false,
   updateProfileSubmitting: false,
   updateAvatarSubmitting: false,
+  githubOAuthSubmitting: false,
   loadingUser: false,
   // Messages
   loginError: false,
@@ -107,6 +113,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   messageAlert: { ...initialAlert },
   successMessage: null,
   errorMessage: null,
+  githubOAuthError: null,
   errorBack: null,
   // Session
   pendingVerifyEmail: authSessionStorage.getPendingVerifyEmail(),
@@ -189,6 +196,55 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
     } finally {
       set({ loginSubmitting: false })
     }
+  },
+
+  startGithubOAuth: async () => {
+    try {
+      set({
+        githubOAuthSubmitting: true,
+        githubOAuthError: null,
+        loginError: false,
+      })
+      const { data } = await axiosInstance.get<AuthGithubOAuthUrlResponse>('/auth/oauth2/github')
+      const authUrl = typeof data?.authUrl === 'string' ? data.authUrl.trim() : ''
+
+      if (!authUrl) {
+        set({
+          loginError: true,
+          githubOAuthError: messages.auth.status.errors.loginGithubAuthUrlMissing,
+          messageAlert: {
+            icon: 'fa-solid fa-triangle-exclamation',
+            variant: 'error',
+            message: messages.auth.status.errors.loginGithubAuthUrlMissing,
+          },
+        })
+        return false
+      }
+
+      if (typeof window !== 'undefined') window.location.assign(authUrl)
+      return true
+    } catch (error) {
+      const fallbackMessage = messages.auth.status.errors.loginGithubAuthUrlError
+      const backendMessage = axios.isAxiosError(error) ? error.response?.data?.message : null
+      const message = typeof backendMessage === 'string' && backendMessage.length > 0 ? backendMessage : fallbackMessage
+      set({
+        errorBack: error,
+        loginError: true,
+        githubOAuthError: message,
+        messageAlert: {
+          icon: 'fa-solid fa-triangle-exclamation',
+          variant: 'error',
+          message,
+        },
+      })
+      return false
+    } finally {
+      set({ githubOAuthSubmitting: false })
+    }
+  },
+
+  clearGithubOAuthStatus: () => {
+    set({ githubOAuthError: null })
   },
 
   register: async (payload: AuthRegisterPayload) => {

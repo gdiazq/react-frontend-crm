@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ButtonComponent, FooterComponent, InputComponent, ThemeToggle } from '@/components'
+import { ButtonComponent, FooterComponent, GitHubLoginButtonComponent, InputComponent, ThemeToggle } from '@/components'
 import {
   AUTH_ROUTE_HOME,
   AUTH_ROUTE_LOGIN_CREDENTIALS,
@@ -11,7 +11,8 @@ import { initialPreLoginForm } from '@/factories'
 import { preLoginValidationRules } from '@/validators'
 import { useFormValidation } from '@/hooks'
 import { mapperPreLoginPayload } from '@/mappers'
-import { useStorePreLogin, useStoreTheme } from '@/store'
+import messages from '@/messages/messages'
+import { useStoreAuth, useStorePreLogin, useStoreTheme } from '@/store'
 
 const getRememberedEmail = () => {
   if (typeof window === 'undefined') return ''
@@ -27,6 +28,10 @@ export default function LoginPage() {
   const errorMessage = useStorePreLogin((s) => s.errorMessage)
   const preLogin = useStorePreLogin((s) => s.preLogin)
   const resetStatus = useStorePreLogin((s) => s.resetStatus)
+  const githubOAuthSubmitting = useStoreAuth((s) => s.githubOAuthSubmitting)
+  const githubOAuthError = useStoreAuth((s) => s.githubOAuthError)
+  const startGithubOAuth = useStoreAuth((s) => s.startGithubOAuth)
+  const clearGithubOAuthStatus = useStoreAuth((s) => s.clearGithubOAuthStatus)
 
   const [form, setForm] = useState(() => ({
     ...initialPreLoginForm,
@@ -37,12 +42,20 @@ export default function LoginPage() {
 
   useEffect(() => {
     resetStatus()
-    return () => { resetStatus() }
-  }, [resetStatus])
+    clearGithubOAuthStatus()
+    return () => {
+      resetStatus()
+      clearGithubOAuthStatus()
+    }
+  }, [clearGithubOAuthStatus, resetStatus])
 
   const handleEmailValue = (value: string) => {
     setForm((f) => ({ ...f, email: value }))
     if (loginError) resetStatus()
+  }
+
+  const handleGithubLogin = async () => {
+    await startGithubOAuth()
   }
 
   const submitForm = async (e: React.FormEvent) => {
@@ -102,6 +115,22 @@ export default function LoginPage() {
               {preLoginSubmitting ? 'Validando...' : 'Continuar'}
             </ButtonComponent>
 
+            <div className="relative py-1">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200 dark:border-slate-700" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-slate-500 dark:bg-slate-900 dark:text-slate-400">o</span>
+              </div>
+            </div>
+
+            <GitHubLoginButtonComponent
+              loading={githubOAuthSubmitting}
+              onClick={handleGithubLogin}
+              label={messages.auth.ui.loginGithubLabel}
+              loadingLabel={messages.auth.ui.loginGithubLoading}
+            />
+
             <div className="flex items-center justify-between text-sm">
               <label className="inline-flex items-center gap-2">
                 <input
@@ -124,6 +153,12 @@ export default function LoginPage() {
             {loginError && (
               <div className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-400/40 dark:bg-rose-900/20 dark:text-rose-200">
                 {errorMessage}
+              </div>
+            )}
+
+            {githubOAuthError && (
+              <div className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-400/40 dark:bg-rose-900/20 dark:text-rose-200">
+                {githubOAuthError}
               </div>
             )}
           </form>

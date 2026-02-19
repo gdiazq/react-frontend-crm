@@ -1,5 +1,6 @@
 // UI Components
 export { default as ButtonComponent } from './ui/button/ButtonComponent'
+export { default as GitHubLoginButtonComponent } from './ui/button/GitHubLoginButtonComponent'
 export { default as InputComponent } from './ui/input/InputComponent'
 export { default as PasswordInputComponent } from './ui/input/PasswordInputComponent'
 export { default as VerificationCodeInputComponent } from './ui/input/VerificationCodeInputComponent'

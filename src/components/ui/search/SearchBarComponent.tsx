@@ -7,6 +7,7 @@ interface SearchBarComponentProps {
   placeholder?: string
   buttonText?: string
   loadingButtonText?: string
+  buttonClassName?: string
   onValueChange: (value: string) => void
   onSearch: () => void
 }
@@ -17,6 +18,7 @@ export default function SearchBarComponent({
   placeholder = 'Buscar por nombre, apellido o correo',
   buttonText = 'Buscar',
   loadingButtonText = 'Buscando...',
+  buttonClassName = '',
   onValueChange,
   onSearch,
 }: SearchBarComponentProps) {
@@ -41,6 +43,7 @@ export default function SearchBarComponent({
         variant="primary"
         disabled={loading}
         label={loading ? loadingButtonText : buttonText}
+        className={buttonClassName}
       />
     </form>
   )

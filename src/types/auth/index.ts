@@ -9,6 +9,7 @@ export type {
   AuthForgotPasswordPayload,
   AuthCheckEmailResponse,
   AuthResendVerificationPayload,
+  AuthGithubOAuthUrlResponse,
 } from './auth.payload'
 export type {
   AuthLoginForm,

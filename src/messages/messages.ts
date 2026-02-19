@@ -2,6 +2,8 @@ export default {
   auth: {
     ui: {
       loginMfaPrompt: 'Ingresa tu codigo MFA de 6 digitos para continuar.',
+      loginGithubLabel: 'Continuar con GitHub',
+      loginGithubLoading: 'Conectando con GitHub...',
       registerBackToHome: 'Volver al inicio',
       registerTitle: 'Crea tu cuenta',
       registerSubtitle: 'Registra tu acceso para usar el CRM.',
@@ -39,6 +41,8 @@ export default {
         loginInvalidMfa: 'Codigo MFA invalido.',
         loginInvalidCredentials: 'Credenciales invalidas.',
         loginServiceUnavailable: 'Servicio no disponible temporalmente.',
+        loginGithubAuthUrlMissing: 'No se pudo obtener la URL de autenticacion de GitHub.',
+        loginGithubAuthUrlError: 'No se pudo iniciar el login con GitHub. Intenta nuevamente.',
         registerErrorDefault: 'No se pudo completar el registro.',
         registerEmailTaken: 'El correo ya esta registrado.',
         registerInvalidData: 'Datos de registro invalidos.',

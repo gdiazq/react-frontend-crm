@@ -119,6 +119,7 @@ export default function UsersDashboardPage() {
             value={queryParams.search}
             loading={loadingUsers}
             placeholder="Buscar por nombre, apellido o correo"
+            buttonClassName="bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             onValueChange={setSearch}
             onSearch={searchUsers}
           />
@@ -128,6 +129,7 @@ export default function UsersDashboardPage() {
             type="button"
             variant="primary"
             disabled={loadingUsers}
+            className="text-white dark:text-white"
             label="Nuevo usuario"
             onClick={() => setActionsMessage(messages.users.ui.createComingSoon)}
           />
