@@ -14,4 +14,4 @@ export {
   AUTH_ROUTE_CREATE_PASSWORD,
   REMEMBER_EMAIL_STORAGE_KEY,
 } from './auth.constants'
-export { CRM_FEATURES, CRM_STAGES, CRM_STATS } from './crm.constants'
+export { CRM_FEATURES, CRM_PRICING_PLANS, CRM_STAGES, CRM_STATS } from './crm.constants'

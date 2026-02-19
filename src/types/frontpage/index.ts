@@ -1,1 +1,1 @@
-export type { CrmStat, CrmStage, CrmFeature } from './crm'
+export type { CrmStat, CrmStage, CrmFeature, CrmPricingPlan } from './crm'

@@ -119,7 +119,7 @@ export default function UsersDashboardPage() {
             value={queryParams.search}
             loading={loadingUsers}
             placeholder="Buscar por nombre, apellido o correo"
-            buttonClassName="bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
+            buttonClassName="bg-cyan-600 text-white hover:bg-cyan-700 dark:bg-cyan-500 dark:text-white dark:hover:bg-cyan-400"
             onValueChange={setSearch}
             onSearch={searchUsers}
           />

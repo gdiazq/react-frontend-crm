@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom'
-import { FeatureGrid, FooterComponent, HeroContent, HeroHeader, KpiPanel, ThemeToggle } from '@/components'
+import { FeatureGrid, FooterComponent, HeroContent, HeroHeader, KpiPanel, PricingSection, ThemeToggle } from '@/components'
 import {
   AUTH_ROUTE_DASHBOARD_EXAMPLE,
   AUTH_ROUTE_LOGIN,
   AUTH_ROUTE_REGISTER,
   CRM_FEATURES,
+  CRM_PRICING_PLANS,
   CRM_STAGES,
   CRM_STATS,
 } from '@/constant'
@@ -14,6 +15,14 @@ export default function HomePage() {
   const navigate = useNavigate()
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
+
+  const handleSelectPlan = (planId: string) => {
+    if (planId === 'enterprise') {
+      navigate(AUTH_ROUTE_LOGIN)
+      return
+    }
+    navigate(AUTH_ROUTE_REGISTER)
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
@@ -38,6 +47,7 @@ export default function HomePage() {
       </section>
 
       <FeatureGrid features={CRM_FEATURES} />
+      <PricingSection plans={CRM_PRICING_PLANS} onSelectPlan={handleSelectPlan} />
       <FooterComponent />
     </main>
   )

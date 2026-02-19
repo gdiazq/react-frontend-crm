@@ -1,4 +1,4 @@
-import type { CrmFeature, CrmStage, CrmStat } from '@/types'
+import type { CrmFeature, CrmPricingPlan, CrmStage, CrmStat } from '@/types'
 
 export const CRM_STATS: CrmStat[] = [
   { label: 'Leads activos', value: '1,284', trend: '+12% esta semana', trendClass: 'text-emerald-400' },
@@ -25,5 +25,52 @@ export const CRM_FEATURES: CrmFeature[] = [
   {
     title: 'Reportes en tiempo real',
     description: 'KPIs de ventas y atencion con filtros por equipo, canal y etapa del pipeline.',
+  },
+]
+
+export const CRM_PRICING_PLANS: CrmPricingPlan[] = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    description: 'Para equipos pequenos que necesitan orden comercial rapido.',
+    priceMonthly: '$29',
+    billingLabel: 'por usuario/mes',
+    ctaLabel: 'Empezar ahora',
+    features: [
+      'Hasta 3 usuarios',
+      'Pipeline de ventas basico',
+      'Recordatorios y tareas',
+      'Soporte por correo',
+    ],
+  },
+  {
+    id: 'growth',
+    name: 'Growth',
+    description: 'Escala operaciones de ventas y soporte con automatizaciones.',
+    priceMonthly: '$79',
+    billingLabel: 'por usuario/mes',
+    ctaLabel: 'Probar Growth',
+    highlighted: true,
+    features: [
+      'Hasta 25 usuarios',
+      'Automatizaciones avanzadas',
+      'Reportes en tiempo real',
+      'Integraciones con email y WhatsApp',
+      'Soporte prioritario',
+    ],
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    description: 'Control, seguridad y personalizacion para operaciones complejas.',
+    priceMonthly: 'Custom',
+    billingLabel: 'precio a medida',
+    ctaLabel: 'Hablar con ventas',
+    features: [
+      'Usuarios ilimitados',
+      'SSO y politicas de seguridad',
+      'Entornos y flujos personalizados',
+      'SLA dedicado',
+    ],
   },
 ]
