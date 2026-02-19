@@ -12,3 +12,4 @@ export type {
   DashboardExampleActivity,
   DashboardExample,
 } from './dashboard-example.interface'
+export type { DashboardExampleStore } from './dashboard-example.store.interface'

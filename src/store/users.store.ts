@@ -4,27 +4,7 @@ import { axiosInstance } from '@/config'
 import { initialUsersPagination, initialUsersQueryParams, initialUsersRows } from '@/factories'
 import { mapperUsersPagination, mapperUsersQueryParams, mapperUsersRows } from '@/mappers'
 import messages from '@/messages/messages'
-import type { UserPagedResponse, UserTableRow, UsersPagination, UsersQueryParams } from '@/types'
-
-interface UsersStore {
-  // State
-  usersRows: UserTableRow[]
-  pagination: UsersPagination
-  queryParams: UsersQueryParams
-  // Loading
-  loadingUsers: boolean
-  // Messages
-  errorMessage: string | null
-  errorBack: unknown | null
-  // Actions
-  getUsers: () => Promise<void>
-  goToPage: (page: number) => Promise<void>
-  nextPage: () => Promise<void>
-  previousPage: () => Promise<void>
-  setSearch: (value: string) => void
-  searchUsers: () => Promise<void>
-  mutationToggleUserStatus: (userId: string) => void
-}
+import type { UserPagedResponse, UsersStore } from '@/types'
 
 export const useStoreUsers = create<UsersStore>()((set, get) => ({
   usersRows: [...initialUsersRows],
@@ -91,20 +71,44 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
     await get().getUsers()
   },
 
-  mutationToggleUserStatus: (userId: string) => {
-    set((state) => ({
-      usersRows: state.usersRows.map((row) => {
-        if (row.id !== userId) return row
-        const nextStatus = row.status !== true
-        return {
-          ...row,
-          status: nextStatus,
-          values: row.values.map((value, index) => {
-            if (index !== 6) return value
-            return nextStatus ? messages.users.ui.statusEnabled : messages.users.ui.statusDisabled
-          }),
-        }
-      }),
-    }))
+  mutationToggleUserStatus: async (userId: string, nextStatus: boolean) => {
+    const parsedUserId = Number(userId)
+    if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+      set({ errorMessage: messages.users.status.errors.invalidStatusUserId })
+      return false
+    }
+
+    try {
+      set({ loadingUsers: true, errorMessage: null, errorBack: null })
+
+      await axiosInstance.put(`/user/${parsedUserId}/status`, { status: nextStatus })
+
+      set((state) => ({
+        usersRows: state.usersRows.map((row) => {
+          if (row.id !== userId) return row
+          return {
+            ...row,
+            status: nextStatus,
+            values: row.values.map((value, index) => {
+              if (index !== 6) return value
+              return nextStatus ? messages.users.ui.statusEnabled : messages.users.ui.statusDisabled
+            }),
+          }
+        }),
+      }))
+
+      await get().getUsers()
+      return true
+    } catch (error) {
+      set({ errorBack: error })
+      if (axios.isAxiosError(error)) {
+        set({ errorMessage: error.response?.data?.message || messages.users.status.errors.toggleStatusError })
+      } else {
+        set({ errorMessage: messages.users.status.errors.toggleStatusError })
+      }
+      return false
+    } finally {
+      set({ loadingUsers: false })
+    }
   },
 }))

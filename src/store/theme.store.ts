@@ -1,14 +1,7 @@
 import { create } from 'zustand'
+import type { ThemeStore } from '@/types'
 
 const THEME_KEY = 'crm-theme'
-
-interface ThemeStore {
-  isDark: boolean
-  errorBack: Error | null
-  initTheme: () => void
-  setTheme: (value: boolean) => void
-  toggleTheme: () => void
-}
 
 const applyThemeClass = (value: boolean) => {
   if (typeof document !== 'undefined') {

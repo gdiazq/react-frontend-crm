@@ -30,8 +30,8 @@ import type {
   IncomingNotificationPayload,
   NotificationItem,
   NotificationCountResponse,
-  NotificationConnectionStatus,
   NotificationPagedResponse,
+  NotificationStore,
 } from '@/types'
 
 const NOTIFICATION_BASE_PATH = '/notification'
@@ -104,28 +104,6 @@ const notificationTabFilters: Record<number, (item: NotificationItem) => boolean
   1: (item) => item.inbox,
   2: (item) => !item.read && item.inbox,
   3: (item) => !item.inbox,
-}
-
-interface NotificationStore {
-  counter: NotificationCountResponse
-  notifications: NotificationItem[]
-  tab: number
-  status: NotificationConnectionStatus
-  errorMessage: string | null
-  loadingNotifications: boolean
-  // Getters (computed via selectors)
-  captureTab: (tab: number) => void
-  pushNotification: (item: NotificationItem) => void
-  getNotifications: (type?: '' | 'unread' | 'archived', page?: number, size?: number) => Promise<void>
-  getCounter: () => Promise<void>
-  mutationMarkAllAsRead: () => Promise<void>
-  mutationArchiveAll: () => Promise<void>
-  mutationArchiveNotification: (payload: NotificationItem) => Promise<void>
-  mutationMarkAsRead: (payload: NotificationItem) => Promise<void>
-  mutationMarkAsNotRead: (payload: NotificationItem) => void
-  clearNotifications: () => void
-  disconnect: () => void
-  connect: (userId: number) => Promise<void>
 }
 
 export const useStoreNotification = create<NotificationStore>()((set, get) => ({

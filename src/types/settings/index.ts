@@ -8,6 +8,7 @@ export type {
   SettingTabKey,
   SettingTabOption,
 } from './setting.interface'
+export type { SettingsStore } from './settings.store.interface'
 export type {
   SettingMfaSetupPayload,
   SettingMfaVerifyPayload,

@@ -3,22 +3,10 @@ import axios from 'axios'
 import { axiosInstance } from '@/config'
 import { mapperPreLoginMfaRequired } from '@/mappers'
 import messages from '@/messages/messages'
-import type { AuthPreLoginResponse } from '@/types'
+import type { AuthPreLoginResponse, PreLoginStore } from '@/types'
 
 const PRE_LOGIN_EMAIL_KEY = 'preLoginEmail'
 const PRE_LOGIN_MFA_REQUIRED_KEY = 'preLoginMfaRequired'
-
-interface PreLoginStore {
-  preLoginSubmitting: boolean
-  loginError: boolean
-  mfaRequired: boolean
-  errorMessage: string
-  preLogin: (email: string) => Promise<boolean>
-  getPreLoginEmail: () => string
-  getPreLoginMfaRequired: () => boolean
-  clearPreLoginSession: () => void
-  resetStatus: () => void
-}
 
 export const useStorePreLogin = create<PreLoginStore>()((set) => ({
   preLoginSubmitting: false,

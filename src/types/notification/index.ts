@@ -8,3 +8,4 @@ export type {
   NotificationPagedFilters,
   NotificationItem,
 } from './notification.interface'
+export type { NotificationStore } from './notification.store.interface'

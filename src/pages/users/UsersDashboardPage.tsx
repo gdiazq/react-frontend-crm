@@ -57,17 +57,19 @@ export default function UsersDashboardPage() {
     setOpenActionsRowId(null)
   }
 
-  const handleToggleStatus = (row: UserTableRow) => {
+  const handleToggleStatus = async (row: UserTableRow) => {
     const nextStatus = row.status !== true
-    mutationToggleUserStatus(row.id)
-    setActionsMessage(`${row.values[0]} ${nextStatus ? messages.users.status.success.toggleEnabledSuccess : messages.users.status.success.toggleDisabledSuccess}`)
+    const success = await mutationToggleUserStatus(row.id, nextStatus)
+    if (success) {
+      setActionsMessage(`${row.values[0]} ${nextStatus ? messages.users.status.success.toggleEnabledSuccess : messages.users.status.success.toggleDisabledSuccess}`)
+    }
     setOpenActionsRowId(null)
   }
 
   const resolveRowActions = (row: UserTableRow): DropdownAction[] => [
     actionViewDetail(() => handleViewDetail(row)),
     actionUpdateUser(() => handleUpdateUser(row)),
-    actionToggleStatus(row.status === true, () => handleToggleStatus(row)),
+    actionToggleStatus(row.status === true, () => { void handleToggleStatus(row) }),
   ]
 
   const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number) => {
@@ -119,7 +121,7 @@ export default function UsersDashboardPage() {
             value={queryParams.search}
             loading={loadingUsers}
             placeholder="Buscar por nombre, apellido o correo"
-            buttonClassName="bg-cyan-600 text-white hover:bg-cyan-700 dark:bg-cyan-500 dark:text-white dark:hover:bg-cyan-400"
+            buttonClassName="bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             onValueChange={setSearch}
             onSearch={searchUsers}
           />

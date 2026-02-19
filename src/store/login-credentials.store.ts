@@ -1,18 +1,10 @@
 import { create } from 'zustand'
 import { useStoreAuth } from './auth.store'
 import { mapperLoginCredentialsPayload } from '@/mappers'
-import type { AuthLoginCredentialsForm } from '@/types'
+import type { AuthLoginCredentialsForm, LoginCredentialsStore } from '@/types'
 
 const PRE_LOGIN_EMAIL_KEY = 'preLoginEmail'
 const PRE_LOGIN_MFA_REQUIRED_KEY = 'preLoginMfaRequired'
-
-interface LoginCredentialsStore {
-  email: string
-  mfaRequired: boolean
-  hydrate: () => boolean
-  clearSession: () => void
-  submitLogin: (form: AuthLoginCredentialsForm) => Promise<boolean>
-}
 
 export const useStoreLoginCredentials = create<LoginCredentialsStore>()((set) => ({
   email: '',

@@ -3,14 +3,7 @@ import axios from 'axios'
 import { initialDashboardExample } from '@/factories'
 import { mapperDashboardExample } from '@/mappers'
 import messages from '@/messages/messages'
-import type { DashboardExample, DashboardExampleRaw } from '@/types'
-
-interface DashboardExampleStore {
-  dashboard: DashboardExample
-  loadingDashboard: boolean
-  errorMessage: string
-  getDashboard: () => Promise<void>
-}
+import type { DashboardExampleRaw, DashboardExampleStore } from '@/types'
 
 export const useStoreDashboardExample = create<DashboardExampleStore>()((set) => ({
   dashboard: { ...initialDashboardExample },

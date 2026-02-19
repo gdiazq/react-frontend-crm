@@ -1,4 +1,5 @@
 export type { AuthUser, PasswordRequirement } from './auth.interface'
+export type { AuthStore, PermissionType } from './auth.store.interface'
 export type {
   AuthLoginPayload,
   AuthLoginErrorResponse,
@@ -24,7 +25,9 @@ export type {
   AuthPreLoginPayload,
   AuthPreLoginResponse,
 } from './pre-login.interface'
+export type { PreLoginStore } from './pre-login.store.interface'
 export type {
   AuthLoginCredentialsForm,
   AuthLoginCredentialsPayload,
 } from './login-credentials.interface'
+export type { LoginCredentialsStore } from './login-credentials.store.interface'

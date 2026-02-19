@@ -170,6 +170,8 @@ export default {
       },
       errors: {
         loadError: 'No se pudo cargar la lista de usuarios.',
+        toggleStatusError: 'No se pudo actualizar el estado del usuario.',
+        invalidStatusUserId: 'Id de usuario invalido para actualizar estado.',
       },
     },
   },
