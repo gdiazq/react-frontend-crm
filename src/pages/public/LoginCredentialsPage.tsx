@@ -64,7 +64,7 @@ export default function LoginCredentialsPage() {
           <form className="mt-7 space-y-4" onSubmit={submitForm}>
             <PasswordInputComponent
               value={form.password}
-              label="Contrasena"
+              label="Contraseña"
               autocomplete="current-password"
               placeholder="••••••••"
               required

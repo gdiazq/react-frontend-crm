@@ -49,9 +49,9 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
     } catch (error) {
       set({ errorBack: error })
       if (axios.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.users.loadError })
+        set({ errorMessage: error.response?.data?.message || messages.users.status.errors.loadError })
       } else {
-        set({ errorMessage: messages.users.loadError })
+        set({ errorMessage: messages.users.status.errors.loadError })
       }
     } finally {
       set({ loadingUsers: false })
@@ -101,7 +101,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
           status: nextStatus,
           values: row.values.map((value, index) => {
             if (index !== 6) return value
-            return nextStatus ? messages.users.statusEnabled : messages.users.statusDisabled
+            return nextStatus ? messages.users.ui.statusEnabled : messages.users.ui.statusDisabled
           }),
         }
       }),

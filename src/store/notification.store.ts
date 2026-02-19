@@ -154,7 +154,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       })
       set({ notifications: data.content.map(mapperNotification) })
     } catch {
-      set({ errorMessage: messages.notification.loadError })
+      set({ errorMessage: messages.notification.status.errors.loadError })
     } finally {
       set({ loadingNotifications: false })
     }
@@ -167,13 +167,13 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       })
       set({ counter: data })
     } catch {
-      set({ errorMessage: messages.notification.counterError })
+      set({ errorMessage: messages.notification.status.errors.counterError })
     }
   },
 
   mutationMarkAllAsRead: async (userId: number) => {
     if (!isValidUserId(userId)) {
-      set({ errorMessage: messages.notification.invalidUserMarkAll })
+      set({ errorMessage: messages.notification.status.errors.invalidUserMarkAll })
       return
     }
     try {
@@ -188,16 +188,16 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       await get().getCounter(userId)
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.notification.markAllReadError })
+        set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.markAllReadError })
         return
       }
-      set({ errorMessage: messages.notification.markAllReadError })
+      set({ errorMessage: messages.notification.status.errors.markAllReadError })
     }
   },
 
   mutationArchiveAll: async (userId: number) => {
     if (!isValidUserId(userId)) {
-      set({ errorMessage: messages.notification.invalidUserArchive })
+      set({ errorMessage: messages.notification.status.errors.invalidUserArchive })
       return
     }
     const ids = getInboxNotificationIds(get().notifications)
@@ -205,7 +205,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
 
     const numericIds = convertIdsToNumbers(ids)
     if (numericIds.length === 0) {
-      set({ errorMessage: messages.notification.archiveConvertError })
+      set({ errorMessage: messages.notification.status.errors.archiveConvertError })
       return
     }
 
@@ -217,21 +217,21 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       await get().getCounter(userId)
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.notification.archiveAllError })
+        set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.archiveAllError })
         return
       }
-      set({ errorMessage: messages.notification.archiveAllError })
+      set({ errorMessage: messages.notification.status.errors.archiveAllError })
     }
   },
 
   mutationArchiveNotification: async (payload: NotificationItem, userId: number) => {
     if (!isValidUserId(userId)) {
-      set({ errorMessage: messages.notification.invalidUserArchive })
+      set({ errorMessage: messages.notification.status.errors.invalidUserArchive })
       return
     }
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {
-      set({ errorMessage: messages.notification.invalidIdArchive })
+      set({ errorMessage: messages.notification.status.errors.invalidIdArchive })
       return
     }
     try {
@@ -242,21 +242,21 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       await get().getCounter(userId)
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.notification.archiveOneError })
+        set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.archiveOneError })
         return
       }
-      set({ errorMessage: messages.notification.archiveOneError })
+      set({ errorMessage: messages.notification.status.errors.archiveOneError })
     }
   },
 
   mutationMarkAsRead: async (payload: NotificationItem, userId: number) => {
     if (!isValidUserId(userId)) {
-      set({ errorMessage: messages.notification.invalidUserRead })
+      set({ errorMessage: messages.notification.status.errors.invalidUserRead })
       return
     }
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {
-      set({ errorMessage: messages.notification.invalidIdRead })
+      set({ errorMessage: messages.notification.status.errors.invalidIdRead })
       return
     }
     try {
@@ -267,10 +267,10 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       await get().getCounter(userId)
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.notification.markReadError })
+        set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.markReadError })
         return
       }
-      set({ errorMessage: messages.notification.markReadError })
+      set({ errorMessage: messages.notification.status.errors.markReadError })
     }
   },
 
@@ -295,7 +295,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
 
     const wsUrl = resolveWsUrl()
     if (!wsUrl) {
-      set({ status: 'error', errorMessage: messages.notification.wsUrlMissing })
+      set({ status: 'error', errorMessage: messages.notification.status.errors.wsUrlMissing })
       return
     }
 
@@ -305,12 +305,12 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     try {
       wsTicket = await requestWsTicket()
     } catch {
-      set({ status: 'error', errorMessage: messages.notification.wsTicketError })
+      set({ status: 'error', errorMessage: messages.notification.status.errors.wsTicketError })
       return
     }
 
     if (!wsTicket) {
-      set({ status: 'error', errorMessage: messages.notification.wsTicketInvalid })
+      set({ status: 'error', errorMessage: messages.notification.status.errors.wsTicketInvalid })
       return
     }
 
@@ -327,17 +327,17 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
         client.subscribe(`/topic/notifications/${userId}`, async (message) => {
           const payload = parseNotificationPayload(message.body)
           const notification = payload
-            ? mapperNotificationFromPayload(payload, messages.notification.newNotificationFallback)
-            : mapperNotificationFromPayload({}, String(message.body || messages.notification.newNotificationFallback))
+            ? mapperNotificationFromPayload(payload, messages.notification.ui.newNotificationFallback)
+            : mapperNotificationFromPayload({}, String(message.body || messages.notification.ui.newNotificationFallback))
           get().pushNotification(notification)
           await get().getCounter(userId)
         })
       },
       onWebSocketError: () => {
-        set({ status: 'error', errorMessage: messages.notification.wsConnectionError })
+        set({ status: 'error', errorMessage: messages.notification.status.errors.wsConnectionError })
       },
       onStompError: () => {
-        set({ status: 'error', errorMessage: messages.notification.wsStompError })
+        set({ status: 'error', errorMessage: messages.notification.status.errors.wsStompError })
       },
       onDisconnect: () => {
         if (get().status !== 'error') set({ status: 'disconnected' })

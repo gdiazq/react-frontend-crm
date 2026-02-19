@@ -42,8 +42,8 @@ export function mapperMfaStateFromResponse(data: SettingMfaStatusResponse): Sett
   return {
     enabled: data.status ?? false,
     verified: data.verified ?? false,
-    method: messages.settings.mfaDefaultMethod,
-    lastVerification: data.lastVerification || messages.settings.mfaNoRecentVerification,
+    method: messages.settings.ui.mfaDefaultMethod,
+    lastVerification: data.lastVerification || messages.settings.ui.mfaNoRecentVerification,
   }
 }
 
@@ -64,9 +64,9 @@ export function mapperSettingSessionsFromResponse(
       const resolvedId = String(item.id || '').trim()
       return {
         id: resolvedId,
-        name: item.userAgent?.trim() || `${messages.settings.sessionDefaultName} ${index + 1}`,
-        location: item.ipAddress?.trim() || messages.settings.sessionNoIp,
-        lastSeen: formatDateTime(item.lastSeenAt || item.createdAt, messages.settings.sessionNoActivity),
+        name: item.userAgent?.trim() || `${messages.settings.ui.sessionDefaultName} ${index + 1}`,
+        location: item.ipAddress?.trim() || messages.settings.ui.sessionNoIp,
+        lastSeen: formatDateTime(item.lastSeenAt || item.createdAt, messages.settings.ui.sessionNoActivity),
         current: (item.deviceId || '').trim() === currentDeviceId,
       }
     })

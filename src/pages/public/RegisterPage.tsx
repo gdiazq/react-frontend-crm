@@ -6,6 +6,7 @@ import { initialRegisterForm } from '@/factories'
 import { registerValidationRules } from '@/validators'
 import { useFormValidation } from '@/hooks'
 import { mapperRegisterPayload } from '@/mappers'
+import messages from '@/messages/messages'
 import { useStoreAuth, useStoreTheme } from '@/store'
 
 export default function RegisterPage() {
@@ -46,7 +47,7 @@ export default function RegisterPage() {
     emailTimerRef.current = setTimeout(async () => {
       const available = await checkEmailAvailability(email)
       if (available === false) {
-        setFieldError('email', 'El correo ya esta registrado.')
+        setFieldError('email', messages.auth.status.errors.registerEmailTaken)
       }
     }, 350)
   }
@@ -57,11 +58,11 @@ export default function RegisterPage() {
 
     const available = await checkEmailAvailability(form.email.trim())
     if (available === false) {
-      setFieldError('email', 'El correo ya esta registrado.')
+      setFieldError('email', messages.auth.status.errors.registerEmailTaken)
       return
     }
     if (available === null) {
-      useStoreAuth.setState({ errorMessage: 'No se pudo validar el correo. Intenta nuevamente.' })
+      useStoreAuth.setState({ errorMessage: messages.auth.status.errors.registerValidateEmailError })
       return
     }
 
@@ -88,28 +89,77 @@ export default function RegisterPage() {
             onClick={() => navigate(AUTH_ROUTE_HOME)}
           >
             <span aria-hidden="true">←</span>
-            Volver al inicio
+            {messages.auth.ui.registerBackToHome}
           </button>
-          <h1 className="mt-4 text-balance text-2xl font-bold">Crea tu cuenta</h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Registra tu acceso para usar el CRM.</p>
+          <h1 className="mt-4 text-balance text-2xl font-bold">{messages.auth.ui.registerTitle}</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{messages.auth.ui.registerSubtitle}</p>
 
           <form className="mt-7 space-y-4" onSubmit={submitForm}>
-            <InputComponent value={form.username} label="Usuario" type="text" autoComplete="username" placeholder="johndoe" error={errors.username} onValueChange={(v) => setForm((f) => ({ ...f, username: v }))} required />
-            <InputComponent value={form.firstName} label="Nombre" type="text" autoComplete="given-name" placeholder="John" error={errors.firstName} onValueChange={(v) => setForm((f) => ({ ...f, firstName: v }))} required />
-            <InputComponent value={form.lastName} label="Apellido" type="text" autoComplete="family-name" placeholder="Doe" error={errors.lastName} onValueChange={(v) => setForm((f) => ({ ...f, lastName: v }))} required />
-            <InputComponent value={form.email} label="Correo" type="email" autoComplete="email" placeholder="Ingresa tu correo" error={errors.email} onValueChange={handleEmailValue} required />
-            <InputComponent value={form.phoneNumber} label="Telefono" type="tel" autoComplete="tel" placeholder="+1234567890" error={errors.phoneNumber} onValueChange={(v) => setForm((f) => ({ ...f, phoneNumber: v }))} required />
+            <InputComponent 
+              value={form.username} 
+              label={messages.auth.ui.registerUsernameLabel}
+              type="text" 
+              autoComplete="username" 
+              placeholder="johndoe" 
+              error={errors.username} 
+              onValueChange={(v) => setForm((f) => ({ ...f, username: v }))} 
+              required 
+            />
+
+            <InputComponent 
+              value={form.firstName} 
+              label={messages.auth.ui.registerFirstNameLabel}
+              type="text" 
+              autoComplete="given-name" 
+              placeholder="John" 
+              error={errors.firstName} 
+              onValueChange={(v) => setForm((f) => ({ ...f, firstName: v }))} 
+              required 
+            />
+
+            <InputComponent 
+              value={form.lastName} 
+              label={messages.auth.ui.registerLastNameLabel}
+              type="text" 
+              autoComplete="family-name" 
+              placeholder="Doe" 
+              error={errors.lastName} 
+              onValueChange={(v) => setForm((f) => ({ ...f, lastName: v }))} 
+              required 
+            />
+
+            <InputComponent 
+              value={form.email} 
+              label={messages.auth.ui.registerEmailLabel}
+              type="email" 
+              autoComplete="email" 
+              placeholder={messages.auth.ui.registerEmailPlaceholder}
+              error={errors.email} 
+              onValueChange={handleEmailValue} 
+              required 
+            />
+
+            <InputComponent 
+              value={form.phoneNumber} 
+              label={messages.auth.ui.registerPhoneLabel}
+              type="tel" 
+              autoComplete="tel" 
+              placeholder="+1234567890" 
+              error={errors.phoneNumber} 
+              onValueChange={(v) => setForm((f) => ({ ...f, phoneNumber: v }))} 
+              required 
+            />
 
             <ButtonComponent type="submit" variant="solid" disabled={registerSubmitting || checkEmailSubmitting || !canSubmit} className="w-full">
-              {registerSubmitting ? 'Registrando...' : 'Registrar cuenta'}
+              {registerSubmitting ? messages.auth.ui.registerSubmitLoading : messages.auth.ui.registerSubmitLabel}
             </ButtonComponent>
           </form>
 
           {checkEmailSubmitting && (
-            <p className="mt-3 text-sm text-cyan-700 dark:text-cyan-300">Validando disponibilidad del correo...</p>
+            <p className="mt-3 text-sm text-cyan-700 dark:text-cyan-300">{messages.auth.ui.registerValidatingEmail}</p>
           )}
           {!checkEmailSubmitting && emailAvailable === false && (
-            <p className="mt-3 text-sm text-rose-400">El correo ya esta registrado.</p>
+            <p className="mt-3 text-sm text-rose-400">{messages.auth.status.errors.registerEmailTaken}</p>
           )}
           {!checkEmailSubmitting && emailAvailable !== false && errorMessage && (
             <p className="mt-3 text-sm text-rose-400">{errorMessage}</p>

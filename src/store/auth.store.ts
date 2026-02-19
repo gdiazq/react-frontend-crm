@@ -138,11 +138,11 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
         // Login data is sufficient to proceed
       }
 
-      set({ successMessage: messages.auth.loginSuccess })
+      set({ successMessage: messages.auth.status.success.loginSuccess })
       return true
     } catch (error) {
       set({ loginError: true, errorBack: error })
-      let message = messages.auth.loginErrorDefault
+      let message = messages.auth.status.errors.loginErrorDefault
       let alertVariant: AlertsCore['variant'] = 'error'
       let alertIcon = 'fa-solid fa-triangle-exclamation'
 
@@ -160,18 +160,18 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
           set({ mfaRequired: true, loginError: false })
           alertVariant = 'info'
           alertIcon = 'fa-solid fa-shield-halved'
-          message = messages.auth.loginMfaPrompt
+          message = messages.auth.ui.loginMfaPrompt
         }
 
-        if (status === 400) message = messages.auth.loginInvalidData
+        if (status === 400) message = messages.auth.status.errors.loginInvalidData
         if (status === 401) {
-          if (get().mfaRequired && credentials.totpCode) message = messages.auth.loginInvalidMfa
+          if (get().mfaRequired && credentials.totpCode) message = messages.auth.status.errors.loginInvalidMfa
           else {
             set({ mfaRequired: false })
-            message = messages.auth.loginInvalidCredentials
+            message = messages.auth.status.errors.loginInvalidCredentials
           }
         }
-        if (status === 500 || status === 503) message = messages.auth.loginServiceUnavailable
+        if (status === 500 || status === 503) message = messages.auth.status.errors.loginServiceUnavailable
         if (
           typeof backendMessage === 'string' &&
           backendMessage.length > 0 &&
@@ -201,15 +201,15 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       set({
         pendingVerifyEmail: payload.email,
         pendingVerifyPhone: payload.phoneNumber,
-        successMessage: messages.auth.registerSuccess,
+        successMessage: messages.auth.status.success.registerSuccess,
       })
       return true
     } catch (error) {
-      let message = messages.auth.registerErrorDefault
+      let message = messages.auth.status.errors.registerErrorDefault
       if (axios.isAxiosError(error)) {
         const status = error.response?.status
-        if (status === 409) message = messages.auth.registerEmailTaken
-        if (status === 400) message = messages.auth.registerInvalidData
+        if (status === 409) message = messages.auth.status.errors.registerEmailTaken
+        if (status === 400) message = messages.auth.status.errors.registerInvalidData
       }
       set({
         errorBack: error,
@@ -248,17 +248,17 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
         pendingPasswordTokenIssuedAt: authSessionStorage.getPendingPasswordTokenIssuedAt(),
         pendingVerifyEmail: null,
         pendingVerifyPhone: null,
-        successMessage: messages.auth.verifyEmailSuccess,
+        successMessage: messages.auth.status.success.verifyEmailSuccess,
       })
       authSessionStorage.clearPendingVerifyEmail()
       authSessionStorage.clearPendingVerifyPhone()
       return data.token
     } catch (error) {
-      let message = messages.auth.verifyEmailErrorDefault
+      let message = messages.auth.status.errors.verifyEmailErrorDefault
       if (axios.isAxiosError(error)) {
         const status = error.response?.status
-        if (status === 400) message = messages.auth.verifyEmailInvalidCode
-        if (status === 404) message = messages.auth.verifyEmailNotFound
+        if (status === 400) message = messages.auth.status.errors.verifyEmailInvalidCode
+        if (status === 404) message = messages.auth.status.errors.verifyEmailNotFound
       }
       set({
         errorBack: error,
@@ -276,14 +276,14 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       set({ forgotPasswordSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
       await axiosInstance.post('/auth/forgot-password', payload)
       authSessionStorage.setPendingRecoveryEmail(payload.email)
-      set({ pendingRecoveryEmail: payload.email, successMessage: messages.auth.forgotPasswordSuccess })
+      set({ pendingRecoveryEmail: payload.email, successMessage: messages.auth.status.success.forgotPasswordSuccess })
       return true
     } catch (error) {
-      let message = messages.auth.forgotPasswordErrorDefault
+      let message = messages.auth.status.errors.forgotPasswordErrorDefault
       if (axios.isAxiosError(error)) {
         const status = error.response?.status
-        if (status === 400) message = messages.auth.forgotPasswordInvalidEmail
-        if (status === 404) message = messages.auth.forgotPasswordNotFound
+        if (status === 400) message = messages.auth.status.errors.forgotPasswordInvalidEmail
+        if (status === 404) message = messages.auth.status.errors.forgotPasswordNotFound
       }
       set({
         errorBack: error,
@@ -300,14 +300,14 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
     try {
       set({ resendSubmitting: true, errorMessage: null, successMessage: null })
       await axiosInstance.post('/auth/resend-verification', payload)
-      set({ successMessage: messages.auth.resendSuccess })
+      set({ successMessage: messages.auth.status.success.resendSuccess })
       return true
     } catch (error) {
-      let message = messages.auth.resendErrorDefault
+      let message = messages.auth.status.errors.resendErrorDefault
       if (axios.isAxiosError(error)) {
         const status = error.response?.status
-        if (status === 400) message = messages.auth.resendInvalidEmail
-        if (status === 404) message = messages.auth.resendNotFound
+        if (status === 400) message = messages.auth.status.errors.resendInvalidEmail
+        if (status === 404) message = messages.auth.status.errors.resendNotFound
       }
       set({ errorBack: error, errorMessage: message })
       return false
@@ -324,15 +324,15 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       set({
         pendingPasswordToken: null,
         pendingPasswordTokenIssuedAt: null,
-        successMessage: messages.auth.createPasswordSuccess,
+        successMessage: messages.auth.status.success.createPasswordSuccess,
       })
       return true
     } catch (error) {
-      let message = messages.auth.createPasswordErrorDefault
+      let message = messages.auth.status.errors.createPasswordErrorDefault
       if (axios.isAxiosError(error)) {
         const status = error.response?.status
-        if (status === 400) message = messages.auth.createPasswordInvalid
-        if (status === 404) message = messages.auth.createPasswordNotFound
+        if (status === 400) message = messages.auth.status.errors.createPasswordInvalid
+        if (status === 404) message = messages.auth.status.errors.createPasswordNotFound
       }
       set({
         errorBack: error,
@@ -407,14 +407,14 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
           },
         })
       }
-      set({ successMessage: messages.auth.updateProfileSuccess })
+      set({ successMessage: messages.auth.status.success.updateProfileSuccess })
       return true
     } catch (error) {
-      let message = messages.auth.updateProfileErrorDefault
+      let message = messages.auth.status.errors.updateProfileErrorDefault
       if (axios.isAxiosError(error)) {
         const status = error.response?.status
-        if (status === 400) message = messages.auth.updateProfileInvalidData
-        if (status === 404) message = messages.auth.updateProfileNotFound
+        if (status === 400) message = messages.auth.status.errors.updateProfileInvalidData
+        if (status === 404) message = messages.auth.status.errors.updateProfileNotFound
       }
       set({ errorBack: error, errorMessage: message })
       return false
@@ -431,14 +431,14 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       await get().getCurrentUser()
-      set({ successMessage: messages.auth.updateAvatarSuccess })
+      set({ successMessage: messages.auth.status.success.updateAvatarSuccess })
       return true
     } catch (error) {
-      let message = messages.auth.updateAvatarErrorDefault
+      let message = messages.auth.status.errors.updateAvatarErrorDefault
       if (axios.isAxiosError(error)) {
         const status = error.response?.status
-        if (status === 400) message = messages.auth.updateAvatarInvalidFile
-        if (status === 404) message = messages.auth.updateAvatarNotFound
+        if (status === 400) message = messages.auth.status.errors.updateAvatarInvalidFile
+        if (status === 404) message = messages.auth.status.errors.updateAvatarNotFound
       }
       set({ errorBack: error, errorMessage: message })
       return false

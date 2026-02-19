@@ -105,7 +105,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       const { data } = await axiosInstance.get<SettingMfaStatusResponse>(`${AUTH_BASE_PATH}/mfa/status/${encodeURIComponent(email)}`)
       set({ mfaState: mapperMfaStateFromResponse(data) })
     } catch (error) {
-      set({ errorBack: error, statusMessage: messages.settings.mfaStatusError })
+      set({ errorBack: error, statusMessage: messages.settings.status.errors.mfaStatusError })
     } finally {
       set({ loadingMfaStatus: false })
     }
@@ -123,14 +123,14 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       set({ mfaSetupData: mapperMfaSetupDataFromResponse(data) })
       const email = get().mfaStatusEmail
       if (email) await get().getMfaStatus(email)
-      set({ statusMessage: messages.settings.mfaSetupStarted })
+      set({ statusMessage: messages.settings.status.success.mfaSetupStarted })
       return true
     } catch (error) {
       set({ errorBack: error })
       if (axios.isAxiosError(error)) {
-        set({ statusMessage: error.response?.data?.message || messages.settings.mfaSetupError })
+        set({ statusMessage: error.response?.data?.message || messages.settings.status.errors.mfaSetupError })
       } else {
-        set({ statusMessage: messages.settings.mfaSetupError })
+        set({ statusMessage: messages.settings.status.errors.mfaSetupError })
       }
       return false
     } finally {
@@ -141,7 +141,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
   mutationMfaVerify: async (username: string) => {
     if (!username) return false
     if (get().mfaVerificationCode.trim().length !== 6) {
-      set({ statusMessage: messages.settings.mfaInvalidCode })
+      set({ statusMessage: messages.settings.status.errors.mfaInvalidCode })
       return false
     }
     try {
@@ -154,14 +154,14 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       set({ mfaVerificationCode: '' })
       const email = get().mfaStatusEmail
       if (email) await get().getMfaStatus(email)
-      set({ statusMessage: messages.settings.mfaVerifySuccess })
+      set({ statusMessage: messages.settings.status.success.mfaVerifySuccess })
       return true
     } catch (error) {
       set({ errorBack: error })
       if (axios.isAxiosError(error)) {
-        set({ statusMessage: error.response?.data?.message || messages.settings.mfaVerifyError })
+        set({ statusMessage: error.response?.data?.message || messages.settings.status.errors.mfaVerifyError })
       } else {
-        set({ statusMessage: messages.settings.mfaVerifyError })
+        set({ statusMessage: messages.settings.status.errors.mfaVerifyError })
       }
       return false
     } finally {
@@ -180,14 +180,14 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       )
       const email = get().mfaStatusEmail
       if (email) await get().getMfaStatus(email)
-      set({ statusMessage: messages.settings.mfaDisableSuccess })
+      set({ statusMessage: messages.settings.status.success.mfaDisableSuccess })
       return true
     } catch (error) {
       set({ errorBack: error })
       if (axios.isAxiosError(error)) {
-        set({ statusMessage: error.response?.data?.message || messages.settings.mfaDisableError })
+        set({ statusMessage: error.response?.data?.message || messages.settings.status.errors.mfaDisableError })
       } else {
-        set({ statusMessage: messages.settings.mfaDisableError })
+        set({ statusMessage: messages.settings.status.errors.mfaDisableError })
       }
       return false
     } finally {
@@ -201,7 +201,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       const { data } = await axiosInstance.get<SettingDeviceSessionRaw[]>(`${AUTH_BASE_PATH}/sessions`)
       set({ devices: mapperSettingSessionsFromResponse(data, getDeviceId()) })
     } catch (error) {
-      set({ errorBack: error, statusMessage: messages.settings.sessionsError })
+      set({ errorBack: error, statusMessage: messages.settings.status.errors.sessionsError })
     } finally {
       set({ loadingSessions: false })
     }
@@ -213,14 +213,14 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       set({ loadingLogoutDevice: true, errorBack: null })
       await axiosInstance.post(`${AUTH_BASE_PATH}/logout-device`, { sessionId })
       set((state) => ({ devices: removeDeviceById(state.devices, String(sessionId)) }))
-      set({ statusMessage: messages.settings.logoutDeviceSuccess })
+      set({ statusMessage: messages.settings.status.success.logoutDeviceSuccess })
       return true
     } catch (error) {
       set({ errorBack: error })
       if (axios.isAxiosError(error)) {
-        set({ statusMessage: error.response?.data?.message || messages.settings.logoutDeviceError })
+        set({ statusMessage: error.response?.data?.message || messages.settings.status.errors.logoutDeviceError })
       } else {
-        set({ statusMessage: messages.settings.logoutDeviceError })
+        set({ statusMessage: messages.settings.status.errors.logoutDeviceError })
       }
       return false
     } finally {
@@ -238,12 +238,12 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     const device = findDeviceById(get().devices, id)
     if (!device) return
     if (device.current) {
-      set({ statusMessage: messages.settings.logoutCurrentDeviceError })
+      set({ statusMessage: messages.settings.status.errors.logoutCurrentDeviceError })
       return
     }
     const sessionId = Number(id)
     if (!Number.isInteger(sessionId) || sessionId <= 0) {
-      set({ statusMessage: messages.settings.logoutDeviceError })
+      set({ statusMessage: messages.settings.status.errors.logoutDeviceError })
       return
     }
     await get().mutationLogoutDevice(sessionId)
@@ -252,11 +252,11 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
   logoutAllOtherDevices: async () => {
     const otherSessions = get().devices.filter((device) => !device.current)
     if (otherSessions.length === 0) {
-      set({ statusMessage: messages.settings.noOtherDevices })
+      set({ statusMessage: messages.settings.status.success.noOtherDevices })
       return
     }
     await Promise.all(otherSessions.map((item) => get().mutationLogoutDevice(Number(item.id))))
-    set({ statusMessage: messages.settings.logoutAllOtherSuccess })
+    set({ statusMessage: messages.settings.status.success.logoutAllOtherSuccess })
   },
 }))
 

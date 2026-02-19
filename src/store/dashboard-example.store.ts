@@ -23,7 +23,7 @@ export const useStoreDashboardExample = create<DashboardExampleStore>()((set) =>
       const { data } = await axios.get<DashboardExampleRaw>('/db/dashboard/dashboard-example.mock.json')
       set({ dashboard: mapperDashboardExample(data) })
     } catch {
-      set({ errorMessage: messages.dashboard.loadError })
+      set({ errorMessage: messages.dashboard.status.errors.loadError })
     } finally {
       set({ loadingDashboard: false })
     }

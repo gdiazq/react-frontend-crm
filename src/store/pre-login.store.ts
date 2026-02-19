@@ -40,10 +40,10 @@ export const useStorePreLogin = create<PreLoginStore>()((set) => ({
       set({ mfaRequired })
       return true
     } catch (error) {
-      let errorMessage = messages.auth.preLoginInvalidEmail
+      let errorMessage = messages.auth.status.errors.preLoginInvalidEmail
       if (axios.isAxiosError(error)) {
         const status = error.response?.status
-        if (status === 400) errorMessage = messages.auth.preLoginInvalidEmailShort
+        if (status === 400) errorMessage = messages.auth.status.errors.preLoginInvalidEmailShort
       }
       set({ loginError: true, mfaRequired: false, errorMessage })
       return false

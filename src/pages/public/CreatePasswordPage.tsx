@@ -4,6 +4,7 @@ import { ButtonComponent, FooterComponent, PasswordInputComponent, ThemeToggle }
 import { AUTH_ROUTE_LOGIN } from '@/constant'
 import { initialCreatePasswordForm } from '@/factories'
 import { mapperCreatePasswordPayload, mapperMissingPasswordRequirements, mapperPasswordRequirements } from '@/mappers'
+import messages from '@/messages/messages'
 import { useStoreAuth, useStoreTheme } from '@/store'
 
 const PASSWORD_TOKEN_MAX_AGE_MS = 2 * 60 * 1000
@@ -50,7 +51,7 @@ export default function CreatePasswordPage() {
 
   useEffect(() => {
     if (!pendingPasswordToken || !pendingPasswordTokenIssuedAt) {
-      useStoreAuth.setState({ errorMessage: 'No hay token para crear contrasena. Verifica tu correo nuevamente.' })
+      useStoreAuth.setState({ errorMessage: messages.auth.status.errors.createPasswordMissingToken })
       redirectToLoginByExpiration()
       return
     }
@@ -59,7 +60,7 @@ export default function CreatePasswordPage() {
     const remainingMs = expiresAt - Date.now()
 
     if (remainingMs <= 0) {
-      useStoreAuth.setState({ errorMessage: 'El token para crear contrasena expiro. Vuelve a iniciar el proceso.' })
+      useStoreAuth.setState({ errorMessage: messages.auth.status.errors.createPasswordTokenExpired })
       redirectToLoginByExpiration()
       return
     }
@@ -71,7 +72,7 @@ export default function CreatePasswordPage() {
     }, 1000)
 
     expirationTimerRef.current = setTimeout(() => {
-      useStoreAuth.setState({ errorMessage: 'El token para crear contrasena expiro. Vuelve a iniciar el proceso.' })
+      useStoreAuth.setState({ errorMessage: messages.auth.status.errors.createPasswordTokenExpired })
       redirectToLoginByExpiration()
     }, remainingMs)
 
@@ -82,8 +83,8 @@ export default function CreatePasswordPage() {
     e.preventDefault()
     if (!isValidForm) {
       const issues = [...missingPasswordRequirements]
-      if (!passwordsMatch) issues.push('La confirmacion de contrasena no coincide')
-      useStoreAuth.setState({ errorMessage: `Faltan requisitos: ${issues.join(', ')}.` })
+      if (!passwordsMatch) issues.push(messages.auth.status.errors.createPasswordConfirmMismatch)
+      useStoreAuth.setState({ errorMessage: `${messages.auth.status.errors.createPasswordMissingRequirementsPrefix} ${issues.join(', ')}.` })
       return
     }
 
@@ -111,11 +112,13 @@ export default function CreatePasswordPage() {
             onClick={() => navigate(AUTH_ROUTE_LOGIN)}
           >
             <span aria-hidden="true">←</span>
-            Volver al login
+            {messages.auth.ui.createPasswordBackToLogin}
           </button>
 
-          <h1 className="mt-4 text-balance text-2xl font-bold">Crea tu contrasena</h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Tiempo restante: {remainingSeconds}s</p>
+          <h1 className="mt-4 text-balance text-2xl font-bold">{messages.auth.ui.createPasswordTitle}</h1>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            {messages.auth.ui.createPasswordTimeRemainingLabel}: {remainingSeconds}s
+          </p>
 
           <div className="mt-4 grid gap-1 text-xs">
             {passwordRequirements.map((req) => (
@@ -128,7 +131,7 @@ export default function CreatePasswordPage() {
           <form className="mt-7 space-y-4" onSubmit={submitForm}>
             <PasswordInputComponent
               value={form.password}
-              label="Nueva contrasena"
+              label={messages.auth.ui.createPasswordNewPasswordLabel}
               autocomplete="new-password"
               onValueChange={(v) => setForm((f) => ({ ...f, password: v }))}
               required
@@ -136,18 +139,18 @@ export default function CreatePasswordPage() {
 
             <PasswordInputComponent
               value={form.confirmPassword}
-              label="Confirmar contrasena"
+              label={messages.auth.ui.createPasswordConfirmPasswordLabel}
               autocomplete="new-password"
               onValueChange={(v) => setForm((f) => ({ ...f, confirmPassword: v }))}
               required
             />
 
             {form.confirmPassword && !passwordsMatch && (
-              <p className="text-xs text-rose-400">Las contrasenas no coinciden.</p>
+              <p className="text-xs text-rose-400">{messages.auth.status.errors.createPasswordMismatchInline}</p>
             )}
 
             <ButtonComponent type="submit" variant="solid" disabled={createPasswordSubmitting} className="w-full">
-              {createPasswordSubmitting ? 'Guardando...' : 'Crear contrasena'}
+              {createPasswordSubmitting ? messages.auth.ui.createPasswordSubmitLoading : messages.auth.ui.createPasswordSubmitLabel}
             </ButtonComponent>
           </form>
 

@@ -9,17 +9,17 @@ export interface DropdownAction {
 
 export function useUsersAction() {
   function actionViewDetail(handler: () => void): DropdownAction {
-    return { id: 'view-detail', label: messages.users.actionViewDetail, handler }
+    return { id: 'view-detail', label: messages.users.ui.actionViewDetail, handler }
   }
 
   function actionUpdateUser(handler: () => void): DropdownAction {
-    return { id: 'update-user', label: messages.users.updateUser, handler }
+    return { id: 'update-user', label: messages.users.ui.updateUser, handler }
   }
 
   function actionToggleStatus(enabled: boolean, handler: () => void): DropdownAction {
     return {
       id: 'toggle-status',
-      label: enabled ? messages.users.actionDisableUser : messages.users.actionEnableUser,
+      label: enabled ? messages.users.ui.actionDisableUser : messages.users.ui.actionEnableUser,
       tone: enabled ? 'danger' : 'default',
       handler,
     }

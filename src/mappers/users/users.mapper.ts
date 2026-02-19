@@ -9,8 +9,8 @@ import messages from '@/messages/messages'
 import { formatDate, formatRoleLabel } from '@/utils'
 
 export function mapperUsersRows(result: UserRaw[]): UserTableRow[] {
-  const noData = messages.users.noData
-  const noDate = messages.users.noDate
+  const noData = messages.users.ui.noData
+  const noDate = messages.users.ui.noDate
 
   return result.map((item) => ({
     id: String(item.id),
@@ -21,8 +21,8 @@ export function mapperUsersRows(result: UserRaw[]): UserTableRow[] {
       item.email || noData,
       item.phoneNumber || noData,
       item.roles?.map((role) => formatRoleLabel(role.name)).join(', ') || noData,
-      item.emailVerified ? messages.users.emailVerifiedYes : messages.users.emailVerifiedNo,
-      item.status ? messages.users.statusEnabled : messages.users.statusDisabled,
+      item.emailVerified ? messages.users.ui.emailVerifiedYes : messages.users.ui.emailVerifiedNo,
+      item.status ? messages.users.ui.statusEnabled : messages.users.ui.statusDisabled,
       formatDate(item.createdAt, noDate),
       formatDate(item.lastLogin, noDate),
     ],

@@ -48,19 +48,19 @@ export default function UsersDashboardPage() {
   }, [])
 
   const handleViewDetail = (row: UserTableRow) => {
-    setActionsMessage(`${row.values[0]} ${messages.users.viewDetailComingSoon}`)
+    setActionsMessage(`${row.values[0]} ${messages.users.ui.viewDetailComingSoon}`)
     setOpenActionsRowId(null)
   }
 
   const handleUpdateUser = (row: UserTableRow) => {
-    setActionsMessage(`${row.values[0]} ${messages.users.updateUserComingSoon}`)
+    setActionsMessage(`${row.values[0]} ${messages.users.ui.updateUserComingSoon}`)
     setOpenActionsRowId(null)
   }
 
   const handleToggleStatus = (row: UserTableRow) => {
     const nextStatus = row.status !== true
     mutationToggleUserStatus(row.id)
-    setActionsMessage(`${row.values[0]} ${nextStatus ? messages.users.toggleEnabledSuccess : messages.users.toggleDisabledSuccess}`)
+    setActionsMessage(`${row.values[0]} ${nextStatus ? messages.users.status.success.toggleEnabledSuccess : messages.users.status.success.toggleDisabledSuccess}`)
     setOpenActionsRowId(null)
   }
 
@@ -111,7 +111,7 @@ export default function UsersDashboardPage() {
             variant="outline"
             disabled={loadingUsers}
             label="Filtro"
-            onClick={() => setActionsMessage(messages.users.filtersComingSoon)}
+            onClick={() => setActionsMessage(messages.users.ui.filtersComingSoon)}
           />
         </div>
         <div className="flex-1">
@@ -129,7 +129,7 @@ export default function UsersDashboardPage() {
             variant="primary"
             disabled={loadingUsers}
             label="Nuevo usuario"
-            onClick={() => setActionsMessage(messages.users.createComingSoon)}
+            onClick={() => setActionsMessage(messages.users.ui.createComingSoon)}
           />
         </div>
       </div>

@@ -103,13 +103,13 @@ export default function SettingsPage() {
   }
 
   const handleSaveProfile = async () => {
-    if (!validateProfile()) { setStatusMessage(messages.settings.profileValidationError); return }
-    if (!user?.id) { setStatusMessage(messages.settings.profileUserNotFound); return }
+    if (!validateProfile()) { setStatusMessage(messages.settings.status.errors.profileValidationError); return }
+    if (!user?.id) { setStatusMessage(messages.settings.status.errors.profileUserNotFound); return }
 
     const payload = mapperUpdateProfilePayload(user.id, profile)
     const success = await updateProfile(payload)
-    if (success) { setStatusMessage(messages.settings.profileUpdateSuccess); return }
-    setStatusMessage(useStoreAuth.getState().errorMessage || messages.settings.profileUpdateError)
+    if (success) { setStatusMessage(messages.settings.status.success.profileUpdateSuccess); return }
+    setStatusMessage(useStoreAuth.getState().errorMessage || messages.settings.status.errors.profileUpdateError)
   }
 
   const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,7 +117,7 @@ export default function SettingsPage() {
     setAvatarError(null)
     if (!file) { setAvatarForm((f) => ({ ...f, file: null, previewUrl: '' })); return }
     if (!file.type.startsWith('image/')) {
-      setAvatarError(messages.settings.avatarInvalidFile)
+      setAvatarError(messages.settings.status.errors.avatarInvalidFile)
       setAvatarForm((f) => ({ ...f, file: null, previewUrl: '' }))
       e.target.value = ''
       return
@@ -127,18 +127,18 @@ export default function SettingsPage() {
   }
 
   const handleSaveAvatar = async () => {
-    if (!user?.id) { setStatusMessage(messages.settings.avatarUserNotFound); return }
-    if (!avatarForm.file) { setAvatarError(messages.settings.avatarSelectImage); return }
+    if (!user?.id) { setStatusMessage(messages.settings.status.errors.avatarUserNotFound); return }
+    if (!avatarForm.file) { setAvatarError(messages.settings.status.errors.avatarSelectImage); return }
 
     const success = await updateAvatar(user.id, { file: avatarForm.file })
     if (success) {
       setAvatarError(null)
       if (avatarForm.previewUrl) URL.revokeObjectURL(avatarForm.previewUrl)
       setAvatarForm({ file: null, previewUrl: '' })
-      setStatusMessage(messages.settings.avatarUpdateSuccess)
+      setStatusMessage(messages.settings.status.success.avatarUpdateSuccess)
       return
     }
-    setStatusMessage(useStoreAuth.getState().errorMessage || messages.settings.avatarUpdateError)
+    setStatusMessage(useStoreAuth.getState().errorMessage || messages.settings.status.errors.avatarUpdateError)
   }
 
   const showAccountTab = activeTab === 'account'
