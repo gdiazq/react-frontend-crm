@@ -50,8 +50,8 @@ export default function LayoutPrivateDefault() {
       if (!userId) return
 
       captureTab(2)
-      getNotifications(userId, '', 0, 20)
-      getCounter(userId)
+      getNotifications('', 0, 20)
+      getCounter()
       connect(userId)
     }
 
@@ -97,25 +97,19 @@ export default function LayoutPrivateDefault() {
   }
 
   const handleMarkAllRead = () => {
-    const userId = user?.id
-    if (!userId) return
-    mutationMarkAllAsRead(userId)
+    mutationMarkAllAsRead()
   }
 
   const handleMarkRead = (id: string) => {
-    const userId = user?.id
-    if (!userId) return
     const notification = useStoreNotification.getState().notifications.find((item) => item.id === id)
     if (!notification) return
-    mutationMarkAsRead(notification, userId)
+    mutationMarkAsRead(notification)
   }
 
   const handleArchive = (id: string) => {
-    const userId = user?.id
-    if (!userId) return
     const notification = useStoreNotification.getState().notifications.find((item) => item.id === id)
     if (!notification) return
-    mutationArchiveNotification(notification, userId)
+    mutationArchiveNotification(notification)
   }
 
   const formatNotificationTimestamp = (value: string) => {

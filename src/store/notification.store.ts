@@ -106,8 +106,6 @@ const notificationTabFilters: Record<number, (item: NotificationItem) => boolean
   3: (item) => !item.inbox,
 }
 
-const isValidUserId = (userId: number) => Number.isInteger(userId) && userId > 0
-
 interface NotificationStore {
   counter: NotificationCountResponse
   notifications: NotificationItem[]
@@ -118,12 +116,12 @@ interface NotificationStore {
   // Getters (computed via selectors)
   captureTab: (tab: number) => void
   pushNotification: (item: NotificationItem) => void
-  getNotifications: (userId: number, type?: '' | 'unread' | 'archived', page?: number, size?: number) => Promise<void>
-  getCounter: (userId: number) => Promise<void>
-  mutationMarkAllAsRead: (userId: number) => Promise<void>
-  mutationArchiveAll: (userId: number) => Promise<void>
-  mutationArchiveNotification: (payload: NotificationItem, userId: number) => Promise<void>
-  mutationMarkAsRead: (payload: NotificationItem, userId: number) => Promise<void>
+  getNotifications: (type?: '' | 'unread' | 'archived', page?: number, size?: number) => Promise<void>
+  getCounter: () => Promise<void>
+  mutationMarkAllAsRead: () => Promise<void>
+  mutationArchiveAll: () => Promise<void>
+  mutationArchiveNotification: (payload: NotificationItem) => Promise<void>
+  mutationMarkAsRead: (payload: NotificationItem) => Promise<void>
   mutationMarkAsNotRead: (payload: NotificationItem) => void
   clearNotifications: () => void
   disconnect: () => void
@@ -146,11 +144,11 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }))
   },
 
-  getNotifications: async (userId, type = '', page = 0, size = 20) => {
+  getNotifications: async (type = '', page = 0, size = 20) => {
     try {
       set({ loadingNotifications: true, errorMessage: null })
       const { data } = await axiosInstance.get<NotificationPagedResponse>(`${NOTIFICATION_BASE_PATH}/paged`, {
-        params: { userId, type, page, size },
+        params: { type, page, size },
       })
       set({ notifications: data.content.map(mapperNotification) })
     } catch {
@@ -160,24 +158,18 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
   },
 
-  getCounter: async (userId: number) => {
+  getCounter: async () => {
     try {
-      const { data } = await axiosInstance.get<NotificationCountResponse>(`${NOTIFICATION_BASE_PATH}/count`, {
-        params: { userId },
-      })
+      const { data } = await axiosInstance.get<NotificationCountResponse>(`${NOTIFICATION_BASE_PATH}/count`)
       set({ counter: data })
     } catch {
       set({ errorMessage: messages.notification.status.errors.counterError })
     }
   },
 
-  mutationMarkAllAsRead: async (userId: number) => {
-    if (!isValidUserId(userId)) {
-      set({ errorMessage: messages.notification.status.errors.invalidUserMarkAll })
-      return
-    }
+  mutationMarkAllAsRead: async () => {
     try {
-      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read-all`, { userId })
+      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read-all`)
       set((state) => ({
         notifications: updateNotificationsByIds(
           state.notifications,
@@ -185,7 +177,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
           mapperMarkAsRead,
         ),
       }))
-      await get().getCounter(userId)
+      await get().getCounter()
     } catch (error) {
       if (axios.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.markAllReadError })
@@ -195,11 +187,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
   },
 
-  mutationArchiveAll: async (userId: number) => {
-    if (!isValidUserId(userId)) {
-      set({ errorMessage: messages.notification.status.errors.invalidUserArchive })
-      return
-    }
+  mutationArchiveAll: async () => {
     const ids = getInboxNotificationIds(get().notifications)
     if (ids.length === 0) return
 
@@ -210,11 +198,11 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
 
     try {
-      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids: numericIds, userId })
+      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids: numericIds })
       set((state) => ({
         notifications: updateNotificationsByIds(state.notifications, ids, mapperArchiveNotification),
       }))
-      await get().getCounter(userId)
+      await get().getCounter()
     } catch (error) {
       if (axios.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.archiveAllError })
@@ -224,22 +212,18 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
   },
 
-  mutationArchiveNotification: async (payload: NotificationItem, userId: number) => {
-    if (!isValidUserId(userId)) {
-      set({ errorMessage: messages.notification.status.errors.invalidUserArchive })
-      return
-    }
+  mutationArchiveNotification: async (payload: NotificationItem) => {
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {
       set({ errorMessage: messages.notification.status.errors.invalidIdArchive })
       return
     }
     try {
-      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids: [numericId], userId })
+      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids: [numericId] })
       set((state) => ({
         notifications: findNotificationById(state.notifications, payload.id, mapperArchiveNotification),
       }))
-      await get().getCounter(userId)
+      await get().getCounter()
     } catch (error) {
       if (axios.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.archiveOneError })
@@ -249,22 +233,18 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
   },
 
-  mutationMarkAsRead: async (payload: NotificationItem, userId: number) => {
-    if (!isValidUserId(userId)) {
-      set({ errorMessage: messages.notification.status.errors.invalidUserRead })
-      return
-    }
+  mutationMarkAsRead: async (payload: NotificationItem) => {
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {
       set({ errorMessage: messages.notification.status.errors.invalidIdRead })
       return
     }
     try {
-      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read`, { ids: [numericId], userId })
+      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read`, { ids: [numericId] })
       set((state) => ({
         notifications: findNotificationById(state.notifications, payload.id, mapperMarkAsRead),
       }))
-      await get().getCounter(userId)
+      await get().getCounter()
     } catch (error) {
       if (axios.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.markReadError })
@@ -330,7 +310,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
             ? mapperNotificationFromPayload(payload, messages.notification.ui.newNotificationFallback)
             : mapperNotificationFromPayload({}, String(message.body || messages.notification.ui.newNotificationFallback))
           get().pushNotification(notification)
-          await get().getCounter(userId)
+          await get().getCounter()
         })
       },
       onWebSocketError: () => {
