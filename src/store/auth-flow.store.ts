@@ -13,7 +13,7 @@ import type {
 
 const authSessionStorage = createAuthSessionStorage()
 
-export const useStoreAuthFlow = create<AuthFlowStore>()((set, get) => ({
+export const useStoreAuthFlow = create<AuthFlowStore>()((set) => ({
   // Loading
   registerSubmitting: false,
   forgotPasswordSubmitting: false,

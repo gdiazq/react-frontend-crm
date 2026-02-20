@@ -1,25 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ButtonComponent, FooterComponent, InputComponent, ThemeToggle } from '@/components'
+import { AlertMessageComponent, ButtonComponent, FooterComponent, InputComponent, ThemeToggle } from '@/components'
 import { AUTH_ROUTE_HOME, AUTH_ROUTE_VERIFY_EMAIL } from '@/constant'
 import { initialRegisterForm } from '@/factories'
 import { registerValidationRules } from '@/validators'
 import { useFormValidation } from '@/hooks'
 import { mapperRegisterPayload } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAuthFlowFlow, useStoreTheme } from '@/store'
+import { useStoreAuthFlow, useStoreTheme } from '@/store'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
-  const errorMessage = useStoreAuthFlowFlow((s) => s.errorMessage)
-  const registerSubmitting = useStoreAuthFlowFlow((s) => s.registerSubmitting)
-  const checkEmailSubmitting = useStoreAuthFlowFlow((s) => s.checkEmailSubmitting)
-  const emailAvailable = useStoreAuthFlowFlow((s) => s.emailAvailable)
-  const register = useStoreAuthFlowFlow((s) => s.register)
-  const checkEmailAvailability = useStoreAuthFlowFlow((s) => s.checkEmailAvailability)
-  const setPendingVerifyEmail = useStoreAuthFlowFlow((s) => s.setPendingVerifyEmail)
+  const errorMessage = useStoreAuthFlow((s) => s.errorMessage)
+  const registerSubmitting = useStoreAuthFlow((s) => s.registerSubmitting)
+  const checkEmailSubmitting = useStoreAuthFlow((s) => s.checkEmailSubmitting)
+  const emailAvailable = useStoreAuthFlow((s) => s.emailAvailable)
+  const register = useStoreAuthFlow((s) => s.register)
+  const checkEmailAvailability = useStoreAuthFlow((s) => s.checkEmailAvailability)
+  const setPendingVerifyEmail = useStoreAuthFlow((s) => s.setPendingVerifyEmail)
 
   const [form, setForm] = useState({ ...initialRegisterForm })
   const { errors, isValid, validateField, validateAll, setFieldError } = useFormValidation(form, registerValidationRules)
@@ -156,13 +156,27 @@ export default function RegisterPage() {
           </form>
 
           {checkEmailSubmitting && (
-            <p className="mt-3 text-sm text-cyan-700 dark:text-cyan-300">{messages.auth.ui.registerValidatingEmail}</p>
+            <AlertMessageComponent
+              message={messages.auth.ui.registerValidatingEmail}
+              tone="info"
+              className="mt-3"
+            />
           )}
           {!checkEmailSubmitting && emailAvailable === false && (
-            <p className="mt-3 text-sm text-rose-400">{messages.auth.status.errors.registerEmailTaken}</p>
+            <AlertMessageComponent
+              message={messages.auth.status.errors.registerEmailTaken}
+              tone="error"
+              className="mt-3"
+              onClose={() => useStoreAuthFlow.setState({ emailAvailable: null })}
+            />
           )}
           {!checkEmailSubmitting && emailAvailable !== false && errorMessage && (
-            <p className="mt-3 text-sm text-rose-400">{errorMessage}</p>
+            <AlertMessageComponent
+              message={errorMessage}
+              tone="error"
+              className="mt-3"
+              onClose={() => useStoreAuthFlow.setState({ errorMessage: null })}
+            />
           )}
         </section>
       </section>

@@ -11,11 +11,14 @@ export { default as PaginationComponent } from './ui/pagination/PaginationCompon
 export { default as TableComponent } from './ui/table/TableComponent'
 export type { TableRow } from './ui/table/TableComponent'
 export { default as ActionsDropdownComponent } from './ui/dropdown/ActionsDropdownComponent'
+export { default as AlertMessageComponent } from './ui/alert/AlertMessageComponent'
 
 // Layout Components
 export { default as ThemeToggle } from './layout/ThemeToggle'
 export { default as NavbarComponent } from './layout/NavbarComponent'
 export { default as SidebarComponent } from './layout/SidebarComponent'
+export { default as RightSidebarComponent } from './layout/RightSidebarComponent'
+export { default as DetailSidebarComponent } from './layout/DetailSidebarComponent'
 export { default as TabsComponent } from './layout/TabsComponent'
 export { default as NotificationPanel } from './layout/NotificationPanel'
 export { default as CookieConsentBanner } from './layout/CookieConsentBanner'
@@ -35,3 +38,6 @@ export { default as HeroContent } from './frontpage/HeroContent'
 export { default as FeatureGrid } from './frontpage/FeatureGrid'
 export { default as KpiPanel } from './frontpage/KpiPanel'
 export { default as PricingSection } from './frontpage/PricingSection'
+
+// Users Components
+export { default as UserDetailComponent } from './users/UserDetailComponent'

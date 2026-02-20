@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
 import {
   ActionsDropdownComponent,
+  AlertMessageComponent,
   ButtonComponent,
+  DetailSidebarComponent,
   PaginationComponent,
+  RightSidebarComponent,
   SearchBarComponent,
   StatusBadgeComponent,
   TableComponent,
+  UserDetailComponent,
 } from '@/components'
 import type { TableRow } from '@/components'
 import { usersTableColumns } from '@/factories'
@@ -16,6 +20,7 @@ import type { UserTableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
 
 const STATUS_COLUMN_INDEX = 6
+const EMAIL_COLUMN_INDEX = 2
 const ACTIONS_COLUMN_INDEX = usersTableColumns.length - 1
 
 export default function UsersDashboardPage() {
@@ -35,6 +40,8 @@ export default function UsersDashboardPage() {
 
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [detailOpen, setDetailOpen] = useState(false)
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -48,8 +55,8 @@ export default function UsersDashboardPage() {
     return () => window.removeEventListener('click', closeActions)
   }, [])
 
-  const handleViewDetail = (row: UserTableRow) => {
-    setActionsMessage(`${row.values[0]} ${messages.users.ui.viewDetailComingSoon}`)
+  const handleViewDetail = () => {
+    setDetailOpen(true)
     setOpenActionsRowId(null)
   }
 
@@ -69,13 +76,24 @@ export default function UsersDashboardPage() {
   }
 
   const resolveRowActions = (row: UserTableRow): DropdownAction[] => [
-    actionViewDetail(() => handleViewDetail(row)),
+    actionViewDetail(() => handleViewDetail()),
     actionUpdateUser(() => handleUpdateUser(row)),
     actionToggleStatus(row.status === true, () => { void handleToggleStatus(row) }),
   ]
 
   const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
     const userRow = row as UserTableRow
+    if (columnIndex === EMAIL_COLUMN_INDEX) {
+      return (
+        <button
+          type="button"
+          className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
+          onClick={() => handleViewDetail()}
+        >
+          {value}
+        </button>
+      )
+    }
     if (columnIndex === STATUS_COLUMN_INDEX) {
       return <StatusBadgeComponent enabled={userRow.status === true} />
     }
@@ -90,7 +108,11 @@ export default function UsersDashboardPage() {
         />
       )
     }
-    return <span>{value as string ?? '-'}</span>
+    return <span>{value}</span>
+  }
+
+  const handleCloseDetail = () => {
+    setDetailOpen(false)
   }
 
   return (
@@ -100,9 +122,11 @@ export default function UsersDashboardPage() {
       </header>
 
       {errorMessage && (
-        <p className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-400/40 dark:bg-rose-900/20 dark:text-rose-200">
-          {errorMessage}
-        </p>
+        <AlertMessageComponent
+          message={errorMessage}
+          tone="error"
+          onClose={() => useStoreUsers.setState({ errorMessage: null })}
+        />
       )}
 
       <div className="flex flex-col gap-3 md:flex-row md:items-end">
@@ -112,7 +136,7 @@ export default function UsersDashboardPage() {
             variant="outline"
             disabled={loadingUsers || loadingToggleStatus}
             label="Filtro"
-            onClick={() => setActionsMessage(messages.users.ui.filtersComingSoon)}
+            onClick={() => setFiltersOpen(true)}
           />
         </div>
         <div className="flex-1">
@@ -146,9 +170,11 @@ export default function UsersDashboardPage() {
       />
 
       {actionsMessage && (
-        <p className="rounded-lg border border-cyan-300 bg-cyan-50 px-3 py-2 text-sm text-cyan-700 dark:border-cyan-400/40 dark:bg-cyan-900/20 dark:text-cyan-200">
-          {actionsMessage}
-        </p>
+        <AlertMessageComponent
+          message={actionsMessage}
+          tone="info"
+          onClose={() => setActionsMessage('')}
+        />
       )}
 
       <div className="flex justify-end">
@@ -161,6 +187,18 @@ export default function UsersDashboardPage() {
           onPageChange={(page) => goToPage(page - 1)}
         />
       </div>
+      <RightSidebarComponent
+        open={filtersOpen}
+        title="Filtros"
+        onClose={() => setFiltersOpen(false)}
+      />
+      <DetailSidebarComponent
+        open={detailOpen}
+        title="Detalle de usuario"
+        onClose={handleCloseDetail}
+      >
+        <UserDetailComponent />
+      </DetailSidebarComponent>
     </section>
   )
 }

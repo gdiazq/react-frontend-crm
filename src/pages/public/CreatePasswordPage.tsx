@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ButtonComponent, FooterComponent, PasswordInputComponent, ThemeToggle } from '@/components'
+import { AlertMessageComponent, ButtonComponent, FooterComponent, PasswordInputComponent, ThemeToggle } from '@/components'
 import { AUTH_ROUTE_LOGIN } from '@/constant'
 import { initialCreatePasswordForm } from '@/factories'
 import { mapperCreatePasswordPayload, mapperMissingPasswordRequirements, mapperPasswordRequirements } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAuthFlowFlow, useStoreTheme } from '@/store'
+import { useStoreAuthFlow, useStoreTheme } from '@/store'
 
 const PASSWORD_TOKEN_MAX_AGE_MS = 2 * 60 * 1000
 
@@ -154,8 +154,22 @@ export default function CreatePasswordPage() {
             </ButtonComponent>
           </form>
 
-          {errorMessage && <p className="mt-3 text-sm text-rose-400">{errorMessage}</p>}
-          {!errorMessage && successMessage && <p className="mt-3 text-sm text-emerald-400">{successMessage}</p>}
+          {errorMessage && (
+            <AlertMessageComponent
+              message={errorMessage}
+              tone="error"
+              className="mt-3"
+              onClose={() => useStoreAuthFlow.setState({ errorMessage: null })}
+            />
+          )}
+          {!errorMessage && successMessage && (
+            <AlertMessageComponent
+              message={successMessage}
+              tone="success"
+              className="mt-3"
+              onClose={() => useStoreAuthFlow.setState({ successMessage: null })}
+            />
+          )}
         </section>
       </section>
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ButtonComponent, FooterComponent, GitHubLoginButtonComponent, InputComponent, ThemeToggle } from '@/components'
+import { AlertMessageComponent, ButtonComponent, FooterComponent, GitHubLoginButtonComponent, InputComponent, ThemeToggle } from '@/components'
 import {
   AUTH_ROUTE_HOME,
   AUTH_ROUTE_LOGIN_CREDENTIALS,
@@ -151,15 +151,19 @@ export default function LoginPage() {
             </div>
 
             {loginError && (
-              <div className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-400/40 dark:bg-rose-900/20 dark:text-rose-200">
-                {errorMessage}
-              </div>
+              <AlertMessageComponent
+                message={errorMessage}
+                tone="error"
+                onClose={resetStatus}
+              />
             )}
 
             {githubOAuthError && (
-              <div className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-400/40 dark:bg-rose-900/20 dark:text-rose-200">
-                {githubOAuthError}
-              </div>
+              <AlertMessageComponent
+                message={githubOAuthError}
+                tone="error"
+                onClose={clearGithubOAuthStatus}
+              />
             )}
           </form>
         </section>

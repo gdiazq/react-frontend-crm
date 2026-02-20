@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ButtonComponent, FooterComponent, InputComponent, PasswordInputComponent, ThemeToggle } from '@/components'
+import { AlertMessageComponent, ButtonComponent, FooterComponent, InputComponent, PasswordInputComponent, ThemeToggle } from '@/components'
 import { AUTH_ROUTE_DASHBOARD, AUTH_ROUTE_LOGIN, AUTH_ROUTE_RECOVERY } from '@/constant'
 import { initialLoginCredentialsForm } from '@/factories'
 import { loginCredentialsValidationRules } from '@/validators'
@@ -98,9 +98,11 @@ export default function LoginCredentialsPage() {
             </ButtonComponent>
 
             {loginError && (
-              <div className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-400/40 dark:bg-rose-900/20 dark:text-rose-200">
-                {messageAlert?.message || 'Usuario o contraseña incorrectos.'}
-              </div>
+              <AlertMessageComponent
+                message={messageAlert?.message || 'Usuario o contraseña incorrectos.'}
+                tone="error"
+                onClose={() => useStoreAuth.setState({ loginError: false })}
+              />
             )}
           </form>
         </section>

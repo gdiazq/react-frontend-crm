@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ButtonComponent, FooterComponent, InputComponent, ThemeToggle } from '@/components'
+import { AlertMessageComponent, ButtonComponent, FooterComponent, InputComponent, ThemeToggle } from '@/components'
 import { AUTH_ROUTE_LOGIN, AUTH_ROUTE_VERIFY_EMAIL } from '@/constant'
 import { initialForgotPasswordForm } from '@/factories'
 import { mapperForgotPasswordPayload } from '@/mappers'
-import { useStoreAuthFlowFlow, useStoreTheme } from '@/store'
+import { useStoreAuthFlow, useStoreTheme } from '@/store'
 
 export default function RecoveryPage() {
   const navigate = useNavigate()
@@ -77,8 +77,22 @@ export default function RecoveryPage() {
             </ButtonComponent>
           </form>
 
-          {errorMessage && <p className="mt-3 text-sm text-rose-400">{errorMessage}</p>}
-          {!errorMessage && successMessage && <p className="mt-3 text-sm text-emerald-400">{successMessage}</p>}
+          {errorMessage && (
+            <AlertMessageComponent
+              message={errorMessage}
+              tone="error"
+              className="mt-3"
+              onClose={() => useStoreAuthFlow.setState({ errorMessage: null })}
+            />
+          )}
+          {!errorMessage && successMessage && (
+            <AlertMessageComponent
+              message={successMessage}
+              tone="success"
+              className="mt-3"
+              onClose={() => useStoreAuthFlow.setState({ successMessage: null })}
+            />
+          )}
         </section>
       </section>
 

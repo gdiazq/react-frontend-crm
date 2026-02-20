@@ -26,12 +26,20 @@ export default function TableComponent({
         <table className="w-full min-w-max">
           <thead className="bg-slate-50 dark:bg-slate-800/60">
             <tr>
-              {columns.map((column) => (
+              {columns.map((column, columnIndex) => (
                 <th
                   key={column}
                   className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-200"
                 >
-                  {column}
+                  <div className="flex items-center justify-between gap-2">
+                    <span>{column}</span>
+                    {columnIndex !== columns.length - 1 && (
+                      <span className="flex flex-col leading-none text-[9px] text-slate-300 dark:text-slate-600">
+                        <span>▲</span>
+                        <span>▼</span>
+                      </span>
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>

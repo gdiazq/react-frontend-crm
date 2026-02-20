@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ButtonComponent, FooterComponent, ResendVerificationModal, ThemeToggle, VerificationCodeInputComponent } from '@/components'
+import { AlertMessageComponent, ButtonComponent, FooterComponent, ResendVerificationModal, ThemeToggle, VerificationCodeInputComponent } from '@/components'
 import { AUTH_ROUTE_CREATE_PASSWORD, AUTH_ROUTE_LOGIN } from '@/constant'
 import { initialResendVerificationForm, initialVerifyEmailForm } from '@/factories'
 import { verifyEmailValidationRules } from '@/validators'
 import { useFormValidation } from '@/hooks'
 import { mapperResendVerificationPayload, mapperVerifyEmailPayload } from '@/mappers'
-import { useStoreAuthFlowFlow, useStoreTheme } from '@/store'
+import { useStoreAuthFlow, useStoreTheme } from '@/store'
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate()
@@ -126,8 +126,22 @@ export default function VerifyEmailPage() {
             </ButtonComponent>
           </form>
 
-          {errorMessage && <p className="mt-3 text-sm text-rose-400">{errorMessage}</p>}
-          {!errorMessage && successMessage && <p className="mt-3 text-sm text-emerald-400">{successMessage}</p>}
+          {errorMessage && (
+            <AlertMessageComponent
+              message={errorMessage}
+              tone="error"
+              className="mt-3"
+              onClose={() => useStoreAuthFlow.setState({ errorMessage: null })}
+            />
+          )}
+          {!errorMessage && successMessage && (
+            <AlertMessageComponent
+              message={successMessage}
+              tone="success"
+              className="mt-3"
+              onClose={() => useStoreAuthFlow.setState({ successMessage: null })}
+            />
+          )}
         </section>
       </section>
 
