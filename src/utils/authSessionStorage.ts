@@ -89,5 +89,3 @@ export const createAuthSessionStorage = () => {
   }
 }
 
-// Backward-compatible alias while migrating old imports.
-export const useAuthSessionStorage = createAuthSessionStorage

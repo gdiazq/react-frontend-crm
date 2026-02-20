@@ -27,5 +27,3 @@ export const createDeviceIdService = () => {
   }
 }
 
-// Backward-compatible alias while migrating old imports.
-export const useDeviceId = createDeviceIdService

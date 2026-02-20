@@ -1,5 +1,5 @@
-export { createAuthSessionStorage, useAuthSessionStorage } from './useAuthSessionStorage'
-export { createDeviceIdService, useDeviceId } from './useDeviceId'
+export { createAuthSessionStorage } from './authSessionStorage'
+export { createDeviceIdService } from './deviceId'
 export {
   findNotificationById,
   updateNotificationsByIds,
@@ -7,19 +7,19 @@ export {
   getNotificationIds,
   convertIdsToNumbers,
   convertIdToNumber,
-} from './useNotificationUtils'
-export { normalizeVariant } from './useNotificationVariant'
-export { formatDate, formatDateTime } from './useFormatUtils'
+} from './notificationUtils'
+export { normalizeVariant } from './notificationVariant'
+export { formatDate, formatDateTime } from './formatUtils'
 export {
   formatCurrency,
   formatNumber,
   formatVariationLabel,
-} from './useDashboardUtils'
+} from './dashboardUtils'
 export {
   findDeviceById,
   removeDeviceById,
   keepCurrentDevices,
-} from './useSettingUtils'
-export { formatRoleLabel } from './useUsersUtils'
-export { useUsersAction } from './useUsersAction'
-export type { DropdownAction } from './useUsersAction'
+} from './settingUtils'
+export { formatRoleLabel } from './usersUtils'
+export { createUsersActions } from './usersActions'
+export type { DropdownAction } from './usersActions'

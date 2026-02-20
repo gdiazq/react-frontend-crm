@@ -11,7 +11,7 @@ import type { TableRow } from '@/components'
 import { usersTableColumns } from '@/factories'
 import messages from '@/messages/messages'
 import { useStoreUsers } from '@/store'
-import { useUsersAction } from '@/utils'
+import { createUsersActions } from '@/utils'
 import type { UserTableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
 
@@ -31,7 +31,7 @@ export default function UsersDashboardPage() {
   const mutationToggleUserStatus = useStoreUsers((s) => s.mutationToggleUserStatus)
   const goToPage = useStoreUsers((s) => s.goToPage)
 
-  const { actionViewDetail, actionUpdateUser, actionToggleStatus } = useUsersAction()
+  const { actionViewDetail, actionUpdateUser, actionToggleStatus } = createUsersActions()
 
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')

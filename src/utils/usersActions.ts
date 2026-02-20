@@ -7,7 +7,7 @@ export interface DropdownAction {
   handler: () => void
 }
 
-export function useUsersAction() {
+export function createUsersActions() {
   function actionViewDetail(handler: () => void): DropdownAction {
     return { id: 'view-detail', label: messages.users.ui.actionViewDetail, handler }
   }
