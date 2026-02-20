@@ -6,20 +6,20 @@ import { initialResendVerificationForm, initialVerifyEmailForm } from '@/factori
 import { verifyEmailValidationRules } from '@/validators'
 import { useFormValidation } from '@/hooks'
 import { mapperResendVerificationPayload, mapperVerifyEmailPayload } from '@/mappers'
-import { useStoreAuth, useStoreTheme } from '@/store'
+import { useStoreAuthFlowFlow, useStoreTheme } from '@/store'
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate()
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
-  const verifySubmitting = useStoreAuth((s) => s.verifySubmitting)
-  const resendSubmitting = useStoreAuth((s) => s.resendSubmitting)
-  const errorMessage = useStoreAuth((s) => s.errorMessage)
-  const successMessage = useStoreAuth((s) => s.successMessage)
-  const pendingVerifyEmail = useStoreAuth((s) => s.pendingVerifyEmail)
-  const pendingVerifyPhone = useStoreAuth((s) => s.pendingVerifyPhone)
-  const verifyEmail = useStoreAuth((s) => s.verifyEmail)
-  const resendVerification = useStoreAuth((s) => s.resendVerification)
+  const verifySubmitting = useStoreAuthFlow((s) => s.verifySubmitting)
+  const resendSubmitting = useStoreAuthFlow((s) => s.resendSubmitting)
+  const errorMessage = useStoreAuthFlow((s) => s.errorMessage)
+  const successMessage = useStoreAuthFlow((s) => s.successMessage)
+  const pendingVerifyEmail = useStoreAuthFlow((s) => s.pendingVerifyEmail)
+  const pendingVerifyPhone = useStoreAuthFlow((s) => s.pendingVerifyPhone)
+  const verifyEmail = useStoreAuthFlow((s) => s.verifyEmail)
+  const resendVerification = useStoreAuthFlow((s) => s.resendVerification)
 
   const [form, setForm] = useState({ ...initialVerifyEmailForm })
   const [resendForm, setResendForm] = useState({ ...initialResendVerificationForm })
@@ -29,7 +29,7 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     if (!pendingVerifyEmail) {
-      useStoreAuth.setState({ errorMessage: 'No se encontro el correo a verificar. Vuelve a registrarte.' })
+      useStoreAuthFlow.setState({ errorMessage: 'No se encontro el correo a verificar. Vuelve a registrarte.' })
     }
   }, [])
 
@@ -65,14 +65,14 @@ export default function VerifyEmailPage() {
       return
     }
 
-    setResendModalError(useStoreAuth.getState().errorMessage || 'No se pudo reenviar el codigo.')
-    useStoreAuth.setState({ errorMessage: null })
+    setResendModalError(useStoreAuthFlow.getState().errorMessage || 'No se pudo reenviar el codigo.')
+    useStoreAuthFlow.setState({ errorMessage: null })
   }
 
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!pendingVerifyEmail) {
-      useStoreAuth.setState({ errorMessage: 'No se encontro el correo a verificar o falta el codigo.' })
+      useStoreAuthFlow.setState({ errorMessage: 'No se encontro el correo a verificar o falta el codigo.' })
       return
     }
     if (!validateAll()) return

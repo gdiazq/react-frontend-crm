@@ -145,13 +145,11 @@ export default function UsersDashboardPage() {
         renderCell={renderCell}
       />
 
-      <div className="min-h-11">
-        {actionsMessage && (
-          <p className="rounded-lg border border-cyan-300 bg-cyan-50 px-3 py-2 text-sm text-cyan-700 dark:border-cyan-400/40 dark:bg-cyan-900/20 dark:text-cyan-200">
-            {actionsMessage}
-          </p>
-        )}
-      </div>
+      {actionsMessage && (
+        <p className="rounded-lg border border-cyan-300 bg-cyan-50 px-3 py-2 text-sm text-cyan-700 dark:border-cyan-400/40 dark:bg-cyan-900/20 dark:text-cyan-200">
+          {actionsMessage}
+        </p>
+      )}
 
       <div className="flex justify-end">
         <PaginationComponent

@@ -14,15 +14,10 @@ import type {
   AuthUser,
   AuthVerifyEmailPayload,
   AuthVerifyEmailResponse,
-  ModulePermission,
+  LoginResponse,
   SettingUpdateAvatarPayload,
   SettingUpdateProfilePayload,
 } from '@/types'
-
-interface LoginResponse {
-  user: AuthUser
-  modules?: ModulePermission[]
-}
 
 const AUTH_BASE_PATH = '/auth'
 const { getDeviceId } = createDeviceIdService()

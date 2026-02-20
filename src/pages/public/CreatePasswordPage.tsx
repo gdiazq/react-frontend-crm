@@ -5,7 +5,7 @@ import { AUTH_ROUTE_LOGIN } from '@/constant'
 import { initialCreatePasswordForm } from '@/factories'
 import { mapperCreatePasswordPayload, mapperMissingPasswordRequirements, mapperPasswordRequirements } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAuth, useStoreTheme } from '@/store'
+import { useStoreAuthFlowFlow, useStoreTheme } from '@/store'
 
 const PASSWORD_TOKEN_MAX_AGE_MS = 2 * 60 * 1000
 
@@ -13,13 +13,13 @@ export default function CreatePasswordPage() {
   const navigate = useNavigate()
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
-  const createPasswordSubmitting = useStoreAuth((s) => s.createPasswordSubmitting)
-  const errorMessage = useStoreAuth((s) => s.errorMessage)
-  const successMessage = useStoreAuth((s) => s.successMessage)
-  const pendingPasswordToken = useStoreAuth((s) => s.pendingPasswordToken)
-  const pendingPasswordTokenIssuedAt = useStoreAuth((s) => s.pendingPasswordTokenIssuedAt)
-  const createPassword = useStoreAuth((s) => s.createPassword)
-  const clearPendingPasswordToken = useStoreAuth((s) => s.clearPendingPasswordToken)
+  const createPasswordSubmitting = useStoreAuthFlow((s) => s.createPasswordSubmitting)
+  const errorMessage = useStoreAuthFlow((s) => s.errorMessage)
+  const successMessage = useStoreAuthFlow((s) => s.successMessage)
+  const pendingPasswordToken = useStoreAuthFlow((s) => s.pendingPasswordToken)
+  const pendingPasswordTokenIssuedAt = useStoreAuthFlow((s) => s.pendingPasswordTokenIssuedAt)
+  const createPassword = useStoreAuthFlow((s) => s.createPassword)
+  const clearPendingPasswordToken = useStoreAuthFlow((s) => s.clearPendingPasswordToken)
 
   const [form, setForm] = useState({ ...initialCreatePasswordForm })
   const [remainingSeconds, setRemainingSeconds] = useState(() => {
@@ -51,7 +51,7 @@ export default function CreatePasswordPage() {
 
   useEffect(() => {
     if (!pendingPasswordToken || !pendingPasswordTokenIssuedAt) {
-      useStoreAuth.setState({ errorMessage: messages.auth.status.errors.createPasswordMissingToken })
+      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.createPasswordMissingToken })
       redirectToLoginByExpiration()
       return
     }
@@ -60,7 +60,7 @@ export default function CreatePasswordPage() {
     const remainingMs = expiresAt - Date.now()
 
     if (remainingMs <= 0) {
-      useStoreAuth.setState({ errorMessage: messages.auth.status.errors.createPasswordTokenExpired })
+      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.createPasswordTokenExpired })
       redirectToLoginByExpiration()
       return
     }
@@ -72,7 +72,7 @@ export default function CreatePasswordPage() {
     }, 1000)
 
     expirationTimerRef.current = setTimeout(() => {
-      useStoreAuth.setState({ errorMessage: messages.auth.status.errors.createPasswordTokenExpired })
+      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.createPasswordTokenExpired })
       redirectToLoginByExpiration()
     }, remainingMs)
 
@@ -84,7 +84,7 @@ export default function CreatePasswordPage() {
     if (!isValidForm) {
       const issues = [...missingPasswordRequirements]
       if (!passwordsMatch) issues.push(messages.auth.status.errors.createPasswordConfirmMismatch)
-      useStoreAuth.setState({ errorMessage: `${messages.auth.status.errors.createPasswordMissingRequirementsPrefix} ${issues.join(', ')}.` })
+      useStoreAuthFlow.setState({ errorMessage: `${messages.auth.status.errors.createPasswordMissingRequirementsPrefix} ${issues.join(', ')}.` })
       return
     }
 
@@ -92,7 +92,7 @@ export default function CreatePasswordPage() {
     const success = await createPassword(payload)
     if (success) {
       clearTimers()
-      useStoreAuth.getState().reset()
+      useStoreAuthFlow.getState().reset()
       navigate(AUTH_ROUTE_LOGIN)
     }
   }

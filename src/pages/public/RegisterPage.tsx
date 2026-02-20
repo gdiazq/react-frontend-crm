@@ -7,19 +7,19 @@ import { registerValidationRules } from '@/validators'
 import { useFormValidation } from '@/hooks'
 import { mapperRegisterPayload } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAuth, useStoreTheme } from '@/store'
+import { useStoreAuthFlowFlow, useStoreTheme } from '@/store'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
-  const errorMessage = useStoreAuth((s) => s.errorMessage)
-  const registerSubmitting = useStoreAuth((s) => s.registerSubmitting)
-  const checkEmailSubmitting = useStoreAuth((s) => s.checkEmailSubmitting)
-  const emailAvailable = useStoreAuth((s) => s.emailAvailable)
-  const register = useStoreAuth((s) => s.register)
-  const checkEmailAvailability = useStoreAuth((s) => s.checkEmailAvailability)
-  const setPendingVerifyEmail = useStoreAuth((s) => s.setPendingVerifyEmail)
+  const errorMessage = useStoreAuthFlowFlow((s) => s.errorMessage)
+  const registerSubmitting = useStoreAuthFlowFlow((s) => s.registerSubmitting)
+  const checkEmailSubmitting = useStoreAuthFlowFlow((s) => s.checkEmailSubmitting)
+  const emailAvailable = useStoreAuthFlowFlow((s) => s.emailAvailable)
+  const register = useStoreAuthFlowFlow((s) => s.register)
+  const checkEmailAvailability = useStoreAuthFlowFlow((s) => s.checkEmailAvailability)
+  const setPendingVerifyEmail = useStoreAuthFlowFlow((s) => s.setPendingVerifyEmail)
 
   const [form, setForm] = useState({ ...initialRegisterForm })
   const { errors, isValid, validateField, validateAll, setFieldError } = useFormValidation(form, registerValidationRules)
@@ -37,7 +37,7 @@ export default function RegisterPage() {
     const email = value.trim()
     setForm((f) => ({ ...f, email }))
     setFieldError('email', null)
-    useStoreAuth.setState({ errorMessage: null, emailAvailable: null })
+    useStoreAuthFlow.setState({ errorMessage: null, emailAvailable: null })
 
     if (emailTimerRef.current) clearTimeout(emailTimerRef.current)
 
@@ -62,7 +62,7 @@ export default function RegisterPage() {
       return
     }
     if (available === null) {
-      useStoreAuth.setState({ errorMessage: messages.auth.status.errors.registerValidateEmailError })
+      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.registerValidateEmailError })
       return
     }
 

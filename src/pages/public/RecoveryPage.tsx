@@ -4,29 +4,29 @@ import { ButtonComponent, FooterComponent, InputComponent, ThemeToggle } from '@
 import { AUTH_ROUTE_LOGIN, AUTH_ROUTE_VERIFY_EMAIL } from '@/constant'
 import { initialForgotPasswordForm } from '@/factories'
 import { mapperForgotPasswordPayload } from '@/mappers'
-import { useStoreAuth, useStoreTheme } from '@/store'
+import { useStoreAuthFlowFlow, useStoreTheme } from '@/store'
 
 export default function RecoveryPage() {
   const navigate = useNavigate()
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
-  const forgotPasswordSubmitting = useStoreAuth((s) => s.forgotPasswordSubmitting)
-  const errorMessage = useStoreAuth((s) => s.errorMessage)
-  const successMessage = useStoreAuth((s) => s.successMessage)
-  const forgotPassword = useStoreAuth((s) => s.forgotPassword)
-  const setPendingVerifyEmail = useStoreAuth((s) => s.setPendingVerifyEmail)
+  const forgotPasswordSubmitting = useStoreAuthFlow((s) => s.forgotPasswordSubmitting)
+  const errorMessage = useStoreAuthFlow((s) => s.errorMessage)
+  const successMessage = useStoreAuthFlow((s) => s.successMessage)
+  const forgotPassword = useStoreAuthFlow((s) => s.forgotPassword)
+  const setPendingVerifyEmail = useStoreAuthFlow((s) => s.setPendingVerifyEmail)
 
   const [form, setForm] = useState({ ...initialForgotPasswordForm })
 
   useEffect(() => {
-    useStoreAuth.setState({ errorMessage: null, successMessage: null })
-    return () => { useStoreAuth.setState({ errorMessage: null, successMessage: null }) }
+    useStoreAuthFlow.setState({ errorMessage: null, successMessage: null })
+    return () => { useStoreAuthFlow.setState({ errorMessage: null, successMessage: null }) }
   }, [])
 
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.email.trim()) {
-      useStoreAuth.setState({ errorMessage: 'Debes ingresar tu correo.' })
+      useStoreAuthFlow.setState({ errorMessage: 'Debes ingresar tu correo.' })
       return
     }
 
@@ -50,7 +50,7 @@ export default function RecoveryPage() {
           <button
             type="button"
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 opacity-90 transition hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:text-slate-300 dark:focus-visible:ring-offset-slate-950"
-            onClick={() => { useStoreAuth.setState({ errorMessage: null, successMessage: null }); navigate(AUTH_ROUTE_LOGIN) }}
+            onClick={() => { useStoreAuthFlow.setState({ errorMessage: null, successMessage: null }); navigate(AUTH_ROUTE_LOGIN) }}
           >
             <span aria-hidden="true">←</span>
             Volver al login

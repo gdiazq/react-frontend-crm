@@ -14,11 +14,12 @@ import { selectActiveSessions, selectMfaStatusClass, selectMfaStatusLabel } from
 export default function SettingsPage() {
   const navigate = useNavigate()
   const user = useStoreAuth((s) => s.user)
-  const updateProfileSubmitting = useStoreAuth((s) => s.updateProfileSubmitting)
-  const updateAvatarSubmitting = useStoreAuth((s) => s.updateAvatarSubmitting)
   const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
-  const updateProfile = useStoreAuth((s) => s.updateProfile)
-  const updateAvatar = useStoreAuth((s) => s.updateAvatar)
+
+  const updateProfileSubmitting = useStoreSettings((s) => s.updateProfileSubmitting)
+  const updateAvatarSubmitting = useStoreSettings((s) => s.updateAvatarSubmitting)
+  const mutationUpdateProfile = useStoreSettings((s) => s.mutationUpdateProfile)
+  const mutationUpdateAvatar = useStoreSettings((s) => s.mutationUpdateAvatar)
 
   const mfaState = useStoreSettings((s) => s.mfaState)
   const mfaSetupData = useStoreSettings((s) => s.mfaSetupData)
@@ -107,9 +108,8 @@ export default function SettingsPage() {
     if (!user?.id) { setStatusMessage(messages.settings.status.errors.profileUserNotFound); return }
 
     const payload = mapperUpdateProfilePayload(user.id, profile)
-    const success = await updateProfile(payload)
-    if (success) { setStatusMessage(messages.settings.status.success.profileUpdateSuccess); return }
-    setStatusMessage(useStoreAuth.getState().errorMessage || messages.settings.status.errors.profileUpdateError)
+    const success = await mutationUpdateProfile(payload)
+    if (success) setStatusMessage(messages.settings.status.success.profileUpdateSuccess)
   }
 
   const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,15 +130,13 @@ export default function SettingsPage() {
     if (!user?.id) { setStatusMessage(messages.settings.status.errors.avatarUserNotFound); return }
     if (!avatarForm.file) { setAvatarError(messages.settings.status.errors.avatarSelectImage); return }
 
-    const success = await updateAvatar(user.id, { file: avatarForm.file })
+    const success = await mutationUpdateAvatar(user.id, { file: avatarForm.file })
     if (success) {
       setAvatarError(null)
       if (avatarForm.previewUrl) URL.revokeObjectURL(avatarForm.previewUrl)
       setAvatarForm({ file: null, previewUrl: '' })
       setStatusMessage(messages.settings.status.success.avatarUpdateSuccess)
-      return
     }
-    setStatusMessage(useStoreAuth.getState().errorMessage || messages.settings.status.errors.avatarUpdateError)
   }
 
   const showAccountTab = activeTab === 'account'
