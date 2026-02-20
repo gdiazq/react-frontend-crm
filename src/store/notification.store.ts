@@ -20,9 +20,7 @@ import {
 import {
   findNotificationById,
   updateNotificationsByIds,
-  getInboxNotificationIds,
   getNotificationIds,
-  convertIdsToNumbers,
   convertIdToNumber,
 } from '@/utils'
 import messages from '@/messages/messages'
@@ -156,31 +154,6 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
         return
       }
       set({ errorMessage: messages.notification.status.errors.markAllReadError })
-    }
-  },
-
-  mutationArchiveAll: async () => {
-    const ids = getInboxNotificationIds(get().notifications)
-    if (ids.length === 0) return
-
-    const numericIds = convertIdsToNumbers(ids)
-    if (numericIds.length === 0) {
-      set({ errorMessage: messages.notification.status.errors.archiveConvertError })
-      return
-    }
-
-    try {
-      await notificationService.archiveNotifications(numericIds)
-      set((state) => ({
-        notifications: updateNotificationsByIds(state.notifications, ids, mapperArchiveNotification),
-      }))
-      await get().getCounter()
-    } catch (error) {
-      if (notificationService.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.archiveAllError })
-        return
-      }
-      set({ errorMessage: messages.notification.status.errors.archiveAllError })
     }
   },
 

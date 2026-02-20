@@ -22,18 +22,8 @@ export const updateNotificationsByIds = (
   })
 }
 
-export const getInboxNotificationIds = (items: NotificationItem[]): string[] => {
-  return items.filter((item) => item.inbox).map((item) => item.id)
-}
-
 export const getNotificationIds = (items: NotificationItem[]): string[] => {
   return items.map((item) => item.id)
-}
-
-export const convertIdsToNumbers = (ids: string[]): number[] => {
-  return ids
-    .map((id) => Number.parseInt(id, 10))
-    .filter((id) => Number.isInteger(id) && id > 0)
 }
 
 export const convertIdToNumber = (id: string): number | null => {

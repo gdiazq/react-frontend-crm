@@ -1,3 +1,4 @@
+import { PASSWORD_MIN_LENGTH } from '@/constant'
 import type {
   AuthCreatePasswordForm,
   AuthForgotPasswordForm,
@@ -44,5 +45,5 @@ export const initialPasswordRequirements: PasswordRequirement[] = [
   { key: 'uppercase', label: 'Al menos 1 letra mayuscula', valid: false },
   { key: 'number', label: 'Al menos 1 numero', valid: false },
   { key: 'specialChar', label: 'Al menos 1 caracter especial', valid: false },
-  { key: 'minLength', label: 'Minimo 10 caracteres', valid: false },
+  { key: 'minLength', label: `Minimo ${PASSWORD_MIN_LENGTH} caracteres`, valid: false },
 ]

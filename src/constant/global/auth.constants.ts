@@ -1,4 +1,5 @@
 export const REMEMBER_EMAIL_STORAGE_KEY = 'rememberEmail'
+export const PASSWORD_MIN_LENGTH = 10
 
 export const AUTH_ROUTE_LOGIN = '/login'
 export const AUTH_ROUTE_REGISTER = '/register'

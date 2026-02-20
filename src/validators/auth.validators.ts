@@ -1,8 +1,9 @@
+import { PASSWORD_MIN_LENGTH } from '@/constant'
 import type { ValidationRule } from '@/types'
 
 export const loginValidationRules: Record<string, ValidationRule> = {
   email: { required: true, email: true },
-  password: { required: true, minLength: 6 },
+  password: { required: true, minLength: PASSWORD_MIN_LENGTH },
 }
 
 export const registerValidationRules: Record<string, ValidationRule> = {
@@ -22,5 +23,5 @@ export const preLoginValidationRules: Record<string, ValidationRule> = {
 }
 
 export const loginCredentialsValidationRules: Record<string, ValidationRule> = {
-  password: { required: true, minLength: 6 },
+  password: { required: true, minLength: PASSWORD_MIN_LENGTH },
 }

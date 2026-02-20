@@ -16,7 +16,6 @@ export interface NotificationStore {
   getNotifications: (type?: '' | 'unread' | 'archived', page?: number, size?: number) => Promise<void>
   getCounter: () => Promise<void>
   mutationMarkAllAsRead: () => Promise<void>
-  mutationArchiveAll: () => Promise<void>
   mutationArchiveNotification: (payload: NotificationItem) => Promise<void>
   mutationMarkAsRead: (payload: NotificationItem) => Promise<void>
   mutationMarkAsNotRead: (payload: NotificationItem) => void

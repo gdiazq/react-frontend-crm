@@ -87,8 +87,6 @@ export default {
         invalidUserMarkAll: 'Usuario invalido para marcar notificaciones.',
         markAllReadError: 'No se pudieron marcar todas como leidas.',
         invalidUserArchive: 'Usuario invalido para archivar notificaciones.',
-        archiveConvertError: 'No se pudo convertir los ids para archivar.',
-        archiveAllError: 'No se pudieron archivar las notificaciones.',
         invalidIdArchive: 'Id de notificacion invalido para archivar.',
         archiveOneError: 'No se pudo archivar la notificacion.',
         invalidUserRead: 'Usuario invalido para marcar como leida.',

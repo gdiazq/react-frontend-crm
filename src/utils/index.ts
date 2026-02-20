@@ -3,9 +3,7 @@ export { createDeviceIdService } from './deviceId'
 export {
   findNotificationById,
   updateNotificationsByIds,
-  getInboxNotificationIds,
   getNotificationIds,
-  convertIdsToNumbers,
   convertIdToNumber,
 } from './notificationUtils'
 export { normalizeVariant } from './notificationVariant'

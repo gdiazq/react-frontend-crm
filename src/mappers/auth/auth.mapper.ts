@@ -1,3 +1,4 @@
+import { PASSWORD_MIN_LENGTH } from '@/constant'
 import type {
   AuthCreatePasswordForm,
   AuthCreatePasswordPayload,
@@ -58,7 +59,7 @@ export function mapperResendVerificationPayload(email: string, form: AuthResendV
   }
 }
 
-export function mapperPasswordRequirements(password: string, minLength = 10): PasswordRequirement[] {
+export function mapperPasswordRequirements(password: string, minLength = PASSWORD_MIN_LENGTH): PasswordRequirement[] {
   return [
     { key: 'lowercase', label: 'Al menos 1 letra minuscula', valid: /[a-z]/.test(password) },
     { key: 'uppercase', label: 'Al menos 1 letra mayuscula', valid: /[A-Z]/.test(password) },
