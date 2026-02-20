@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { Client } from '@stomp/stompjs'
-import axios from 'axios'
-import { axiosInstance } from '@/config'
+import { notificationService } from '@/services'
+import { authService } from '@/services'
 import {
   initialCounterNotification,
   initialErrorMessageNotification,
@@ -29,12 +29,9 @@ import messages from '@/messages/messages'
 import type {
   IncomingNotificationPayload,
   NotificationItem,
-  NotificationCountResponse,
-  NotificationPagedResponse,
   NotificationStore,
 } from '@/types'
 
-const NOTIFICATION_BASE_PATH = '/notification'
 const MAX_NOTIFICATIONS = 50
 
 let activeStompClient: Client | null = null
@@ -96,8 +93,7 @@ const resolveWsUrl = () => {
 }
 
 const requestWsTicket = async () => {
-  const { data } = await axiosInstance.get<{ ticket?: string }>('/auth/ws-ticket')
-  return typeof data.ticket === 'string' ? data.ticket : ''
+  return authService.requestWsTicket()
 }
 
 const notificationTabFilters: Record<number, (item: NotificationItem) => boolean> = {
@@ -125,9 +121,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   getNotifications: async (type = '', page = 0, size = 20) => {
     try {
       set({ loadingNotifications: true, errorMessage: null })
-      const { data } = await axiosInstance.get<NotificationPagedResponse>(`${NOTIFICATION_BASE_PATH}/paged`, {
-        params: { type, page, size },
-      })
+      const data = await notificationService.getNotifications(type, page, size)
       set({ notifications: data.content.map(mapperNotification) })
     } catch {
       set({ errorMessage: messages.notification.status.errors.loadError })
@@ -138,7 +132,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
 
   getCounter: async () => {
     try {
-      const { data } = await axiosInstance.get<NotificationCountResponse>(`${NOTIFICATION_BASE_PATH}/count`)
+      const data = await notificationService.getCounter()
       set({ counter: data })
     } catch {
       set({ errorMessage: messages.notification.status.errors.counterError })
@@ -147,7 +141,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
 
   mutationMarkAllAsRead: async () => {
     try {
-      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read-all`)
+      await notificationService.markAllAsRead()
       set((state) => ({
         notifications: updateNotificationsByIds(
           state.notifications,
@@ -157,7 +151,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       }))
       await get().getCounter()
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (notificationService.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.markAllReadError })
         return
       }
@@ -176,13 +170,13 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
 
     try {
-      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids: numericIds })
+      await notificationService.archiveNotifications(numericIds)
       set((state) => ({
         notifications: updateNotificationsByIds(state.notifications, ids, mapperArchiveNotification),
       }))
       await get().getCounter()
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (notificationService.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.archiveAllError })
         return
       }
@@ -197,13 +191,13 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       return
     }
     try {
-      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids: [numericId] })
+      await notificationService.archiveNotifications([numericId])
       set((state) => ({
         notifications: findNotificationById(state.notifications, payload.id, mapperArchiveNotification),
       }))
       await get().getCounter()
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (notificationService.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.archiveOneError })
         return
       }
@@ -218,13 +212,13 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       return
     }
     try {
-      await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read`, { ids: [numericId] })
+      await notificationService.markAsRead([numericId])
       set((state) => ({
         notifications: findNotificationById(state.notifications, payload.id, mapperMarkAsRead),
       }))
       await get().getCounter()
     } catch (error) {
-      if (axios.isAxiosError(error)) {
+      if (notificationService.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.notification.status.errors.markReadError })
         return
       }

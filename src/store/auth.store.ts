@@ -1,32 +1,24 @@
 import { create } from 'zustand'
-import axios from 'axios'
-import { axiosInstance } from '@/config'
-import { createAuthSessionStorage, createDeviceIdService } from '@/utils'
+import { authService } from '@/services'
+import { createAuthSessionStorage } from '@/utils'
 import { initialAlert } from '@/factories'
-import { mapperUpdateAvatarFormData } from '@/mappers'
 import messages from '@/messages/messages'
 import type {
   AlertsCore,
   AuthStore,
-  AuthCheckEmailResponse,
   AuthCreatePasswordPayload,
   AuthForgotPasswordPayload,
-  AuthGithubOAuthUrlResponse,
   AuthLoginErrorResponse,
   AuthLoginPayload,
   AuthResendVerificationPayload,
   AuthRegisterPayload,
-  AuthVerifyEmailResponse,
   AuthVerifyEmailPayload,
-  AuthUser,
-  ModulePermission,
   PermissionType,
   SettingUpdateAvatarPayload,
   SettingUpdateProfilePayload,
 } from '@/types'
 
 const authSessionStorage = createAuthSessionStorage()
-const { getDeviceId } = createDeviceIdService()
 
 let currentUserRequest: Promise<void> | null = null
 
@@ -67,19 +59,11 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
     try {
       set({ loginSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
 
-      const payload = {
-        email: credentials.email,
-        password: credentials.password,
-        ...(credentials.totpCode ? { totpCode: credentials.totpCode } : {}),
-      }
-
-      const { data } = await axiosInstance.post<{ user: AuthUser; modules?: ModulePermission[] }>('/auth/login', payload, {
-        headers: { 'X-Device-Id': getDeviceId() },
-      })
+      const data = await authService.login(credentials)
       set({ user: data.user, permissions: data.modules || [], mfaRequired: false })
 
       try {
-        const { data: fullProfile } = await axiosInstance.get<AuthUser>('/auth/me')
+        const fullProfile = await authService.getFullProfile()
         set({ user: fullProfile })
       } catch {
         // Login data is sufficient to proceed
@@ -93,7 +77,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       let alertVariant: AlertsCore['variant'] = 'error'
       let alertIcon = 'fa-solid fa-triangle-exclamation'
 
-      if (axios.isAxiosError(error)) {
+      if (authService.isAxiosError(error)) {
         const status = error.response?.status
         const responseData = (error.response?.data || {}) as AuthLoginErrorResponse
         const backendMessage = responseData.message
@@ -145,7 +129,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
         githubOAuthError: null,
         loginError: false,
       })
-      const { data } = await axiosInstance.get<AuthGithubOAuthUrlResponse>('/auth/oauth2/github')
+      const data = await authService.getGithubOAuthUrl()
       const authUrl = typeof data?.authUrl === 'string' ? data.authUrl.trim() : ''
 
       if (!authUrl) {
@@ -165,7 +149,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       return true
     } catch (error) {
       const fallbackMessage = messages.auth.status.errors.loginGithubAuthUrlError
-      const backendMessage = axios.isAxiosError(error) ? error.response?.data?.message : null
+      const backendMessage = authService.isAxiosError(error) ? error.response?.data?.message : null
       const message = typeof backendMessage === 'string' && backendMessage.length > 0 ? backendMessage : fallbackMessage
       set({
         errorBack: error,
@@ -191,7 +175,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
     try {
       set({ registerSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
 
-      await axiosInstance.post('/auth/register', payload)
+      await authService.register(payload)
       authSessionStorage.setPendingVerifyEmail(payload.email)
       authSessionStorage.setPendingVerifyPhone(payload.phoneNumber)
       set({
@@ -202,7 +186,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       return true
     } catch (error) {
       let message = messages.auth.status.errors.registerErrorDefault
-      if (axios.isAxiosError(error)) {
+      if (authService.isAxiosError(error)) {
         const status = error.response?.status
         if (status === 409) message = messages.auth.status.errors.registerEmailTaken
         if (status === 400) message = messages.auth.status.errors.registerInvalidData
@@ -221,9 +205,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   checkEmailAvailability: async (email: string) => {
     try {
       set({ checkEmailSubmitting: true, emailAvailable: null })
-      const { data } = await axiosInstance.get<AuthCheckEmailResponse>('/auth/check-email', {
-        params: { email },
-      })
+      const data = await authService.checkEmailAvailability(email)
       set({ emailAvailable: data.available })
       return data.available
     } catch (error) {
@@ -237,7 +219,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   verifyEmail: async (payload: AuthVerifyEmailPayload) => {
     try {
       set({ verifySubmitting: true, loginError: false, errorMessage: null, successMessage: null })
-      const { data } = await axiosInstance.post<AuthVerifyEmailResponse>('/auth/verify-email', payload)
+      const data = await authService.verifyEmail(payload)
       authSessionStorage.setPendingPasswordToken(data.token)
       set({
         pendingPasswordToken: data.token,
@@ -251,7 +233,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       return data.token
     } catch (error) {
       let message = messages.auth.status.errors.verifyEmailErrorDefault
-      if (axios.isAxiosError(error)) {
+      if (authService.isAxiosError(error)) {
         const status = error.response?.status
         if (status === 400) message = messages.auth.status.errors.verifyEmailInvalidCode
         if (status === 404) message = messages.auth.status.errors.verifyEmailNotFound
@@ -270,13 +252,13 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   forgotPassword: async (payload: AuthForgotPasswordPayload) => {
     try {
       set({ forgotPasswordSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
-      await axiosInstance.post('/auth/forgot-password', payload)
+      await authService.forgotPassword(payload)
       authSessionStorage.setPendingRecoveryEmail(payload.email)
       set({ pendingRecoveryEmail: payload.email, successMessage: messages.auth.status.success.forgotPasswordSuccess })
       return true
     } catch (error) {
       let message = messages.auth.status.errors.forgotPasswordErrorDefault
-      if (axios.isAxiosError(error)) {
+      if (authService.isAxiosError(error)) {
         const status = error.response?.status
         if (status === 400) message = messages.auth.status.errors.forgotPasswordInvalidEmail
         if (status === 404) message = messages.auth.status.errors.forgotPasswordNotFound
@@ -295,12 +277,12 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   resendVerification: async (payload: AuthResendVerificationPayload) => {
     try {
       set({ resendSubmitting: true, errorMessage: null, successMessage: null })
-      await axiosInstance.post('/auth/resend-verification', payload)
+      await authService.resendVerification(payload)
       set({ successMessage: messages.auth.status.success.resendSuccess })
       return true
     } catch (error) {
       let message = messages.auth.status.errors.resendErrorDefault
-      if (axios.isAxiosError(error)) {
+      if (authService.isAxiosError(error)) {
         const status = error.response?.status
         if (status === 400) message = messages.auth.status.errors.resendInvalidEmail
         if (status === 404) message = messages.auth.status.errors.resendNotFound
@@ -315,7 +297,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   createPassword: async (payload: AuthCreatePasswordPayload) => {
     try {
       set({ createPasswordSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
-      await axiosInstance.post('/auth/create-password', payload)
+      await authService.createPassword(payload)
       authSessionStorage.clearPendingPasswordToken()
       set({
         pendingPasswordToken: null,
@@ -325,7 +307,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       return true
     } catch (error) {
       let message = messages.auth.status.errors.createPasswordErrorDefault
-      if (axios.isAxiosError(error)) {
+      if (authService.isAxiosError(error)) {
         const status = error.response?.status
         if (status === 400) message = messages.auth.status.errors.createPasswordInvalid
         if (status === 404) message = messages.auth.status.errors.createPasswordNotFound
@@ -348,11 +330,11 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
 
     currentUserRequest = (async () => {
       try {
-        const { data } = await axiosInstance.get<AuthUser>('/auth/me')
+        const data = await authService.getCurrentUser()
         set({ user: data })
       } catch (error) {
         set({ errorBack: error })
-        if (axios.isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 403)) {
+        if (authService.isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 403)) {
           set({ user: null, permissions: [] })
         }
         throw error
@@ -380,7 +362,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
 
   logout: async () => {
     try {
-      await axiosInstance.post('/auth/logout')
+      await authService.logout()
     } catch (error) {
       set({ errorBack: error })
     }
@@ -390,7 +372,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   updateProfile: async (payload: SettingUpdateProfilePayload) => {
     try {
       set({ updateProfileSubmitting: true, errorMessage: null })
-      await axiosInstance.put('/user/update', payload)
+      await authService.updateProfile(payload)
       const currentUser = get().user
       if (currentUser) {
         set({
@@ -407,7 +389,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       return true
     } catch (error) {
       let message = messages.auth.status.errors.updateProfileErrorDefault
-      if (axios.isAxiosError(error)) {
+      if (authService.isAxiosError(error)) {
         const status = error.response?.status
         if (status === 400) message = messages.auth.status.errors.updateProfileInvalidData
         if (status === 404) message = messages.auth.status.errors.updateProfileNotFound
@@ -422,16 +404,13 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   updateAvatar: async (userId: number, payload: SettingUpdateAvatarPayload) => {
     try {
       set({ updateAvatarSubmitting: true, errorMessage: null })
-      const formData = mapperUpdateAvatarFormData(payload)
-      await axiosInstance.post(`/user/${userId}/avatar`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      await authService.updateAvatar(userId, payload)
       await get().getCurrentUser()
       set({ successMessage: messages.auth.status.success.updateAvatarSuccess })
       return true
     } catch (error) {
       let message = messages.auth.status.errors.updateAvatarErrorDefault
-      if (axios.isAxiosError(error)) {
+      if (authService.isAxiosError(error)) {
         const status = error.response?.status
         if (status === 400) message = messages.auth.status.errors.updateAvatarInvalidFile
         if (status === 404) message = messages.auth.status.errors.updateAvatarNotFound

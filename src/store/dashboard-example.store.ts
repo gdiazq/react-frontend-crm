@@ -1,9 +1,9 @@
 import { create } from 'zustand'
-import axios from 'axios'
+import { dashboardService } from '@/services'
 import { initialDashboardExample } from '@/factories'
 import { mapperDashboardExample } from '@/mappers'
 import messages from '@/messages/messages'
-import type { DashboardExampleRaw, DashboardExampleStore } from '@/types'
+import type { DashboardExampleStore } from '@/types'
 
 export const useStoreDashboardExample = create<DashboardExampleStore>()((set) => ({
   dashboard: { ...initialDashboardExample },
@@ -13,7 +13,7 @@ export const useStoreDashboardExample = create<DashboardExampleStore>()((set) =>
   getDashboard: async () => {
     try {
       set({ loadingDashboard: true, errorMessage: '' })
-      const { data } = await axios.get<DashboardExampleRaw>('/db/dashboard/dashboard-example.mock.json')
+      const data = await dashboardService.fetchDashboardExample()
       set({ dashboard: mapperDashboardExample(data) })
     } catch {
       set({ errorMessage: messages.dashboard.status.errors.loadError })

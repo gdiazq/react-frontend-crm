@@ -1,9 +1,8 @@
 import { create } from 'zustand'
-import axios from 'axios'
-import { axiosInstance } from '@/config'
+import { authService } from '@/services'
 import { mapperPreLoginMfaRequired } from '@/mappers'
 import messages from '@/messages/messages'
-import type { AuthPreLoginResponse, PreLoginStore } from '@/types'
+import type { PreLoginStore } from '@/types'
 
 const PRE_LOGIN_EMAIL_KEY = 'preLoginEmail'
 const PRE_LOGIN_MFA_REQUIRED_KEY = 'preLoginMfaRequired'
@@ -18,9 +17,7 @@ export const useStorePreLogin = create<PreLoginStore>()((set) => ({
     try {
       set({ preLoginSubmitting: true, loginError: false, errorMessage: '' })
 
-      const { data } = await axiosInstance.post<AuthPreLoginResponse>('/auth/pre-login', {
-        email: email.trim(),
-      })
+      const data = await authService.preLogin(email)
 
       const mfaRequired = mapperPreLoginMfaRequired(data)
       sessionStorage.setItem(PRE_LOGIN_EMAIL_KEY, email.trim())
@@ -29,7 +26,7 @@ export const useStorePreLogin = create<PreLoginStore>()((set) => ({
       return true
     } catch (error) {
       let errorMessage = messages.auth.status.errors.preLoginInvalidEmail
-      if (axios.isAxiosError(error)) {
+      if (authService.isAxiosError(error)) {
         const status = error.response?.status
         if (status === 400) errorMessage = messages.auth.status.errors.preLoginInvalidEmailShort
       }

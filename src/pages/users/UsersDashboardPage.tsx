@@ -23,6 +23,7 @@ export default function UsersDashboardPage() {
   const pagination = useStoreUsers((s) => s.pagination)
   const queryParams = useStoreUsers((s) => s.queryParams)
   const loadingUsers = useStoreUsers((s) => s.loadingUsers)
+  const loadingToggleStatus = useStoreUsers((s) => s.loadingToggleStatus)
   const errorMessage = useStoreUsers((s) => s.errorMessage)
   const getUsers = useStoreUsers((s) => s.getUsers)
   const setSearch = useStoreUsers((s) => s.setSearch)
@@ -58,6 +59,7 @@ export default function UsersDashboardPage() {
   }
 
   const handleToggleStatus = async (row: UserTableRow) => {
+    if (loadingToggleStatus) return
     const nextStatus = row.status !== true
     const success = await mutationToggleUserStatus(row.id, nextStatus)
     if (success) {
@@ -72,16 +74,18 @@ export default function UsersDashboardPage() {
     actionToggleStatus(row.status === true, () => { void handleToggleStatus(row) }),
   ]
 
-  const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number) => {
+  const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
     const userRow = row as UserTableRow
     if (columnIndex === STATUS_COLUMN_INDEX) {
       return <StatusBadgeComponent enabled={userRow.status === true} />
     }
     if (columnIndex === ACTIONS_COLUMN_INDEX) {
+      const openDirection = rowIndex >= Math.max(usersRows.length - 2, 0) ? 'up' : 'down'
       return (
         <ActionsDropdownComponent
           open={openActionsRowId === row.id}
           actions={resolveRowActions(userRow)}
+          openDirection={openDirection}
           onToggle={() => setOpenActionsRowId((id) => (id === row.id ? null : row.id))}
         />
       )
@@ -100,18 +104,13 @@ export default function UsersDashboardPage() {
           {errorMessage}
         </p>
       )}
-      {actionsMessage && (
-        <p className="rounded-lg border border-cyan-300 bg-cyan-50 px-3 py-2 text-sm text-cyan-700 dark:border-cyan-400/40 dark:bg-cyan-900/20 dark:text-cyan-200">
-          {actionsMessage}
-        </p>
-      )}
 
       <div className="flex flex-col gap-3 md:flex-row md:items-end">
         <div className="flex items-center">
           <ButtonComponent
             type="button"
             variant="outline"
-            disabled={loadingUsers}
+            disabled={loadingUsers || loadingToggleStatus}
             label="Filtro"
             onClick={() => setActionsMessage(messages.users.ui.filtersComingSoon)}
           />
@@ -119,7 +118,7 @@ export default function UsersDashboardPage() {
         <div className="flex-1">
           <SearchBarComponent
             value={queryParams.search}
-            loading={loadingUsers}
+            loading={loadingUsers || loadingToggleStatus}
             placeholder="Buscar por nombre, apellido o correo"
             buttonClassName="bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             onValueChange={setSearch}
@@ -130,7 +129,7 @@ export default function UsersDashboardPage() {
           <ButtonComponent
             type="button"
             variant="primary"
-            disabled={loadingUsers}
+            disabled={loadingUsers || loadingToggleStatus}
             className="text-white dark:text-white"
             label="Nuevo usuario"
             onClick={() => setActionsMessage(messages.users.ui.createComingSoon)}
@@ -145,6 +144,14 @@ export default function UsersDashboardPage() {
         emptyMessage="No hay usuarios registrados."
         renderCell={renderCell}
       />
+
+      <div className="min-h-11">
+        {actionsMessage && (
+          <p className="rounded-lg border border-cyan-300 bg-cyan-50 px-3 py-2 text-sm text-cyan-700 dark:border-cyan-400/40 dark:bg-cyan-900/20 dark:text-cyan-200">
+            {actionsMessage}
+          </p>
+        )}
+      </div>
 
       <div className="flex justify-end">
         <PaginationComponent

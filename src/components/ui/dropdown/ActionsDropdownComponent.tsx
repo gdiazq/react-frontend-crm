@@ -4,9 +4,17 @@ interface ActionsDropdownComponentProps {
   open: boolean
   actions: DropdownAction[]
   onToggle: () => void
+  openDirection?: 'up' | 'down'
 }
 
-export default function ActionsDropdownComponent({ open, actions, onToggle }: ActionsDropdownComponentProps) {
+export default function ActionsDropdownComponent({
+  open,
+  actions,
+  onToggle,
+  openDirection = 'down',
+}: ActionsDropdownComponentProps) {
+  const dropdownPositionClass = openDirection === 'up' ? 'bottom-10' : 'top-10'
+
   return (
     <div className="relative inline-flex" onClick={(e) => e.stopPropagation()}>
       <button
@@ -22,7 +30,7 @@ export default function ActionsDropdownComponent({ open, actions, onToggle }: Ac
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 z-30 min-w-52 rounded-lg border border-slate-200 bg-white p-1.5 shadow-xl dark:border-white/10 dark:bg-slate-900">
+        <div className={`absolute right-0 z-50 min-w-52 rounded-lg border border-slate-200 bg-white p-1.5 shadow-xl dark:border-white/10 dark:bg-slate-900 ${dropdownPositionClass}`}>
           {actions.map((action) => (
             <button
               key={action.id}

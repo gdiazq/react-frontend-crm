@@ -1,15 +1,11 @@
 import { create } from 'zustand'
-import axios from 'axios'
-import { axiosInstance } from '@/config'
+import { settingsService } from '@/services'
 import {
   createDeviceIdService,
   findDeviceById,
   removeDeviceById,
 } from '@/utils'
 import type {
-  SettingDeviceSessionRaw,
-  SettingMfaSetupDataRaw,
-  SettingMfaStatusResponse,
   SettingsStore,
   SettingTabKey,
 } from '@/types'
@@ -29,7 +25,6 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 
-const AUTH_BASE_PATH = '/auth'
 const { getDeviceId } = createDeviceIdService()
 
 export const useStoreSettings = create<SettingsStore>()((set, get) => ({
@@ -61,7 +56,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     if (!email) return
     try {
       set({ loadingMfaStatus: true, errorBack: null })
-      const { data } = await axiosInstance.get<SettingMfaStatusResponse>(`${AUTH_BASE_PATH}/mfa/status/${encodeURIComponent(email)}`)
+      const data = await settingsService.getMfaStatus(email)
       set({ mfaState: mapperMfaStateFromResponse(data) })
     } catch (error) {
       set({ errorBack: error, statusMessage: messages.settings.status.errors.mfaStatusError })
@@ -74,11 +69,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     if (!username) return false
     try {
       set({ loadingMfaAction: true, errorBack: null })
-      const { data } = await axiosInstance.post<SettingMfaSetupDataRaw>(
-        `${AUTH_BASE_PATH}/mfa/setup`,
-        { username },
-        { headers: { 'X-Device-Id': getDeviceId() } },
-      )
+      const data = await settingsService.setupMfa(username)
       set({ mfaSetupData: mapperMfaSetupDataFromResponse(data) })
       const email = get().mfaStatusEmail
       if (email) await get().getMfaStatus(email)
@@ -86,7 +77,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       return true
     } catch (error) {
       set({ errorBack: error })
-      if (axios.isAxiosError(error)) {
+      if (settingsService.isAxiosError(error)) {
         set({ statusMessage: error.response?.data?.message || messages.settings.status.errors.mfaSetupError })
       } else {
         set({ statusMessage: messages.settings.status.errors.mfaSetupError })
@@ -105,11 +96,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     }
     try {
       set({ loadingMfaAction: true, errorBack: null })
-      await axiosInstance.post(
-        `${AUTH_BASE_PATH}/mfa/verify`,
-        { username, code: get().mfaVerificationCode.trim() },
-        { headers: { 'X-Device-Id': getDeviceId() } },
-      )
+      await settingsService.verifyMfa(username, get().mfaVerificationCode.trim())
       set({ mfaVerificationCode: '' })
       const email = get().mfaStatusEmail
       if (email) await get().getMfaStatus(email)
@@ -117,7 +104,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       return true
     } catch (error) {
       set({ errorBack: error })
-      if (axios.isAxiosError(error)) {
+      if (settingsService.isAxiosError(error)) {
         set({ statusMessage: error.response?.data?.message || messages.settings.status.errors.mfaVerifyError })
       } else {
         set({ statusMessage: messages.settings.status.errors.mfaVerifyError })
@@ -132,18 +119,14 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     if (!username) return false
     try {
       set({ loadingMfaAction: true, errorBack: null })
-      await axiosInstance.post(
-        `${AUTH_BASE_PATH}/mfa/disable`,
-        { username },
-        { headers: { 'X-Device-Id': getDeviceId() } },
-      )
+      await settingsService.disableMfa(username)
       const email = get().mfaStatusEmail
       if (email) await get().getMfaStatus(email)
       set({ statusMessage: messages.settings.status.success.mfaDisableSuccess })
       return true
     } catch (error) {
       set({ errorBack: error })
-      if (axios.isAxiosError(error)) {
+      if (settingsService.isAxiosError(error)) {
         set({ statusMessage: error.response?.data?.message || messages.settings.status.errors.mfaDisableError })
       } else {
         set({ statusMessage: messages.settings.status.errors.mfaDisableError })
@@ -157,7 +140,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
   getSessions: async () => {
     try {
       set({ loadingSessions: true, errorBack: null })
-      const { data } = await axiosInstance.get<SettingDeviceSessionRaw[]>(`${AUTH_BASE_PATH}/sessions`)
+      const data = await settingsService.getSessions()
       set({ devices: mapperSettingSessionsFromResponse(data, getDeviceId()) })
     } catch (error) {
       set({ errorBack: error, statusMessage: messages.settings.status.errors.sessionsError })
@@ -170,13 +153,13 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     if (!Number.isInteger(sessionId) || sessionId <= 0) return false
     try {
       set({ loadingLogoutDevice: true, errorBack: null })
-      await axiosInstance.post(`${AUTH_BASE_PATH}/logout-device`, { sessionId })
+      await settingsService.logoutDevice(sessionId)
       set((state) => ({ devices: removeDeviceById(state.devices, String(sessionId)) }))
       set({ statusMessage: messages.settings.status.success.logoutDeviceSuccess })
       return true
     } catch (error) {
       set({ errorBack: error })
-      if (axios.isAxiosError(error)) {
+      if (settingsService.isAxiosError(error)) {
         set({ statusMessage: error.response?.data?.message || messages.settings.status.errors.logoutDeviceError })
       } else {
         set({ statusMessage: messages.settings.status.errors.logoutDeviceError })

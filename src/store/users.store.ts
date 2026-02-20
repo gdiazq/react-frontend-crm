@@ -1,25 +1,23 @@
 import { create } from 'zustand'
-import axios from 'axios'
-import { axiosInstance } from '@/config'
+import { usersService } from '@/services'
 import { initialUsersPagination, initialUsersQueryParams, initialUsersRows } from '@/factories'
-import { mapperUsersPagination, mapperUsersQueryParams, mapperUsersRows } from '@/mappers'
+import { mapperUsersPagination, mapperUsersRows } from '@/mappers'
 import messages from '@/messages/messages'
-import type { UserPagedResponse, UsersStore } from '@/types'
+import type { UsersStore } from '@/types'
 
 export const useStoreUsers = create<UsersStore>()((set, get) => ({
   usersRows: [...initialUsersRows],
   pagination: { ...initialUsersPagination },
   queryParams: { ...initialUsersQueryParams },
   loadingUsers: false,
+  loadingToggleStatus: false,
   errorMessage: null,
   errorBack: null,
 
   getUsers: async () => {
     try {
       set({ loadingUsers: true, errorMessage: null, errorBack: null })
-      const { data } = await axiosInstance.get<UserPagedResponse>('/user/paged', {
-        params: mapperUsersQueryParams(get().queryParams),
-      })
+      const data = await usersService.getUsers(get().queryParams)
       const pagination = mapperUsersPagination(data)
       set({
         usersRows: mapperUsersRows(data.content || []),
@@ -28,7 +26,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
       })
     } catch (error) {
       set({ errorBack: error })
-      if (axios.isAxiosError(error)) {
+      if (usersService.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.users.status.errors.loadError })
       } else {
         set({ errorMessage: messages.users.status.errors.loadError })
@@ -78,11 +76,14 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
       return false
     }
 
+    const previousRow = get().usersRows.find((row) => row.id === userId)
+    if (!previousRow) {
+      set({ errorMessage: messages.users.status.errors.invalidStatusUserId })
+      return false
+    }
+
     try {
-      set({ loadingUsers: true, errorMessage: null, errorBack: null })
-
-      await axiosInstance.put(`/user/${parsedUserId}/status`, { status: nextStatus })
-
+      set({ loadingToggleStatus: true, errorMessage: null, errorBack: null })
       set((state) => ({
         usersRows: state.usersRows.map((row) => {
           if (row.id !== userId) return row
@@ -97,18 +98,20 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
         }),
       }))
 
-      await get().getUsers()
+      await usersService.toggleUserStatus(parsedUserId, nextStatus)
       return true
     } catch (error) {
-      set({ errorBack: error })
-      if (axios.isAxiosError(error)) {
+      set((state) => ({
+        usersRows: state.usersRows.map((row) => (row.id === userId ? previousRow : row)),
+      }))
+      if (usersService.isAxiosError(error)) {
         set({ errorMessage: error.response?.data?.message || messages.users.status.errors.toggleStatusError })
       } else {
         set({ errorMessage: messages.users.status.errors.toggleStatusError })
       }
       return false
     } finally {
-      set({ loadingUsers: false })
+      set({ loadingToggleStatus: false })
     }
   },
 }))

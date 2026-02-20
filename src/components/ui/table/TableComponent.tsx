@@ -10,7 +10,7 @@ interface TableComponentProps {
   rows: TableRow[]
   loading?: boolean
   emptyMessage?: string
-  renderCell?: (row: TableRow, value: string | ReactNode, columnIndex: number) => ReactNode
+  renderCell?: (row: TableRow, value: string | ReactNode, columnIndex: number, rowIndex: number) => ReactNode
 }
 
 export default function TableComponent({
@@ -21,7 +21,7 @@ export default function TableComponent({
   renderCell,
 }: TableComponentProps) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+    <section className="overflow-visible rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
       <div className="overflow-x-auto">
         <table className="w-full min-w-max">
           <thead className="bg-slate-50 dark:bg-slate-800/60">
@@ -50,14 +50,14 @@ export default function TableComponent({
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
+              rows.map((row, rowIndex) => (
                 <tr key={row.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
                   {columns.map((column, index) => (
                     <td
                       key={`${row.id}-${column}-${index}`}
                       className="whitespace-nowrap px-4 py-3 text-sm text-slate-700 dark:text-slate-200"
                     >
-                      {renderCell ? renderCell(row, row.values[index], index) : row.values[index] ?? '-'}
+                      {renderCell ? renderCell(row, row.values[index], index, rowIndex) : row.values[index] ?? '-'}
                     </td>
                   ))}
                 </tr>

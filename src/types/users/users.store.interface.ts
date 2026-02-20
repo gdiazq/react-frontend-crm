@@ -7,6 +7,7 @@ export interface UsersStore {
   queryParams: UsersQueryParams
   // Loading
   loadingUsers: boolean
+  loadingToggleStatus: boolean
   // Messages
   errorMessage: string | null
   errorBack: unknown | null
