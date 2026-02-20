@@ -1,24 +1,14 @@
 import { create } from 'zustand'
 import { authService } from '@/services'
-import { createAuthSessionStorage } from '@/utils'
 import { initialAlert } from '@/factories'
 import messages from '@/messages/messages'
 import type {
   AlertsCore,
   AuthStore,
-  AuthCreatePasswordPayload,
-  AuthForgotPasswordPayload,
   AuthLoginErrorResponse,
   AuthLoginPayload,
-  AuthResendVerificationPayload,
-  AuthRegisterPayload,
-  AuthVerifyEmailPayload,
   PermissionType,
-  SettingUpdateAvatarPayload,
-  SettingUpdateProfilePayload,
 } from '@/types'
-
-const authSessionStorage = createAuthSessionStorage()
 
 let currentUserRequest: Promise<void> | null = null
 
@@ -26,17 +16,8 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   // State
   user: null,
   permissions: [],
-  sidebar: { toggleMobile: false, toggleCollapse: false },
   // Loading
   loginSubmitting: false,
-  registerSubmitting: false,
-  forgotPasswordSubmitting: false,
-  verifySubmitting: false,
-  createPasswordSubmitting: false,
-  resendSubmitting: false,
-  checkEmailSubmitting: false,
-  updateProfileSubmitting: false,
-  updateAvatarSubmitting: false,
   githubOAuthSubmitting: false,
   loadingUser: false,
   // Messages
@@ -47,13 +28,6 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   errorMessage: null,
   githubOAuthError: null,
   errorBack: null,
-  // Session
-  pendingVerifyEmail: authSessionStorage.getPendingVerifyEmail(),
-  pendingVerifyPhone: authSessionStorage.getPendingVerifyPhone(),
-  pendingRecoveryEmail: authSessionStorage.getPendingRecoveryEmail(),
-  pendingPasswordToken: authSessionStorage.getPendingPasswordToken(),
-  pendingPasswordTokenIssuedAt: authSessionStorage.getPendingPasswordTokenIssuedAt(),
-  emailAvailable: null,
 
   login: async (credentials: AuthLoginPayload) => {
     try {
@@ -124,11 +98,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
 
   startGithubOAuth: async () => {
     try {
-      set({
-        githubOAuthSubmitting: true,
-        githubOAuthError: null,
-        loginError: false,
-      })
+      set({ githubOAuthSubmitting: true, githubOAuthError: null, loginError: false })
       const data = await authService.getGithubOAuthUrl()
       const authUrl = typeof data?.authUrl === 'string' ? data.authUrl.trim() : ''
 
@@ -155,11 +125,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
         errorBack: error,
         loginError: true,
         githubOAuthError: message,
-        messageAlert: {
-          icon: 'fa-solid fa-triangle-exclamation',
-          variant: 'error',
-          message,
-        },
+        messageAlert: { icon: 'fa-solid fa-triangle-exclamation', variant: 'error', message },
       })
       return false
     } finally {
@@ -169,158 +135,6 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
 
   clearGithubOAuthStatus: () => {
     set({ githubOAuthError: null })
-  },
-
-  register: async (payload: AuthRegisterPayload) => {
-    try {
-      set({ registerSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
-
-      await authService.register(payload)
-      authSessionStorage.setPendingVerifyEmail(payload.email)
-      authSessionStorage.setPendingVerifyPhone(payload.phoneNumber)
-      set({
-        pendingVerifyEmail: payload.email,
-        pendingVerifyPhone: payload.phoneNumber,
-        successMessage: messages.auth.status.success.registerSuccess,
-      })
-      return true
-    } catch (error) {
-      let message = messages.auth.status.errors.registerErrorDefault
-      if (authService.isAxiosError(error)) {
-        const status = error.response?.status
-        if (status === 409) message = messages.auth.status.errors.registerEmailTaken
-        if (status === 400) message = messages.auth.status.errors.registerInvalidData
-      }
-      set({
-        errorBack: error,
-        messageAlert: { icon: 'fa-solid fa-triangle-exclamation', variant: 'error', message },
-        errorMessage: message,
-      })
-      return false
-    } finally {
-      set({ registerSubmitting: false })
-    }
-  },
-
-  checkEmailAvailability: async (email: string) => {
-    try {
-      set({ checkEmailSubmitting: true, emailAvailable: null })
-      const data = await authService.checkEmailAvailability(email)
-      set({ emailAvailable: data.available })
-      return data.available
-    } catch (error) {
-      set({ errorBack: error, emailAvailable: null })
-      return null
-    } finally {
-      set({ checkEmailSubmitting: false })
-    }
-  },
-
-  verifyEmail: async (payload: AuthVerifyEmailPayload) => {
-    try {
-      set({ verifySubmitting: true, loginError: false, errorMessage: null, successMessage: null })
-      const data = await authService.verifyEmail(payload)
-      authSessionStorage.setPendingPasswordToken(data.token)
-      set({
-        pendingPasswordToken: data.token,
-        pendingPasswordTokenIssuedAt: authSessionStorage.getPendingPasswordTokenIssuedAt(),
-        pendingVerifyEmail: null,
-        pendingVerifyPhone: null,
-        successMessage: messages.auth.status.success.verifyEmailSuccess,
-      })
-      authSessionStorage.clearPendingVerifyEmail()
-      authSessionStorage.clearPendingVerifyPhone()
-      return data.token
-    } catch (error) {
-      let message = messages.auth.status.errors.verifyEmailErrorDefault
-      if (authService.isAxiosError(error)) {
-        const status = error.response?.status
-        if (status === 400) message = messages.auth.status.errors.verifyEmailInvalidCode
-        if (status === 404) message = messages.auth.status.errors.verifyEmailNotFound
-      }
-      set({
-        errorBack: error,
-        messageAlert: { icon: 'fa-solid fa-triangle-exclamation', variant: 'error', message },
-        errorMessage: message,
-      })
-      return null
-    } finally {
-      set({ verifySubmitting: false })
-    }
-  },
-
-  forgotPassword: async (payload: AuthForgotPasswordPayload) => {
-    try {
-      set({ forgotPasswordSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
-      await authService.forgotPassword(payload)
-      authSessionStorage.setPendingRecoveryEmail(payload.email)
-      set({ pendingRecoveryEmail: payload.email, successMessage: messages.auth.status.success.forgotPasswordSuccess })
-      return true
-    } catch (error) {
-      let message = messages.auth.status.errors.forgotPasswordErrorDefault
-      if (authService.isAxiosError(error)) {
-        const status = error.response?.status
-        if (status === 400) message = messages.auth.status.errors.forgotPasswordInvalidEmail
-        if (status === 404) message = messages.auth.status.errors.forgotPasswordNotFound
-      }
-      set({
-        errorBack: error,
-        messageAlert: { icon: 'fa-solid fa-triangle-exclamation', variant: 'error', message },
-        errorMessage: message,
-      })
-      return false
-    } finally {
-      set({ forgotPasswordSubmitting: false })
-    }
-  },
-
-  resendVerification: async (payload: AuthResendVerificationPayload) => {
-    try {
-      set({ resendSubmitting: true, errorMessage: null, successMessage: null })
-      await authService.resendVerification(payload)
-      set({ successMessage: messages.auth.status.success.resendSuccess })
-      return true
-    } catch (error) {
-      let message = messages.auth.status.errors.resendErrorDefault
-      if (authService.isAxiosError(error)) {
-        const status = error.response?.status
-        if (status === 400) message = messages.auth.status.errors.resendInvalidEmail
-        if (status === 404) message = messages.auth.status.errors.resendNotFound
-      }
-      set({ errorBack: error, errorMessage: message })
-      return false
-    } finally {
-      set({ resendSubmitting: false })
-    }
-  },
-
-  createPassword: async (payload: AuthCreatePasswordPayload) => {
-    try {
-      set({ createPasswordSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
-      await authService.createPassword(payload)
-      authSessionStorage.clearPendingPasswordToken()
-      set({
-        pendingPasswordToken: null,
-        pendingPasswordTokenIssuedAt: null,
-        successMessage: messages.auth.status.success.createPasswordSuccess,
-      })
-      return true
-    } catch (error) {
-      let message = messages.auth.status.errors.createPasswordErrorDefault
-      if (authService.isAxiosError(error)) {
-        const status = error.response?.status
-        if (status === 400) message = messages.auth.status.errors.createPasswordInvalid
-        if (status === 404) message = messages.auth.status.errors.createPasswordNotFound
-      }
-      set({
-        errorBack: error,
-        messageAlert: { icon: 'fa-solid fa-triangle-exclamation', variant: 'error', message },
-        errorMessage: message,
-      })
-      return false
-    } finally {
-      set({ createPasswordSubmitting: false })
-    }
   },
 
   getCurrentUser: async () => {
@@ -348,16 +162,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
   },
 
   reset: () => {
-    authSessionStorage.clearPendingPasswordToken()
-    authSessionStorage.clearPendingRecoveryEmail()
-    set({
-      user: null,
-      permissions: [],
-      mfaRequired: false,
-      pendingPasswordToken: null,
-      pendingPasswordTokenIssuedAt: null,
-      pendingRecoveryEmail: null,
-    })
+    set({ user: null, permissions: [], mfaRequired: false })
   },
 
   logout: async () => {
@@ -369,99 +174,8 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
     get().reset()
   },
 
-  updateProfile: async (payload: SettingUpdateProfilePayload) => {
-    try {
-      set({ updateProfileSubmitting: true, errorMessage: null })
-      await authService.updateProfile(payload)
-      const currentUser = get().user
-      if (currentUser) {
-        set({
-          user: {
-            ...currentUser,
-            email: payload.email,
-            first_name: payload.firstName,
-            last_name: payload.lastName,
-            phone_number: payload.phoneNumber,
-          },
-        })
-      }
-      set({ successMessage: messages.auth.status.success.updateProfileSuccess })
-      return true
-    } catch (error) {
-      let message = messages.auth.status.errors.updateProfileErrorDefault
-      if (authService.isAxiosError(error)) {
-        const status = error.response?.status
-        if (status === 400) message = messages.auth.status.errors.updateProfileInvalidData
-        if (status === 404) message = messages.auth.status.errors.updateProfileNotFound
-      }
-      set({ errorBack: error, errorMessage: message })
-      return false
-    } finally {
-      set({ updateProfileSubmitting: false })
-    }
-  },
-
-  updateAvatar: async (userId: number, payload: SettingUpdateAvatarPayload) => {
-    try {
-      set({ updateAvatarSubmitting: true, errorMessage: null })
-      await authService.updateAvatar(userId, payload)
-      await get().getCurrentUser()
-      set({ successMessage: messages.auth.status.success.updateAvatarSuccess })
-      return true
-    } catch (error) {
-      let message = messages.auth.status.errors.updateAvatarErrorDefault
-      if (authService.isAxiosError(error)) {
-        const status = error.response?.status
-        if (status === 400) message = messages.auth.status.errors.updateAvatarInvalidFile
-        if (status === 404) message = messages.auth.status.errors.updateAvatarNotFound
-      }
-      set({ errorBack: error, errorMessage: message })
-      return false
-    } finally {
-      set({ updateAvatarSubmitting: false })
-    }
-  },
-
-  // Setters
-  setPendingVerifyEmail: (email: string) => {
-    authSessionStorage.setPendingVerifyEmail(email)
-    set({ pendingVerifyEmail: email })
-  },
-
-  setPendingVerifyPhone: (phone: string) => {
-    authSessionStorage.setPendingVerifyPhone(phone)
-    set({ pendingVerifyPhone: phone })
-  },
-
-  setPendingRecoveryEmail: (email: string) => {
-    authSessionStorage.setPendingRecoveryEmail(email)
-    set({ pendingRecoveryEmail: email })
-  },
-
-  setPendingPasswordToken: (token: string) => {
-    authSessionStorage.setPendingPasswordToken(token)
-    set({
-      pendingPasswordToken: token,
-      pendingPasswordTokenIssuedAt: authSessionStorage.getPendingPasswordTokenIssuedAt(),
-    })
-  },
-
-  clearPendingPasswordToken: () => {
-    authSessionStorage.clearPendingPasswordToken()
-    set({ pendingPasswordToken: null, pendingPasswordTokenIssuedAt: null })
-  },
-
   clearMfaRequired: () => {
     set({ mfaRequired: false })
-  },
-
-  // Handlers
-  handleSidebarCollapse: () => {
-    set((state) => ({ sidebar: { ...state.sidebar, toggleCollapse: !state.sidebar.toggleCollapse } }))
-  },
-
-  handleSidebarMobile: () => {
-    set((state) => ({ sidebar: { ...state.sidebar, toggleMobile: !state.sidebar.toggleMobile } }))
   },
 
   hasPermission: (moduleName: string, permissionType: PermissionType) => {

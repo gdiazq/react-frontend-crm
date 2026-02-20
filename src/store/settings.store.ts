@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { settingsService } from '@/services'
+import { authService, settingsService } from '@/services'
 import {
   createDeviceIdService,
   findDeviceById,
@@ -8,6 +8,8 @@ import {
 import type {
   SettingsStore,
   SettingTabKey,
+  SettingUpdateAvatarPayload,
+  SettingUpdateProfilePayload,
 } from '@/types'
 import {
   initialSettingsDevices,
@@ -43,6 +45,8 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
   loadingSessions: false,
   loadingMfaAction: false,
   loadingLogoutDevice: false,
+  updateProfileSubmitting: false,
+  updateAvatarSubmitting: false,
   // Messages
   errorBack: null,
 
@@ -199,6 +203,46 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     }
     await Promise.all(otherSessions.map((item) => get().mutationLogoutDevice(Number(item.id))))
     set({ statusMessage: messages.settings.status.success.logoutAllOtherSuccess })
+  },
+
+  mutationUpdateProfile: async (payload: SettingUpdateProfilePayload) => {
+    try {
+      set({ updateProfileSubmitting: true, errorBack: null })
+      await authService.updateProfile(payload)
+      const { useStoreAuth } = await import('./auth.store')
+      await useStoreAuth.getState().getCurrentUser()
+      return true
+    } catch (error) {
+      let message = messages.settings.status.errors.profileUpdateError
+      if (authService.isAxiosError(error)) {
+        const backendMessage = error.response?.data?.message
+        if (typeof backendMessage === 'string' && backendMessage.length > 0) message = backendMessage
+      }
+      set({ errorBack: error, statusMessage: message })
+      return false
+    } finally {
+      set({ updateProfileSubmitting: false })
+    }
+  },
+
+  mutationUpdateAvatar: async (userId: number, payload: SettingUpdateAvatarPayload) => {
+    try {
+      set({ updateAvatarSubmitting: true, errorBack: null })
+      await authService.updateAvatar(userId, payload)
+      const { useStoreAuth } = await import('./auth.store')
+      await useStoreAuth.getState().getCurrentUser()
+      return true
+    } catch (error) {
+      let message = messages.settings.status.errors.avatarUpdateError
+      if (authService.isAxiosError(error)) {
+        const backendMessage = error.response?.data?.message
+        if (typeof backendMessage === 'string' && backendMessage.length > 0) message = backendMessage
+      }
+      set({ errorBack: error, statusMessage: message })
+      return false
+    } finally {
+      set({ updateAvatarSubmitting: false })
+    }
   },
 }))
 

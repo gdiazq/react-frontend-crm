@@ -1,3 +1,10 @@
+import type { ModulePermission } from '../common/common.interface'
+
+export interface LoginResponse {
+  user: AuthUser
+  modules?: ModulePermission[]
+}
+
 export interface AuthUser {
   id: number
   username: string

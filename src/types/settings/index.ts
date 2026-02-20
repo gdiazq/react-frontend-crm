@@ -15,5 +15,5 @@ export type {
   SettingMfaDisablePayload,
   SettingUpdateProfilePayload,
   SettingUpdateAvatarPayload,
-} from './setting.payload'
-export type { SettingUpdateProfileForm, SettingUpdateAvatarForm } from './setting.form'
+} from './setting.payload.interface'
+export type { SettingUpdateProfileForm, SettingUpdateAvatarForm } from './setting.form.interface'

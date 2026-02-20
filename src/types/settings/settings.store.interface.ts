@@ -5,6 +5,7 @@ import type {
   SettingTabKey,
   SettingTabOption,
 } from './setting.interface'
+import type { SettingUpdateAvatarPayload, SettingUpdateProfilePayload } from './setting.payload.interface'
 
 export interface SettingsStore {
   // State
@@ -22,6 +23,8 @@ export interface SettingsStore {
   loadingSessions: boolean
   loadingMfaAction: boolean
   loadingLogoutDevice: boolean
+  updateProfileSubmitting: boolean
+  updateAvatarSubmitting: boolean
   // Messages
   errorBack: unknown | null
   // Setters
@@ -39,6 +42,8 @@ export interface SettingsStore {
   mutationMfaVerify: (username: string) => Promise<boolean>
   mutationMfaDisable: (username: string) => Promise<boolean>
   mutationLogoutDevice: (sessionId: number) => Promise<boolean>
+  mutationUpdateProfile: (payload: SettingUpdateProfilePayload) => Promise<boolean>
+  mutationUpdateAvatar: (userId: number, payload: SettingUpdateAvatarPayload) => Promise<boolean>
   // Handlers
   logoutDevice: (id: string) => Promise<void>
   logoutAllOtherDevices: () => Promise<void>
