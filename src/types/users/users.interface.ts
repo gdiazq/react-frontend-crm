@@ -93,12 +93,6 @@ export interface UserCreateResponse {
   createdAt: string
 }
 
-export interface UserRoleOption {
-  id: number
-  name: string
-  description: string
-}
-
 export type UsersSortBy =
   | 'username'
   | 'firstName'

@@ -6,7 +6,6 @@ import {
   initialUsersRows,
 } from '@/factories'
 import {
-  mapperUserRoleOptions,
   mapperUsersPagination,
   mapperUsersRows,
 } from '@/mappers'
@@ -18,12 +17,10 @@ let latestUserDetailRequestId = 0
 export const useStoreUsers = create<UsersStore>()((set, get) => ({
   usersRows: [...initialUsersRows],
   userDetail: null,
-  rolesOptions: [],
   pagination: { ...initialUsersPagination },
   queryParams: { ...initialUsersQueryParams },
   loadingUsers: false,
   loadingUserDetail: false,
-  loadingRoles: false,
   createUserSubmitting: false,
   loadingToggleStatus: false,
   errorMessage: null,
@@ -94,32 +91,6 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
       if (requestId === latestUserDetailRequestId) {
         set({ loadingUserDetail: false })
       }
-    }
-  },
-
-  getRolesForCreate: async () => {
-    try {
-      set({
-        loadingRoles: true,
-        createUserErrorMessage: null,
-        errorBack: null,
-      })
-      const data = await usersService.getRolesForCreate()
-      set({ rolesOptions: mapperUserRoleOptions(data) })
-    } catch (error) {
-      if (usersService.isAxiosError(error)) {
-        set({
-          createUserErrorMessage: error.response?.data?.message || messages.users.status.errors.loadRolesError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          createUserErrorMessage: messages.users.status.errors.loadRolesError,
-          errorBack: error,
-        })
-      }
-    } finally {
-      set({ loadingRoles: false })
     }
   },
 

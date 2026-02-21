@@ -5,7 +5,6 @@ export type {
   UserDetail,
   UserDetailView,
   UserDetailRole,
-  UserRoleOption,
   UserRoleRaw,
   UserRaw,
   UsersSortBy,

@@ -1,5 +1,6 @@
 export { authService } from './auth.service'
 export { dashboardService } from './dashboard.service'
 export { notificationService } from './notification.service'
+export { selectsService } from './selects.service'
 export { settingsService } from './settings.service'
 export { usersService } from './users.service'

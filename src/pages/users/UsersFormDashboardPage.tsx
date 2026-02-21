@@ -11,7 +11,7 @@ import { AUTH_ROUTE_USERS } from '@/constant'
 import { initialCreateUserForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import { mapperCreateUserPayload } from '@/mappers'
-import { useStoreUsers } from '@/store'
+import { useStoreSelects, useStoreUsers } from '@/store'
 import type { UserCreatePayload } from '@/types'
 import { usersCreateValidationRules } from '@/validators'
 
@@ -21,29 +21,33 @@ export default function UsersFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingPayload, setPendingPayload] = useState<UserCreatePayload | null>(null)
 
-  const rolesOptions = useStoreUsers((s) => s.rolesOptions)
-  const loadingRoles = useStoreUsers((s) => s.loadingRoles)
+  const roleOptions = useStoreSelects((s) => s.roleOptions)
+  const loadingRoleOptions = useStoreSelects((s) => s.loadingRoleOptions)
+  const roleOptionsErrorMessage = useStoreSelects((s) => s.roleOptionsErrorMessage)
+  const getRoleOptions = useStoreSelects((s) => s.getRoleOptions)
+  const clearRoleOptionsStatus = useStoreSelects((s) => s.clearRoleOptionsStatus)
   const createUserSubmitting = useStoreUsers((s) => s.createUserSubmitting)
   const createUserErrorMessage = useStoreUsers((s) => s.createUserErrorMessage)
   const createUserSuccessMessage = useStoreUsers((s) => s.createUserSuccessMessage)
-  const getRolesForCreate = useStoreUsers((s) => s.getRolesForCreate)
   const mutationCreateUser = useStoreUsers((s) => s.mutationCreateUser)
   const clearCreateUserStatus = useStoreUsers((s) => s.clearCreateUserStatus)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, usersCreateValidationRules)
 
   const selectOptions = useMemo(
-    () => rolesOptions.map((role) => ({ label: role.name, value: String(role.id) })),
-    [rolesOptions],
+    () => roleOptions.map((role) => ({ label: role.name, value: String(role.id) })),
+    [roleOptions],
   )
 
   useEffect(() => {
     clearCreateUserStatus()
-    void getRolesForCreate()
+    clearRoleOptionsStatus()
+    void getRoleOptions()
     return () => {
       clearCreateUserStatus()
+      clearRoleOptionsStatus()
     }
-  }, [clearCreateUserStatus, getRolesForCreate])
+  }, [clearCreateUserStatus, clearRoleOptionsStatus, getRoleOptions])
 
   const handleSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault()
@@ -91,6 +95,14 @@ export default function UsersFormDashboardPage() {
           message={createUserErrorMessage}
           tone="error"
           onClose={clearCreateUserStatus}
+        />
+      )}
+
+      {roleOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={roleOptionsErrorMessage}
+          tone="error"
+          onClose={clearRoleOptionsStatus}
         />
       )}
 
@@ -189,7 +201,7 @@ export default function UsersFormDashboardPage() {
           <ButtonComponent
             type="submit"
             variant="primary"
-            disabled={createUserSubmitting || loadingRoles || selectOptions.length === 0}
+            disabled={createUserSubmitting || loadingRoleOptions || selectOptions.length === 0}
             label={createUserSubmitting ? 'Creando usuario...' : 'Crear usuario'}
           />
         </div>

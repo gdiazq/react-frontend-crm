@@ -4,7 +4,6 @@ import type {
   UserDetail,
   UserDetailView,
   UserPagedResponse,
-  UserRoleOption,
   UserRaw,
   UserTableRow,
   UsersPagination,
@@ -84,7 +83,7 @@ export function mapperUserDetailView(detail: UserDetail | null): UserDetailView 
   const email = detail.email?.trim() || ''
   const phoneNumber = detail.phoneNumber?.trim() || ''
   const roleNames = (detail.roles || [])
-    .map((role) => role.name?.trim() || '')
+    .map((role) => formatRoleLabel(role.name?.trim() || ''))
     .filter((roleName) => roleName.length > 0)
 
   return {
@@ -104,46 +103,4 @@ export function mapperUserDetailView(detail: UserDetail | null): UserDetailView 
     updatedAtDisplay: formatDateTime(detail.updatedAt, noDate),
     lastLoginDisplay: formatDateTime(detail.lastLogin, noDate),
   }
-}
-
-function toRecord(value: unknown): Record<string, unknown> | null {
-  if (typeof value === 'object' && value !== null) return value as Record<string, unknown>
-  return null
-}
-
-function normalizeRoleOption(value: unknown): UserRoleOption | null {
-  const record = toRecord(value)
-  if (!record) return null
-
-  const parsedId = Number(record.id)
-  const name = typeof record.name === 'string' ? record.name.trim() : ''
-  const description = typeof record.description === 'string' ? record.description.trim() : ''
-  if (!Number.isInteger(parsedId) || parsedId <= 0 || name.length === 0) return null
-
-  return { id: parsedId, name, description }
-}
-
-function resolveRoleOptionsSource(response: unknown): unknown[] {
-  if (Array.isArray(response)) return response
-  const responseRecord = toRecord(response)
-  if (!responseRecord) return []
-
-  if (Array.isArray(responseRecord.content)) return responseRecord.content
-  if (Array.isArray(responseRecord.data)) return responseRecord.data
-
-  const dataRecord = toRecord(responseRecord.data)
-  if (!dataRecord) return []
-
-  if (Array.isArray(dataRecord.content)) return dataRecord.content
-  if (Array.isArray(dataRecord.items)) return dataRecord.items
-
-  return []
-}
-
-export function mapperUserRoleOptions(response: unknown): UserRoleOption[] {
-  const source = resolveRoleOptionsSource(response)
-  return source
-    .map((item) => normalizeRoleOption(item))
-    .filter((item): item is UserRoleOption => item !== null)
-    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
 }
