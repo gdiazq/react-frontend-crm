@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ActionsDropdownComponent,
   AlertMessageComponent,
@@ -12,6 +13,7 @@ import {
   TableComponent,
   UserDetailComponent,
 } from '@/components'
+import { AUTH_ROUTE_USERS_CREATE } from '@/constant'
 import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns } from '@/factories'
 import { mapperUserDetailView } from '@/mappers'
@@ -40,6 +42,7 @@ const USERS_SORT_BY_COLUMN: Partial<Record<number, UsersSortBy>> = {
 const USERS_SORTABLE_COLUMNS = Object.keys(USERS_SORT_BY_COLUMN).map((index) => Number(index))
 
 export default function UsersDashboardPage() {
+  const navigate = useNavigate()
   const usersRows = useStoreUsers((s) => s.usersRows) as UserTableRow[]
   const userDetail = useStoreUsers((s) => s.userDetail)
   const pagination = useStoreUsers((s) => s.pagination)
@@ -229,7 +232,7 @@ export default function UsersDashboardPage() {
             disabled={loadingUsers || loadingToggleStatus}
             className="text-white dark:text-white"
             label="Nuevo usuario"
-            onClick={() => setActionsMessage(messages.users.ui.createComingSoon)}
+            onClick={() => navigate(AUTH_ROUTE_USERS_CREATE)}
           />
         </div>
       </div>

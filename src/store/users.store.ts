@@ -1,7 +1,15 @@
 import { create } from 'zustand'
 import { usersService } from '@/services'
-import { initialUsersPagination, initialUsersQueryParams, initialUsersRows } from '@/factories'
-import { mapperUsersPagination, mapperUsersRows } from '@/mappers'
+import {
+  initialUsersPagination,
+  initialUsersQueryParams,
+  initialUsersRows,
+} from '@/factories'
+import {
+  mapperUserRoleOptions,
+  mapperUsersPagination,
+  mapperUsersRows,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import type { UsersSortBy, UsersSortDir, UsersStore } from '@/types'
 
@@ -10,13 +18,18 @@ let latestUserDetailRequestId = 0
 export const useStoreUsers = create<UsersStore>()((set, get) => ({
   usersRows: [...initialUsersRows],
   userDetail: null,
+  rolesOptions: [],
   pagination: { ...initialUsersPagination },
   queryParams: { ...initialUsersQueryParams },
   loadingUsers: false,
   loadingUserDetail: false,
+  loadingRoles: false,
+  createUserSubmitting: false,
   loadingToggleStatus: false,
   errorMessage: null,
   detailErrorMessage: null,
+  createUserErrorMessage: null,
+  createUserSuccessMessage: null,
   errorBack: null,
 
   getUsers: async () => {
@@ -84,6 +97,32 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
     }
   },
 
+  getRolesForCreate: async () => {
+    try {
+      set({
+        loadingRoles: true,
+        createUserErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await usersService.getRolesForCreate()
+      set({ rolesOptions: mapperUserRoleOptions(data) })
+    } catch (error) {
+      if (usersService.isAxiosError(error)) {
+        set({
+          createUserErrorMessage: error.response?.data?.message || messages.users.status.errors.loadRolesError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          createUserErrorMessage: messages.users.status.errors.loadRolesError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingRoles: false })
+    }
+  },
+
   goToPage: async (page: number) => {
     const { pagination } = get()
     const lastPageIndex = Math.max((pagination.totalPages || 1) - 1, 0)
@@ -128,6 +167,53 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
   clearUserDetail: () => {
     latestUserDetailRequestId += 1
     set({ userDetail: null, detailErrorMessage: null, loadingUserDetail: false })
+  },
+
+  clearCreateUserStatus: () => {
+    set({
+      createUserErrorMessage: null,
+      createUserSuccessMessage: null,
+    })
+  },
+
+  mutationCreateUser: async (payload) => {
+    if (!payload.roleIds.length) {
+      set({ createUserErrorMessage: messages.users.status.errors.createUserRoleRequired })
+      return false
+    }
+
+    try {
+      set({
+        createUserSubmitting: true,
+        createUserErrorMessage: null,
+        createUserSuccessMessage: null,
+        errorBack: null,
+      })
+
+      const data = await usersService.createUser(payload)
+      const username = typeof data.username === 'string' && data.username.length > 0 ? data.username : ''
+      set({
+        createUserSuccessMessage: username
+          ? `${messages.users.status.success.createUserSuccess} (${username})`
+          : messages.users.status.success.createUserSuccess,
+      })
+      return true
+    } catch (error) {
+      if (usersService.isAxiosError(error)) {
+        set({
+          createUserErrorMessage: error.response?.data?.message || messages.users.status.errors.createUserError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          createUserErrorMessage: messages.users.status.errors.createUserError,
+          errorBack: error,
+        })
+      }
+      return false
+    } finally {
+      set({ createUserSubmitting: false })
+    }
   },
 
   mutationToggleUserStatus: async (userId: string, nextStatus: boolean) => {

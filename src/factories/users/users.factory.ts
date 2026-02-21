@@ -1,4 +1,4 @@
-import type { UserTableRow, UsersPagination, UsersQueryParams } from '@/types'
+import type { UserCreateForm, UserTableRow, UsersPagination, UsersQueryParams } from '@/types'
 
 export const usersTableColumns: string[] = [
   'Usuario',
@@ -30,4 +30,13 @@ export const initialUsersQueryParams: UsersQueryParams = {
   search: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
+}
+
+export const initialCreateUserForm: UserCreateForm = {
+  username: '',
+  email: '',
+  firstName: '',
+  lastName: '',
+  phoneNumber: '',
+  roleId: '',
 }

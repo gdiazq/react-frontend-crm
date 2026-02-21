@@ -61,6 +61,44 @@ export interface UserDetailView {
   lastLoginDisplay: string
 }
 
+export interface UserCreateForm {
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  roleId: string
+}
+
+export interface UserCreatePayload {
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  roleIds: number[]
+}
+
+export interface UserCreateResponse {
+  id: number
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber?: string | null
+  emailVerified: boolean
+  status: boolean
+  roles: UserDetailRole[]
+  avatarUrl?: string | null
+  createdAt: string
+}
+
+export interface UserRoleOption {
+  id: number
+  name: string
+  description: string
+}
+
 export type UsersSortBy =
   | 'username'
   | 'firstName'

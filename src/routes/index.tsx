@@ -16,6 +16,7 @@ const HomePage = lazy(() => import('@/pages/frontpage/HomePage'))
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'))
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'))
 const UsersDashboardPage = lazy(() => import('@/pages/users/UsersDashboardPage'))
+const UsersFormDashboardPage = lazy(() => import('@/pages/users/UsersFormDashboardPage'))
 const UnauthorizedPage = lazy(() => import('@/pages/errors/UnauthorizedPage'))
 const NotFoundPage = lazy(() => import('@/pages/errors/NotFoundPage'))
 
@@ -112,6 +113,10 @@ export const router = createBrowserRouter([
       {
         path: '/users',
         element: <UsersDashboardPage />,
+      },
+      {
+        path: '/users/new',
+        element: <UsersFormDashboardPage />,
       },
       {
         path: '/unauthorized',

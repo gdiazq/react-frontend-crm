@@ -143,11 +143,15 @@ export default {
     },
     status: {
       success: {
+        createUserSuccess: 'Usuario creado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de usuarios.',
+        loadRolesError: 'No se pudieron cargar los roles para crear usuario.',
+        createUserError: 'No se pudo crear el usuario.',
+        createUserRoleRequired: 'Selecciona al menos un rol para crear el usuario.',
         detailLoadError: 'No se pudo cargar el detalle del usuario.',
         detailInvalidUserId: 'Id de usuario invalido para ver detalle.',
         toggleStatusError: 'No se pudo actualizar el estado del usuario.',

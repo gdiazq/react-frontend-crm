@@ -7,3 +7,4 @@ export {
   loginCredentialsValidationRules,
 } from './auth.validators'
 export { settingsUpdateProfileValidationRules } from './settings.validators'
+export { usersCreateValidationRules } from './users.validators'

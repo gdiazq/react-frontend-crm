@@ -1,4 +1,5 @@
 export {
+  initialCreateUserForm,
   usersTableColumns,
   initialUsersRows,
   initialUsersPagination,

@@ -1,7 +1,11 @@
 export type {
+  UserCreateForm,
+  UserCreatePayload,
+  UserCreateResponse,
   UserDetail,
   UserDetailView,
   UserDetailRole,
+  UserRoleOption,
   UserRoleRaw,
   UserRaw,
   UsersSortBy,

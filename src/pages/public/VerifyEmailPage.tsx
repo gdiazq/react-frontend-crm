@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertMessageComponent, ButtonComponent, FooterComponent, ResendVerificationModal, ThemeToggle, VerificationCodeInputComponent } from '@/components'
 import { AUTH_ROUTE_CREATE_PASSWORD, AUTH_ROUTE_LOGIN } from '@/constant'
 import { initialResendVerificationForm, initialVerifyEmailForm } from '@/factories'
@@ -10,6 +10,7 @@ import { useStoreAuthFlow, useStoreTheme } from '@/store'
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
   const verifySubmitting = useStoreAuthFlow((s) => s.verifySubmitting)
@@ -20,23 +21,38 @@ export default function VerifyEmailPage() {
   const pendingVerifyPhone = useStoreAuthFlow((s) => s.pendingVerifyPhone)
   const verifyEmail = useStoreAuthFlow((s) => s.verifyEmail)
   const resendVerification = useStoreAuthFlow((s) => s.resendVerification)
+  const setPendingVerifyEmail = useStoreAuthFlow((s) => s.setPendingVerifyEmail)
 
   const [form, setForm] = useState({ ...initialVerifyEmailForm })
   const [resendForm, setResendForm] = useState({ ...initialResendVerificationForm })
   const [showResendModal, setShowResendModal] = useState(false)
   const [resendModalError, setResendModalError] = useState<string | null>(null)
   const { errors, validateAll } = useFormValidation(form, verifyEmailValidationRules)
+  const queryEmail = (searchParams.get('email') || '').trim()
+  const queryCode = (searchParams.get('code') || '').trim()
+  const verifyTargetEmail = (queryEmail || pendingVerifyEmail || '').trim()
 
   useEffect(() => {
-    if (!pendingVerifyEmail) {
+    if (queryEmail) {
+      setPendingVerifyEmail(queryEmail)
+      useStoreAuthFlow.setState({ errorMessage: null })
+    }
+
+    if (queryCode) {
+      setForm({ code: queryCode })
+    }
+  }, [queryEmail, queryCode, setPendingVerifyEmail])
+
+  useEffect(() => {
+    if (!verifyTargetEmail) {
       useStoreAuthFlow.setState({ errorMessage: 'No se encontro el correo a verificar. Vuelve a registrarte.' })
     }
-  }, [])
+  }, [verifyTargetEmail])
 
   const handleResendCode = async () => {
     setResendModalError(null)
 
-    if (!pendingVerifyEmail) {
+    if (!verifyTargetEmail) {
       setResendModalError('No se encontro el correo para reenviar el codigo.')
       return
     }
@@ -56,7 +72,7 @@ export default function VerifyEmailPage() {
       return
     }
 
-    const payload = mapperResendVerificationPayload(pendingVerifyEmail, resendForm)
+    const payload = mapperResendVerificationPayload(verifyTargetEmail, resendForm)
     const success = await resendVerification(payload)
     if (success) {
       setForm({ code: '' })
@@ -69,15 +85,15 @@ export default function VerifyEmailPage() {
     useStoreAuthFlow.setState({ errorMessage: null })
   }
 
-  const submitForm = async (e: React.FormEvent) => {
+  const submitForm = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
-    if (!pendingVerifyEmail) {
+    if (!verifyTargetEmail) {
       useStoreAuthFlow.setState({ errorMessage: 'No se encontro el correo a verificar o falta el codigo.' })
       return
     }
     if (!validateAll()) return
 
-    const payload = mapperVerifyEmailPayload(pendingVerifyEmail, form)
+    const payload = mapperVerifyEmailPayload(verifyTargetEmail, form)
     const success = await verifyEmail(payload)
     if (success) navigate(AUTH_ROUTE_CREATE_PASSWORD)
   }
