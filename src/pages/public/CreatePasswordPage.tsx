@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertMessageComponent, ButtonComponent, FooterComponent, PasswordInputComponent, ThemeToggle } from '@/components'
 import { AUTH_ROUTE_LOGIN } from '@/constant'
 import { initialCreatePasswordForm } from '@/factories'
+import { usePasswordTokenCountdown } from '@/hooks'
 import { mapperCreatePasswordPayload, mapperMissingPasswordRequirements, mapperPasswordRequirements } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreAuthFlow, useStoreTheme } from '@/store'
@@ -22,62 +23,31 @@ export default function CreatePasswordPage() {
   const clearPendingPasswordToken = useStoreAuthFlow((s) => s.clearPendingPasswordToken)
 
   const [form, setForm] = useState({ ...initialCreatePasswordForm })
-  const [remainingSeconds, setRemainingSeconds] = useState(() => {
-    if (!pendingPasswordToken || !pendingPasswordTokenIssuedAt) return 0
-    const expiresAt = pendingPasswordTokenIssuedAt + PASSWORD_TOKEN_MAX_AGE_MS
-    const remainingMs = expiresAt - Date.now()
-    if (remainingMs <= 0) return 0
-    return Math.ceil(remainingMs / 1000)
+
+  const redirectToLogin = () => {
+    clearPendingPasswordToken()
+    navigate(AUTH_ROUTE_LOGIN)
+  }
+
+  const { remainingSeconds, clearTimers } = usePasswordTokenCountdown({
+    token: pendingPasswordToken,
+    tokenIssuedAt: pendingPasswordTokenIssuedAt,
+    maxAgeMs: PASSWORD_TOKEN_MAX_AGE_MS,
+    onMissingToken: () => {
+      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.createPasswordMissingToken })
+      redirectToLogin()
+    },
+    onExpired: () => {
+      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.createPasswordTokenExpired })
+      redirectToLogin()
+    },
   })
-  const expirationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const passwordRequirements = mapperPasswordRequirements(form.password, 10)
   const missingPasswordRequirements = mapperMissingPasswordRequirements(passwordRequirements)
   const passwordsMatch = form.password.length > 0 && form.password === form.confirmPassword
   const isValidForm =
     Boolean(pendingPasswordToken) && missingPasswordRequirements.length === 0 && passwordsMatch
-
-  const clearTimers = () => {
-    if (expirationTimerRef.current) { clearTimeout(expirationTimerRef.current); expirationTimerRef.current = null }
-    if (countdownTimerRef.current) { clearInterval(countdownTimerRef.current); countdownTimerRef.current = null }
-  }
-
-  const redirectToLoginByExpiration = () => {
-    clearTimers()
-    clearPendingPasswordToken()
-    navigate(AUTH_ROUTE_LOGIN)
-  }
-
-  useEffect(() => {
-    if (!pendingPasswordToken || !pendingPasswordTokenIssuedAt) {
-      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.createPasswordMissingToken })
-      redirectToLoginByExpiration()
-      return
-    }
-
-    const expiresAt = pendingPasswordTokenIssuedAt + PASSWORD_TOKEN_MAX_AGE_MS
-    const remainingMs = expiresAt - Date.now()
-
-    if (remainingMs <= 0) {
-      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.createPasswordTokenExpired })
-      redirectToLoginByExpiration()
-      return
-    }
-
-    countdownTimerRef.current = setInterval(() => {
-      const seconds = Math.ceil((expiresAt - Date.now()) / 1000)
-      setRemainingSeconds(Math.max(seconds, 0))
-      if (seconds <= 0) clearTimers()
-    }, 1000)
-
-    expirationTimerRef.current = setTimeout(() => {
-      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.createPasswordTokenExpired })
-      redirectToLoginByExpiration()
-    }, remainingMs)
-
-    return clearTimers
-  }, [clearPendingPasswordToken, navigate, pendingPasswordToken, pendingPasswordTokenIssuedAt])
 
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -112,12 +82,12 @@ export default function CreatePasswordPage() {
             onClick={() => navigate(AUTH_ROUTE_LOGIN)}
           >
             <span aria-hidden="true">←</span>
-            {messages.auth.ui.createPasswordBackToLogin}
+            Volver al login
           </button>
 
-          <h1 className="mt-4 text-balance text-2xl font-bold">{messages.auth.ui.createPasswordTitle}</h1>
+          <h1 className="mt-4 text-balance text-2xl font-bold">Crea tu contrasena</h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            {messages.auth.ui.createPasswordTimeRemainingLabel}: {remainingSeconds}s
+            Tiempo restante: {remainingSeconds}s
           </p>
 
           <div className="mt-4 grid gap-1 text-xs">
@@ -131,7 +101,7 @@ export default function CreatePasswordPage() {
           <form className="mt-7 space-y-4" onSubmit={submitForm}>
             <PasswordInputComponent
               value={form.password}
-              label={messages.auth.ui.createPasswordNewPasswordLabel}
+              label="Nueva contrasena"
               autocomplete="new-password"
               onValueChange={(v) => setForm((f) => ({ ...f, password: v }))}
               required
@@ -139,7 +109,7 @@ export default function CreatePasswordPage() {
 
             <PasswordInputComponent
               value={form.confirmPassword}
-              label={messages.auth.ui.createPasswordConfirmPasswordLabel}
+              label="Confirmar contrasena"
               autocomplete="new-password"
               onValueChange={(v) => setForm((f) => ({ ...f, confirmPassword: v }))}
               required
@@ -150,7 +120,7 @@ export default function CreatePasswordPage() {
             )}
 
             <ButtonComponent type="submit" variant="solid" disabled={createPasswordSubmitting} className="w-full">
-              {createPasswordSubmitting ? messages.auth.ui.createPasswordSubmitLoading : messages.auth.ui.createPasswordSubmitLabel}
+              {createPasswordSubmitting ? 'Guardando...' : 'Crear contrasena'}
             </ButtonComponent>
           </form>
 

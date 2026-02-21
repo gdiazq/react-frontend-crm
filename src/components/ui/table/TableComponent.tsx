@@ -1,17 +1,4 @@
-import type { ReactNode } from 'react'
-
-export interface TableRow {
-  id: string
-  values: (string | ReactNode)[]
-}
-
-interface TableComponentProps {
-  columns: string[]
-  rows: TableRow[]
-  loading?: boolean
-  emptyMessage?: string
-  renderCell?: (row: TableRow, value: string | ReactNode, columnIndex: number, rowIndex: number) => ReactNode
-}
+import type { TableComponentProps } from '@/types'
 
 export default function TableComponent({
   columns,
@@ -19,7 +6,13 @@ export default function TableComponent({
   loading = false,
   emptyMessage = 'Sin datos',
   renderCell,
+  sortableColumnIndexes = [],
+  sortState = { columnIndex: null, direction: 'desc' },
+  onSortChange,
 }: TableComponentProps) {
+  const isSortableColumn = (columnIndex: number) =>
+    sortableColumnIndexes.includes(columnIndex) && typeof onSortChange === 'function'
+
   return (
     <section className="overflow-visible rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
       <div className="overflow-x-auto">
@@ -31,15 +24,45 @@ export default function TableComponent({
                   key={column}
                   className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-200"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <span>{column}</span>
-                    {columnIndex !== columns.length - 1 && (
-                      <span className="flex flex-col leading-none text-[9px] text-slate-300 dark:text-slate-600">
-                        <span>▲</span>
-                        <span>▼</span>
+                  {isSortableColumn(columnIndex) ? (
+                    <button
+                      type="button"
+                      className="flex w-full items-center justify-between gap-2 text-left transition hover:text-cyan-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:hover:text-cyan-300"
+                      onClick={() => onSortChange?.(columnIndex)}
+                    >
+                      <span>{column}</span>
+                      <span className="flex flex-col leading-none text-[9px]">
+                        <span
+                          className={
+                            sortState.columnIndex === columnIndex && sortState.direction === 'asc'
+                              ? 'text-cyan-600 dark:text-cyan-300'
+                              : 'text-slate-300 dark:text-slate-600'
+                          }
+                        >
+                          ▲
+                        </span>
+                        <span
+                          className={
+                            sortState.columnIndex === columnIndex && sortState.direction === 'desc'
+                              ? 'text-cyan-600 dark:text-cyan-300'
+                              : 'text-slate-300 dark:text-slate-600'
+                          }
+                        >
+                          ▼
+                        </span>
                       </span>
-                    )}
-                  </div>
+                    </button>
+                  ) : (
+                    <div className="flex items-center justify-between gap-2">
+                      <span>{column}</span>
+                      {sortableColumnIndexes.includes(columnIndex) && (
+                        <span className="flex flex-col leading-none text-[9px] text-slate-300 dark:text-slate-600">
+                          <span>▲</span>
+                          <span>▼</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </th>
               ))}
             </tr>

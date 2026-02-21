@@ -6,22 +6,37 @@ import {
   DetailSidebarComponent,
   PaginationComponent,
   RightSidebarComponent,
+  SaveConfirmComponent,
   SearchBarComponent,
   StatusBadgeComponent,
   TableComponent,
   UserDetailComponent,
 } from '@/components'
-import type { TableRow } from '@/components'
+import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns } from '@/factories'
 import messages from '@/messages/messages'
 import { useStoreUsers } from '@/store'
 import { createUsersActions } from '@/utils'
-import type { UserTableRow } from '@/types'
+import type { UserTableRow, UsersSortBy } from '@/types'
 import type { DropdownAction } from '@/utils'
 
 const STATUS_COLUMN_INDEX = 6
 const EMAIL_COLUMN_INDEX = 2
 const ACTIONS_COLUMN_INDEX = usersTableColumns.length - 1
+
+const USERS_SORT_BY_COLUMN: Partial<Record<number, UsersSortBy>> = {
+  0: 'username',
+  1: 'firstName',
+  2: 'email',
+  3: 'phoneNumber',
+  4: 'roles',
+  5: 'emailVerified',
+  6: 'enabled',
+  7: 'createdAt',
+  8: 'lastLogin',
+}
+
+const USERS_SORTABLE_COLUMNS = Object.keys(USERS_SORT_BY_COLUMN).map((index) => Number(index))
 
 export default function UsersDashboardPage() {
   const usersRows = useStoreUsers((s) => s.usersRows) as UserTableRow[]
@@ -33,6 +48,7 @@ export default function UsersDashboardPage() {
   const getUsers = useStoreUsers((s) => s.getUsers)
   const setSearch = useStoreUsers((s) => s.setSearch)
   const searchUsers = useStoreUsers((s) => s.searchUsers)
+  const sortUsers = useStoreUsers((s) => s.sortUsers)
   const mutationToggleUserStatus = useStoreUsers((s) => s.mutationToggleUserStatus)
   const goToPage = useStoreUsers((s) => s.goToPage)
 
@@ -42,16 +58,26 @@ export default function UsersDashboardPage() {
   const [actionsMessage, setActionsMessage] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingToggleRow, setPendingToggleRow] = useState<UserTableRow | null>(null)
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
+  const activeSortColumn = USERS_SORTABLE_COLUMNS.find((index) => USERS_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
+  const sortState: TableSortState = {
+    columnIndex: activeSortColumn,
+    direction: queryParams.sortDir,
+  }
+
+  useEffect(() => {
+    getUsers()
+  }, [])
 
   useEffect(() => {
     const closeActions = () => setOpenActionsRowId(null)
     window.addEventListener('click', closeActions)
-    getUsers()
     return () => window.removeEventListener('click', closeActions)
   }, [])
 
@@ -66,12 +92,8 @@ export default function UsersDashboardPage() {
   }
 
   const handleToggleStatus = async (row: UserTableRow) => {
-    if (loadingToggleStatus) return
-    const nextStatus = row.status !== true
-    const success = await mutationToggleUserStatus(row.id, nextStatus)
-    if (success) {
-      setActionsMessage(`${row.values[0]} ${nextStatus ? messages.users.status.success.toggleEnabledSuccess : messages.users.status.success.toggleDisabledSuccess}`)
-    }
+    setPendingToggleRow(row)
+    setConfirmOpen(true)
     setOpenActionsRowId(null)
   }
 
@@ -111,9 +133,42 @@ export default function UsersDashboardPage() {
     return <span>{value}</span>
   }
 
+  const handleSortChange = async (columnIndex: number) => {
+    const sortBy = USERS_SORT_BY_COLUMN[columnIndex]
+    if (!sortBy) return
+
+    const currentSortBy = queryParams.sortBy
+    const currentSortDir = queryParams.sortDir
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+
+    await sortUsers(sortBy, nextSortDir)
+  }
+
   const handleCloseDetail = () => {
     setDetailOpen(false)
   }
+
+  const handleConfirmToggleStatus = async () => {
+    if (!pendingToggleRow || loadingToggleStatus) return
+
+    const nextStatus = pendingToggleRow.status !== true
+    const success = await mutationToggleUserStatus(pendingToggleRow.id, nextStatus)
+    if (success) {
+      setActionsMessage(`${pendingToggleRow.values[0]} ${nextStatus ? messages.users.status.success.toggleEnabledSuccess : messages.users.status.success.toggleDisabledSuccess}`)
+      setConfirmOpen(false)
+      setPendingToggleRow(null)
+    }
+  }
+
+  const handleCloseConfirm = () => {
+    if (loadingToggleStatus) return
+    setConfirmOpen(false)
+    setPendingToggleRow(null)
+  }
+
+  const confirmMessage = pendingToggleRow
+    ? `¿Seguro que deseas ${pendingToggleRow.status === true ? 'deshabilitar' : 'habilitar'} al usuario ${pendingToggleRow.values[0]}?`
+    : ''
 
   return (
     <section className="space-y-4">
@@ -167,6 +222,9 @@ export default function UsersDashboardPage() {
         loading={loadingUsers}
         emptyMessage="No hay usuarios registrados."
         renderCell={renderCell}
+        sortableColumnIndexes={USERS_SORTABLE_COLUMNS}
+        sortState={sortState}
+        onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}
       />
 
       {actionsMessage && (
@@ -199,6 +257,16 @@ export default function UsersDashboardPage() {
       >
         <UserDetailComponent />
       </DetailSidebarComponent>
+      <SaveConfirmComponent
+        open={confirmOpen}
+        title="Confirmar cambio de estado"
+        message={confirmMessage}
+        confirmLabel="Confirmar"
+        cancelLabel="Cancelar"
+        loading={loadingToggleStatus}
+        onClose={handleCloseConfirm}
+        onConfirm={() => { void handleConfirmToggleStatus() }}
+      />
     </section>
   )
 }

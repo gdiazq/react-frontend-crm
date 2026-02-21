@@ -2,27 +2,7 @@ export default {
   auth: {
     ui: {
       loginMfaPrompt: 'Ingresa tu codigo MFA de 6 digitos para continuar.',
-      loginGithubLabel: 'Continuar con GitHub',
-      loginGithubLoading: 'Conectando con GitHub...',
-      registerBackToHome: 'Volver al inicio',
-      registerTitle: 'Crea tu cuenta',
-      registerSubtitle: 'Registra tu acceso para usar el CRM.',
-      registerUsernameLabel: 'Usuario',
-      registerFirstNameLabel: 'Nombre',
-      registerLastNameLabel: 'Apellido',
-      registerEmailLabel: 'Correo',
-      registerPhoneLabel: 'Telefono',
-      registerEmailPlaceholder: 'Ingresa tu correo',
-      registerSubmitLoading: 'Registrando...',
-      registerSubmitLabel: 'Registrar cuenta',
       registerValidatingEmail: 'Validando disponibilidad del correo...',
-      createPasswordBackToLogin: 'Volver al login',
-      createPasswordTitle: 'Crea tu contrasena',
-      createPasswordTimeRemainingLabel: 'Tiempo restante',
-      createPasswordNewPasswordLabel: 'Nueva contrasena',
-      createPasswordConfirmPasswordLabel: 'Confirmar contrasena',
-      createPasswordSubmitLoading: 'Guardando...',
-      createPasswordSubmitLabel: 'Crear contrasena',
     },
     status: {
       success: {

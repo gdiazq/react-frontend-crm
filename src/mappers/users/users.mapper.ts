@@ -45,6 +45,8 @@ export function mapperUsersQueryParams(result: UsersQueryParams): Record<string,
   const queryParams: Record<string, number | string> = {
     page: result.page,
     size: result.size,
+    sortBy: result.sortBy || 'createdAt',
+    sortDir: result.sortDir || 'desc',
   }
 
   if (search.length > 0) queryParams.search = search

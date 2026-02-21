@@ -11,7 +11,6 @@ import { initialPreLoginForm } from '@/factories'
 import { preLoginValidationRules } from '@/validators'
 import { useFormValidation } from '@/hooks'
 import { mapperPreLoginPayload } from '@/mappers'
-import messages from '@/messages/messages'
 import { useStoreAuth, useStorePreLogin, useStoreTheme } from '@/store'
 
 const getRememberedEmail = () => {
@@ -127,8 +126,8 @@ export default function LoginPage() {
             <GitHubLoginButtonComponent
               loading={githubOAuthSubmitting}
               onClick={handleGithubLogin}
-              label={messages.auth.ui.loginGithubLabel}
-              loadingLabel={messages.auth.ui.loginGithubLoading}
+              label="Continuar con GitHub"
+              loadingLabel="Conectando con GitHub..."
             />
 
             <div className="flex items-center justify-between text-sm">

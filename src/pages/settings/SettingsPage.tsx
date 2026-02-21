@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import QRCode from 'qrcode'
 import { ButtonComponent, InputComponent, TabsComponent } from '@/components'
-import { useFormValidation } from '@/hooks'
+import { useFormValidation, useSettingsInit } from '@/hooks'
 import { AUTH_ROUTE_LOGIN } from '@/constant'
 import { initialUpdateAvatarForm, initialUpdateProfileForm } from '@/factories'
 import { settingsUpdateProfileValidationRules } from '@/validators'
-import { mapperSettingProfileForm, mapperUpdateProfilePayload } from '@/mappers'
+import { mapperUpdateProfilePayload } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreAuth, useStoreSettings } from '@/store'
 import { selectActiveSessions, selectMfaStatusClass, selectMfaStatusLabel } from '@/store/settings.store'
@@ -45,52 +44,28 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState({ ...initialUpdateProfileForm })
   const [avatarForm, setAvatarForm] = useState({ ...initialUpdateAvatarForm })
   const [avatarError, setAvatarError] = useState<string | null>(null)
-  const [mfaQrImage, setMfaQrImage] = useState('')
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
 
   const { errors: profileErrors, validateAll: validateProfile, onValidation: onProfileValidation } =
     useFormValidation(profile, settingsUpdateProfileValidationRules)
 
-  const userAvatarUrl = user?.avatar_url || ''
+  const currentUsername = user?.username ?? ''
+
+  const { mfaQrImage, buildMfaQrImage } = useSettingsInit({
+    mfaSetupData,
+    currentUsername,
+    getCurrentUser,
+    loadMfaAndSessions,
+    setProfile,
+  })
+
+  const userAvatarUrl = user?.avatarUrl ?? ''
   const avatarDisplayUrl = avatarForm.previewUrl || userAvatarUrl
   const avatarInitials = (() => {
     const first = profile.firstName.trim().charAt(0)
     const last = profile.lastName.trim().charAt(0)
     return `${first}${last}`.trim().toUpperCase() || 'U'
   })()
-
-  const currentUsername = user?.username || ''
-
-  const buildOtpAuthUri = (secret: string, username: string) => {
-    const issuer = 'CRM'
-    return `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(username || 'user')}?secret=${encodeURIComponent(secret)}&issuer=${encodeURIComponent(issuer)}`
-  }
-
-  const buildMfaQrImage = async () => {
-    const value = mfaSetupData.otpauthUri || mfaSetupData.qrCodeUrl || (mfaSetupData.secret ? buildOtpAuthUri(mfaSetupData.secret, currentUsername) : '')
-    if (!value) { setMfaQrImage(''); return }
-    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:image/')) {
-      setMfaQrImage(value); return
-    }
-    try {
-      const dataUrl = await QRCode.toDataURL(value, { width: 220, margin: 1, errorCorrectionLevel: 'M' })
-      setMfaQrImage(dataUrl)
-    } catch { setMfaQrImage('') }
-  }
-
-  useEffect(() => {
-    const init = async () => {
-      await getCurrentUser()
-      const u = useStoreAuth.getState().user
-      if (u) setProfile(mapperSettingProfileForm(u))
-      await loadMfaAndSessions(u?.email || '')
-      await buildMfaQrImage()
-    }
-    init()
-    return () => {
-      if (avatarForm.previewUrl) URL.revokeObjectURL(avatarForm.previewUrl)
-    }
-  }, [])
 
   const handleEnableMfa = async () => {
     const success = await mutationMfaSetup(currentUsername)
@@ -145,10 +120,8 @@ export default function SettingsPage() {
   return (
     <section className="space-y-6">
       <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Configuracion de Seguridad</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Gestion de autenticacion de dos factores (2FA/MFA) y sesiones por dispositivo.
-        </p>
+        <h1 className="text-2xl font-bold">Configuracion</h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Administra tu cuenta, seguridad y sesiones.</p>
         <p className="mt-2 text-xs text-cyan-700 dark:text-cyan-300">{statusMessage}</p>
       </section>
 
@@ -156,10 +129,8 @@ export default function SettingsPage() {
 
       {showAccountTab && (
         <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-          <h2 className="text-lg font-semibold">Informacion de la cuenta</h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-            Actualiza tus datos personales asociados a la cuenta.
-          </p>
+          <h2 className="text-lg font-semibold">Cuenta</h2>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Actualiza tu informacion de perfil y avatar.</p>
 
           <div className="mt-4 flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 p-4 dark:border-white/10">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-lg font-semibold text-slate-700 ring-2 ring-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700">
@@ -171,8 +142,8 @@ export default function SettingsPage() {
             </div>
 
             <div className="min-w-[260px] flex-1">
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Avatar</p>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">JPG, PNG o WEBP. Maximo recomendado: 2MB.</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Imagen de perfil</p>
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">PNG, JPG o GIF · Max 5 MB</p>
 
               <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarFileChange} />
 
@@ -184,7 +155,7 @@ export default function SettingsPage() {
                   onClick={() => avatarInputRef.current?.click()}
                 />
                 <p className="truncate text-sm text-slate-600 dark:text-slate-300">
-                  {avatarForm.file?.name || 'Sin archivo seleccionado'}
+                  {avatarForm.file?.name || 'Ninguna imagen seleccionada'}
                 </p>
               </div>
               {avatarError && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{avatarError}</p>}
@@ -194,7 +165,7 @@ export default function SettingsPage() {
               <ButtonComponent
                 variant="primary"
                 disabled={updateAvatarSubmitting}
-                label={updateAvatarSubmitting ? 'Subiendo...' : 'Actualizar avatar'}
+                label={updateAvatarSubmitting ? 'Guardando...' : 'Guardar avatar'}
                 onClick={handleSaveAvatar}
               />
             </div>
@@ -203,8 +174,8 @@ export default function SettingsPage() {
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <InputComponent value={profile.firstName} label="Nombre" type="text" error={profileErrors.firstName} onValueChange={(v) => setProfile((p) => ({ ...p, firstName: v }))} onBlur={onProfileValidation('firstName')} required />
             <InputComponent value={profile.lastName} label="Apellido" type="text" error={profileErrors.lastName} onValueChange={(v) => setProfile((p) => ({ ...p, lastName: v }))} onBlur={onProfileValidation('lastName')} required />
-            <InputComponent value={profile.email} label="Email" type="email" error={profileErrors.email} onValueChange={(v) => setProfile((p) => ({ ...p, email: v }))} onBlur={onProfileValidation('email')} required />
-            <InputComponent value={profile.phoneNumber} label="Telefono" type="tel" placeholder="+56912345678" error={profileErrors.phoneNumber} onValueChange={(v) => setProfile((p) => ({ ...p, phoneNumber: v }))} onBlur={onProfileValidation('phoneNumber')} required />
+            <InputComponent value={profile.email} label="Correo electronico" type="email" error={profileErrors.email} onValueChange={(v) => setProfile((p) => ({ ...p, email: v }))} onBlur={onProfileValidation('email')} required />
+            <InputComponent value={profile.phoneNumber} label="Telefono" type="tel" placeholder="+1 555 000 0000" error={profileErrors.phoneNumber} onValueChange={(v) => setProfile((p) => ({ ...p, phoneNumber: v }))} onBlur={onProfileValidation('phoneNumber')} required />
           </div>
 
           <div className="mt-4">
@@ -221,7 +192,7 @@ export default function SettingsPage() {
       {showMfaTab && (
         <section className="grid items-start gap-6 lg:grid-cols-2">
           <article className="self-start overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-            <h2 className="text-lg font-semibold">Estado de MFA</h2>
+            <h2 className="text-lg font-semibold">Estado MFA</h2>
             <p className="mt-2 text-sm">
               Estado actual: <strong className={mfaStatusClass}>{mfaStatusLabel}</strong>
             </p>
@@ -231,32 +202,36 @@ export default function SettingsPage() {
 
             <div className="mt-4 flex flex-wrap gap-2">
               {!mfaState.enabled && (
-                <ButtonComponent variant="primary" disabled={loadingMfaAction} label={loadingMfaAction ? 'Procesando...' : 'Iniciar setup MFA'} onClick={handleEnableMfa} />
+                <ButtonComponent variant="primary" disabled={loadingMfaAction} label={loadingMfaAction ? 'Procesando...' : 'Activar MFA'} onClick={handleEnableMfa} />
               )}
               {mfaState.enabled && (
-                <ButtonComponent variant="danger" disabled={loadingMfaAction} label="Deshabilitar MFA" onClick={() => mutationMfaDisable(currentUsername)} />
+                <ButtonComponent variant="danger" disabled={loadingMfaAction} label="Desactivar MFA" onClick={() => mutationMfaDisable(currentUsername)} />
               )}
             </div>
 
             {!mfaState.enabled && (
               <>
                 <div className="mt-4">
-                  <InputComponent value={mfaVerificationCode} label="Codigo MFA" type="text" placeholder="123456" onValueChange={setMfaVerificationCode} />
+                  <InputComponent value={mfaVerificationCode} label="Codigo de verificacion" type="text" placeholder="000000" onValueChange={setMfaVerificationCode} />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <ButtonComponent variant="outline" disabled={loadingMfaAction} label="Verificar codigo MFA" onClick={() => mutationMfaVerify(currentUsername)} />
+                  <ButtonComponent variant="outline" disabled={loadingMfaAction} label="Verificar codigo" onClick={() => mutationMfaVerify(currentUsername)} />
                 </div>
               </>
             )}
           </article>
 
           <article className="self-start rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-            <h2 className="text-lg font-semibold">Setup de 2FA</h2>
+            <h2 className="text-lg font-semibold">Configuracion de MFA</h2>
             <div className="mt-2 flex flex-col gap-3 lg:flex-nowrap lg:flex-row lg:items-start lg:gap-4">
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-slate-600 dark:text-slate-300">Flujo recomendado para onboarding seguro de doble factor.</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">Sigue los pasos para activar MFA en tu cuenta.</p>
                 <ol className="mt-1 list-none space-y-2.5 text-sm text-slate-300">
-                  {['Instala Google Authenticator, Microsoft Authenticator o Authy.', 'Escanea el QR de configuracion de 2FA.', 'Ingresa el codigo de 6 digitos para confirmar setup.'].map((step, i) => (
+                  {[
+                    'Descarga una app de autenticacion (Google Authenticator, Authy, etc.)',
+                    'Escanea el codigo QR o ingresa el secret de forma manual.',
+                    'Ingresa el codigo de 6 digitos y verifica.',
+                  ].map((step, i) => (
                     <li key={i} className="rounded-lg border border-slate-700/70 px-3 py-2">
                       <span className="mr-2 font-semibold text-slate-200">{i + 1}.</span>
                       <span>{step}</span>
@@ -272,13 +247,13 @@ export default function SettingsPage() {
                   </div>
                 ) : (
                   <div className="rounded-xl border border-dashed border-slate-300 px-3 py-10 text-center text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                    Inicia setup MFA para generar QR
+                    Activa MFA para ver el codigo QR
                   </div>
                 )}
 
                 {mfaSetupData.secret && (
                   <div className="mt-3">
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">Secret</p>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">Secret (manual)</p>
                     <code className="block break-all rounded-md bg-slate-900 px-2 py-1 text-xs text-cyan-300">{mfaSetupData.secret}</code>
                   </div>
                 )}
@@ -292,8 +267,8 @@ export default function SettingsPage() {
         <section className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-semibold">Sesiones por Dispositivo</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-300">Sesiones activas: {activeSessions}</p>
+              <h2 className="text-lg font-semibold">Sesiones activas</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-300">Dispositivos activos: {activeSessions}</p>
             </div>
           </div>
 
@@ -310,7 +285,7 @@ export default function SettingsPage() {
                 <ButtonComponent
                   variant={device.current ? 'outline' : 'danger'}
                   disabled={loadingLogoutDevice}
-                  label="Desloguear dispositivo"
+                  label="Cerrar sesion"
                   onClick={() => handleLogoutDevice(device.id)}
                 />
               </article>

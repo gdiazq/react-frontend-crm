@@ -140,7 +140,7 @@ export default function LayoutPrivateDefault() {
           unreadCount={unreadCount}
           userLabel={currentUser?.username || currentUser?.email || 'Usuario'}
           userEmail={currentUser?.email || ''}
-          avatarUrl={currentUser?.avatar_url || ''}
+          avatarUrl={currentUser?.avatarUrl || ''}
           isDark={isDark}
           onGoDashboard={handleGoDashboard}
           settingsDropdownOpen={settingsDropdownOpen}

@@ -1,4 +1,4 @@
-import type { UserTableRow, UsersPagination, UsersQueryParams } from './users.interface'
+import type { UserTableRow, UsersPagination, UsersQueryParams, UsersSortBy, UsersSortDir } from './users.interface'
 
 export interface UsersStore {
   // State
@@ -18,5 +18,6 @@ export interface UsersStore {
   previousPage: () => Promise<void>
   setSearch: (value: string) => void
   searchUsers: () => Promise<void>
+  sortUsers: (sortBy: UsersSortBy, sortDir: UsersSortDir) => Promise<void>
   mutationToggleUserStatus: (userId: string, nextStatus: boolean) => Promise<boolean>
 }

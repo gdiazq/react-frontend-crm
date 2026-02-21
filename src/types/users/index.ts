@@ -1,6 +1,8 @@
 export type {
   UserRoleRaw,
   UserRaw,
+  UsersSortBy,
+  UsersSortDir,
   UserTableRow,
   UserPagedResponse,
   UsersPagination,

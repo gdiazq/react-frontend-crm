@@ -9,7 +9,7 @@ export { default as SelectComponent } from './ui/select/SelectComponent'
 export { default as StatusBadgeComponent } from './ui/status/StatusBadgeComponent'
 export { default as PaginationComponent } from './ui/pagination/PaginationComponent'
 export { default as TableComponent } from './ui/table/TableComponent'
-export type { TableRow } from './ui/table/TableComponent'
+export type { TableRow, TableSortState } from '@/types'
 export { default as ActionsDropdownComponent } from './ui/dropdown/ActionsDropdownComponent'
 export { default as AlertMessageComponent } from './ui/alert/AlertMessageComponent'
 
@@ -27,6 +27,7 @@ export { default as DropdownComponent } from './layout/DropdownComponent'
 
 // Dialog Components
 export { default as ResendVerificationModal } from './dialog/ResendVerificationModal'
+export { default as SaveConfirmComponent } from './dialog/SaveConfirmComponent'
 
 // Dashboard Components
 export { default as SellerDashboardMainComponent } from './dashboard/SellerDashboardMainComponent'

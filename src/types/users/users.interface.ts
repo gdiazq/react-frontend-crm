@@ -13,9 +13,23 @@ export interface UserRaw {
   emailVerified: boolean
   status: boolean
   roles: UserRoleRaw[]
+  avatarUrl?: string | null
   createdAt: string
   lastLogin: string
 }
+
+export type UsersSortBy =
+  | 'username'
+  | 'firstName'
+  | 'email'
+  | 'phoneNumber'
+  | 'roles'
+  | 'emailVerified'
+  | 'enabled'
+  | 'createdAt'
+  | 'lastLogin'
+
+export type UsersSortDir = 'asc' | 'desc'
 
 export interface UserTableRow {
   id: string
@@ -46,4 +60,6 @@ export interface UsersQueryParams {
   page: number
   size: number
   search: string
+  sortBy: UsersSortBy
+  sortDir: UsersSortDir
 }

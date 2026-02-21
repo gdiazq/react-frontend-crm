@@ -3,7 +3,7 @@ import { usersService } from '@/services'
 import { initialUsersPagination, initialUsersQueryParams, initialUsersRows } from '@/factories'
 import { mapperUsersPagination, mapperUsersRows } from '@/mappers'
 import messages from '@/messages/messages'
-import type { UsersStore } from '@/types'
+import type { UsersSortBy, UsersSortDir, UsersStore } from '@/types'
 
 export const useStoreUsers = create<UsersStore>()((set, get) => ({
   usersRows: [...initialUsersRows],
@@ -65,6 +65,14 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
     set((state) => ({
       pagination: { ...state.pagination, page: 0 },
       queryParams: { ...state.queryParams, page: 0 },
+    }))
+    await get().getUsers()
+  },
+
+  sortUsers: async (sortBy: UsersSortBy, sortDir: UsersSortDir) => {
+    set((state) => ({
+      pagination: { ...state.pagination, page: 0 },
+      queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
     }))
     await get().getUsers()
   },

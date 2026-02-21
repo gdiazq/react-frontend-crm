@@ -32,9 +32,9 @@ export function mapperUpdateAvatarFormData(payload: SettingUpdateAvatarPayload):
 export function mapperSettingProfileForm(user: AuthUser): SettingUpdateProfileForm {
   return {
     email: user.email || '',
-    firstName: user.first_name || '',
-    lastName: user.last_name || '',
-    phoneNumber: user.phone_number || '',
+    firstName: user.firstName || '',
+    lastName: user.lastName || '',
+    phoneNumber: user.phoneNumber || '',
   }
 }
 
