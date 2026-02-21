@@ -5,13 +5,18 @@ import { mapperUsersPagination, mapperUsersRows } from '@/mappers'
 import messages from '@/messages/messages'
 import type { UsersSortBy, UsersSortDir, UsersStore } from '@/types'
 
+let latestUserDetailRequestId = 0
+
 export const useStoreUsers = create<UsersStore>()((set, get) => ({
   usersRows: [...initialUsersRows],
+  userDetail: null,
   pagination: { ...initialUsersPagination },
   queryParams: { ...initialUsersQueryParams },
   loadingUsers: false,
+  loadingUserDetail: false,
   loadingToggleStatus: false,
   errorMessage: null,
+  detailErrorMessage: null,
   errorBack: null,
 
   getUsers: async () => {
@@ -33,6 +38,49 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
       }
     } finally {
       set({ loadingUsers: false })
+    }
+  },
+
+  getUserDetail: async (userId: string) => {
+    const parsedUserId = Number(userId)
+    if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+      set({
+        detailErrorMessage: messages.users.status.errors.detailInvalidUserId,
+        userDetail: null,
+      })
+      return false
+    }
+    const requestId = ++latestUserDetailRequestId
+
+    try {
+      set({
+        loadingUserDetail: true,
+        detailErrorMessage: null,
+        userDetail: null,
+        errorBack: null,
+      })
+      const data = await usersService.getUserDetail(parsedUserId)
+      if (requestId !== latestUserDetailRequestId) return false
+      set({ userDetail: data })
+      return true
+    } catch (error) {
+      if (requestId !== latestUserDetailRequestId) return false
+      if (usersService.isAxiosError(error)) {
+        set({
+          detailErrorMessage: error.response?.data?.message || messages.users.status.errors.detailLoadError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          detailErrorMessage: messages.users.status.errors.detailLoadError,
+          errorBack: error,
+        })
+      }
+      return false
+    } finally {
+      if (requestId === latestUserDetailRequestId) {
+        set({ loadingUserDetail: false })
+      }
     }
   },
 
@@ -75,6 +123,11 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
       queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
     }))
     await get().getUsers()
+  },
+
+  clearUserDetail: () => {
+    latestUserDetailRequestId += 1
+    set({ userDetail: null, detailErrorMessage: null, loadingUserDetail: false })
   },
 
   mutationToggleUserStatus: async (userId: string, nextStatus: boolean) => {

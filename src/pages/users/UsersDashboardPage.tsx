@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ActionsDropdownComponent,
   AlertMessageComponent,
@@ -14,6 +14,7 @@ import {
 } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns } from '@/factories'
+import { mapperUserDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreUsers } from '@/store'
 import { createUsersActions } from '@/utils'
@@ -40,15 +41,20 @@ const USERS_SORTABLE_COLUMNS = Object.keys(USERS_SORT_BY_COLUMN).map((index) => 
 
 export default function UsersDashboardPage() {
   const usersRows = useStoreUsers((s) => s.usersRows) as UserTableRow[]
+  const userDetail = useStoreUsers((s) => s.userDetail)
   const pagination = useStoreUsers((s) => s.pagination)
   const queryParams = useStoreUsers((s) => s.queryParams)
   const loadingUsers = useStoreUsers((s) => s.loadingUsers)
+  const loadingUserDetail = useStoreUsers((s) => s.loadingUserDetail)
   const loadingToggleStatus = useStoreUsers((s) => s.loadingToggleStatus)
   const errorMessage = useStoreUsers((s) => s.errorMessage)
+  const detailErrorMessage = useStoreUsers((s) => s.detailErrorMessage)
   const getUsers = useStoreUsers((s) => s.getUsers)
+  const getUserDetail = useStoreUsers((s) => s.getUserDetail)
   const setSearch = useStoreUsers((s) => s.setSearch)
   const searchUsers = useStoreUsers((s) => s.searchUsers)
   const sortUsers = useStoreUsers((s) => s.sortUsers)
+  const clearUserDetail = useStoreUsers((s) => s.clearUserDetail)
   const mutationToggleUserStatus = useStoreUsers((s) => s.mutationToggleUserStatus)
   const goToPage = useStoreUsers((s) => s.goToPage)
 
@@ -58,6 +64,7 @@ export default function UsersDashboardPage() {
   const [actionsMessage, setActionsMessage] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<UserTableRow | null>(null)
 
@@ -65,6 +72,7 @@ export default function UsersDashboardPage() {
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
+  const userDetailView = useMemo(() => mapperUserDetailView(userDetail), [userDetail])
   const activeSortColumn = USERS_SORTABLE_COLUMNS.find((index) => USERS_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
@@ -81,9 +89,11 @@ export default function UsersDashboardPage() {
     return () => window.removeEventListener('click', closeActions)
   }, [])
 
-  const handleViewDetail = () => {
+  const handleViewDetail = (row: UserTableRow) => {
+    setSelectedDetailRowId(row.id)
     setDetailOpen(true)
     setOpenActionsRowId(null)
+    void getUserDetail(row.id)
   }
 
   const handleUpdateUser = (row: UserTableRow) => {
@@ -98,7 +108,7 @@ export default function UsersDashboardPage() {
   }
 
   const resolveRowActions = (row: UserTableRow): DropdownAction[] => [
-    actionViewDetail(() => handleViewDetail()),
+    actionViewDetail(() => handleViewDetail(row)),
     actionUpdateUser(() => handleUpdateUser(row)),
     actionToggleStatus(row.status === true, () => { void handleToggleStatus(row) }),
   ]
@@ -110,7 +120,7 @@ export default function UsersDashboardPage() {
         <button
           type="button"
           className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
-          onClick={() => handleViewDetail()}
+          onClick={() => handleViewDetail(userRow)}
         >
           {value}
         </button>
@@ -146,6 +156,13 @@ export default function UsersDashboardPage() {
 
   const handleCloseDetail = () => {
     setDetailOpen(false)
+    setSelectedDetailRowId(null)
+    clearUserDetail()
+  }
+
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getUserDetail(selectedDetailRowId)
   }
 
   const handleConfirmToggleStatus = async () => {
@@ -169,6 +186,7 @@ export default function UsersDashboardPage() {
   const confirmMessage = pendingToggleRow
     ? `¿Seguro que deseas ${pendingToggleRow.status === true ? 'deshabilitar' : 'habilitar'} al usuario ${pendingToggleRow.values[0]}?`
     : ''
+  const detailTitle = userDetail ? `Detalle de ${userDetail.username}` : 'Detalle de usuario'
 
   return (
     <section className="space-y-4">
@@ -252,10 +270,15 @@ export default function UsersDashboardPage() {
       />
       <DetailSidebarComponent
         open={detailOpen}
-        title="Detalle de usuario"
+        title={detailTitle}
         onClose={handleCloseDetail}
       >
-        <UserDetailComponent />
+        <UserDetailComponent
+          detail={userDetailView}
+          loading={loadingUserDetail}
+          errorMessage={detailErrorMessage}
+          onRetry={handleRetryDetail}
+        />
       </DetailSidebarComponent>
       <SaveConfirmComponent
         open={confirmOpen}

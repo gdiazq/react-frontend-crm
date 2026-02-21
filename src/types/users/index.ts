@@ -1,4 +1,7 @@
 export type {
+  UserDetail,
+  UserDetailView,
+  UserDetailRole,
   UserRoleRaw,
   UserRaw,
   UsersSortBy,

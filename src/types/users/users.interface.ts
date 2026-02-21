@@ -3,6 +3,12 @@ export interface UserRoleRaw {
   name: string
 }
 
+export interface UserDetailRole {
+  id: number
+  name: string
+  description: string
+}
+
 export interface UserRaw {
   id: number
   username: string
@@ -16,6 +22,43 @@ export interface UserRaw {
   avatarUrl?: string | null
   createdAt: string
   lastLogin: string
+}
+
+export interface UserDetail {
+  id: number
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber?: string | null
+  emailVerified: boolean
+  status: boolean
+  accountNonExpired: boolean
+  accountNonLocked: boolean
+  credentialsNonExpired: boolean
+  roles: UserDetailRole[]
+  avatarUrl?: string | null
+  createdAt: string
+  updatedAt: string
+  lastLogin: string
+}
+
+export interface UserDetailView {
+  avatarUrl: string
+  fullName: string
+  initials: string
+  usernameDisplay: string
+  emailDisplay: string
+  phoneNumberDisplay: string
+  emailVerifiedLabel: string
+  statusLabel: string
+  accountNonExpiredLabel: string
+  accountNonLockedLabel: string
+  credentialsNonExpiredLabel: string
+  roleNamesDisplay: string[]
+  createdAtDisplay: string
+  updatedAtDisplay: string
+  lastLoginDisplay: string
 }
 
 export type UsersSortBy =

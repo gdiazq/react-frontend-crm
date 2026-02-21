@@ -90,6 +90,7 @@ export default function RegisterPage() {
               label="Usuario"
               type="text"
               autoComplete="username"
+              placeholder="Ingresa tu usuario"
               error={errors.username}
               onValueChange={(v) => setForm((f) => ({ ...f, username: v }))}
               required
@@ -100,6 +101,7 @@ export default function RegisterPage() {
               label="Nombre"
               type="text"
               autoComplete="given-name"
+              placeholder="Ingresa tu nombre"
               error={errors.firstName}
               onValueChange={(v) => setForm((f) => ({ ...f, firstName: v }))}
               required
@@ -110,6 +112,7 @@ export default function RegisterPage() {
               label="Apellido"
               type="text"
               autoComplete="family-name"
+              placeholder="Ingresa tu apellido"
               error={errors.lastName}
               onValueChange={(v) => setForm((f) => ({ ...f, lastName: v }))}
               required
@@ -131,6 +134,7 @@ export default function RegisterPage() {
               label="Telefono"
               type="tel"
               autoComplete="tel"
+              placeholder="Ingresa tu telefono"
               error={errors.phoneNumber}
               onValueChange={(v) => setForm((f) => ({ ...f, phoneNumber: v }))}
               required

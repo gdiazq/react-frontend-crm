@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
-import type { UserPagedResponse, UsersQueryParams } from '@/types'
+import type { UserDetail, UserPagedResponse, UsersQueryParams } from '@/types'
 import { mapperUsersQueryParams } from '@/mappers'
 
 export const usersService = {
@@ -8,6 +8,11 @@ export const usersService = {
     const { data } = await axiosInstance.get<UserPagedResponse>('/user/paged', {
       params: mapperUsersQueryParams(queryParams),
     })
+    return data
+  },
+
+  getUserDetail: async (userId: number) => {
+    const { data } = await axiosInstance.get<UserDetail>(`/user/detail/${userId}`)
     return data
   },
 

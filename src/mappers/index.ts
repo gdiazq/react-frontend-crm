@@ -17,6 +17,7 @@ export { mapperDashboardExample } from './dashboard/dashboard-example.mapper'
 export {
   mapperUsersRows,
   mapperUsersPagination,
+  mapperUserDetailView,
   mapperUsersQueryParams,
 } from './users/users.mapper'
 export {
