@@ -1,6 +1,7 @@
 import type {
   UserCreateForm,
   UserCreatePayload,
+  UserUpdatePayload,
   UserDetail,
   UserDetailView,
   UserPagedResponse,
@@ -58,8 +59,7 @@ export function mapperUsersQueryParams(result: UsersQueryParams): Record<string,
 }
 
 export function mapperCreateUserPayload(form: UserCreateForm): UserCreatePayload {
-  const parsedRoleId = Number(form.roleId)
-  const roleIds = Number.isInteger(parsedRoleId) && parsedRoleId > 0 ? [parsedRoleId] : []
+  const roleId = Number(form.roleId)
 
   return {
     username: form.username.trim(),
@@ -67,7 +67,23 @@ export function mapperCreateUserPayload(form: UserCreateForm): UserCreatePayload
     firstName: form.firstName.trim(),
     lastName: form.lastName.trim(),
     phoneNumber: form.phoneNumber.trim(),
-    roleIds,
+    roleId: Number.isInteger(roleId) && roleId > 0 ? roleId : 0,
+  }
+}
+
+export function mapperUpdateUserPayload(
+  userId: number,
+  form: Omit<UserCreateForm, 'username'>,
+): UserUpdatePayload {
+  const roleId = Number(form.roleId)
+
+  return {
+    id: userId,
+    email: form.email.trim(),
+    firstName: form.firstName.trim(),
+    lastName: form.lastName.trim(),
+    phoneNumber: form.phoneNumber.trim(),
+    roleId: Number.isInteger(roleId) && roleId > 0 ? roleId : 0,
   }
 }
 

@@ -13,7 +13,7 @@ import {
   TableComponent,
   UserDetailComponent,
 } from '@/components'
-import { AUTH_ROUTE_USERS_CREATE } from '@/constant'
+import { AUTH_ROUTE_USERS_CREATE, AUTH_ROUTE_USERS_EDIT } from '@/constant'
 import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns } from '@/factories'
 import { mapperUserDetailView } from '@/mappers'
@@ -100,7 +100,7 @@ export default function UsersDashboardPage() {
   }
 
   const handleUpdateUser = (row: UserTableRow) => {
-    setActionsMessage(`${row.values[0]} ${messages.users.ui.updateUserComingSoon}`)
+    navigate(`${AUTH_ROUTE_USERS_EDIT}=${row.id}`)
     setOpenActionsRowId(null)
   }
 

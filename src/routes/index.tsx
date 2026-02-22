@@ -119,6 +119,10 @@ export const router = createBrowserRouter([
         element: <UsersFormDashboardPage />,
       },
       {
+        path: '/users/:editId',
+        element: <UsersFormDashboardPage />,
+      },
+      {
         path: '/unauthorized',
         element: <UnauthorizedPage />,
       },

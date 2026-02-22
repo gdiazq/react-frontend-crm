@@ -22,11 +22,14 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
   loadingUsers: false,
   loadingUserDetail: false,
   createUserSubmitting: false,
+  updateUserSubmitting: false,
   loadingToggleStatus: false,
   errorMessage: null,
   detailErrorMessage: null,
   createUserErrorMessage: null,
   createUserSuccessMessage: null,
+  updateUserErrorMessage: null,
+  updateUserSuccessMessage: null,
   errorBack: null,
 
   getUsers: async () => {
@@ -147,8 +150,15 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
     })
   },
 
+  clearUpdateUserStatus: () => {
+    set({
+      updateUserErrorMessage: null,
+      updateUserSuccessMessage: null,
+    })
+  },
+
   mutationCreateUser: async (payload) => {
-    if (!payload.roleIds.length) {
+    if (!Number.isInteger(payload.roleId) || payload.roleId <= 0) {
       set({ createUserErrorMessage: messages.users.status.errors.createUserRoleRequired })
       return false
     }
@@ -184,6 +194,46 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
       return false
     } finally {
       set({ createUserSubmitting: false })
+    }
+  },
+
+  mutationUpdateUser: async (payload) => {
+    if (!Number.isInteger(payload.id) || payload.id <= 0) {
+      set({ updateUserErrorMessage: messages.users.status.errors.invalidStatusUserId })
+      return false
+    }
+
+    if (!Number.isInteger(payload.roleId) || payload.roleId <= 0) {
+      set({ updateUserErrorMessage: messages.users.status.errors.updateUserRoleRequired })
+      return false
+    }
+
+    try {
+      set({
+        updateUserSubmitting: true,
+        updateUserErrorMessage: null,
+        updateUserSuccessMessage: null,
+        errorBack: null,
+      })
+
+      await usersService.updateUser(payload)
+      set({ updateUserSuccessMessage: messages.users.status.success.updateUserSuccess })
+      return true
+    } catch (error) {
+      if (usersService.isAxiosError(error)) {
+        set({
+          updateUserErrorMessage: error.response?.data?.message || messages.users.status.errors.updateUserError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          updateUserErrorMessage: messages.users.status.errors.updateUserError,
+          errorBack: error,
+        })
+      }
+      return false
+    } finally {
+      set({ updateUserSubmitting: false })
     }
   },
 

@@ -76,7 +76,7 @@ export interface UserCreatePayload {
   firstName: string
   lastName: string
   phoneNumber: string
-  roleIds: number[]
+  roleId: number
 }
 
 export interface UserCreateResponse {
@@ -91,6 +91,15 @@ export interface UserCreateResponse {
   roles: UserDetailRole[]
   avatarUrl?: string | null
   createdAt: string
+}
+
+export interface UserUpdatePayload {
+  id: number
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  roleId: number
 }
 
 export type UsersSortBy =

@@ -1,6 +1,7 @@
 import type {
   UserCreatePayload,
   UserDetail,
+  UserUpdatePayload,
   UserTableRow,
   UsersPagination,
   UsersQueryParams,
@@ -18,12 +19,15 @@ export interface UsersStore {
   loadingUsers: boolean
   loadingUserDetail: boolean
   createUserSubmitting: boolean
+  updateUserSubmitting: boolean
   loadingToggleStatus: boolean
   // Messages
   errorMessage: string | null
   detailErrorMessage: string | null
   createUserErrorMessage: string | null
   createUserSuccessMessage: string | null
+  updateUserErrorMessage: string | null
+  updateUserSuccessMessage: string | null
   errorBack: unknown | null
   // Actions
   getUsers: () => Promise<void>
@@ -36,6 +40,8 @@ export interface UsersStore {
   sortUsers: (sortBy: UsersSortBy, sortDir: UsersSortDir) => Promise<void>
   clearUserDetail: () => void
   clearCreateUserStatus: () => void
+  clearUpdateUserStatus: () => void
   mutationCreateUser: (payload: UserCreatePayload) => Promise<boolean>
+  mutationUpdateUser: (payload: UserUpdatePayload) => Promise<boolean>
   mutationToggleUserStatus: (userId: string, nextStatus: boolean) => Promise<boolean>
 }

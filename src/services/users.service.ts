@@ -1,6 +1,13 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
-import type { UserCreatePayload, UserCreateResponse, UserDetail, UserPagedResponse, UsersQueryParams } from '@/types'
+import type {
+  UserCreatePayload,
+  UserCreateResponse,
+  UserDetail,
+  UserPagedResponse,
+  UsersQueryParams,
+  UserUpdatePayload,
+} from '@/types'
 import { mapperUsersQueryParams } from '@/mappers'
 
 export const usersService = {
@@ -19,6 +26,10 @@ export const usersService = {
   createUser: async (payload: UserCreatePayload) => {
     const { data } = await axiosInstance.post<UserCreateResponse>('/user/create', payload)
     return data
+  },
+
+  updateUser: async (payload: UserUpdatePayload) => {
+    await axiosInstance.put('/user/update', payload)
   },
 
   toggleUserStatus: async (userId: number, status: boolean) => {

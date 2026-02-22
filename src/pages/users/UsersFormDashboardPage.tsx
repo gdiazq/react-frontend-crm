@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
@@ -10,29 +10,62 @@ import {
 import { AUTH_ROUTE_USERS } from '@/constant'
 import { initialCreateUserForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateUserPayload } from '@/mappers'
+import { mapperCreateUserPayload, mapperUpdateUserPayload } from '@/mappers'
+import messages from '@/messages/messages'
 import { useStoreSelects, useStoreUsers } from '@/store'
-import type { UserCreatePayload } from '@/types'
+import type { UserCreatePayload, UserUpdatePayload } from '@/types'
 import { usersCreateValidationRules } from '@/validators'
+
+type PendingAction =
+  | { mode: 'create', payload: UserCreatePayload }
+  | { mode: 'update', payload: UserUpdatePayload }
+  | null
 
 export default function UsersFormDashboardPage() {
   const navigate = useNavigate()
+  const params = useParams<{ editId: string }>()
+  const rawEditParam = params.editId || ''
+  const editUserId = rawEditParam.startsWith('edit=') ? Number(rawEditParam.slice(5)) : Number.NaN
+  const isEditMode = Number.isInteger(editUserId) && editUserId > 0
+
   const [form, setForm] = useState({ ...initialCreateUserForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingPayload, setPendingPayload] = useState<UserCreatePayload | null>(null)
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const roleOptions = useStoreSelects((s) => s.roleOptions)
   const loadingRoleOptions = useStoreSelects((s) => s.loadingRoleOptions)
   const roleOptionsErrorMessage = useStoreSelects((s) => s.roleOptionsErrorMessage)
   const getRoleOptions = useStoreSelects((s) => s.getRoleOptions)
   const clearRoleOptionsStatus = useStoreSelects((s) => s.clearRoleOptionsStatus)
+
+  const loadingUserDetail = useStoreUsers((s) => s.loadingUserDetail)
+  const detailErrorMessage = useStoreUsers((s) => s.detailErrorMessage)
   const createUserSubmitting = useStoreUsers((s) => s.createUserSubmitting)
+  const updateUserSubmitting = useStoreUsers((s) => s.updateUserSubmitting)
   const createUserErrorMessage = useStoreUsers((s) => s.createUserErrorMessage)
   const createUserSuccessMessage = useStoreUsers((s) => s.createUserSuccessMessage)
+  const updateUserErrorMessage = useStoreUsers((s) => s.updateUserErrorMessage)
+  const updateUserSuccessMessage = useStoreUsers((s) => s.updateUserSuccessMessage)
+  const getUserDetail = useStoreUsers((s) => s.getUserDetail)
+  const clearUserDetail = useStoreUsers((s) => s.clearUserDetail)
   const mutationCreateUser = useStoreUsers((s) => s.mutationCreateUser)
+  const mutationUpdateUser = useStoreUsers((s) => s.mutationUpdateUser)
   const clearCreateUserStatus = useStoreUsers((s) => s.clearCreateUserStatus)
+  const clearUpdateUserStatus = useStoreUsers((s) => s.clearUpdateUserStatus)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, usersCreateValidationRules)
+
+  const creating = createUserSubmitting
+  const updating = updateUserSubmitting
+  const saving = creating || updating
+
+  const headerTitle = isEditMode ? messages.users.ui.editUserTitle : messages.users.ui.createUserTitle
+  const headerDescription = isEditMode ? messages.users.ui.editUserDescription : messages.users.ui.createUserDescription
+  const submitLabel = isEditMode ? messages.users.ui.updateUserSubmit : messages.users.ui.createUserSubmit
+  const submitLoadingLabel = isEditMode ? messages.users.ui.updateUserSubmitting : messages.users.ui.createUserSubmitting
+  const submitErrorMessage = isEditMode ? updateUserErrorMessage : createUserErrorMessage
+  const submitSuccessMessage = isEditMode ? updateUserSuccessMessage : createUserSuccessMessage
+  const canSubmit = !saving && !loadingRoleOptions && form.roleId.trim().length > 0
 
   const selectOptions = useMemo(
     () => roleOptions.map((role) => ({ label: role.name, value: String(role.id) })),
@@ -41,62 +74,123 @@ export default function UsersFormDashboardPage() {
 
   useEffect(() => {
     clearCreateUserStatus()
+    clearUpdateUserStatus()
     clearRoleOptionsStatus()
     void getRoleOptions()
+
     return () => {
       clearCreateUserStatus()
+      clearUpdateUserStatus()
       clearRoleOptionsStatus()
+      clearUserDetail()
     }
-  }, [clearCreateUserStatus, clearRoleOptionsStatus, getRoleOptions])
+  }, [clearCreateUserStatus, clearRoleOptionsStatus, clearUpdateUserStatus, clearUserDetail, getRoleOptions])
 
-  const handleSubmit = async (event: { preventDefault: () => void }) => {
+  useEffect(() => {
+    if (!isEditMode) {
+      clearUserDetail()
+      return
+    }
+
+    let cancelled = false
+
+    const load = async () => {
+      const success = await getUserDetail(String(editUserId))
+      if (!success || cancelled) return
+
+      const detail = useStoreUsers.getState().userDetail
+      if (!detail) return
+
+      setForm({
+        username: detail.username || '',
+        email: detail.email || '',
+        firstName: detail.firstName || '',
+        lastName: detail.lastName || '',
+        phoneNumber: detail.phoneNumber || '',
+        roleId: String(detail.roles[0]?.id || ''),
+      })
+    }
+
+    void load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [clearUserDetail, editUserId, getUserDetail, isEditMode])
+
+  const clearSubmitStatus = () => {
+    clearCreateUserStatus()
+    clearUpdateUserStatus()
+  }
+
+  const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
     if (!validateAll()) return
 
-    const payload = mapperCreateUserPayload(form)
-    setPendingPayload(payload)
+    if (isEditMode) {
+      if (!Number.isInteger(editUserId) || editUserId <= 0) {
+        useStoreUsers.setState({ updateUserErrorMessage: messages.users.status.errors.invalidStatusUserId })
+        return
+      }
+      const payload = mapperUpdateUserPayload(editUserId, {
+        email: form.email,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phoneNumber: form.phoneNumber,
+        roleId: form.roleId,
+      })
+      setPendingAction({ mode: 'update', payload })
+    } else {
+      const payload = mapperCreateUserPayload(form)
+      setPendingAction({ mode: 'create', payload })
+    }
+
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
-    if (createUserSubmitting) return
+    if (saving) return
     setConfirmOpen(false)
-    setPendingPayload(null)
+    setPendingAction(null)
   }
 
-  const handleConfirmCreate = async () => {
-    if (!pendingPayload || createUserSubmitting) return
-    const success = await mutationCreateUser(pendingPayload)
+  const handleConfirmSave = async () => {
+    if (!pendingAction || saving) return
+
+    const success = pendingAction.mode === 'create'
+      ? await mutationCreateUser(pendingAction.payload)
+      : await mutationUpdateUser(pendingAction.payload)
+
     if (success) {
-      setForm({ ...initialCreateUserForm })
+      if (pendingAction.mode === 'create') {
+        setForm({ ...initialCreateUserForm })
+      }
+      if (pendingAction.mode === 'update') {
+        await getUserDetail(String(editUserId))
+      }
     }
+
     setConfirmOpen(false)
-    setPendingPayload(null)
+    setPendingAction(null)
   }
 
   const handleChangeField = (field: keyof typeof initialCreateUserForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
-    if (createUserErrorMessage || createUserSuccessMessage) clearCreateUserStatus()
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
-  const confirmMessage = pendingPayload
-    ? `¿Deseas crear al usuario ${pendingPayload.username} con correo ${pendingPayload.email}?`
-    : '¿Deseas crear este usuario?'
+  const confirmMessage = pendingAction?.mode === 'update'
+    ? `¿Deseas guardar los cambios del usuario ${form.username || ''}?`
+    : `¿Deseas crear al usuario ${form.username || ''} con correo ${form.email || ''}?`
+
+  const showBootstrapMessage = isEditMode && loadingUserDetail
 
   return (
     <section className="space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Crear usuario</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Completa los datos para registrar un nuevo usuario en el sistema.</p>
+        <h1 className="text-2xl font-bold">{headerTitle}</h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{headerDescription}</p>
       </header>
-
-      {createUserErrorMessage && (
-        <AlertMessageComponent
-          message={createUserErrorMessage}
-          tone="error"
-          onClose={clearCreateUserStatus}
-        />
-      )}
 
       {roleOptionsErrorMessage && (
         <AlertMessageComponent
@@ -106,11 +200,27 @@ export default function UsersFormDashboardPage() {
         />
       )}
 
-      {createUserSuccessMessage && (
+      {isEditMode && detailErrorMessage && (
         <AlertMessageComponent
-          message={createUserSuccessMessage}
+          message={detailErrorMessage}
+          tone="error"
+          onClose={() => useStoreUsers.setState({ detailErrorMessage: null })}
+        />
+      )}
+
+      {submitErrorMessage && (
+        <AlertMessageComponent
+          message={submitErrorMessage}
+          tone="error"
+          onClose={clearSubmitStatus}
+        />
+      )}
+
+      {submitSuccessMessage && (
+        <AlertMessageComponent
+          message={submitSuccessMessage}
           tone="success"
-          onClose={clearCreateUserStatus}
+          onClose={clearSubmitStatus}
         />
       )}
 
@@ -118,6 +228,10 @@ export default function UsersFormDashboardPage() {
         className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60"
         onSubmit={handleSubmit}
       >
+        {showBootstrapMessage && (
+          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando datos del usuario...</p>
+        )}
+
         <div className="grid gap-4 md:grid-cols-2">
           <InputComponent
             value={form.username}
@@ -128,6 +242,7 @@ export default function UsersFormDashboardPage() {
             error={errors.username}
             onValueChange={(value) => handleChangeField('username', value)}
             onBlur={onValidation('username')}
+            disabled={isEditMode}
             required
           />
 
@@ -181,7 +296,7 @@ export default function UsersFormDashboardPage() {
 
           <SelectComponent
             value={form.roleId}
-            label="Rol"
+            label={messages.users.ui.createUserRoleLabel}
             options={selectOptions}
             error={errors.roleId}
             onValueChange={(value) => handleChangeField('roleId', value)}
@@ -194,28 +309,28 @@ export default function UsersFormDashboardPage() {
           <ButtonComponent
             type="button"
             variant="outline"
-            disabled={createUserSubmitting}
+            disabled={saving}
             label="Volver"
             onClick={() => navigate(AUTH_ROUTE_USERS)}
           />
           <ButtonComponent
             type="submit"
             variant="primary"
-            disabled={createUserSubmitting || loadingRoleOptions || selectOptions.length === 0}
-            label={createUserSubmitting ? 'Creando usuario...' : 'Crear usuario'}
+            disabled={!canSubmit}
+            label={saving ? submitLoadingLabel : submitLabel}
           />
         </div>
       </form>
 
       <SaveConfirmComponent
         open={confirmOpen}
-        title="Confirmar creacion de usuario"
+        title={isEditMode ? 'Confirmar actualizacion de usuario' : 'Confirmar creacion de usuario'}
         message={confirmMessage}
-        confirmLabel="Crear usuario"
+        confirmLabel={submitLabel}
         cancelLabel="Cancelar"
-        loading={createUserSubmitting}
+        loading={saving}
         onClose={handleCloseConfirm}
-        onConfirm={() => { void handleConfirmCreate() }}
+        onConfirm={() => { void handleConfirmSave() }}
       />
     </section>
   )

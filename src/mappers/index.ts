@@ -16,6 +16,7 @@ export { mapperLoginCredentialsPayload } from './auth/login-credentials.mapper'
 export { mapperDashboardExample } from './dashboard/dashboard-example.mapper'
 export {
   mapperCreateUserPayload,
+  mapperUpdateUserPayload,
   mapperUsersRows,
   mapperUsersPagination,
   mapperUserDetailView,
