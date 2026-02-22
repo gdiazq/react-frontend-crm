@@ -11,5 +11,9 @@ export const rolesService = {
     return data
   },
 
+  toggleRoleStatus: async (roleId: number, status: boolean) => {
+    await axiosInstance.put(`/role/${roleId}/status`, { status })
+  },
+
   isAxiosError: axios.isAxiosError,
 }

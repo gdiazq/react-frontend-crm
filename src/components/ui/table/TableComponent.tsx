@@ -5,6 +5,7 @@ export default function TableComponent({
   rows,
   loading = false,
   emptyMessage = 'Sin datos',
+  scrollContainerClassName = '',
   renderCell,
   sortableColumnIndexes = [],
   sortState = { columnIndex: null, direction: 'desc' },
@@ -15,7 +16,7 @@ export default function TableComponent({
 
   return (
     <section className="overflow-visible rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
-      <div className="overflow-x-auto">
+      <div className={`overflow-x-auto ${scrollContainerClassName}`.trim()}>
         <table className="w-full min-w-max">
           <thead className="bg-slate-50 dark:bg-slate-800/60">
             <tr>

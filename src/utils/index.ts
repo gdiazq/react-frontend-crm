@@ -19,5 +19,5 @@ export {
   keepCurrentDevices,
 } from './settingUtils'
 export { formatRoleLabel } from './usersUtils'
-export { createUsersActions } from './usersActions'
+export { createUsersActions, createRolesActions } from './usersActions'
 export type { DropdownAction } from './usersActions'

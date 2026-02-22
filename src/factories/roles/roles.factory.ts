@@ -5,6 +5,7 @@ export const rolesTableColumns: string[] = [
   'Estado',
   'Creado',
   'Actualizado',
+  'Acciones',
 ]
 
 export const initialRolesRows: RoleTableRow[] = []

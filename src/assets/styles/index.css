@@ -4,3 +4,11 @@
 @theme {
   --animate-spin-slow: spin 20s linear infinite;
 }
+
+.roles-table-no-vertical-scrollbar {
+  scrollbar-width: none;
+}
+
+.roles-table-no-vertical-scrollbar::-webkit-scrollbar:vertical {
+  width: 0;
+}

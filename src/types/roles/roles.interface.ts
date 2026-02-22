@@ -10,6 +10,7 @@ export interface RoleRaw {
 export interface RoleTableRow {
   id: string
   values: string[]
+  status?: boolean
 }
 
 export type RolesSortBy = 'name' | 'description' | 'enabled' | 'createdAt' | 'updatedAt'

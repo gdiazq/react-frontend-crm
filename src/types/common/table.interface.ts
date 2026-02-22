@@ -17,6 +17,7 @@ export interface TableComponentProps {
   rows: TableRow[]
   loading?: boolean
   emptyMessage?: string
+  scrollContainerClassName?: string
   renderCell?: (row: TableRow, value: string | ReactNode, columnIndex: number, rowIndex: number) => ReactNode
   sortableColumnIndexes?: number[]
   sortState?: TableSortState

@@ -6,7 +6,7 @@ import type {
   RolesPagination,
   RolesQueryParams,
 } from '@/types'
-import { formatDateTime, formatRoleLabel } from '@/utils'
+import { formatDate, formatRoleLabel } from '@/utils'
 
 export function mapperRolesRows(result: RoleRaw[]): RoleTableRow[] {
   const noData = messages.roles.ui.noData
@@ -14,11 +14,13 @@ export function mapperRolesRows(result: RoleRaw[]): RoleTableRow[] {
 
   return result.map((item) => ({
     id: String(item.id),
+    status: item.enabled,
     values: [
       formatRoleLabel(item.name) || noData,
       item.enabled ? messages.roles.ui.statusEnabled : messages.roles.ui.statusDisabled,
-      formatDateTime(item.createdAt, noDate),
-      formatDateTime(item.updatedAt, noDate),
+      formatDate(item.createdAt, noDate),
+      formatDate(item.updatedAt, noDate),
+      '',
     ],
   }))
 }

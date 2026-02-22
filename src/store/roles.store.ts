@@ -12,11 +12,15 @@ import messages from '@/messages/messages'
 import { rolesService } from '@/services'
 import type { RolesStore } from '@/types'
 
+const ROLE_STATUS_COLUMN_INDEX = 1
+
 export const useStoreRoles = create<RolesStore>()((set, get) => ({
+  rolesRaw: [],
   rolesRows: [...initialRolesRows],
   pagination: { ...initialRolesPagination },
   queryParams: { ...initialRolesQueryParams },
   loadingRoles: false,
+  loadingToggleStatus: false,
   errorMessage: null,
   errorBack: null,
 
@@ -27,6 +31,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
       const pagination = mapperRolesPagination(data)
 
       set({
+        rolesRaw: data.content || [],
         rolesRows: mapperRolesRows(data.content || []),
         pagination,
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
@@ -88,6 +93,55 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
       queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
     }))
     await get().getRoles()
+  },
+
+  mutationToggleRoleStatus: async (roleId: string, nextStatus: boolean) => {
+    const parsedRoleId = Number(roleId)
+    if (!Number.isInteger(parsedRoleId) || parsedRoleId <= 0) {
+      set({ errorMessage: messages.roles.status.errors.invalidStatusRoleId })
+      return false
+    }
+
+    const previousRow = get().rolesRows.find((row) => row.id === roleId)
+    const previousRaw = get().rolesRaw.find((role) => role.id === parsedRoleId)
+    if (!previousRow || !previousRaw) {
+      set({ errorMessage: messages.roles.status.errors.invalidStatusRoleId })
+      return false
+    }
+
+    try {
+      set({ loadingToggleStatus: true, errorMessage: null, errorBack: null })
+      set((state) => ({
+        rolesRaw: state.rolesRaw.map((role) => (role.id === parsedRoleId ? { ...role, enabled: nextStatus } : role)),
+        rolesRows: state.rolesRows.map((row) => {
+          if (row.id !== roleId) return row
+          return {
+            ...row,
+            status: nextStatus,
+            values: row.values.map((value, index) => {
+              if (index !== ROLE_STATUS_COLUMN_INDEX) return value
+              return nextStatus ? messages.roles.ui.statusEnabled : messages.roles.ui.statusDisabled
+            }),
+          }
+        }),
+      }))
+
+      await rolesService.toggleRoleStatus(parsedRoleId, nextStatus)
+      return true
+    } catch (error) {
+      set((state) => ({
+        rolesRaw: state.rolesRaw.map((role) => (role.id === parsedRoleId ? previousRaw : role)),
+        rolesRows: state.rolesRows.map((row) => (row.id === roleId ? previousRow : row)),
+      }))
+      if (rolesService.isAxiosError(error)) {
+        set({ errorMessage: error.response?.data?.message || messages.roles.status.errors.toggleStatusError })
+      } else {
+        set({ errorMessage: messages.roles.status.errors.toggleStatusError })
+      }
+      return false
+    } finally {
+      set({ loadingToggleStatus: false })
+    }
   },
 
   clearStatus: () => {

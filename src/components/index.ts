@@ -42,3 +42,6 @@ export { default as PricingSection } from './frontpage/PricingSection'
 
 // Users Components
 export { default as UserDetailComponent } from './users/UserDetailComponent'
+
+// Roles Components
+export { default as RoleDetailComponent } from './roles/RoleDetailComponent'

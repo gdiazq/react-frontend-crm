@@ -1,4 +1,5 @@
 import type {
+  RoleRaw,
   RoleTableRow,
   RolesPagination,
   RolesQueryParams,
@@ -7,10 +8,12 @@ import type {
 } from './roles.interface'
 
 export interface RolesStore {
+  rolesRaw: RoleRaw[]
   rolesRows: RoleTableRow[]
   pagination: RolesPagination
   queryParams: RolesQueryParams
   loadingRoles: boolean
+  loadingToggleStatus: boolean
   errorMessage: string | null
   errorBack: unknown | null
   getRoles: () => Promise<void>
@@ -20,5 +23,6 @@ export interface RolesStore {
   setSearch: (value: string) => void
   searchRoles: () => Promise<void>
   sortRoles: (sortBy: RolesSortBy, sortDir: RolesSortDir) => Promise<void>
+  mutationToggleRoleStatus: (roleId: string, nextStatus: boolean) => Promise<boolean>
   clearStatus: () => void
 }
