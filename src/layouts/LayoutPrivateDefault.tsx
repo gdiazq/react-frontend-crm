@@ -4,6 +4,7 @@ import {
   AUTH_ROUTE_DASHBOARD,
   AUTH_ROUTE_LOGIN,
   AUTH_ROUTE_LOGOUT,
+  AUTH_ROUTE_ROLES,
   AUTH_ROUTE_SETTINGS,
   AUTH_ROUTE_USERS,
 } from '@/constant'
@@ -74,6 +75,12 @@ export default function LayoutPrivateDefault() {
     navigate(AUTH_ROUTE_USERS)
   }
 
+  const handleGoRoles = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    navigate(AUTH_ROUTE_ROLES)
+  }
+
   const handleGoSettings = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
@@ -132,6 +139,7 @@ export default function LayoutPrivateDefault() {
         onToggleDesktopCollapse={() => setSidebarCollapsed((v) => !v)}
         onGoDashboard={handleGoDashboard}
         onGoUsers={handleGoUsers}
+        onGoRoles={handleGoRoles}
         onGoLogout={handleGoLogout}
       />
 

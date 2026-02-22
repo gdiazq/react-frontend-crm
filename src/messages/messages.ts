@@ -170,6 +170,20 @@ export default {
       },
     },
   },
+  roles: {
+    ui: {
+      noData: '-',
+      noDate: 'Sin registro',
+      statusEnabled: 'Habilitado',
+      statusDisabled: 'Deshabilitado',
+    },
+    status: {
+      success: {},
+      errors: {
+        loadError: 'No se pudo cargar la lista de roles.',
+      },
+    },
+  },
   selects: {
     status: {
       success: {},

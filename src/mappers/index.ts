@@ -24,6 +24,11 @@ export {
 } from './users/users.mapper'
 export { mapperSelectRoleOptions } from './selects/selects.mapper'
 export {
+  mapperRolesRows,
+  mapperRolesPagination,
+  mapperRolesQueryParams,
+} from './roles/roles.mapper'
+export {
   mapperArchiveNotification,
   mapperMarkAsNotRead,
   mapperMarkAsRead,
