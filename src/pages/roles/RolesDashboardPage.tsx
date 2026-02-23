@@ -29,6 +29,7 @@ const ROLES_SORT_BY_COLUMN: Partial<Record<number, RolesSortBy>> = {
 }
 
 const ROLES_SORTABLE_COLUMNS = Object.keys(ROLES_SORT_BY_COLUMN).map((index) => Number(index))
+const ROLE_NAME_COLUMN_INDEX = 0
 const STATUS_COLUMN_INDEX = 1
 const ACTIONS_COLUMN_INDEX = rolesTableColumns.length - 1
 
@@ -118,6 +119,17 @@ export default function RolesDashboardPage() {
 
   const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
     const roleRow = row as RoleTableRow
+    if (columnIndex === ROLE_NAME_COLUMN_INDEX) {
+      return (
+        <button
+          type="button"
+          className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
+          onClick={() => handleViewDetail(roleRow)}
+        >
+          {value}
+        </button>
+      )
+    }
     if (columnIndex === STATUS_COLUMN_INDEX) {
       return <StatusBadgeComponent enabled={roleRow.status === true} />
     }
