@@ -166,7 +166,7 @@ export default function RolesDashboardPage() {
   const detailTitle = roleDetail ? `Detalle de ${roleDetail.name}` : messages.roles.ui.detailTitleFallback
 
   return (
-    <section className="space-y-4">
+    <section className="min-w-0 space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
         <h1 className="text-2xl font-bold">Dashboard de roles</h1>
       </header>

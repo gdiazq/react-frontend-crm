@@ -28,6 +28,10 @@ export const initialUsersQueryParams: UsersQueryParams = {
   page: 0,
   size: 8,
   search: '',
+  name: '',
+  email: '',
+  status: '',
+  roleId: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
 }

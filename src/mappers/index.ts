@@ -22,7 +22,12 @@ export {
   mapperUserDetailView,
   mapperUsersQueryParams,
 } from './users/users.mapper'
-export { mapperSelectRoleOptions } from './selects/selects.mapper'
+export {
+  mapperSelectRoleOptions,
+  mapperSelectStatusOptions,
+  mapperSelectUserEmailOptions,
+  mapperSelectUserNameOptions,
+} from './selects/selects.mapper'
 export {
   mapperRolesRows,
   mapperRolesPagination,

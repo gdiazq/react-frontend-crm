@@ -5,10 +5,11 @@ import {
   AlertMessageComponent,
   ButtonComponent,
   DetailSidebarComponent,
+  InputComponent,
   PaginationComponent,
   RightSidebarComponent,
   SaveConfirmComponent,
-  SearchBarComponent,
+  SelectComponent,
   StatusBadgeComponent,
   TableComponent,
   UserDetailComponent,
@@ -18,7 +19,7 @@ import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns } from '@/factories'
 import { mapperUserDetailView } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreUsers } from '@/store'
+import { useStoreSelects, useStoreUsers } from '@/store'
 import { createUsersActions } from '@/utils'
 import type { UserTableRow, UsersSortBy } from '@/types'
 import type { DropdownAction } from '@/utils'
@@ -57,9 +58,19 @@ export default function UsersDashboardPage() {
   const setSearch = useStoreUsers((s) => s.setSearch)
   const searchUsers = useStoreUsers((s) => s.searchUsers)
   const sortUsers = useStoreUsers((s) => s.sortUsers)
+  const setAdvancedFilters = useStoreUsers((s) => s.setAdvancedFilters)
+  const clearAdvancedFilters = useStoreUsers((s) => s.clearAdvancedFilters)
   const clearUserDetail = useStoreUsers((s) => s.clearUserDetail)
   const mutationToggleUserStatus = useStoreUsers((s) => s.mutationToggleUserStatus)
   const goToPage = useStoreUsers((s) => s.goToPage)
+  const roleOptions = useStoreSelects((s) => s.roleOptions)
+  const userNameOptions = useStoreSelects((s) => s.userNameOptions)
+  const userEmailOptions = useStoreSelects((s) => s.userEmailOptions)
+  const statusOptions = useStoreSelects((s) => s.statusOptions)
+  const loadingUsersFilterOptions = useStoreSelects((s) => s.loadingUsersFilterOptions)
+  const usersFilterOptionsErrorMessage = useStoreSelects((s) => s.usersFilterOptionsErrorMessage)
+  const getUsersFilterOptions = useStoreSelects((s) => s.getUsersFilterOptions)
+  const clearUsersFilterOptionsStatus = useStoreSelects((s) => s.clearUsersFilterOptionsStatus)
 
   const { actionViewDetail, actionUpdateUser, actionToggleStatus } = createUsersActions()
 
@@ -70,6 +81,12 @@ export default function UsersDashboardPage() {
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<UserTableRow | null>(null)
+  const [filters, setFilters] = useState({
+    userNameId: '',
+    userEmailId: '',
+    statusId: '',
+    roleId: '',
+  })
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -81,9 +98,26 @@ export default function UsersDashboardPage() {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
   }
+  const nameSelectOptions = useMemo(
+    () => userNameOptions.map((option) => ({ label: option.name, value: String(option.id) })),
+    [userNameOptions],
+  )
+  const emailSelectOptions = useMemo(
+    () => userEmailOptions.map((option) => ({ label: option.email, value: String(option.id) })),
+    [userEmailOptions],
+  )
+  const statusSelectOptions = useMemo(
+    () => statusOptions.map((option) => ({ label: option.name, value: String(option.id) })),
+    [statusOptions],
+  )
+  const roleSelectOptions = useMemo(
+    () => roleOptions.map((option) => ({ label: option.name, value: String(option.id) })),
+    [roleOptions],
+  )
 
   useEffect(() => {
     getUsers()
+    void getUsersFilterOptions()
   }, [])
 
   useEffect(() => {
@@ -168,6 +202,39 @@ export default function UsersDashboardPage() {
     void getUserDetail(selectedDetailRowId)
   }
 
+  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+    setFilters((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleApplyFilters = async () => {
+    const selectedNameRaw = userNameOptions.find((option) => String(option.id) === filters.userNameId)?.name.trim() || ''
+    const selectedName = selectedNameRaw.split(/\s+/)[0]?.toLowerCase() || ''
+    const selectedEmail = userEmailOptions.find((option) => String(option.id) === filters.userEmailId)?.email || ''
+    const selectedStatus = statusOptions.find((option) => String(option.id) === filters.statusId)
+    const selectedRoleId = roleOptions.find((option) => String(option.id) === filters.roleId)?.id
+
+    setAdvancedFilters({
+      name: selectedName,
+      email: selectedEmail,
+      status: selectedStatus ? String(selectedStatus.id) : '',
+      roleId: selectedRoleId ? String(selectedRoleId) : '',
+    })
+    await searchUsers()
+    setFiltersOpen(false)
+  }
+
+  const handleClearFilters = async () => {
+    setFilters({
+      userNameId: '',
+      userEmailId: '',
+      statusId: '',
+      roleId: '',
+    })
+    clearAdvancedFilters()
+    await searchUsers()
+    setFiltersOpen(false)
+  }
+
   const handleConfirmToggleStatus = async () => {
     if (!pendingToggleRow || loadingToggleStatus) return
 
@@ -192,7 +259,7 @@ export default function UsersDashboardPage() {
   const detailTitle = userDetail ? `Detalle de ${userDetail.username}` : 'Detalle de usuario'
 
   return (
-    <section className="space-y-4">
+    <section className="min-w-0 space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
         <h1 className="text-2xl font-bold">Dashboard de usuarios</h1>
       </header>
@@ -205,8 +272,22 @@ export default function UsersDashboardPage() {
         />
       )}
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-end">
-        <div className="flex items-center">
+      {usersFilterOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={usersFilterOptionsErrorMessage}
+          tone="error"
+          onClose={clearUsersFilterOptionsStatus}
+        />
+      )}
+
+      <form
+        className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
+        onSubmit={(event) => {
+          event.preventDefault()
+          void searchUsers()
+        }}
+      >
+        <div className="flex items-center gap-2 md:col-start-1 md:row-start-1">
           <ButtonComponent
             type="button"
             variant="outline"
@@ -214,28 +295,34 @@ export default function UsersDashboardPage() {
             label="Filtro"
             onClick={() => setFiltersOpen(true)}
           />
+          <div className="min-w-0 flex-1">
+            <InputComponent
+              value={queryParams.search}
+              type="text"
+              placeholder="Buscar por nombre, apellido o correo"
+              onValueChange={setSearch}
+            />
+          </div>
         </div>
-        <div className="flex-1">
-          <SearchBarComponent
-            value={queryParams.search}
-            loading={loadingUsers || loadingToggleStatus}
-            placeholder="Buscar por nombre, apellido o correo"
-            buttonClassName="bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
-            onValueChange={setSearch}
-            onSearch={searchUsers}
+
+        <div className="flex items-center gap-2 md:col-start-2 md:row-start-1 md:justify-end">
+          <ButtonComponent
+            type="submit"
+            variant="primary"
+            disabled={loadingUsers || loadingToggleStatus}
+            className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
+            label={loadingUsers ? 'Buscando...' : 'Buscar'}
           />
-        </div>
-        <div className="flex items-center md:ml-auto">
           <ButtonComponent
             type="button"
             variant="primary"
             disabled={loadingUsers || loadingToggleStatus}
-            className="text-white dark:text-white"
+            className="flex-1 text-white md:flex-none dark:text-white"
             label="Nuevo usuario"
             onClick={() => navigate(AUTH_ROUTE_USERS_CREATE)}
           />
         </div>
-      </div>
+      </form>
 
       <TableComponent
         columns={usersTableColumns}
@@ -270,7 +357,51 @@ export default function UsersDashboardPage() {
         open={filtersOpen}
         title="Filtros"
         onClose={() => setFiltersOpen(false)}
-      />
+      >
+        <div className="space-y-4">
+          <SelectComponent
+            value={filters.userNameId}
+            label="Nombre"
+            options={nameSelectOptions}
+            onValueChange={(value) => handleChangeFilter('userNameId', value)}
+          />
+          <SelectComponent
+            value={filters.userEmailId}
+            label="Email"
+            options={emailSelectOptions}
+            onValueChange={(value) => handleChangeFilter('userEmailId', value)}
+          />
+          <SelectComponent
+            value={filters.statusId}
+            label="Estado"
+            options={statusSelectOptions}
+            onValueChange={(value) => handleChangeFilter('statusId', value)}
+          />
+          <SelectComponent
+            value={filters.roleId}
+            label="Rol"
+            options={roleSelectOptions}
+            onValueChange={(value) => handleChangeFilter('roleId', value)}
+          />
+          <div className="flex flex-wrap justify-end gap-2 pt-2">
+            <ButtonComponent
+              type="button"
+              variant="outline"
+              disabled={loadingUsers || loadingToggleStatus || loadingUsersFilterOptions}
+              label="Limpiar"
+              onClick={() => { void handleClearFilters() }}
+            />
+            <ButtonComponent
+              type="button"
+              variant="primary"
+              disabled={loadingUsers || loadingToggleStatus || loadingUsersFilterOptions}
+              className="text-white dark:text-white"
+              label={loadingUsers || loadingUsersFilterOptions ? 'Aplicando...' : 'Aplicar'}
+              onClick={() => { void handleApplyFilters() }}
+            />
+          </div>
+        </div>
+      </RightSidebarComponent>
       <DetailSidebarComponent
         open={detailOpen}
         title={detailTitle}

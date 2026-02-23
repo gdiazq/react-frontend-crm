@@ -36,6 +36,8 @@ export interface UsersStore {
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
   setSearch: (value: string) => void
+  setAdvancedFilters: (filters: { name: string, email: string, status: string, roleId: string }) => void
+  clearAdvancedFilters: () => void
   searchUsers: () => Promise<void>
   sortUsers: (sortBy: UsersSortBy, sortDir: UsersSortDir) => Promise<void>
   clearUserDetail: () => void

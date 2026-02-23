@@ -205,6 +205,7 @@ export default {
       success: {},
       errors: {
         loadRolesError: 'No se pudieron cargar los roles.',
+        loadUsersFiltersError: 'No se pudieron cargar los filtros de usuarios.',
       },
     },
   },

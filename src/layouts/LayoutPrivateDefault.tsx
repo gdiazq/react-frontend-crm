@@ -143,7 +143,7 @@ export default function LayoutPrivateDefault() {
         onGoLogout={handleGoLogout}
       />
 
-      <section className="flex min-h-screen w-full flex-col lg:pl-0">
+      <section className="flex min-h-screen w-full min-w-0 flex-col lg:pl-0">
         <NavbarComponent
           unreadCount={unreadCount}
           userLabel={currentUser?.username || currentUser?.email || 'Usuario'}
@@ -161,7 +161,7 @@ export default function LayoutPrivateDefault() {
           onToggleTheme={toggleTheme}
         />
 
-        <section className="flex-1 p-6">
+        <section className="flex-1 min-w-0 p-4 sm:p-6">
           <Outlet />
         </section>
       </section>

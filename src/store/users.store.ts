@@ -122,6 +122,30 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
     set((state) => ({ queryParams: { ...state.queryParams, search: value } }))
   },
 
+  setAdvancedFilters: (filters) => {
+    set((state) => ({
+      queryParams: {
+        ...state.queryParams,
+        name: filters.name,
+        email: filters.email,
+        status: filters.status,
+        roleId: filters.roleId,
+      },
+    }))
+  },
+
+  clearAdvancedFilters: () => {
+    set((state) => ({
+      queryParams: {
+        ...state.queryParams,
+        name: '',
+        email: '',
+        status: '',
+        roleId: '',
+      },
+    }))
+  },
+
   searchUsers: async () => {
     set((state) => ({
       pagination: { ...state.pagination, page: 0 },

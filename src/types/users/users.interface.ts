@@ -144,6 +144,10 @@ export interface UsersQueryParams {
   page: number
   size: number
   search: string
+  name: string
+  email: string
+  status: string
+  roleId: string
   sortBy: UsersSortBy
   sortDir: UsersSortDir
 }

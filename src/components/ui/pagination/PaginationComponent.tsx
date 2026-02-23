@@ -17,13 +17,24 @@ export default function PaginationComponent({
 }: PaginationComponentProps) {
   const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1
   const end = Math.min(currentPage * pageSize, totalItems)
+  const maxVisiblePages = 5
+  const halfWindow = Math.floor(maxVisiblePages / 2)
+  let pageStart = Math.max(currentPage - halfWindow, 1)
+  let pageEnd = Math.min(pageStart + maxVisiblePages - 1, totalPages)
+  if (pageEnd - pageStart + 1 < maxVisiblePages) {
+    pageStart = Math.max(pageEnd - maxVisiblePages + 1, 1)
+  }
+  const visiblePages = Array.from(
+    { length: pageEnd >= pageStart ? pageEnd - pageStart + 1 : 0 },
+    (_, i) => pageStart + i,
+  )
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+    <div className="flex min-w-0 flex-col items-center justify-between gap-3 sm:flex-row">
       <p className="text-sm text-slate-500 dark:text-slate-400">
         {totalItems === 0 ? 'Sin resultados' : `Mostrando ${start}–${end} de ${totalItems}`}
       </p>
-      <div className="flex items-center gap-1">
+      <div className="flex min-w-0 items-center gap-1">
         <button
           type="button"
           disabled={currentPage <= 1 || loading}
@@ -35,7 +46,7 @@ export default function PaginationComponent({
           </svg>
         </button>
 
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        {visiblePages.map((page) => (
           <button
             key={page}
             type="button"

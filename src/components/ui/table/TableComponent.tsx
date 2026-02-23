@@ -15,8 +15,8 @@ export default function TableComponent({
     sortableColumnIndexes.includes(columnIndex) && typeof onSortChange === 'function'
 
   return (
-    <section className="overflow-visible rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
-      <div className={`overflow-x-auto ${scrollContainerClassName}`.trim()}>
+    <section className="overflow-visible min-w-0 rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+      <div className={`min-w-0 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] ${scrollContainerClassName}`.trim()}>
         <table className="w-full min-w-max">
           <thead className="bg-slate-50 dark:bg-slate-800/60">
             <tr>
