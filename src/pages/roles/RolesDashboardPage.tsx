@@ -17,6 +17,7 @@ import type { DropdownAction } from '@/utils'
 import type { RoleTableRow, RolesSortBy } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
 import { rolesTableColumns } from '@/factories'
+import { mapperRoleDetailView } from '@/mappers'
 import { useStoreRoles } from '@/store'
 import messages from '@/messages/messages'
 
@@ -65,6 +66,7 @@ export default function RolesDashboardPage() {
     () => rolesRaw.find((role) => String(role.id) === selectedDetailRowId) || null,
     [rolesRaw, selectedDetailRowId],
   )
+  const roleDetailView = useMemo(() => mapperRoleDetailView(roleDetail), [roleDetail])
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
@@ -163,7 +165,7 @@ export default function RolesDashboardPage() {
   const confirmMessage = pendingToggleRow
     ? `¿Seguro que deseas ${pendingToggleRow.status === true ? 'deshabilitar' : 'habilitar'} al rol ${pendingToggleRow.values[0]}?`
     : ''
-  const detailTitle = roleDetail ? `Detalle de ${roleDetail.name}` : messages.roles.ui.detailTitleFallback
+  const detailTitle = roleDetailView ? `Detalle de ${roleDetailView.roleNameDisplay}` : messages.roles.ui.detailTitleFallback
 
   return (
     <section className="min-w-0 space-y-4">
@@ -251,7 +253,7 @@ export default function RolesDashboardPage() {
         title={detailTitle}
         onClose={handleCloseDetail}
       >
-        <RoleDetailComponent detail={roleDetail} />
+        <RoleDetailComponent detail={roleDetailView} />
       </DetailSidebarComponent>
       <SaveConfirmComponent
         open={confirmOpen}

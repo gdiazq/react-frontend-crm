@@ -1,4 +1,5 @@
 export type {
+  RoleDetailView,
   RoleRaw,
   RoleTableRow,
   RolesSortBy,

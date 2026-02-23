@@ -1,5 +1,6 @@
 import messages from '@/messages/messages'
 import type {
+  RoleDetailView,
   RolePagedResponse,
   RoleRaw,
   RoleTableRow,
@@ -47,4 +48,19 @@ export function mapperRolesQueryParams(result: RolesQueryParams): Record<string,
 
   if (search.length > 0) queryParams.search = search
   return queryParams
+}
+
+export function mapperRoleDetailView(detail: RoleRaw | null): RoleDetailView | null {
+  if (!detail) return null
+
+  const noData = messages.roles.ui.noData
+  const noDate = messages.roles.ui.noDate
+
+  return {
+    roleNameDisplay: formatRoleLabel(detail.name?.trim() || '') || noData,
+    descriptionDisplay: detail.description?.trim() || noData,
+    enabled: detail.enabled === true,
+    createdAtDisplay: formatDate(detail.createdAt, noDate),
+    updatedAtDisplay: formatDate(detail.updatedAt, noDate),
+  }
 }

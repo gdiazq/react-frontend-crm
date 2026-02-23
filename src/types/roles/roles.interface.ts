@@ -7,6 +7,14 @@ export interface RoleRaw {
   updatedAt: string
 }
 
+export interface RoleDetailView {
+  roleNameDisplay: string
+  descriptionDisplay: string
+  enabled: boolean
+  createdAtDisplay: string
+  updatedAtDisplay: string
+}
+
 export interface RoleTableRow {
   id: string
   values: string[]
