@@ -31,7 +31,7 @@ export interface UsersStore {
   errorBack: unknown | null
   // Actions
   getUsers: () => Promise<void>
-  getUserDetail: (userId: string) => Promise<boolean>
+  getUserDetail: (userId: string) => Promise<UserDetail | null>
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
@@ -43,6 +43,7 @@ export interface UsersStore {
   clearUserDetail: () => void
   clearCreateUserStatus: () => void
   clearUpdateUserStatus: () => void
+  clearDetailError: () => void
   mutationCreateUser: (payload: UserCreatePayload) => Promise<boolean>
   mutationUpdateUser: (payload: UserUpdatePayload) => Promise<boolean>
   mutationToggleUserStatus: (userId: string, nextStatus: boolean) => Promise<boolean>

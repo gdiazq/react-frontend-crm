@@ -50,6 +50,7 @@ export default function UsersFormDashboardPage() {
   const clearUserDetail = useStoreUsers((s) => s.clearUserDetail)
   const mutationCreateUser = useStoreUsers((s) => s.mutationCreateUser)
   const mutationUpdateUser = useStoreUsers((s) => s.mutationUpdateUser)
+  const clearDetailError = useStoreUsers((s) => s.clearDetailError)
   const clearCreateUserStatus = useStoreUsers((s) => s.clearCreateUserStatus)
   const clearUpdateUserStatus = useStoreUsers((s) => s.clearUpdateUserStatus)
 
@@ -73,9 +74,6 @@ export default function UsersFormDashboardPage() {
   )
 
   useEffect(() => {
-    clearCreateUserStatus()
-    clearUpdateUserStatus()
-    clearRoleOptionsStatus()
     void getRoleOptions()
 
     return () => {
@@ -87,19 +85,13 @@ export default function UsersFormDashboardPage() {
   }, [clearCreateUserStatus, clearRoleOptionsStatus, clearUpdateUserStatus, clearUserDetail, getRoleOptions])
 
   useEffect(() => {
-    if (!isEditMode) {
-      clearUserDetail()
-      return
-    }
+    if (!isEditMode) return
 
     let cancelled = false
 
     const load = async () => {
-      const success = await getUserDetail(String(editUserId))
-      if (!success || cancelled) return
-
-      const detail = useStoreUsers.getState().userDetail
-      if (!detail) return
+      const detail = await getUserDetail(String(editUserId))
+      if (!detail || cancelled) return
 
       setForm({
         username: detail.username || '',
@@ -116,7 +108,7 @@ export default function UsersFormDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [clearUserDetail, editUserId, getUserDetail, isEditMode])
+  }, [editUserId, getUserDetail, isEditMode])
 
   const clearSubmitStatus = () => {
     clearCreateUserStatus()
@@ -128,10 +120,6 @@ export default function UsersFormDashboardPage() {
     if (!validateAll()) return
 
     if (isEditMode) {
-      if (!Number.isInteger(editUserId) || editUserId <= 0) {
-        useStoreUsers.setState({ updateUserErrorMessage: messages.users.status.errors.invalidStatusUserId })
-        return
-      }
       const payload = mapperUpdateUserPayload(editUserId, {
         email: form.email,
         firstName: form.firstName,
@@ -204,7 +192,7 @@ export default function UsersFormDashboardPage() {
         <AlertMessageComponent
           message={detailErrorMessage}
           tone="error"
-          onClose={() => useStoreUsers.setState({ detailErrorMessage: null })}
+          onClose={clearDetailError}
         />
       )}
 

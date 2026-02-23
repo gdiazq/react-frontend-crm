@@ -61,7 +61,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
         detailErrorMessage: messages.users.status.errors.detailInvalidUserId,
         userDetail: null,
       })
-      return false
+      return null
     }
     const requestId = ++latestUserDetailRequestId
 
@@ -73,11 +73,11 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
         errorBack: null,
       })
       const data = await usersService.getUserDetail(parsedUserId)
-      if (requestId !== latestUserDetailRequestId) return false
+      if (requestId !== latestUserDetailRequestId) return null
       set({ userDetail: data })
-      return true
+      return data
     } catch (error) {
-      if (requestId !== latestUserDetailRequestId) return false
+      if (requestId !== latestUserDetailRequestId) return null
       if (usersService.isAxiosError(error)) {
         set({
           detailErrorMessage: error.response?.data?.message || messages.users.status.errors.detailLoadError,
@@ -89,7 +89,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
           errorBack: error,
         })
       }
-      return false
+      return null
     } finally {
       if (requestId === latestUserDetailRequestId) {
         set({ loadingUserDetail: false })
@@ -165,6 +165,10 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
   clearUserDetail: () => {
     latestUserDetailRequestId += 1
     set({ userDetail: null, detailErrorMessage: null, loadingUserDetail: false })
+  },
+
+  clearDetailError: () => {
+    set({ detailErrorMessage: null })
   },
 
   clearCreateUserStatus: () => {
