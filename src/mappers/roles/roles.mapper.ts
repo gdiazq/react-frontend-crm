@@ -42,6 +42,7 @@ export function mapperRolesPagination(result: RolePagedResponse): RolesPaginatio
 
 export function mapperRolesQueryParams(result: RolesQueryParams): Record<string, number | string> {
   const search = result.search.trim()
+  const status = result.status.trim()
   const queryParams: Record<string, number | string> = {
     page: result.page,
     size: result.size,
@@ -50,6 +51,10 @@ export function mapperRolesQueryParams(result: RolesQueryParams): Record<string,
   }
 
   if (search.length > 0) queryParams.search = search
+  if (status === 'true' || status === 'false') {
+    queryParams.status = status
+    queryParams.enabled = status
+  }
   return queryParams
 }
 

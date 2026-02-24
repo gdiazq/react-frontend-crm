@@ -10,6 +10,7 @@ import {
   RoleDetailComponent,
   SaveConfirmComponent,
   SearchBarComponent,
+  SelectComponent,
   StatusBadgeComponent,
   TableComponent,
 } from '@/components'
@@ -20,7 +21,7 @@ import type { RoleTableRow, RolesSortBy } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
 import { rolesTableColumns } from '@/factories'
 import { mapperRoleDetailView } from '@/mappers'
-import { useStoreRoles } from '@/store'
+import { useStoreRoles, useStoreSelects } from '@/store'
 import messages from '@/messages/messages'
 
 const ROLES_SORT_BY_COLUMN: Partial<Record<number, RolesSortBy>> = {
@@ -49,13 +50,21 @@ export default function RolesDashboardPage() {
   const setSearch = useStoreRoles((s) => s.setSearch)
   const searchRoles = useStoreRoles((s) => s.searchRoles)
   const sortRoles = useStoreRoles((s) => s.sortRoles)
+  const setStatusFilter = useStoreRoles((s) => s.setStatusFilter)
+  const clearStatusFilter = useStoreRoles((s) => s.clearStatusFilter)
   const mutationToggleRoleStatus = useStoreRoles((s) => s.mutationToggleRoleStatus)
   const clearStatus = useStoreRoles((s) => s.clearStatus)
+  const statusOptions = useStoreSelects((s) => s.statusOptions)
+  const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
+  const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
+  const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
+  const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
   const { actionViewDetail, actionUpdateRole, actionToggleStatus } = createRolesActions()
 
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [filters, setFilters] = useState({ statusId: '' })
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -71,6 +80,10 @@ export default function RolesDashboardPage() {
     [rolesRaw, selectedDetailRowId],
   )
   const roleDetailView = useMemo(() => mapperRoleDetailView(roleDetail), [roleDetail])
+  const statusSelectOptions = useMemo(
+    () => statusOptions.map((option) => ({ label: option.name, value: String(option.id) })),
+    [statusOptions],
+  )
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
@@ -78,7 +91,12 @@ export default function RolesDashboardPage() {
 
   useEffect(() => {
     void getRoles()
+    void getStatusOptions()
   }, [])
+
+  useEffect(() => {
+    setFilters({ statusId: queryParams.status })
+  }, [queryParams.status])
 
   useEffect(() => {
     const closeActions = () => setOpenActionsRowId(null)
@@ -155,6 +173,24 @@ export default function RolesDashboardPage() {
     setSelectedDetailRowId(null)
   }
 
+  const handleChangeFilter = (value: string) => {
+    setFilters({ statusId: value })
+  }
+
+  const handleApplyFilters = async () => {
+    const selectedStatus = statusOptions.find((option) => String(option.id) === filters.statusId)
+    setStatusFilter(selectedStatus ? String(selectedStatus.id) : '')
+    await searchRoles()
+    setFiltersOpen(false)
+  }
+
+  const handleClearFilters = async () => {
+    setFilters({ statusId: '' })
+    clearStatusFilter()
+    await searchRoles()
+    setFiltersOpen(false)
+  }
+
   const handleConfirmToggleStatus = async () => {
     if (!pendingToggleRow || loadingToggleStatus) return
 
@@ -193,6 +229,14 @@ export default function RolesDashboardPage() {
           message={errorMessage}
           tone="error"
           onClose={clearStatus}
+        />
+      )}
+
+      {statusOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={statusOptionsErrorMessage}
+          tone="error"
+          onClose={clearStatusOptionsStatus}
         />
       )}
 
@@ -262,7 +306,33 @@ export default function RolesDashboardPage() {
         open={filtersOpen}
         title="Filtros"
         onClose={() => setFiltersOpen(false)}
-      />
+      >
+        <div className="space-y-4">
+          <SelectComponent
+            value={filters.statusId}
+            label="Estado"
+            options={statusSelectOptions}
+            onValueChange={handleChangeFilter}
+          />
+          <div className="flex flex-wrap justify-end gap-2 pt-2">
+            <ButtonComponent
+              type="button"
+              variant="outline"
+              disabled={loadingRoles || loadingToggleStatus || loadingStatusOptions}
+              label="Limpiar"
+              onClick={() => { void handleClearFilters() }}
+            />
+            <ButtonComponent
+              type="button"
+              variant="primary"
+              disabled={loadingRoles || loadingToggleStatus || loadingStatusOptions}
+              className="text-white dark:text-white"
+              label={loadingRoles || loadingStatusOptions ? 'Aplicando...' : 'Aplicar'}
+              onClick={() => { void handleApplyFilters() }}
+            />
+          </div>
+        </div>
+      </RightSidebarComponent>
       <DetailSidebarComponent
         open={detailOpen}
         title={detailTitle}

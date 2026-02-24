@@ -63,6 +63,7 @@ export interface RolesQueryParams {
   page: number
   size: number
   search: string
+  status: string
   sortBy: RolesSortBy
   sortDir: RolesSortDir
 }

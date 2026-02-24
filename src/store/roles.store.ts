@@ -86,6 +86,14 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
     set((state) => ({ queryParams: { ...state.queryParams, search: value } }))
   },
 
+  setStatusFilter: (status: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, status } }))
+  },
+
+  clearStatusFilter: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, status: '' } }))
+  },
+
   searchRoles: async () => {
     set((state) => ({
       pagination: { ...state.pagination, page: 0 },

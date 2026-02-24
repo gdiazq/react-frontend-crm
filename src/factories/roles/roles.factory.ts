@@ -23,6 +23,7 @@ export const initialRolesQueryParams: RolesQueryParams = {
   page: 0,
   size: 8,
   search: '',
+  status: '',
   sortBy: 'name',
   sortDir: 'asc',
 }

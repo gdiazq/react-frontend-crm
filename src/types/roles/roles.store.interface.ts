@@ -29,6 +29,8 @@ export interface RolesStore {
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
   setSearch: (value: string) => void
+  setStatusFilter: (status: string) => void
+  clearStatusFilter: () => void
   searchRoles: () => Promise<void>
   sortRoles: (sortBy: RolesSortBy, sortDir: RolesSortDir) => Promise<void>
   mutationCreateRole: (payload: RoleCreatePayload) => Promise<boolean>

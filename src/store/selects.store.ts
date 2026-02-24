@@ -15,8 +15,10 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   userEmailOptions: [],
   statusOptions: [],
   loadingRoleOptions: false,
+  loadingStatusOptions: false,
   loadingUsersFilterOptions: false,
   roleOptionsErrorMessage: null,
+  statusOptionsErrorMessage: null,
   usersFilterOptionsErrorMessage: null,
   errorBack: null,
 
@@ -48,6 +50,36 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
 
   clearRoleOptionsStatus: () => {
     set({ roleOptionsErrorMessage: null })
+  },
+
+  getStatusOptions: async () => {
+    try {
+      set({
+        loadingStatusOptions: true,
+        statusOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await selectsService.getStatusOptions()
+      set({ statusOptions: mapperSelectStatusOptions(data) })
+    } catch (error) {
+      if (selectsService.isAxiosError(error)) {
+        set({
+          statusOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadStatusError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          statusOptionsErrorMessage: messages.selects.status.errors.loadStatusError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingStatusOptions: false })
+    }
+  },
+
+  clearStatusOptionsStatus: () => {
+    set({ statusOptionsErrorMessage: null })
   },
 
   getUsersFilterOptions: async () => {

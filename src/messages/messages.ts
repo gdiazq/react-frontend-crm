@@ -223,6 +223,7 @@ export default {
       errors: {
         loadRolesError: 'No se pudieron cargar los roles.',
         loadUsersFiltersError: 'No se pudieron cargar los filtros de usuarios.',
+        loadStatusError: 'No se pudieron cargar los estados.',
       },
     },
   },
