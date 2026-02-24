@@ -1,5 +1,7 @@
 import messages from '@/messages/messages'
 import type {
+  RoleCreateForm,
+  RoleCreatePayload,
   RoleDetailView,
   RolePagedResponse,
   RoleRaw,
@@ -63,4 +65,13 @@ export function mapperRoleDetailView(detail: RoleRaw | null): RoleDetailView | n
     createdAtDisplay: formatDate(detail.createdAt, noDate),
     updatedAtDisplay: formatDate(detail.updatedAt, noDate),
   }
+}
+
+export function mapperCreateRolePayload(form: RoleCreateForm): RoleCreatePayload {
+  const name = form.name.trim()
+  const description = form.description.trim()
+
+  return description.length > 0
+    ? { name, description }
+    : { name }
 }

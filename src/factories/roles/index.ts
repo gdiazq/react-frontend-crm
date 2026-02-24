@@ -1,4 +1,5 @@
 export {
+  initialCreateRoleForm,
   rolesTableColumns,
   initialRolesRows,
   initialRolesPagination,

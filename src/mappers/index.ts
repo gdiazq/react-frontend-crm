@@ -29,6 +29,7 @@ export {
   mapperSelectUserNameOptions,
 } from './selects/selects.mapper'
 export {
+  mapperCreateRolePayload,
   mapperRoleDetailView,
   mapperRolesRows,
   mapperRolesPagination,

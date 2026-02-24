@@ -11,6 +11,7 @@ import {
 import messages from '@/messages/messages'
 import { rolesService } from '@/services'
 import type { RolesStore } from '@/types'
+import { formatRoleLabel } from '@/utils'
 
 const ROLE_STATUS_COLUMN_INDEX = 1
 
@@ -20,8 +21,11 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
   pagination: { ...initialRolesPagination },
   queryParams: { ...initialRolesQueryParams },
   loadingRoles: false,
+  createRoleSubmitting: false,
   loadingToggleStatus: false,
   errorMessage: null,
+  createRoleErrorMessage: null,
+  createRoleSuccessMessage: null,
   errorBack: null,
 
   getRoles: async () => {
@@ -95,6 +99,48 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
     await get().getRoles()
   },
 
+  mutationCreateRole: async (payload) => {
+    const roleName = payload.name.trim()
+    if (roleName.length < 3) {
+      set({ createRoleErrorMessage: messages.roles.status.errors.createRoleNameRequired })
+      return false
+    }
+
+    try {
+      set({
+        createRoleSubmitting: true,
+        createRoleErrorMessage: null,
+        createRoleSuccessMessage: null,
+        errorBack: null,
+      })
+
+      const data = await rolesService.createRole(payload)
+      const createdName = (data.name || roleName).trim()
+      const displayName = formatRoleLabel(createdName)
+      set({
+        createRoleSuccessMessage: displayName.length > 0
+          ? `${messages.roles.status.success.createRoleSuccess} (${displayName})`
+          : messages.roles.status.success.createRoleSuccess,
+      })
+      return true
+    } catch (error) {
+      if (rolesService.isAxiosError(error)) {
+        set({
+          createRoleErrorMessage: error.response?.data?.message || messages.roles.status.errors.createRoleError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          createRoleErrorMessage: messages.roles.status.errors.createRoleError,
+          errorBack: error,
+        })
+      }
+      return false
+    } finally {
+      set({ createRoleSubmitting: false })
+    }
+  },
+
   mutationToggleRoleStatus: async (roleId: string, nextStatus: boolean) => {
     const parsedRoleId = Number(roleId)
     if (!Number.isInteger(parsedRoleId) || parsedRoleId <= 0) {
@@ -146,5 +192,12 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
 
   clearStatus: () => {
     set({ errorMessage: null })
+  },
+
+  clearCreateRoleStatus: () => {
+    set({
+      createRoleErrorMessage: null,
+      createRoleSuccessMessage: null,
+    })
   },
 }))

@@ -18,6 +18,7 @@ const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'))
 const UsersDashboardPage = lazy(() => import('@/pages/users/UsersDashboardPage'))
 const UsersFormDashboardPage = lazy(() => import('@/pages/users/UsersFormDashboardPage'))
 const RolesDashboardPage = lazy(() => import('@/pages/roles/RolesDashboardPage'))
+const RolesFormDashboardPage = lazy(() => import('@/pages/roles/RolesFormDashboardPage'))
 const UnauthorizedPage = lazy(() => import('@/pages/errors/UnauthorizedPage'))
 const NotFoundPage = lazy(() => import('@/pages/errors/NotFoundPage'))
 
@@ -118,6 +119,10 @@ export const router = createBrowserRouter([
       {
         path: '/roles',
         element: <RolesDashboardPage />,
+      },
+      {
+        path: '/roles/new',
+        element: <RolesFormDashboardPage />,
       },
       {
         path: '/users/new',

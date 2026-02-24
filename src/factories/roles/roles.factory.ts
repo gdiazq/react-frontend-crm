@@ -1,4 +1,4 @@
-import type { RoleTableRow, RolesPagination, RolesQueryParams } from '@/types'
+import type { RoleCreateForm, RoleTableRow, RolesPagination, RolesQueryParams } from '@/types'
 
 export const rolesTableColumns: string[] = [
   'Rol',
@@ -25,4 +25,9 @@ export const initialRolesQueryParams: RolesQueryParams = {
   search: '',
   sortBy: 'name',
   sortDir: 'asc',
+}
+
+export const initialCreateRoleForm: RoleCreateForm = {
+  name: '',
+  description: '',
 }

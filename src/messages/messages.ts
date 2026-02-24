@@ -190,11 +190,14 @@ export default {
     },
     status: {
       success: {
+        createRoleSuccess: 'Rol creado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de roles.',
+        createRoleError: 'No se pudo crear el rol.',
+        createRoleNameRequired: 'Ingresa un nombre de rol valido.',
         toggleStatusError: 'No se pudo actualizar el estado del rol.',
         invalidStatusRoleId: 'Id de rol invalido para actualizar estado.',
       },

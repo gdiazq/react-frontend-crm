@@ -15,6 +15,25 @@ export interface RoleDetailView {
   updatedAtDisplay: string
 }
 
+export interface RoleCreateForm {
+  name: string
+  description: string
+}
+
+export interface RoleCreatePayload {
+  name: string
+  description?: string
+}
+
+export interface RoleCreateResponse {
+  id: number
+  name: string
+  description?: string | null
+  enabled: boolean
+  createdAt: string
+  updatedAt?: string | null
+}
+
 export interface RoleTableRow {
   id: string
   values: string[]

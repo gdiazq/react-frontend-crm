@@ -1,4 +1,7 @@
 export type {
+  RoleCreateForm,
+  RoleCreatePayload,
+  RoleCreateResponse,
   RoleDetailView,
   RoleRaw,
   RoleTableRow,

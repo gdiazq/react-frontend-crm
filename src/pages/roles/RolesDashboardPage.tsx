@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ActionsDropdownComponent,
   AlertMessageComponent,
@@ -12,6 +13,7 @@ import {
   StatusBadgeComponent,
   TableComponent,
 } from '@/components'
+import { AUTH_ROUTE_ROLES_CREATE } from '@/constant'
 import { createRolesActions } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import type { RoleTableRow, RolesSortBy } from '@/types'
@@ -34,6 +36,7 @@ const STATUS_COLUMN_INDEX = 1
 const ACTIONS_COLUMN_INDEX = rolesTableColumns.length - 1
 
 export default function RolesDashboardPage() {
+  const navigate = useNavigate()
   const rolesRows = useStoreRoles((s) => s.rolesRows) as RoleTableRow[]
   const rolesRaw = useStoreRoles((s) => s.rolesRaw)
   const pagination = useStoreRoles((s) => s.pagination)
@@ -220,7 +223,7 @@ export default function RolesDashboardPage() {
             disabled={loadingRoles || loadingToggleStatus}
             className="text-white dark:text-white"
             label="Nuevo rol"
-            onClick={() => setActionsMessage(messages.roles.ui.createRoleComingSoon)}
+            onClick={() => navigate(AUTH_ROUTE_ROLES_CREATE)}
           />
         </div>
       </div>
