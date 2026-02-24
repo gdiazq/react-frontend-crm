@@ -30,6 +30,7 @@ export {
 } from './selects/selects.mapper'
 export {
   mapperCreateRolePayload,
+  mapperUpdateRolePayload,
   mapperRoleDetailView,
   mapperRolesRows,
   mapperRolesPagination,

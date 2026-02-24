@@ -22,10 +22,13 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
   queryParams: { ...initialRolesQueryParams },
   loadingRoles: false,
   createRoleSubmitting: false,
+  updateRoleSubmitting: false,
   loadingToggleStatus: false,
   errorMessage: null,
   createRoleErrorMessage: null,
   createRoleSuccessMessage: null,
+  updateRoleErrorMessage: null,
+  updateRoleSuccessMessage: null,
   errorBack: null,
 
   getRoles: async () => {
@@ -141,6 +144,47 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
     }
   },
 
+  mutationUpdateRole: async (payload) => {
+    if (!Number.isInteger(payload.id) || payload.id <= 0) {
+      set({ updateRoleErrorMessage: messages.roles.status.errors.updateRoleInvalidRoleId })
+      return false
+    }
+
+    const roleName = payload.name.trim()
+    if (roleName.length < 3) {
+      set({ updateRoleErrorMessage: messages.roles.status.errors.createRoleNameRequired })
+      return false
+    }
+
+    try {
+      set({
+        updateRoleSubmitting: true,
+        updateRoleErrorMessage: null,
+        updateRoleSuccessMessage: null,
+        errorBack: null,
+      })
+
+      await rolesService.updateRole(payload)
+      set({ updateRoleSuccessMessage: messages.roles.status.success.updateRoleSuccess })
+      return true
+    } catch (error) {
+      if (rolesService.isAxiosError(error)) {
+        set({
+          updateRoleErrorMessage: error.response?.data?.message || messages.roles.status.errors.updateRoleError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          updateRoleErrorMessage: messages.roles.status.errors.updateRoleError,
+          errorBack: error,
+        })
+      }
+      return false
+    } finally {
+      set({ updateRoleSubmitting: false })
+    }
+  },
+
   mutationToggleRoleStatus: async (roleId: string, nextStatus: boolean) => {
     const parsedRoleId = Number(roleId)
     if (!Number.isInteger(parsedRoleId) || parsedRoleId <= 0) {
@@ -198,6 +242,13 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
     set({
       createRoleErrorMessage: null,
       createRoleSuccessMessage: null,
+    })
+  },
+
+  clearUpdateRoleStatus: () => {
+    set({
+      updateRoleErrorMessage: null,
+      updateRoleSuccessMessage: null,
     })
   },
 }))

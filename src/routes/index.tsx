@@ -125,6 +125,10 @@ export const router = createBrowserRouter([
         element: <RolesFormDashboardPage />,
       },
       {
+        path: '/roles/:editId',
+        element: <RolesFormDashboardPage />,
+      },
+      {
         path: '/users/new',
         element: <UsersFormDashboardPage />,
       },

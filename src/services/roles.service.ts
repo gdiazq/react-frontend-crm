@@ -1,6 +1,12 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
-import type { RoleCreatePayload, RoleCreateResponse, RolePagedResponse, RolesQueryParams } from '@/types'
+import type {
+  RoleCreatePayload,
+  RoleCreateResponse,
+  RolePagedResponse,
+  RolesQueryParams,
+  RoleUpdatePayload,
+} from '@/types'
 import { mapperRolesQueryParams } from '@/mappers'
 
 export const rolesService = {
@@ -14,6 +20,10 @@ export const rolesService = {
   createRole: async (payload: RoleCreatePayload) => {
     const { data } = await axiosInstance.post<RoleCreateResponse>('/role/create', payload)
     return data
+  },
+
+  updateRole: async (payload: RoleUpdatePayload) => {
+    await axiosInstance.put('/role/update', payload)
   },
 
   toggleRoleStatus: async (roleId: number, status: boolean) => {

@@ -13,7 +13,7 @@ import {
   StatusBadgeComponent,
   TableComponent,
 } from '@/components'
-import { AUTH_ROUTE_ROLES_CREATE } from '@/constant'
+import { AUTH_ROUTE_ROLES_CREATE, AUTH_ROUTE_ROLES_EDIT } from '@/constant'
 import { createRolesActions } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import type { RoleTableRow, RolesSortBy } from '@/types'
@@ -103,8 +103,8 @@ export default function RolesDashboardPage() {
     setOpenActionsRowId(null)
   }
 
-  const handleUpdateRole = () => {
-    setActionsMessage(messages.roles.ui.updateRoleComingSoon)
+  const handleUpdateRole = (row: RoleTableRow) => {
+    navigate(`${AUTH_ROUTE_ROLES_EDIT}=${row.id}`)
     setOpenActionsRowId(null)
   }
 
@@ -116,7 +116,7 @@ export default function RolesDashboardPage() {
 
   const resolveRowActions = (row: RoleTableRow): DropdownAction[] => [
     actionViewDetail(() => handleViewDetail(row)),
-    actionUpdateRole(() => handleUpdateRole()),
+    actionUpdateRole(() => handleUpdateRole(row)),
     actionToggleStatus(row.status === true, () => handleToggleStatus(row)),
   ]
 

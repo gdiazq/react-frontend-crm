@@ -25,6 +25,12 @@ export interface RoleCreatePayload {
   description?: string
 }
 
+export interface RoleUpdatePayload {
+  id: number
+  name: string
+  description?: string
+}
+
 export interface RoleCreateResponse {
   id: number
   name: string
