@@ -20,6 +20,8 @@ export const initialUsersPagination: UsersPagination = {
   size: 8,
   totalElements: 0,
   totalPages: 0,
+  total: 0,
+  active: 0,
   first: true,
   last: true,
 }

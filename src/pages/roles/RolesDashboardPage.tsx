@@ -11,10 +11,11 @@ import {
   SaveConfirmComponent,
   SearchBarComponent,
   SelectComponent,
+  StatsOverviewCardsComponent,
   StatusBadgeComponent,
   TableComponent,
 } from '@/components'
-import { AUTH_ROUTE_ROLES_CREATE, AUTH_ROUTE_ROLES_EDIT } from '@/constant'
+import { AUTH_ROUTE_ROLES, AUTH_ROUTE_ROLES_CREATE, AUTH_ROUTE_ROLES_EDIT } from '@/constant'
 import { createRolesActions } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import type { RoleTableRow, RolesSortBy } from '@/types'
@@ -195,15 +196,19 @@ export default function RolesDashboardPage() {
     if (!pendingToggleRow || loadingToggleStatus) return
 
     const nextStatus = pendingToggleRow.status !== true
+    const roleName = pendingToggleRow.values[0]
     const success = await mutationToggleRoleStatus(pendingToggleRow.id, nextStatus)
     if (success) {
+      setConfirmOpen(false)
+      setPendingToggleRow(null)
+      await getRoles()
+      navigate(AUTH_ROUTE_ROLES)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       setActionsMessage(
-        `${pendingToggleRow.values[0]} ${
+        `${roleName} ${
           nextStatus ? messages.roles.status.success.toggleEnabledSuccess : messages.roles.status.success.toggleDisabledSuccess
         }`,
       )
-      setConfirmOpen(false)
-      setPendingToggleRow(null)
     }
   }
 
@@ -223,6 +228,13 @@ export default function RolesDashboardPage() {
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
         <h1 className="text-2xl font-bold">Dashboard de roles</h1>
       </header>
+
+      <StatsOverviewCardsComponent
+        totalLabel="Total roles"
+        activeLabel="Roles activos"
+        total={pagination.total}
+        active={pagination.active}
+      />
 
       {errorMessage && (
         <AlertMessageComponent

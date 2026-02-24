@@ -30,13 +30,24 @@ export function mapperRolesRows(result: RoleRaw[]): RoleTableRow[] {
 }
 
 export function mapperRolesPagination(result: RolePagedResponse): RolesPagination {
+  const page = result.page ?? result.number ?? 0
+  const size = result.size ?? 8
+  const totalElements = result.totalElements ?? result.total ?? 0
+  const totalPages = result.totalPages ?? 0
+  const total = result.total ?? totalElements
+  const active = result.active ?? 0
+  const first = result.first ?? page === 0
+  const last = result.last ?? page >= Math.max(totalPages - 1, 0)
+
   return {
-    page: result.number ?? 0,
-    size: result.size ?? 8,
-    totalElements: result.totalElements ?? 0,
-    totalPages: result.totalPages ?? 0,
-    first: result.first ?? true,
-    last: result.last ?? true,
+    page,
+    size,
+    totalElements,
+    totalPages,
+    total,
+    active,
+    first,
+    last,
   }
 }
 

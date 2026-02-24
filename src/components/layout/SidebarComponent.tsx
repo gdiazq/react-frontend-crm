@@ -33,7 +33,7 @@ export default function SidebarComponent({
   }
 
   return (
-    <div className="lg:min-h-screen lg:shrink-0">
+    <div className="lg:flex lg:shrink-0 lg:flex-col">
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-slate-950/50 lg:hidden"
@@ -42,7 +42,7 @@ export default function SidebarComponent({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200 bg-white p-4 transition-all duration-200 dark:border-white/10 dark:bg-slate-900 lg:static lg:z-auto lg:min-h-screen lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200 bg-white p-4 transition-all duration-200 dark:border-white/10 dark:bg-slate-900 lg:static lg:z-auto lg:flex-1 lg:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } ${collapsed ? 'w-72 lg:w-20' : 'w-72'}`}
       >

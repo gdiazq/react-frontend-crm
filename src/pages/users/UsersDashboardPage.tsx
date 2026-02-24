@@ -10,11 +10,12 @@ import {
   RightSidebarComponent,
   SaveConfirmComponent,
   SelectComponent,
+  StatsOverviewCardsComponent,
   StatusBadgeComponent,
   TableComponent,
   UserDetailComponent,
 } from '@/components'
-import { AUTH_ROUTE_USERS_CREATE, AUTH_ROUTE_USERS_EDIT } from '@/constant'
+import { AUTH_ROUTE_USERS, AUTH_ROUTE_USERS_CREATE, AUTH_ROUTE_USERS_EDIT } from '@/constant'
 import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns } from '@/factories'
 import { mapperUserDetailView } from '@/mappers'
@@ -239,11 +240,17 @@ export default function UsersDashboardPage() {
     if (!pendingToggleRow || loadingToggleStatus) return
 
     const nextStatus = pendingToggleRow.status !== true
+    const username = pendingToggleRow.values[0]
     const success = await mutationToggleUserStatus(pendingToggleRow.id, nextStatus)
     if (success) {
-      setActionsMessage(`${pendingToggleRow.values[0]} ${nextStatus ? messages.users.status.success.toggleEnabledSuccess : messages.users.status.success.toggleDisabledSuccess}`)
       setConfirmOpen(false)
       setPendingToggleRow(null)
+      await getUsers()
+      navigate(AUTH_ROUTE_USERS)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      setActionsMessage(
+        `${username} ${nextStatus ? messages.users.status.success.toggleEnabledSuccess : messages.users.status.success.toggleDisabledSuccess}`,
+      )
     }
   }
 
@@ -263,6 +270,13 @@ export default function UsersDashboardPage() {
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
         <h1 className="text-2xl font-bold">Dashboard de usuarios</h1>
       </header>
+
+      <StatsOverviewCardsComponent
+        totalLabel="Total usuarios"
+        activeLabel="Usuarios activos"
+        total={pagination.total}
+        active={pagination.active}
+      />
 
       {errorMessage && (
         <AlertMessageComponent

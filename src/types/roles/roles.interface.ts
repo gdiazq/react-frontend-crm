@@ -55,6 +55,8 @@ export interface RolesPagination {
   size: number
   totalElements: number
   totalPages: number
+  total: number
+  active: number
   first: boolean
   last: boolean
 }
@@ -70,11 +72,14 @@ export interface RolesQueryParams {
 
 export interface RolePagedResponse {
   content: RoleRaw[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-  first: boolean
-  last: boolean
-  empty: boolean
+  page?: number
+  number?: number
+  size?: number
+  totalElements?: number
+  totalPages?: number
+  total?: number
+  active?: number
+  first?: boolean
+  last?: boolean
+  empty?: boolean
 }

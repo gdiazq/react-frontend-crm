@@ -6,6 +6,7 @@ export { default as PasswordInputComponent } from './ui/input/PasswordInputCompo
 export { default as VerificationCodeInputComponent } from './ui/input/VerificationCodeInputComponent'
 export { default as SearchBarComponent } from './ui/search/SearchBarComponent'
 export { default as SelectComponent } from './ui/select/SelectComponent'
+export { default as StatsOverviewCardsComponent } from './ui/stats/StatsOverviewCardsComponent'
 export { default as StatusBadgeComponent } from './ui/status/StatusBadgeComponent'
 export { default as PaginationComponent } from './ui/pagination/PaginationComponent'
 export { default as TableComponent } from './ui/table/TableComponent'

@@ -123,12 +123,15 @@ export interface UserTableRow {
 
 export interface UserPagedResponse {
   content: UserRaw[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-  first: boolean
-  last: boolean
+  page?: number
+  number?: number
+  size?: number
+  totalElements?: number
+  totalPages?: number
+  total?: number
+  active?: number
+  first?: boolean
+  last?: boolean
 }
 
 export interface UsersPagination {
@@ -136,6 +139,8 @@ export interface UsersPagination {
   size: number
   totalElements: number
   totalPages: number
+  total: number
+  active: number
   first: boolean
   last: boolean
 }
