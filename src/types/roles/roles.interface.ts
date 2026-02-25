@@ -7,10 +7,31 @@ export interface RoleRaw {
   updatedAt: string
 }
 
+export interface RolePermission {
+  id: number
+  name: string
+  description?: string | null
+}
+
+export interface RoleDetail {
+  id: number
+  name: string
+  description?: string | null
+  enabled: boolean
+  permissions: RolePermission[]
+  createdAt: string
+  updatedAt: string
+}
+
 export interface RoleDetailView {
   roleNameDisplay: string
   descriptionDisplay: string
   enabled: boolean
+  permissionsDisplay: Array<{
+    id: number
+    name: string
+    description: string
+  }>
   createdAtDisplay: string
   updatedAtDisplay: string
 }

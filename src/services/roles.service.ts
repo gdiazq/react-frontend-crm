@@ -3,6 +3,7 @@ import { axiosInstance } from '@/config'
 import type {
   RoleCreatePayload,
   RoleCreateResponse,
+  RoleDetail,
   RolePagedResponse,
   RolesQueryParams,
   RoleUpdatePayload,
@@ -14,6 +15,11 @@ export const rolesService = {
     const { data } = await axiosInstance.get<RolePagedResponse>('/role/paged', {
       params: mapperRolesQueryParams(queryParams),
     })
+    return data
+  },
+
+  getRoleDetail: async (roleId: number) => {
+    const { data } = await axiosInstance.get<RoleDetail>(`/role/${roleId}`)
     return data
   },
 

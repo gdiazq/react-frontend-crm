@@ -40,13 +40,16 @@ const ACTIONS_COLUMN_INDEX = rolesTableColumns.length - 1
 export default function RolesDashboardPage() {
   const navigate = useNavigate()
   const rolesRows = useStoreRoles((s) => s.rolesRows) as RoleTableRow[]
-  const rolesRaw = useStoreRoles((s) => s.rolesRaw)
+  const roleDetail = useStoreRoles((s) => s.roleDetail)
   const pagination = useStoreRoles((s) => s.pagination)
   const queryParams = useStoreRoles((s) => s.queryParams)
   const loadingRoles = useStoreRoles((s) => s.loadingRoles)
+  const loadingRoleDetail = useStoreRoles((s) => s.loadingRoleDetail)
   const loadingToggleStatus = useStoreRoles((s) => s.loadingToggleStatus)
   const errorMessage = useStoreRoles((s) => s.errorMessage)
+  const detailErrorMessage = useStoreRoles((s) => s.detailErrorMessage)
   const getRoles = useStoreRoles((s) => s.getRoles)
+  const getRoleDetail = useStoreRoles((s) => s.getRoleDetail)
   const goToPage = useStoreRoles((s) => s.goToPage)
   const setSearch = useStoreRoles((s) => s.setSearch)
   const searchRoles = useStoreRoles((s) => s.searchRoles)
@@ -55,6 +58,7 @@ export default function RolesDashboardPage() {
   const clearStatusFilter = useStoreRoles((s) => s.clearStatusFilter)
   const mutationToggleRoleStatus = useStoreRoles((s) => s.mutationToggleRoleStatus)
   const clearStatus = useStoreRoles((s) => s.clearStatus)
+  const clearRoleDetail = useStoreRoles((s) => s.clearRoleDetail)
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
   const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
@@ -76,10 +80,6 @@ export default function RolesDashboardPage() {
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
   const activeSortColumn = ROLES_SORTABLE_COLUMNS.find((index) => ROLES_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
-  const roleDetail = useMemo(
-    () => rolesRaw.find((role) => String(role.id) === selectedDetailRowId) || null,
-    [rolesRaw, selectedDetailRowId],
-  )
   const roleDetailView = useMemo(() => mapperRoleDetailView(roleDetail), [roleDetail])
   const statusSelectOptions = useMemo(
     () => statusOptions.map((option) => ({ label: option.name, value: String(option.id) })),
@@ -120,6 +120,7 @@ export default function RolesDashboardPage() {
     setSelectedDetailRowId(row.id)
     setDetailOpen(true)
     setOpenActionsRowId(null)
+    void getRoleDetail(row.id)
   }
 
   const handleUpdateRole = (row: RoleTableRow) => {
@@ -172,6 +173,12 @@ export default function RolesDashboardPage() {
   const handleCloseDetail = () => {
     setDetailOpen(false)
     setSelectedDetailRowId(null)
+    clearRoleDetail()
+  }
+
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getRoleDetail(selectedDetailRowId)
   }
 
   const handleChangeFilter = (value: string) => {
@@ -350,7 +357,12 @@ export default function RolesDashboardPage() {
         title={detailTitle}
         onClose={handleCloseDetail}
       >
-        <RoleDetailComponent detail={roleDetailView} />
+        <RoleDetailComponent
+          detail={roleDetailView}
+          loading={loadingRoleDetail}
+          errorMessage={detailErrorMessage}
+          onRetry={handleRetryDetail}
+        />
       </DetailSidebarComponent>
       <SaveConfirmComponent
         open={confirmOpen}

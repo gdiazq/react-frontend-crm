@@ -14,17 +14,21 @@ import type { RolesStore } from '@/types'
 import { formatRoleLabel } from '@/utils'
 
 const ROLE_STATUS_COLUMN_INDEX = 1
+let latestRoleDetailRequestId = 0
 
 export const useStoreRoles = create<RolesStore>()((set, get) => ({
   rolesRaw: [],
+  roleDetail: null,
   rolesRows: [...initialRolesRows],
   pagination: { ...initialRolesPagination },
   queryParams: { ...initialRolesQueryParams },
   loadingRoles: false,
+  loadingRoleDetail: false,
   createRoleSubmitting: false,
   updateRoleSubmitting: false,
   loadingToggleStatus: false,
   errorMessage: null,
+  detailErrorMessage: null,
   createRoleErrorMessage: null,
   createRoleSuccessMessage: null,
   updateRoleErrorMessage: null,
@@ -57,6 +61,49 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
       }
     } finally {
       set({ loadingRoles: false })
+    }
+  },
+
+  getRoleDetail: async (roleId: string) => {
+    const parsedRoleId = Number(roleId)
+    if (!Number.isInteger(parsedRoleId) || parsedRoleId <= 0) {
+      set({
+        detailErrorMessage: messages.roles.status.errors.detailInvalidRoleId,
+        roleDetail: null,
+      })
+      return null
+    }
+    const requestId = ++latestRoleDetailRequestId
+
+    try {
+      set({
+        loadingRoleDetail: true,
+        detailErrorMessage: null,
+        roleDetail: null,
+        errorBack: null,
+      })
+      const data = await rolesService.getRoleDetail(parsedRoleId)
+      if (requestId !== latestRoleDetailRequestId) return null
+      set({ roleDetail: data })
+      return data
+    } catch (error) {
+      if (requestId !== latestRoleDetailRequestId) return null
+      if (rolesService.isAxiosError(error)) {
+        set({
+          detailErrorMessage: error.response?.data?.message || messages.roles.status.errors.detailLoadError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          detailErrorMessage: messages.roles.status.errors.detailLoadError,
+          errorBack: error,
+        })
+      }
+      return null
+    } finally {
+      if (requestId === latestRoleDetailRequestId) {
+        set({ loadingRoleDetail: false })
+      }
     }
   },
 
@@ -244,6 +291,15 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
 
   clearStatus: () => {
     set({ errorMessage: null })
+  },
+
+  clearRoleDetail: () => {
+    latestRoleDetailRequestId += 1
+    set({ roleDetail: null, detailErrorMessage: null, loadingRoleDetail: false })
+  },
+
+  clearDetailError: () => {
+    set({ detailErrorMessage: null })
   },
 
   clearCreateRoleStatus: () => {

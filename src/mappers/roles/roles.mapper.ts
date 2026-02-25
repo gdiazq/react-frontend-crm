@@ -2,6 +2,7 @@ import messages from '@/messages/messages'
 import type {
   RoleCreateForm,
   RoleCreatePayload,
+  RoleDetail,
   RoleUpdatePayload,
   RoleDetailView,
   RolePagedResponse,
@@ -69,7 +70,7 @@ export function mapperRolesQueryParams(result: RolesQueryParams): Record<string,
   return queryParams
 }
 
-export function mapperRoleDetailView(detail: RoleRaw | null): RoleDetailView | null {
+export function mapperRoleDetailView(detail: RoleDetail | null): RoleDetailView | null {
   if (!detail) return null
 
   const noData = messages.roles.ui.noData
@@ -79,6 +80,11 @@ export function mapperRoleDetailView(detail: RoleRaw | null): RoleDetailView | n
     roleNameDisplay: formatRoleLabel(detail.name?.trim() || '') || noData,
     descriptionDisplay: detail.description?.trim() || noData,
     enabled: detail.enabled === true,
+    permissionsDisplay: (detail.permissions || []).map((permission) => ({
+      id: permission.id,
+      name: permission.name?.trim() || noData,
+      description: permission.description?.trim() || noData,
+    })),
     createdAtDisplay: formatDate(detail.createdAt, noDate),
     updatedAtDisplay: formatDate(detail.updatedAt, noDate),
   }
