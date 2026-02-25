@@ -118,7 +118,7 @@ export default function RolesFormDashboardPage() {
       if (!detail || cancelled) return
 
       setForm(mapRoleToForm({ name: detail.name, description: detail.description }))
-      setSelectedPermissionIds((detail.permissions || []).map((permission) => permission.id))
+      setSelectedPermissionIds(detail.permissions.map((permission) => permission.id))
       setPermissionPickerValue('')
       setPermissionsError(null)
     }
@@ -207,8 +207,8 @@ export default function RolesFormDashboardPage() {
   }
 
   const confirmMessage = pendingAction?.mode === 'update'
-    ? `¿Deseas guardar los cambios del rol ${form.name || ''}?`
-    : `¿Deseas crear el rol ${form.name || ''}?`
+    ? `¿Deseas guardar los cambios del rol ${form.name}?`
+    : `¿Deseas crear el rol ${form.name}?`
 
   return (
     <section className="space-y-4">

@@ -3,7 +3,7 @@ import type { ValidationRule } from '@/types'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function mapperValidateField(value: string, rule: ValidationRule): string | null {
-  const normalized = value || ''
+  const normalized = value
 
   if (rule.required && !normalized.trim()) return 'Campo obligatorio'
   if (rule.minLength && normalized.length < rule.minLength) return `Minimo ${rule.minLength} caracteres`
@@ -21,6 +21,6 @@ export function mapperIsFormValid(
   return Object.keys(rules).every((key) => {
     const rule = rules[key]
     if (!rule) return true
-    return mapperValidateField(form[key] || '', rule) === null
+    return mapperValidateField(form[key], rule) === null
   })
 }

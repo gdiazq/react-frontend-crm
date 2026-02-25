@@ -122,8 +122,6 @@ export default {
   },
   users: {
     ui: {
-      noData: '-',
-      noDate: 'Sin registro',
       emailVerifiedYes: 'Si',
       emailVerifiedNo: 'No',
       statusEnabled: 'Habilitado',
@@ -172,8 +170,6 @@ export default {
   },
   roles: {
     ui: {
-      noData: '-',
-      noDate: 'Sin registro',
       statusEnabled: 'Habilitado',
       statusDisabled: 'Deshabilitado',
       actionViewDetail: 'Ver detalle',

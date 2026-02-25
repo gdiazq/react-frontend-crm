@@ -1,0 +1,124 @@
+{
+  "seller": {
+    "name": "Guillermo Diaz",
+    "role": "Ejecutivo Comercial",
+    "territory": "Santiago Centro"
+  },
+  "periodLabel": "Semana actual",
+  "kpis": [
+    {
+      "id": "kpi-revenue",
+      "label": "Ingresos cerrados",
+      "value": 12800000,
+      "unit": "currency",
+      "variation": 12.4
+    },
+    {
+      "id": "kpi-opportunities",
+      "label": "Oportunidades activas",
+      "value": 34,
+      "unit": "number",
+      "variation": 6.1
+    },
+    {
+      "id": "kpi-winrate",
+      "label": "Tasa de cierre",
+      "value": 31,
+      "unit": "percent",
+      "variation": -2.3
+    },
+    {
+      "id": "kpi-tickets",
+      "label": "Tickets gestionados",
+      "value": 57,
+      "unit": "number",
+      "variation": 4.8
+    }
+  ],
+  "pipeline": [
+    {
+      "id": "pipe-prospecto",
+      "label": "Prospecto",
+      "count": 12,
+      "amount": 4200000
+    },
+    {
+      "id": "pipe-calificado",
+      "label": "Calificado",
+      "count": 9,
+      "amount": 3600000
+    },
+    {
+      "id": "pipe-propuesta",
+      "label": "Propuesta",
+      "count": 7,
+      "amount": 2950000
+    },
+    {
+      "id": "pipe-negociacion",
+      "label": "Negociacion",
+      "count": 6,
+      "amount": 2800000
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Llamar a cliente Propamat",
+      "dueAt": "Hoy 10:30",
+      "priority": "alta"
+    },
+    {
+      "id": "task-2",
+      "title": "Enviar propuesta de servicio",
+      "dueAt": "Hoy 14:00",
+      "priority": "media"
+    },
+    {
+      "id": "task-3",
+      "title": "Actualizar CRM de leads",
+      "dueAt": "Hoy 17:30",
+      "priority": "baja"
+    }
+  ],
+  "topClients": [
+    {
+      "id": "client-1",
+      "name": "Constructora Norte",
+      "company": "Grupo Norte",
+      "amount": 4200000,
+      "status": "activo"
+    },
+    {
+      "id": "client-2",
+      "name": "Insumos RVC",
+      "company": "RVC Chile",
+      "amount": 2800000,
+      "status": "activo"
+    },
+    {
+      "id": "client-3",
+      "name": "Hormigones Sur",
+      "company": "HS SpA",
+      "amount": 1900000,
+      "status": "atrasado"
+    }
+  ],
+  "recentActivity": [
+    {
+      "id": "act-1",
+      "text": "Se registro nueva oportunidad con Constructora Norte",
+      "at": "Hace 12 min"
+    },
+    {
+      "id": "act-2",
+      "text": "Pago confirmado de Insumos RVC",
+      "at": "Hace 47 min"
+    },
+    {
+      "id": "act-3",
+      "text": "Reunion agendada con Hormigones Sur",
+      "at": "Hace 1 h 25 min"
+    }
+  ]
+}

@@ -18,8 +18,8 @@ export default function RoleDetailComponent({
 }: RoleDetailComponentProps) {
   const parsePermissionName = (permissionName: string) => {
     const [resourceRaw, actionRaw] = permissionName.split(':')
-    const resource = resourceRaw?.trim() || 'GENERAL'
-    const action = actionRaw?.trim() || 'ACCESS'
+    const resource = resourceRaw?.trim() ?? 'GENERAL'
+    const action = actionRaw?.trim() ?? 'ACCESS'
     return { resource, action }
   }
 

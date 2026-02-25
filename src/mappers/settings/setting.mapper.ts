@@ -31,10 +31,10 @@ export function mapperUpdateAvatarFormData(payload: SettingUpdateAvatarPayload):
 
 export function mapperSettingProfileForm(user: AuthUser): SettingUpdateProfileForm {
   return {
-    email: user.email || '',
-    firstName: user.firstName || '',
-    lastName: user.lastName || '',
-    phoneNumber: user.phoneNumber || '',
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    phoneNumber: user.phoneNumber ?? '',
   }
 }
 
@@ -49,9 +49,9 @@ export function mapperMfaStateFromResponse(data: SettingMfaStatusResponse): Sett
 
 export function mapperMfaSetupDataFromResponse(data: SettingMfaSetupDataRaw): SettingMfaSetupData {
   return {
-    qrCodeUrl: data.qrCodeUrl || '',
-    secret: data.secret || '',
-    otpauthUri: data.otpauthUri || '',
+    qrCodeUrl: data.qrCodeUrl ?? '',
+    secret: data.secret ?? '',
+    otpauthUri: data.otpauthUri ?? '',
   }
 }
 
@@ -61,13 +61,13 @@ export function mapperSettingSessionsFromResponse(
 ): SettingDeviceSession[] {
   return data
     .map((item, index) => {
-      const resolvedId = String(item.id || '').trim()
+      const resolvedId = String(item.id ?? '').trim()
       return {
         id: resolvedId,
         name: item.userAgent?.trim() || `${messages.settings.ui.sessionDefaultName} ${index + 1}`,
         location: item.ipAddress?.trim() || messages.settings.ui.sessionNoIp,
         lastSeen: formatDateTime(item.lastSeenAt || item.createdAt, messages.settings.ui.sessionNoActivity),
-        current: (item.deviceId || '').trim() === currentDeviceId,
+        current: (item.deviceId ?? '').trim() === currentDeviceId,
       }
     })
     .filter((item) => item.id.length > 0)

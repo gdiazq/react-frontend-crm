@@ -4,8 +4,8 @@ import { normalizeVariant } from '@/utils'
 export function mapperNotification(item: NotificationApiItem): NotificationItem {
   return {
     id: String(item.id),
-    title: item.title || 'Nueva notificacion',
-    message: item.message || '',
+    title: item.title,
+    message: item.message,
     createdAt: item.createdAt,
     read: Boolean(item.read),
     inbox: !item.archived,

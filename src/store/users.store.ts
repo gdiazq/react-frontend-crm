@@ -38,7 +38,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
       const data = await usersService.getUsers(get().queryParams)
       const pagination = mapperUsersPagination(data)
       set({
-        usersRows: mapperUsersRows(data.content || []),
+        usersRows: mapperUsersRows(data.content),
         pagination,
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
       })
@@ -99,7 +99,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
 
   goToPage: async (page: number) => {
     const { pagination } = get()
-    const lastPageIndex = Math.max((pagination.totalPages || 1) - 1, 0)
+    const lastPageIndex = pagination.totalPages - 1
     if (page < 0 || page > lastPageIndex) return
     set((state) => ({
       pagination: { ...state.pagination, page },
@@ -200,11 +200,8 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
       })
 
       const data = await usersService.createUser(payload)
-      const username = typeof data.username === 'string' && data.username.length > 0 ? data.username : ''
       set({
-        createUserSuccessMessage: username
-          ? `${messages.users.status.success.createUserSuccess} (${username})`
-          : messages.users.status.success.createUserSuccess,
+        createUserSuccessMessage: `${messages.users.status.success.createUserSuccess} (${data.username})`,
       })
       return true
     } catch (error) {

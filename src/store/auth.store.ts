@@ -34,7 +34,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       set({ loginSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
 
       const data = await authService.login(credentials)
-      set({ user: data.user, permissions: data.modules || [], mfaRequired: false })
+      set({ user: data.user, permissions: data.modules ?? [], mfaRequired: false })
 
       try {
         const fullProfile = await authService.getFullProfile()

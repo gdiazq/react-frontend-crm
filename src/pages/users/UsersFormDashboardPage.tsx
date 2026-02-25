@@ -94,12 +94,12 @@ export default function UsersFormDashboardPage() {
       if (!detail || cancelled) return
 
       setForm({
-        username: detail.username || '',
-        email: detail.email || '',
-        firstName: detail.firstName || '',
-        lastName: detail.lastName || '',
-        phoneNumber: detail.phoneNumber || '',
-        roleId: String(detail.roles[0]?.id || ''),
+        username: detail.username,
+        email: detail.email,
+        firstName: detail.firstName,
+        lastName: detail.lastName,
+        phoneNumber: detail.phoneNumber ?? '',
+        roleId: String(detail.roles[0]?.id ?? ''),
       })
     }
 
@@ -168,8 +168,8 @@ export default function UsersFormDashboardPage() {
   }
 
   const confirmMessage = pendingAction?.mode === 'update'
-    ? `¿Deseas guardar los cambios del usuario ${form.username || ''}?`
-    : `¿Deseas crear al usuario ${form.username || ''} con correo ${form.email || ''}?`
+    ? `¿Deseas guardar los cambios del usuario ${form.username}?`
+    : `¿Deseas crear al usuario ${form.username} con correo ${form.email}?`
 
   const showBootstrapMessage = isEditMode && loadingUserDetail
 

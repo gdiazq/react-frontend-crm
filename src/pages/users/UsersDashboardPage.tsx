@@ -208,9 +208,9 @@ export default function UsersDashboardPage() {
   }
 
   const handleApplyFilters = async () => {
-    const selectedNameRaw = userNameOptions.find((option) => String(option.id) === filters.userNameId)?.name.trim() || ''
-    const selectedName = selectedNameRaw.split(/\s+/)[0]?.toLowerCase() || ''
-    const selectedEmail = userEmailOptions.find((option) => String(option.id) === filters.userEmailId)?.email || ''
+    const selectedNameRaw = userNameOptions.find((option) => String(option.id) === filters.userNameId)?.name.trim() ?? ''
+    const selectedName = selectedNameRaw.split(/\s+/)[0]?.toLowerCase() ?? ''
+    const selectedEmail = userEmailOptions.find((option) => String(option.id) === filters.userEmailId)?.email ?? ''
     const selectedStatus = statusOptions.find((option) => String(option.id) === filters.statusId)
     const selectedRoleId = roleOptions.find((option) => String(option.id) === filters.roleId)?.id
 

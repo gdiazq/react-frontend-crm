@@ -42,8 +42,8 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
       const pagination = mapperRolesPagination(data)
 
       set({
-        rolesRaw: data.content || [],
-        rolesRows: mapperRolesRows(data.content || []),
+        rolesRaw: data.content,
+        rolesRows: mapperRolesRows(data.content),
         pagination,
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
       })
@@ -109,7 +109,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
 
   goToPage: async (page: number) => {
     const { pagination } = get()
-    const lastPageIndex = Math.max((pagination.totalPages || 1) - 1, 0)
+    const lastPageIndex = pagination.totalPages - 1
     if (page < 0 || page > lastPageIndex) return
 
     set((state) => ({
@@ -199,12 +199,9 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
         return false
       }
 
-      const createdName = (data.name || roleName).trim()
-      const displayName = formatRoleLabel(createdName)
+      const displayName = formatRoleLabel(data.name)
       set({
-        createRoleSuccessMessage: displayName.length > 0
-          ? `${messages.roles.status.success.createRoleSuccess} (${displayName})`
-          : messages.roles.status.success.createRoleSuccess,
+        createRoleSuccessMessage: `${messages.roles.status.success.createRoleSuccess} (${displayName})`,
       })
       return true
     } catch (error) {

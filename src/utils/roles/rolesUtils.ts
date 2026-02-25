@@ -35,7 +35,7 @@ export function formatPermissionName(name: string): string {
 
 export function mapRoleToForm(role: { name?: string | null, description?: string | null }): RoleCreateForm {
   return {
-    name: role.name || '',
-    description: role.description || '',
+    name: role.name ?? '',
+    description: role.description ?? '',
   }
 }

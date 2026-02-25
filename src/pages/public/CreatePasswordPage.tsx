@@ -58,7 +58,7 @@ export default function CreatePasswordPage() {
       return
     }
 
-    const payload = mapperCreatePasswordPayload(pendingPasswordToken || '', form)
+    const payload = mapperCreatePasswordPayload(pendingPasswordToken ?? '', form)
     const success = await createPassword(payload)
     if (success) {
       clearTimers()

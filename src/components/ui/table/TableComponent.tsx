@@ -84,14 +84,17 @@ export default function TableComponent({
             ) : (
               rows.map((row, rowIndex) => (
                 <tr key={row.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                  {columns.map((column, index) => (
-                    <td
-                      key={`${row.id}-${column}-${index}`}
-                      className="whitespace-nowrap px-4 py-3 text-sm text-slate-700 dark:text-slate-200"
-                    >
-                      {renderCell ? renderCell(row, row.values[index], index, rowIndex) : row.values[index] ?? '-'}
-                    </td>
-                  ))}
+                  {columns.map((column, index) => {
+                    const cellValue = row.values[index] || '-'
+                    return (
+                      <td
+                        key={`${row.id}-${column}-${index}`}
+                        className="whitespace-nowrap px-4 py-3 text-sm text-slate-700 dark:text-slate-200"
+                      >
+                        {renderCell ? renderCell(row, cellValue, index, rowIndex) : cellValue}
+                      </td>
+                    )
+                  })}
                 </tr>
               ))
             )}

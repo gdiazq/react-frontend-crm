@@ -14,17 +14,14 @@ import type {
 import { formatDate, formatRoleLabel } from '@/utils'
 
 export function mapperRolesRows(result: RoleRaw[]): RoleTableRow[] {
-  const noData = messages.roles.ui.noData
-  const noDate = messages.roles.ui.noDate
-
   return result.map((item) => ({
     id: String(item.id),
     status: item.enabled,
     values: [
-      formatRoleLabel(item.name) || noData,
+      formatRoleLabel(item.name),
       item.enabled ? messages.roles.ui.statusEnabled : messages.roles.ui.statusDisabled,
-      formatDate(item.createdAt, noDate),
-      formatDate(item.updatedAt, noDate),
+      formatDate(item.createdAt),
+      formatDate(item.updatedAt),
       '',
     ],
   }))
@@ -32,24 +29,15 @@ export function mapperRolesRows(result: RoleRaw[]): RoleTableRow[] {
 
 export function mapperRolesPagination(result: RolePagedResponse): RolesPagination {
   const page = result.page ?? result.number ?? 0
-  const size = result.size ?? 8
-  const totalElements = result.totalElements ?? result.total ?? 0
+  const size = result.size ?? 10
+  const totalElements = result.totalElements ?? 0
   const totalPages = result.totalPages ?? 0
   const total = result.total ?? totalElements
   const active = result.active ?? 0
   const first = result.first ?? page === 0
-  const last = result.last ?? page >= Math.max(totalPages - 1, 0)
+  const last = result.last ?? page >= totalPages - 1
 
-  return {
-    page,
-    size,
-    totalElements,
-    totalPages,
-    total,
-    active,
-    first,
-    last,
-  }
+  return { page, size, totalElements, totalPages, total, active, first, last }
 }
 
 export function mapperRolesQueryParams(result: RolesQueryParams): Record<string, number | string> {
@@ -58,8 +46,8 @@ export function mapperRolesQueryParams(result: RolesQueryParams): Record<string,
   const queryParams: Record<string, number | string> = {
     page: result.page,
     size: result.size,
-    sortBy: result.sortBy || 'name',
-    sortDir: result.sortDir || 'asc',
+    sortBy: result.sortBy,
+    sortDir: result.sortDir,
   }
 
   if (search.length > 0) queryParams.search = search
@@ -73,20 +61,17 @@ export function mapperRolesQueryParams(result: RolesQueryParams): Record<string,
 export function mapperRoleDetailView(detail: RoleDetail | null): RoleDetailView | null {
   if (!detail) return null
 
-  const noData = messages.roles.ui.noData
-  const noDate = messages.roles.ui.noDate
-
   return {
-    roleNameDisplay: formatRoleLabel(detail.name?.trim() || '') || noData,
-    descriptionDisplay: detail.description?.trim() || noData,
-    enabled: detail.enabled === true,
-    permissionsDisplay: (detail.permissions || []).map((permission) => ({
+    roleNameDisplay: formatRoleLabel(detail.name),
+    descriptionDisplay: detail.description ?? '',
+    enabled: detail.enabled,
+    permissionsDisplay: detail.permissions.map((permission) => ({
       id: permission.id,
-      name: permission.name?.trim() || noData,
-      description: permission.description?.trim() || noData,
+      name: permission.name,
+      description: permission.description ?? '',
     })),
-    createdAtDisplay: formatDate(detail.createdAt, noDate),
-    updatedAtDisplay: formatDate(detail.updatedAt, noDate),
+    createdAtDisplay: formatDate(detail.createdAt),
+    updatedAtDisplay: formatDate(detail.updatedAt),
   }
 }
 
