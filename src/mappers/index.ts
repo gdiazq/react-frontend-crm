@@ -23,6 +23,7 @@ export {
   mapperUsersQueryParams,
 } from './users/users.mapper'
 export {
+  mapperSelectPermissionOptions,
   mapperSelectRoleOptions,
   mapperSelectStatusOptions,
   mapperSelectUserEmailOptions,

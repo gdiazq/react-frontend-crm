@@ -1,10 +1,11 @@
 import type {
+  SelectPermissionOption,
   SelectRoleOption,
   SelectStatusOption,
   SelectUserEmailOption,
   SelectUserNameOption,
 } from '@/types'
-import { formatRoleLabel } from '@/utils'
+import { formatPermissionName, formatRoleLabel } from '@/utils'
 
 export function mapperSelectRoleOptions(response: SelectRoleOption[]): SelectRoleOption[] {
   return response
@@ -31,4 +32,11 @@ export function mapperSelectStatusOptions(response: SelectStatusOption[]): Selec
   return response
     .map((status) => ({ id: status.id, name: status.name.trim() }))
     .filter((status) => status.name.length > 0)
+}
+
+export function mapperSelectPermissionOptions(response: SelectPermissionOption[]): SelectPermissionOption[] {
+  return response
+    .map((permission) => ({ id: permission.id, name: formatPermissionName(permission.name.trim()) }))
+    .filter((permission) => Number.isInteger(permission.id) && permission.id > 0 && permission.name.length > 0)
+    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
 }

@@ -38,8 +38,8 @@ export interface RolesStore {
   clearStatusFilter: () => void
   searchRoles: () => Promise<void>
   sortRoles: (sortBy: RolesSortBy, sortDir: RolesSortDir) => Promise<void>
-  mutationCreateRole: (payload: RoleCreatePayload) => Promise<boolean>
-  mutationUpdateRole: (payload: RoleUpdatePayload) => Promise<boolean>
+  mutationCreateRole: (payload: RoleCreatePayload, permissionIds: number[]) => Promise<boolean>
+  mutationUpdateRole: (payload: RoleUpdatePayload, permissionIds: number[]) => Promise<boolean>
   mutationToggleRoleStatus: (roleId: string, nextStatus: boolean) => Promise<boolean>
   clearRoleDetail: () => void
   clearDetailError: () => void

@@ -17,3 +17,8 @@ export interface SelectStatusOption {
   id: boolean
   name: string
 }
+
+export interface SelectPermissionOption {
+  id: number
+  name: string
+}

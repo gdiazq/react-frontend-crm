@@ -1,23 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
   InputComponent,
   SaveConfirmComponent,
+  SelectComponent,
+  StatusBadgeComponent,
 } from '@/components'
 import { AUTH_ROUTE_ROLES } from '@/constant'
 import { initialCreateRoleForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import { mapperCreateRolePayload, mapperUpdateRolePayload } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreRoles } from '@/store'
-import type { RoleCreatePayload, RoleRaw, RoleUpdatePayload } from '@/types'
+import { useStoreRoles, useStoreSelects } from '@/store'
+import type { RoleCreatePayload, RoleUpdatePayload } from '@/types'
+import { mapRoleToForm } from '@/utils'
 import { rolesCreateValidationRules } from '@/validators'
 
 type PendingAction =
-  | { mode: 'create', payload: RoleCreatePayload }
-  | { mode: 'update', payload: RoleUpdatePayload }
+  | { mode: 'create', payload: RoleCreatePayload, permissionIds: number[] }
+  | { mode: 'update', payload: RoleUpdatePayload, permissionIds: number[] }
   | null
 
 export default function RolesFormDashboardPage() {
@@ -28,22 +31,32 @@ export default function RolesFormDashboardPage() {
   const isEditMode = Number.isInteger(editRoleId) && editRoleId > 0
 
   const [form, setForm] = useState({ ...initialCreateRoleForm })
+  const [selectedPermissionIds, setSelectedPermissionIds] = useState<number[]>([])
+  const [permissionPickerValue, setPermissionPickerValue] = useState('')
+  const [permissionsError, setPermissionsError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
-  const [editLoadErrorMessage, setEditLoadErrorMessage] = useState<string | null>(null)
-  const [loadingEditRole, setLoadingEditRole] = useState(false)
 
-  const getRoles = useStoreRoles((s) => s.getRoles)
+  const loadingRoleDetail = useStoreRoles((s) => s.loadingRoleDetail)
+  const detailErrorMessage = useStoreRoles((s) => s.detailErrorMessage)
   const createRoleSubmitting = useStoreRoles((s) => s.createRoleSubmitting)
   const updateRoleSubmitting = useStoreRoles((s) => s.updateRoleSubmitting)
   const createRoleErrorMessage = useStoreRoles((s) => s.createRoleErrorMessage)
   const createRoleSuccessMessage = useStoreRoles((s) => s.createRoleSuccessMessage)
   const updateRoleErrorMessage = useStoreRoles((s) => s.updateRoleErrorMessage)
   const updateRoleSuccessMessage = useStoreRoles((s) => s.updateRoleSuccessMessage)
+  const getRoleDetail = useStoreRoles((s) => s.getRoleDetail)
+  const clearRoleDetail = useStoreRoles((s) => s.clearRoleDetail)
+  const clearDetailError = useStoreRoles((s) => s.clearDetailError)
   const mutationCreateRole = useStoreRoles((s) => s.mutationCreateRole)
   const mutationUpdateRole = useStoreRoles((s) => s.mutationUpdateRole)
   const clearCreateRoleStatus = useStoreRoles((s) => s.clearCreateRoleStatus)
   const clearUpdateRoleStatus = useStoreRoles((s) => s.clearUpdateRoleStatus)
+  const permissionOptions = useStoreSelects((s) => s.permissionOptions)
+  const loadingPermissionOptions = useStoreSelects((s) => s.loadingPermissionOptions)
+  const permissionOptionsErrorMessage = useStoreSelects((s) => s.permissionOptionsErrorMessage)
+  const getPermissionOptions = useStoreSelects((s) => s.getPermissionOptions)
+  const clearPermissionOptionsStatus = useStoreSelects((s) => s.clearPermissionOptionsStatus)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, rolesCreateValidationRules)
 
@@ -51,26 +64,49 @@ export default function RolesFormDashboardPage() {
   const updating = updateRoleSubmitting
   const saving = creating || updating
 
-  const headerTitle = isEditMode ? messages.roles.ui.editRoleTitle : messages.roles.ui.createRoleTitle
-  const headerDescription = isEditMode ? messages.roles.ui.editRoleDescription : messages.roles.ui.createRoleDescription
-  const submitLabel = isEditMode ? messages.roles.ui.updateRoleSubmit : messages.roles.ui.createRoleSubmit
-  const submitLoadingLabel = isEditMode ? messages.roles.ui.updateRoleSubmitting : messages.roles.ui.createRoleSubmitting
+  const headerTitle = isEditMode ? 'Editar rol' : 'Crear rol'
+  const headerDescription = isEditMode
+    ? 'Actualiza los datos del rol seleccionado.'
+    : 'Completa los datos para registrar un nuevo rol en el sistema.'
+  const submitLabel = isEditMode ? 'Guardar cambios' : 'Crear rol'
+  const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : 'Creando rol...'
   const submitErrorMessage = isEditMode ? updateRoleErrorMessage : createRoleErrorMessage
   const submitSuccessMessage = isEditMode ? updateRoleSuccessMessage : createRoleSuccessMessage
-
-  const fillFormFromRole = (role: RoleRaw) => {
-    setForm({
-      name: role.name || '',
-      description: role.description || '',
+  const canSubmit = !saving && !loadingPermissionOptions && selectedPermissionIds.length > 0
+  const permissionSelectOptions = useMemo(
+    () => permissionOptions
+      .filter((permission) => !selectedPermissionIds.includes(permission.id))
+      .map((permission) => ({ value: String(permission.id), label: permission.name })),
+    [permissionOptions, selectedPermissionIds],
+  )
+  const selectedPermissionItems = useMemo(() => (
+    selectedPermissionIds.map((id) => {
+      const matchedOption = permissionOptions.find((permission) => permission.id === id)
+      return {
+        id,
+        name: matchedOption?.name || `PERMISSION:${id}`,
+      }
     })
-  }
+  ), [permissionOptions, selectedPermissionIds])
 
   useEffect(() => {
+    void getPermissionOptions()
+
     return () => {
       clearCreateRoleStatus()
       clearUpdateRoleStatus()
+      clearPermissionOptionsStatus()
+      clearDetailError()
+      clearRoleDetail()
     }
-  }, [clearCreateRoleStatus, clearUpdateRoleStatus])
+  }, [
+    clearCreateRoleStatus,
+    clearDetailError,
+    clearPermissionOptionsStatus,
+    clearRoleDetail,
+    clearUpdateRoleStatus,
+    getPermissionOptions,
+  ])
 
   useEffect(() => {
     if (!isEditMode) return
@@ -78,32 +114,13 @@ export default function RolesFormDashboardPage() {
     let cancelled = false
 
     const load = async () => {
-      const applyRole = (role: RoleRaw | undefined) => {
-        if (!role || cancelled) return false
-        fillFormFromRole(role)
-        setEditLoadErrorMessage(null)
-        return true
-      }
+      const detail = await getRoleDetail(String(editRoleId))
+      if (!detail || cancelled) return
 
-      const currentRole = useStoreRoles.getState().rolesRaw.find((role) => role.id === editRoleId)
-      if (applyRole(currentRole)) return
-
-      try {
-        setLoadingEditRole(true)
-        await getRoles()
-        if (cancelled) return
-
-        const refreshedRole = useStoreRoles.getState().rolesRaw.find((role) => role.id === editRoleId)
-        if (!applyRole(refreshedRole)) {
-          setEditLoadErrorMessage(messages.roles.status.errors.updateRoleLoadError)
-        }
-      } catch {
-        if (!cancelled) {
-          setEditLoadErrorMessage(messages.roles.status.errors.updateRoleLoadError)
-        }
-      } finally {
-        if (!cancelled) setLoadingEditRole(false)
-      }
+      setForm(mapRoleToForm({ name: detail.name, description: detail.description }))
+      setSelectedPermissionIds((detail.permissions || []).map((permission) => permission.id))
+      setPermissionPickerValue('')
+      setPermissionsError(null)
     }
 
     void load()
@@ -111,7 +128,7 @@ export default function RolesFormDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [editRoleId, getRoles, isEditMode])
+  }, [editRoleId, getRoleDetail, isEditMode])
 
   const clearSubmitStatus = () => {
     clearCreateRoleStatus()
@@ -123,14 +140,46 @@ export default function RolesFormDashboardPage() {
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
+  const handlePermissionsChange = (value: string) => {
+    const selectedId = Number(value)
+    if (!Number.isInteger(selectedId) || selectedId <= 0) return
+
+    setSelectedPermissionIds((prev) => (prev.includes(selectedId) ? prev : [...prev, selectedId]))
+    setPermissionPickerValue('')
+    setPermissionsError(null)
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
+  }
+
+  const handleRemovePermission = (permissionId: number) => {
+    setSelectedPermissionIds((prev) => prev.filter((id) => id !== permissionId))
+    setPermissionsError(null)
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
+  }
+
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
     if (!validateAll()) return
+    if (selectedPermissionIds.length === 0) {
+      setPermissionsError(
+        isEditMode
+          ? messages.roles.status.errors.updateRolePermissionsRequired
+          : messages.roles.status.errors.createRolePermissionsRequired,
+      )
+      return
+    }
 
     if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateRolePayload(editRoleId, form) })
+      setPendingAction({
+        mode: 'update',
+        payload: mapperUpdateRolePayload(editRoleId, form),
+        permissionIds: [...selectedPermissionIds],
+      })
     } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateRolePayload(form) })
+      setPendingAction({
+        mode: 'create',
+        payload: mapperCreateRolePayload(form),
+        permissionIds: [...selectedPermissionIds],
+      })
     }
     setConfirmOpen(true)
   }
@@ -145,14 +194,10 @@ export default function RolesFormDashboardPage() {
     if (!pendingAction || saving) return
 
     const success = pendingAction.mode === 'create'
-      ? await mutationCreateRole(pendingAction.payload)
-      : await mutationUpdateRole(pendingAction.payload)
+      ? await mutationCreateRole(pendingAction.payload, pendingAction.permissionIds)
+      : await mutationUpdateRole(pendingAction.payload, pendingAction.permissionIds)
 
     if (success) {
-      if (pendingAction.mode === 'create') {
-        navigate(AUTH_ROUTE_ROLES)
-        return
-      }
       navigate(AUTH_ROUTE_ROLES)
       return
     }
@@ -172,11 +217,19 @@ export default function RolesFormDashboardPage() {
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{headerDescription}</p>
       </header>
 
-      {isEditMode && editLoadErrorMessage && (
+      {permissionOptionsErrorMessage && (
         <AlertMessageComponent
-          message={editLoadErrorMessage}
+          message={permissionOptionsErrorMessage}
           tone="error"
-          onClose={() => setEditLoadErrorMessage(null)}
+          onClose={clearPermissionOptionsStatus}
+        />
+      )}
+
+      {isEditMode && detailErrorMessage && (
+        <AlertMessageComponent
+          message={detailErrorMessage}
+          tone="error"
+          onClose={clearDetailError}
         />
       )}
 
@@ -200,14 +253,14 @@ export default function RolesFormDashboardPage() {
         className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60"
         onSubmit={handleSubmit}
       >
-        {isEditMode && loadingEditRole && (
+        {isEditMode && loadingRoleDetail && (
           <p className="text-sm text-slate-600 dark:text-slate-300">Cargando datos del rol...</p>
         )}
 
         <div className="grid gap-4 md:grid-cols-2">
           <InputComponent
             value={form.name}
-            label={messages.roles.ui.createRoleNameLabel}
+            label="Nombre del rol"
             type="text"
             placeholder="Ingresa el nombre del rol"
             autoComplete="off"
@@ -219,13 +272,71 @@ export default function RolesFormDashboardPage() {
 
           <InputComponent
             value={form.description}
-            label={messages.roles.ui.createRoleDescriptionLabel}
+            label="Descripcion"
             type="text"
             placeholder="Ingresa la descripcion"
             autoComplete="off"
             onValueChange={(value) => handleChangeField('description', value)}
           />
         </div>
+
+        <section className="space-y-3">
+          <header>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              Permisos
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Selecciona al menos un permiso para este rol.
+            </p>
+          </header>
+
+          {loadingPermissionOptions ? (
+            <p className="text-sm text-slate-600 dark:text-slate-300">Cargando permisos...</p>
+          ) : permissionOptions.length === 0 ? (
+            <p className="text-sm text-slate-600 dark:text-slate-300">Sin permisos disponibles.</p>
+          ) : (
+            <div className="space-y-2">
+              <SelectComponent
+                value={permissionPickerValue}
+                label="Permisos"
+                disabled={saving || loadingPermissionOptions}
+                options={permissionSelectOptions}
+                placeholder="Selecciona un permiso"
+                onValueChange={handlePermissionsChange}
+                helperText="Selecciona permisos uno por uno."
+              />
+
+              {selectedPermissionItems.length === 0 ? (
+                <p className="text-xs text-slate-500 dark:text-slate-400">Sin permisos seleccionados.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {selectedPermissionItems.map((permission) => (
+                    <div key={permission.id} className="inline-flex items-center gap-1">
+                      <StatusBadgeComponent
+                        enabled
+                        activeLabel={permission.name}
+                        inactiveLabel={permission.name}
+                      />
+                      <button
+                        type="button"
+                        className="inline-flex h-5 w-5 items-center justify-center rounded border border-slate-300 text-xs text-slate-500 transition hover:border-rose-300 hover:text-rose-500 dark:border-slate-700 dark:text-slate-400 dark:hover:border-rose-400/40 dark:hover:text-rose-400"
+                        onClick={() => handleRemovePermission(permission.id)}
+                        aria-label={`Quitar permiso ${permission.name}`}
+                        disabled={saving || loadingPermissionOptions}
+                      >
+                        x
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {permissionsError && (
+            <p className="text-xs text-rose-500 dark:text-rose-400">{permissionsError}</p>
+          )}
+        </section>
 
         <div className="flex flex-wrap justify-end gap-2">
           <ButtonComponent
@@ -238,7 +349,7 @@ export default function RolesFormDashboardPage() {
           <ButtonComponent
             type="submit"
             variant="primary"
-            disabled={saving}
+            disabled={!canSubmit}
             label={saving ? submitLoadingLabel : submitLabel}
           />
         </div>

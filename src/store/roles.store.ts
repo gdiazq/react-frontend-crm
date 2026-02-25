@@ -157,10 +157,14 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
     await get().getRoles()
   },
 
-  mutationCreateRole: async (payload) => {
+  mutationCreateRole: async (payload, permissionIds) => {
     const roleName = payload.name.trim()
     if (roleName.length < 3) {
       set({ createRoleErrorMessage: messages.roles.status.errors.createRoleNameRequired })
+      return false
+    }
+    if (permissionIds.length === 0) {
+      set({ createRoleErrorMessage: messages.roles.status.errors.createRolePermissionsRequired })
       return false
     }
 
@@ -173,6 +177,28 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
       })
 
       const data = await rolesService.createRole(payload)
+      if (!Number.isInteger(data.id) || data.id <= 0) {
+        set({ createRoleErrorMessage: messages.roles.status.errors.createRolePermissionsAssignError })
+        return false
+      }
+
+      try {
+        await rolesService.replaceRolePermissions(data.id, permissionIds)
+      } catch (error) {
+        if (rolesService.isAxiosError(error)) {
+          set({
+            createRoleErrorMessage: error.response?.data?.message || messages.roles.status.errors.createRolePermissionsAssignError,
+            errorBack: error,
+          })
+        } else {
+          set({
+            createRoleErrorMessage: messages.roles.status.errors.createRolePermissionsAssignError,
+            errorBack: error,
+          })
+        }
+        return false
+      }
+
       const createdName = (data.name || roleName).trim()
       const displayName = formatRoleLabel(createdName)
       set({
@@ -199,7 +225,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
     }
   },
 
-  mutationUpdateRole: async (payload) => {
+  mutationUpdateRole: async (payload, permissionIds) => {
     if (!Number.isInteger(payload.id) || payload.id <= 0) {
       set({ updateRoleErrorMessage: messages.roles.status.errors.updateRoleInvalidRoleId })
       return false
@@ -208,6 +234,10 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
     const roleName = payload.name.trim()
     if (roleName.length < 3) {
       set({ updateRoleErrorMessage: messages.roles.status.errors.createRoleNameRequired })
+      return false
+    }
+    if (permissionIds.length === 0) {
+      set({ updateRoleErrorMessage: messages.roles.status.errors.updateRolePermissionsRequired })
       return false
     }
 
@@ -220,6 +250,22 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
       })
 
       await rolesService.updateRole(payload)
+      try {
+        await rolesService.replaceRolePermissions(payload.id, permissionIds)
+      } catch (error) {
+        if (rolesService.isAxiosError(error)) {
+          set({
+            updateRoleErrorMessage: error.response?.data?.message || messages.roles.status.errors.updateRolePermissionsAssignError,
+            errorBack: error,
+          })
+        } else {
+          set({
+            updateRoleErrorMessage: messages.roles.status.errors.updateRolePermissionsAssignError,
+            errorBack: error,
+          })
+        }
+        return false
+      }
       set({ updateRoleSuccessMessage: messages.roles.status.success.updateRoleSuccess })
       return true
     } catch (error) {

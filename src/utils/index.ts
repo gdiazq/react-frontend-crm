@@ -1,23 +1,28 @@
-export { createAuthSessionStorage } from './authSessionStorage'
-export { createDeviceIdService } from './deviceId'
+export { createAuthSessionStorage } from './auth/authSessionStorage'
+export { createDeviceIdService } from './auth/deviceId'
 export {
   findNotificationById,
   updateNotificationsByIds,
   getNotificationIds,
   convertIdToNumber,
-} from './notificationUtils'
-export { normalizeVariant } from './notificationVariant'
-export { formatDate, formatDateTime } from './formatUtils'
+} from './notifications/notificationUtils'
+export { normalizeVariant } from './notifications/notificationVariant'
+export { formatDate, formatDateTime } from './format/formatUtils'
 export {
   formatCurrency,
   formatNumber,
   formatVariationLabel,
-} from './dashboardUtils'
+} from './format/dashboardUtils'
 export {
   findDeviceById,
   removeDeviceById,
   keepCurrentDevices,
-} from './settingUtils'
-export { formatRoleLabel } from './usersUtils'
-export { createUsersActions, createRolesActions } from './usersActions'
-export type { DropdownAction } from './usersActions'
+} from './settings/settingUtils'
+export {
+  formatRoleLabel,
+  formatPermissionName,
+  mapRoleToForm,
+} from './roles/rolesUtils'
+export { createUsersActions } from './users/usersActions'
+export type { DropdownAction } from './users/usersActions'
+export { createRolesActions } from './roles/rolesActions'

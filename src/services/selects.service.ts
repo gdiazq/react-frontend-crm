@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
 import type {
+  SelectPermissionOption,
   SelectRoleOption,
   SelectStatusOption,
   SelectUserEmailOption,
@@ -25,6 +26,11 @@ export const selectsService = {
 
   getStatusOptions: async () => {
     const { data } = await axiosInstance.get<SelectStatusOption[]>('/select/status')
+    return data
+  },
+
+  getPermissionOptions: async () => {
+    const { data } = await axiosInstance.get<SelectPermissionOption[]>('/role/permissions/select')
     return data
   },
 

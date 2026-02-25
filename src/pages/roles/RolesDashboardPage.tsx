@@ -69,7 +69,7 @@ export default function RolesDashboardPage() {
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [filters, setFilters] = useState({ statusId: '' })
+  const [filters, setFilters] = useState(() => ({ statusId: queryParams.status }))
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -94,10 +94,6 @@ export default function RolesDashboardPage() {
     void getRoles()
     void getStatusOptions()
   }, [])
-
-  useEffect(() => {
-    setFilters({ statusId: queryParams.status })
-  }, [queryParams.status])
 
   useEffect(() => {
     const closeActions = () => setOpenActionsRowId(null)

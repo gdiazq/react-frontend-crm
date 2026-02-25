@@ -32,6 +32,10 @@ export const rolesService = {
     await axiosInstance.put('/role/update', payload)
   },
 
+  replaceRolePermissions: async (roleId: number, permissionIds: number[]) => {
+    await axiosInstance.put(`/role/${roleId}/permissions`, { permissionIds })
+  },
+
   toggleRoleStatus: async (roleId: number, status: boolean) => {
     await axiosInstance.put(`/role/${roleId}/status`, { status })
   },

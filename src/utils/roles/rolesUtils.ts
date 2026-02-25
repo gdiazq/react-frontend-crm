@@ -1,4 +1,5 @@
 import messages from '@/messages/messages'
+import type { RoleCreateForm } from '@/types'
 
 const roleLabels: Record<string, string> = {
   ROLE_ADMIN: messages.users.ui.roleAdmin,
@@ -22,4 +23,19 @@ function normalizeRoleName(roleName: string): string {
 export function formatRoleLabel(roleName: string): string {
   const key = roleName.trim()
   return roleLabels[key] || normalizeRoleName(key)
+}
+
+export function formatPermissionName(name: string): string {
+  return name
+    .trim()
+    .split(':')
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase())
+    .join(': ')
+}
+
+export function mapRoleToForm(role: { name?: string | null, description?: string | null }): RoleCreateForm {
+  return {
+    name: role.name || '',
+    description: role.description || '',
+  }
 }
