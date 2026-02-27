@@ -15,6 +15,7 @@ import { selectFilterNotifications, selectUnreadCount } from '@/store/notificati
 export default function LayoutPrivateDefault() {
   const navigate = useNavigate()
   const user = useStoreAuth((s) => s.user)
+  const hasPermission = useStoreAuth((s) => s.hasPermission)
   const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
@@ -35,10 +36,12 @@ export default function LayoutPrivateDefault() {
   const [settingsDropdownOpen, setSettingsDropdownOpen] = useState(false)
   const disconnectRef = useRef(disconnect)
   disconnectRef.current = disconnect
+  const canReadUsers = hasPermission('USER', 'canRead')
+  const canReadRoles = hasPermission('ROLE', 'canRead')
 
   useEffect(() => {
     const init = async () => {
-      if (!user) {
+      if (!useStoreAuth.getState().user) {
         try {
           await getCurrentUser()
         } catch {
@@ -61,7 +64,7 @@ export default function LayoutPrivateDefault() {
     return () => {
       disconnectRef.current()
     }
-  }, [])
+  }, [captureTab, connect, getCurrentUser, getCounter, getNotifications, navigate])
 
   const handleGoDashboard = () => {
     setMobileSidebarOpen(false)
@@ -72,12 +75,20 @@ export default function LayoutPrivateDefault() {
   const handleGoUsers = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    if (!canReadUsers) {
+      navigate('/unauthorized')
+      return
+    }
     navigate(AUTH_ROUTE_USERS)
   }
 
   const handleGoRoles = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    if (!canReadRoles) {
+      navigate('/unauthorized')
+      return
+    }
     navigate(AUTH_ROUTE_ROLES)
   }
 
@@ -135,6 +146,8 @@ export default function LayoutPrivateDefault() {
       <SidebarComponent
         mobileOpen={mobileSidebarOpen}
         collapsed={sidebarCollapsed}
+        showUsers={canReadUsers}
+        showRoles={canReadRoles}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         onToggleDesktopCollapse={() => setSidebarCollapsed((v) => !v)}
         onGoDashboard={handleGoDashboard}

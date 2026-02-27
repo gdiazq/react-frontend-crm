@@ -20,7 +20,7 @@ export default function PaginationComponent({
   const maxVisiblePages = 5
   const halfWindow = Math.floor(maxVisiblePages / 2)
   let pageStart = Math.max(currentPage - halfWindow, 1)
-  let pageEnd = Math.min(pageStart + maxVisiblePages - 1, totalPages)
+  const pageEnd = Math.min(pageStart + maxVisiblePages - 1, totalPages)
   if (pageEnd - pageStart + 1 < maxVisiblePages) {
     pageStart = Math.max(pageEnd - maxVisiblePages + 1, 1)
   }

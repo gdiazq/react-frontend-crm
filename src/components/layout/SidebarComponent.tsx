@@ -4,6 +4,8 @@ import { useLocation } from 'react-router-dom'
 interface SidebarComponentProps {
   mobileOpen: boolean
   collapsed: boolean
+  showUsers?: boolean
+  showRoles?: boolean
   onCloseMobile?: () => void
   onToggleDesktopCollapse?: () => void
   onGoDashboard: () => void
@@ -15,6 +17,8 @@ interface SidebarComponentProps {
 export default function SidebarComponent({
   mobileOpen,
   collapsed,
+  showUsers = true,
+  showRoles = true,
   onCloseMobile,
   onToggleDesktopCollapse,
   onGoDashboard,
@@ -93,31 +97,35 @@ export default function SidebarComponent({
             <span className={collapsed ? 'lg:hidden' : ''}>Dashboard</span>
           </button>
 
-          <button
-            type="button"
-            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isUsersActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-            title={collapsed ? 'Usuarios' : ''}
-            onClick={onGoUsers}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="8.5" cy="7" r="4" />
-              <path d="M20 8v6M23 11h-6" />
-            </svg>
-            <span className={collapsed ? 'lg:hidden' : ''}>Usuarios</span>
-          </button>
+          {showUsers && (
+            <button
+              type="button"
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isUsersActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+              title={collapsed ? 'Usuarios' : ''}
+              onClick={onGoUsers}
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="8.5" cy="7" r="4" />
+                <path d="M20 8v6M23 11h-6" />
+              </svg>
+              <span className={collapsed ? 'lg:hidden' : ''}>Usuarios</span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isRolesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-            title={collapsed ? 'Roles' : ''}
-            onClick={onGoRoles}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 7h16M4 12h16M4 17h16" />
-            </svg>
-            <span className={collapsed ? 'lg:hidden' : ''}>Roles</span>
-          </button>
+          {showRoles && (
+            <button
+              type="button"
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isRolesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+              title={collapsed ? 'Roles' : ''}
+              onClick={onGoRoles}
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              </svg>
+              <span className={collapsed ? 'lg:hidden' : ''}>Roles</span>
+            </button>
+          )}
         </nav>
 
         <div className="mt-auto border-t border-slate-200 pt-4 dark:border-white/10">

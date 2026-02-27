@@ -1,9 +1,11 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useLayoutEffect } from 'react'
 
 export function useDebounce<T extends unknown[]>(callback: (...args: T) => void, delay: number) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const callbackRef = useRef(callback)
-  callbackRef.current = callback
+  useLayoutEffect(() => {
+    callbackRef.current = callback
+  })
 
   return useCallback(
     (...args: T) => {

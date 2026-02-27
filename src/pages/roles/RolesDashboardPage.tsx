@@ -22,7 +22,7 @@ import type { RoleTableRow, RolesSortBy } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
 import { rolesTableColumns } from '@/factories'
 import { mapperRoleDetailView } from '@/mappers'
-import { useStoreRoles, useStoreSelects } from '@/store'
+import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
 import messages from '@/messages/messages'
 
 const ROLES_SORT_BY_COLUMN: Partial<Record<number, RolesSortBy>> = {
@@ -64,6 +64,8 @@ export default function RolesDashboardPage() {
   const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
   const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
   const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
+  const hasPermission = useStoreAuth((s) => s.hasPermission)
+  const canToggleRoleStatus = hasPermission('ROLE', 'canUpdate')
   const { actionViewDetail, actionUpdateRole, actionToggleStatus } = createRolesActions()
 
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
@@ -93,7 +95,7 @@ export default function RolesDashboardPage() {
   useEffect(() => {
     void getRoles()
     void getStatusOptions()
-  }, [])
+  }, [getRoles, getStatusOptions])
 
   useEffect(() => {
     const closeActions = () => setOpenActionsRowId(null)
@@ -130,11 +132,18 @@ export default function RolesDashboardPage() {
     setOpenActionsRowId(null)
   }
 
-  const resolveRowActions = (row: RoleTableRow): DropdownAction[] => [
-    actionViewDetail(() => handleViewDetail(row)),
-    actionUpdateRole(() => handleUpdateRole(row)),
-    actionToggleStatus(row.status === true, () => handleToggleStatus(row)),
-  ]
+  const resolveRowActions = (row: RoleTableRow): DropdownAction[] => {
+    const actions: DropdownAction[] = [
+      actionViewDetail(() => handleViewDetail(row)),
+      actionUpdateRole(() => handleUpdateRole(row)),
+    ]
+
+    if (canToggleRoleStatus) {
+      actions.push(actionToggleStatus(row.status === true, () => handleToggleStatus(row)))
+    }
+
+    return actions
+  }
 
   const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
     const roleRow = row as RoleTableRow

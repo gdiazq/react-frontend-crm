@@ -23,25 +23,22 @@ export default function VerifyEmailPage() {
   const resendVerification = useStoreAuthFlow((s) => s.resendVerification)
   const setPendingVerifyEmail = useStoreAuthFlow((s) => s.setPendingVerifyEmail)
 
-  const [form, setForm] = useState({ ...initialVerifyEmailForm })
+  const queryEmail = (searchParams.get('email') ?? '').trim()
+  const queryCode = (searchParams.get('code') ?? '').trim()
+  const verifyTargetEmail = (queryEmail || pendingVerifyEmail || '').trim()
+
+  const [form, setForm] = useState(() => ({ ...initialVerifyEmailForm, code: queryCode }))
   const [resendForm, setResendForm] = useState({ ...initialResendVerificationForm })
   const [showResendModal, setShowResendModal] = useState(false)
   const [resendModalError, setResendModalError] = useState<string | null>(null)
   const { errors, validateAll } = useFormValidation(form, verifyEmailValidationRules)
-  const queryEmail = (searchParams.get('email') || '').trim()
-  const queryCode = (searchParams.get('code') || '').trim()
-  const verifyTargetEmail = (queryEmail || pendingVerifyEmail || '').trim()
 
   useEffect(() => {
     if (queryEmail) {
       setPendingVerifyEmail(queryEmail)
       useStoreAuthFlow.setState({ errorMessage: null })
     }
-
-    if (queryCode) {
-      setForm({ code: queryCode })
-    }
-  }, [queryEmail, queryCode, setPendingVerifyEmail])
+  }, [queryEmail, setPendingVerifyEmail])
 
   useEffect(() => {
     if (!verifyTargetEmail) {

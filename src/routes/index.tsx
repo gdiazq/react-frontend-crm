@@ -114,27 +114,51 @@ export const router = createBrowserRouter([
       },
       {
         path: '/users',
-        element: <UsersDashboardPage />,
+        element: (
+          <ProtectedRoute requiresPermissions module="USER" permissionType="canRead">
+            <UsersDashboardPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/roles',
-        element: <RolesDashboardPage />,
+        element: (
+          <ProtectedRoute requiresPermissions module="ROLE" permissionType="canRead">
+            <RolesDashboardPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/roles/new',
-        element: <RolesFormDashboardPage />,
+        element: (
+          <ProtectedRoute requiresPermissions module="ROLE" permissionType="canCreate">
+            <RolesFormDashboardPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/roles/:editId',
-        element: <RolesFormDashboardPage />,
+        element: (
+          <ProtectedRoute requiresPermissions module="ROLE" permissionType="canUpdate">
+            <RolesFormDashboardPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/users/new',
-        element: <UsersFormDashboardPage />,
+        element: (
+          <ProtectedRoute requiresPermissions module="USER" permissionType="canCreate">
+            <UsersFormDashboardPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/users/:editId',
-        element: <UsersFormDashboardPage />,
+        element: (
+          <ProtectedRoute requiresPermissions module="USER" permissionType="canUpdate">
+            <UsersFormDashboardPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/unauthorized',

@@ -14,6 +14,7 @@ export interface AuthUser {
   phoneNumber?: string | null
   avatarUrl?: string | null
   roles: string[]
+  permissions?: string[]
 }
 
 export interface PasswordRequirement {

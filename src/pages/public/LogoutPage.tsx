@@ -9,7 +9,7 @@ export default function LogoutPage() {
 
   useEffect(() => {
     logout().then(() => navigate(AUTH_ROUTE_HOME))
-  }, [])
+  }, [logout, navigate])
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 p-6">

@@ -20,7 +20,7 @@ import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns } from '@/factories'
 import { mapperUserDetailView } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreSelects, useStoreUsers } from '@/store'
+import { useStoreAuth, useStoreSelects, useStoreUsers } from '@/store'
 import { createUsersActions } from '@/utils'
 import type { UserTableRow, UsersSortBy } from '@/types'
 import type { DropdownAction } from '@/utils'
@@ -72,6 +72,8 @@ export default function UsersDashboardPage() {
   const usersFilterOptionsErrorMessage = useStoreSelects((s) => s.usersFilterOptionsErrorMessage)
   const getUsersFilterOptions = useStoreSelects((s) => s.getUsersFilterOptions)
   const clearUsersFilterOptionsStatus = useStoreSelects((s) => s.clearUsersFilterOptionsStatus)
+  const hasPermission = useStoreAuth((s) => s.hasPermission)
+  const canToggleUserStatus = hasPermission('USER', 'canUpdate')
 
   const { actionViewDetail, actionUpdateUser, actionToggleStatus } = createUsersActions()
 
@@ -119,7 +121,7 @@ export default function UsersDashboardPage() {
   useEffect(() => {
     getUsers()
     void getUsersFilterOptions()
-  }, [])
+  }, [getUsers, getUsersFilterOptions])
 
   useEffect(() => {
     const closeActions = () => setOpenActionsRowId(null)
@@ -145,11 +147,18 @@ export default function UsersDashboardPage() {
     setOpenActionsRowId(null)
   }
 
-  const resolveRowActions = (row: UserTableRow): DropdownAction[] => [
-    actionViewDetail(() => handleViewDetail(row)),
-    actionUpdateUser(() => handleUpdateUser(row)),
-    actionToggleStatus(row.status === true, () => { void handleToggleStatus(row) }),
-  ]
+  const resolveRowActions = (row: UserTableRow): DropdownAction[] => {
+    const actions: DropdownAction[] = [
+      actionViewDetail(() => handleViewDetail(row)),
+      actionUpdateUser(() => handleUpdateUser(row)),
+    ]
+
+    if (canToggleUserStatus) {
+      actions.push(actionToggleStatus(row.status === true, () => { void handleToggleStatus(row) }))
+    }
+
+    return actions
+  }
 
   const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
     const userRow = row as UserTableRow

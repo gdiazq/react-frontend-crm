@@ -180,7 +180,15 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
 
   hasPermission: (moduleName: string, permissionType: PermissionType) => {
     const module = get().permissions.find((item) => item.module === moduleName)
-    if (!module) return false
-    return Boolean(module[permissionType])
+    if (module) return Boolean(module[permissionType])
+
+    const actionByPermissionType: Record<PermissionType, string> = {
+      canRead: 'READ',
+      canCreate: 'CREATE',
+      canUpdate: 'UPDATE',
+      canDelete: 'DELETE',
+    }
+    const permissionCode = `${moduleName}:${actionByPermissionType[permissionType]}`
+    return (get().user?.permissions ?? []).includes(permissionCode)
   },
 }))

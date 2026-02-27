@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useLayoutEffect } from 'react'
 
 interface UsePasswordTokenCountdownOptions {
   token: string | null
@@ -25,8 +25,10 @@ export function usePasswordTokenCountdown({
   const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const onMissingTokenRef = useRef(onMissingToken)
   const onExpiredRef = useRef(onExpired)
-  onMissingTokenRef.current = onMissingToken
-  onExpiredRef.current = onExpired
+  useLayoutEffect(() => {
+    onMissingTokenRef.current = onMissingToken
+    onExpiredRef.current = onExpired
+  })
 
   const clearTimers = () => {
     if (expirationTimerRef.current) { clearTimeout(expirationTimerRef.current); expirationTimerRef.current = null }
