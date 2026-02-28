@@ -1,15 +1,18 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
+import SidebarTooltipComponent from '@/components/ui/tooltip/SidebarTooltipComponent'
 
 interface SidebarComponentProps {
   mobileOpen: boolean
   collapsed: boolean
   showUsers?: boolean
+  showEmployees?: boolean
   showRoles?: boolean
   onCloseMobile?: () => void
   onToggleDesktopCollapse?: () => void
   onGoDashboard: () => void
   onGoUsers: () => void
+  onGoEmployees: () => void
   onGoRoles: () => void
   onGoLogout: () => void
 }
@@ -18,18 +21,23 @@ export default function SidebarComponent({
   mobileOpen,
   collapsed,
   showUsers = true,
+  showEmployees = true,
   showRoles = true,
   onCloseMobile,
   onToggleDesktopCollapse,
   onGoDashboard,
   onGoUsers,
+  onGoEmployees,
   onGoRoles,
   onGoLogout,
 }: SidebarComponentProps) {
   const location = useLocation()
   const isDashboardActive = useMemo(() => location.pathname === '/dashboard', [location.pathname])
   const isUsersActive = useMemo(() => location.pathname === '/users', [location.pathname])
+  const isEmployeesActive = useMemo(() => location.pathname === '/employees', [location.pathname])
   const isRolesActive = useMemo(() => location.pathname === '/roles', [location.pathname])
+  const hasRrhhItems = showEmployees
+  const hasAdministrationItems = showUsers || showRoles
 
   const getItemClasses = (active: boolean) => {
     if (active) return 'bg-cyan-600 text-white dark:bg-cyan-500 dark:text-white'
@@ -85,63 +93,105 @@ export default function SidebarComponent({
         </div>
 
         <nav className="space-y-2">
-          <button
-            type="button"
-            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isDashboardActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-            title={collapsed ? 'Dashboard' : ''}
-            onClick={onGoDashboard}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 13h8V3H3v10zm10 8h8V3h-8v18zM3 21h8v-6H3v6z" />
-            </svg>
-            <span className={collapsed ? 'lg:hidden' : ''}>Dashboard</span>
-          </button>
-
-          {showUsers && (
+          <SidebarTooltipComponent enabled={collapsed} active={isDashboardActive} label="Dashboard">
             <button
               type="button"
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isUsersActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-              title={collapsed ? 'Usuarios' : ''}
-              onClick={onGoUsers}
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isDashboardActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+              onClick={onGoDashboard}
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="8.5" cy="7" r="4" />
-                <path d="M20 8v6M23 11h-6" />
+                <path d="M3 13h8V3H3v10zm10 8h8V3h-8v18zM3 21h8v-6H3v6z" />
               </svg>
-              <span className={collapsed ? 'lg:hidden' : ''}>Usuarios</span>
+              <span className={collapsed ? 'lg:hidden' : ''}>Dashboard</span>
             </button>
+          </SidebarTooltipComponent>
+
+          {hasRrhhItems && (
+            <section className={`rounded-xl border border-slate-200/80 bg-slate-50/60 p-2 dark:border-white/10 dark:bg-slate-800/30 ${collapsed ? 'lg:border-transparent lg:bg-transparent lg:p-0' : ''}`}>
+              <p className={`px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 ${collapsed ? 'lg:hidden' : ''}`}>
+                RRHH
+              </p>
+
+              {showEmployees && (
+                <SidebarTooltipComponent enabled={collapsed} active={isEmployeesActive} label="Trabajadores">
+                  <button
+                    type="button"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isEmployeesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    onClick={onGoEmployees}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="8.5" cy="7" r="4" />
+                      <path d="M20 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    <span className={collapsed ? 'lg:hidden' : ''}>Trabajadores</span>
+                  </button>
+                </SidebarTooltipComponent>
+              )}
+            </section>
           )}
 
-          {showRoles && (
-            <button
-              type="button"
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isRolesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-              title={collapsed ? 'Roles' : ''}
-              onClick={onGoRoles}
-            >
-              <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              </svg>
-              <span className={collapsed ? 'lg:hidden' : ''}>Roles</span>
-            </button>
+          {hasRrhhItems && hasAdministrationItems && (
+            <hr className={`border-0 bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-700 ${collapsed ? 'my-1 h-px lg:mx-2' : 'my-2 h-px'}`} />
+          )}
+
+          {hasAdministrationItems && (
+            <section className={`rounded-xl border border-slate-200/80 bg-slate-50/60 p-2 dark:border-white/10 dark:bg-slate-800/30 ${collapsed ? 'lg:border-transparent lg:bg-transparent lg:p-0' : ''}`}>
+              <p className={`px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 ${collapsed ? 'lg:hidden' : ''}`}>
+                Administracion
+              </p>
+
+              {showUsers && (
+                <SidebarTooltipComponent enabled={collapsed} active={isUsersActive} label="Usuarios">
+                  <button
+                    type="button"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isUsersActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    onClick={onGoUsers}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="8.5" cy="7" r="4" />
+                      <path d="M20 8v6M23 11h-6" />
+                    </svg>
+                    <span className={collapsed ? 'lg:hidden' : ''}>Usuarios</span>
+                  </button>
+                </SidebarTooltipComponent>
+              )}
+
+              {showRoles && (
+                <SidebarTooltipComponent enabled={collapsed} active={isRolesActive} label="Roles">
+                  <button
+                    type="button"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isRolesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    onClick={onGoRoles}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 7h16M4 12h16M4 17h16" />
+                    </svg>
+                    <span className={collapsed ? 'lg:hidden' : ''}>Roles</span>
+                  </button>
+                </SidebarTooltipComponent>
+              )}
+            </section>
           )}
         </nav>
 
         <div className="mt-auto border-t border-slate-200 pt-4 dark:border-white/10">
-          <button
-            type="button"
-            className={`flex w-full items-center gap-3 rounded-lg bg-rose-600 px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-400 ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-            title={collapsed ? 'Salir' : ''}
-            onClick={onGoLogout}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <path d="M16 17l5-5-5-5" />
-              <path d="M21 12H9" />
-            </svg>
-            <span className={collapsed ? 'lg:hidden' : ''}>Salir</span>
-          </button>
+          <SidebarTooltipComponent enabled={collapsed} label="Salir">
+            <button
+              type="button"
+              className={`flex w-full items-center gap-3 rounded-lg bg-rose-600 px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-rose-700 dark:bg-rose-500 dark:hover:bg-rose-400 ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+              onClick={onGoLogout}
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="M16 17l5-5-5-5" />
+                <path d="M21 12H9" />
+              </svg>
+              <span className={collapsed ? 'lg:hidden' : ''}>Salir</span>
+            </button>
+          </SidebarTooltipComponent>
         </div>
       </aside>
     </div>

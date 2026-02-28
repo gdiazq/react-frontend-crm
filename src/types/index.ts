@@ -1,6 +1,7 @@
 export * from './auth'
 export * from './common'
 export * from './dashboard'
+export * from './employees'
 export * from './frontpage'
 export * from './notification'
 export * from './roles'

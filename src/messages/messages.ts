@@ -168,6 +168,20 @@ export default {
       },
     },
   },
+  employees: {
+    ui: {
+      rehireEligibleYes: 'Si',
+      rehireEligibleNo: 'No',
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+    },
+    status: {
+      success: {},
+      errors: {
+        loadError: 'No se pudo cargar la lista de trabajadores.',
+      },
+    },
+  },
   roles: {
     ui: {
       statusEnabled: 'Habilitado',

@@ -15,6 +15,11 @@ export {
 export { mapperLoginCredentialsPayload } from './auth/login-credentials.mapper'
 export { mapperDashboardExample } from './dashboard/dashboard-example.mapper'
 export {
+  mapperEmployeesRows,
+  mapperEmployeesPagination,
+  mapperEmployeesQueryParams,
+} from './employees/employees.mapper'
+export {
   mapperCreateUserPayload,
   mapperUpdateUserPayload,
   mapperUsersRows,

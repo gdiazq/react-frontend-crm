@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import {
   AUTH_ROUTE_DASHBOARD,
+  AUTH_ROUTE_EMPLOYEES,
   AUTH_ROUTE_LOGIN,
   AUTH_ROUTE_LOGOUT,
   AUTH_ROUTE_ROLES,
@@ -37,6 +38,7 @@ export default function LayoutPrivateDefault() {
   const disconnectRef = useRef(disconnect)
   disconnectRef.current = disconnect
   const canReadUsers = hasPermission('USER', 'canRead')
+  const canReadEmployees = hasPermission('EMPLOYEE', 'canRead')
   const canReadRoles = hasPermission('ROLE', 'canRead')
 
   useEffect(() => {
@@ -90,6 +92,16 @@ export default function LayoutPrivateDefault() {
       return
     }
     navigate(AUTH_ROUTE_ROLES)
+  }
+
+  const handleGoEmployees = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    if (!canReadEmployees) {
+      navigate('/unauthorized')
+      return
+    }
+    navigate(AUTH_ROUTE_EMPLOYEES)
   }
 
   const handleGoSettings = () => {
@@ -147,11 +159,13 @@ export default function LayoutPrivateDefault() {
         mobileOpen={mobileSidebarOpen}
         collapsed={sidebarCollapsed}
         showUsers={canReadUsers}
+        showEmployees={canReadEmployees}
         showRoles={canReadRoles}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         onToggleDesktopCollapse={() => setSidebarCollapsed((v) => !v)}
         onGoDashboard={handleGoDashboard}
         onGoUsers={handleGoUsers}
+        onGoEmployees={handleGoEmployees}
         onGoRoles={handleGoRoles}
         onGoLogout={handleGoLogout}
       />
