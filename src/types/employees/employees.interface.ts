@@ -59,7 +59,6 @@ export interface EmployeeCreateForm {
   clothingSize: string
   shoeSize: string
   pantSize: string
-  rehireEligible: string
 }
 
 export interface EmployeeCreatePayload {
@@ -108,7 +107,6 @@ export interface EmployeeCreatePayload {
   clothingSize: string
   shoeSize: string
   pantSize: string
-  rehireEligible: boolean
 }
 
 export interface EmployeeCreateResponse {

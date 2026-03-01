@@ -12,3 +12,11 @@
 .roles-table-no-vertical-scrollbar::-webkit-scrollbar:vertical {
   width: 0;
 }
+
+input[type='date'] {
+  color-scheme: light;
+}
+
+.dark input[type='date'] {
+  color-scheme: dark;
+}

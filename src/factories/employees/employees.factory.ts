@@ -80,5 +80,4 @@ export const initialCreateEmployeeForm: EmployeeCreateForm = {
   clothingSize: '',
   shoeSize: '',
   pantSize: '',
-  rehireEligible: 'true',
 }

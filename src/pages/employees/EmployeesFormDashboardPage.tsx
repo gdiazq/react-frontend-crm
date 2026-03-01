@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
@@ -78,43 +78,26 @@ export default function EmployeesFormDashboardPage() {
   const saving = createEmployeeSubmitting
   const canSubmit = !saving && !loadingFormOptions
 
-  const selectIdentificationTypes = useMemo(() => toSelectOptions(identificationTypeOptions), [identificationTypeOptions])
-  const selectGenders = useMemo(() => toSelectOptions(genderOptions), [genderOptions])
-  const selectMaritalStatuses = useMemo(() => toSelectOptions(maritalStatusOptions), [maritalStatusOptions])
-  const selectEducationLevels = useMemo(() => toSelectOptions(educationLevelOptions), [educationLevelOptions])
-  const selectDriverLicenses = useMemo(() => toSelectOptions(driverLicenseOptions), [driverLicenseOptions])
-  const selectProfessions = useMemo(() => toSelectOptions(professionOptions), [professionOptions])
-  const selectNationalities = useMemo(() => toSelectOptions(nationalityOptions), [nationalityOptions])
-  const selectExpats = useMemo(() => toSelectOptions(expatOptions), [expatOptions])
-  const selectEmergencyRelationships = useMemo(
-    () => toSelectOptions(emergencyContactRelationshipOptions),
-    [emergencyContactRelationshipOptions],
-  )
-  const selectRegions = useMemo(() => toSelectOptions(regionOptions), [regionOptions])
-  const selectCommunes = useMemo(() => toSelectOptions(communeOptions), [communeOptions])
-  const selectCities = useMemo(() => toSelectOptions(cityOptions), [cityOptions])
-  const selectFamilyAllowanceTiers = useMemo(
-    () => toSelectOptions(familyAllowanceTierOptions),
-    [familyAllowanceTierOptions],
-  )
-  const selectRetirementStatuses = useMemo(() => toSelectOptions(retirementStatusOptions), [retirementStatusOptions])
-  const selectPensionStatuses = useMemo(() => toSelectOptions(pensionStatusOptions), [pensionStatusOptions])
-  const selectAfps = useMemo(() => toSelectOptions(afpOptions), [afpOptions])
-  const selectHealthInsurances = useMemo(() => toSelectOptions(healthInsuranceOptions), [healthInsuranceOptions])
-  const selectHealthInsuranceTariffs = useMemo(
-    () => toSelectOptions(healthInsuranceTariffOptions),
-    [healthInsuranceTariffOptions],
-  )
-  const selectPaymentMethods = useMemo(() => toSelectOptions(paymentMethodOptions), [paymentMethodOptions])
-  const selectBanks = useMemo(() => toSelectOptions(bankOptions), [bankOptions])
-
-  const selectRehireEligibility = useMemo(
-    () => [
-      { label: messages.employees.ui.rehireEligibleYes, value: 'true' },
-      { label: messages.employees.ui.rehireEligibleNo, value: 'false' },
-    ],
-    [],
-  )
+  const selectIdentificationTypes = toSelectOptions(identificationTypeOptions)
+  const selectGenders = toSelectOptions(genderOptions)
+  const selectMaritalStatuses = toSelectOptions(maritalStatusOptions)
+  const selectEducationLevels = toSelectOptions(educationLevelOptions)
+  const selectDriverLicenses = toSelectOptions(driverLicenseOptions)
+  const selectProfessions = toSelectOptions(professionOptions)
+  const selectNationalities = toSelectOptions(nationalityOptions)
+  const selectExpats = toSelectOptions(expatOptions)
+  const selectEmergencyRelationships = toSelectOptions(emergencyContactRelationshipOptions)
+  const selectRegions = toSelectOptions(regionOptions)
+  const selectCommunes = toSelectOptions(communeOptions)
+  const selectCities = toSelectOptions(cityOptions)
+  const selectFamilyAllowanceTiers = toSelectOptions(familyAllowanceTierOptions)
+  const selectRetirementStatuses = toSelectOptions(retirementStatusOptions)
+  const selectPensionStatuses = toSelectOptions(pensionStatusOptions)
+  const selectAfps = toSelectOptions(afpOptions)
+  const selectHealthInsurances = toSelectOptions(healthInsuranceOptions)
+  const selectHealthInsuranceTariffs = toSelectOptions(healthInsuranceTariffOptions)
+  const selectPaymentMethods = toSelectOptions(paymentMethodOptions)
+  const selectBanks = toSelectOptions(bankOptions)
 
   useEffect(() => {
     void getFormOptions()
@@ -157,10 +140,6 @@ export default function EmployeesFormDashboardPage() {
   }
 
   const handleChangeField = (field: keyof typeof initialCreateEmployeeForm, value: string) => {
-    if (field === 'regionId' && value !== form.regionId) {
-      resetLocationOptions()
-    }
-
     setForm((prev) => {
       if (field === 'regionId') {
         return { ...prev, regionId: value, communeId: '', cityId: '' }
@@ -281,23 +260,22 @@ export default function EmployeesFormDashboardPage() {
             <SelectComponent value={form.professionId} label="Profesion" options={selectProfessions} error={errors.professionId} onValueChange={(value) => handleChangeField('professionId', value)} onValidation={onValidation('professionId')} required />
             <SelectComponent value={form.driverLicenseId} label="Licencia conducir" options={selectDriverLicenses} error={errors.driverLicenseId} onValueChange={(value) => handleChangeField('driverLicenseId', value)} onValidation={onValidation('driverLicenseId')} required />
             <SelectComponent value={form.expatId} label="Expatriado" options={selectExpats} error={errors.expatId} onValueChange={(value) => handleChangeField('expatId', value)} onValidation={onValidation('expatId')} required />
-            <SelectComponent value={form.rehireEligible} label="Recontratable" options={selectRehireEligibility} error={errors.rehireEligible} onValueChange={(value) => handleChangeField('rehireEligible', value)} onValidation={onValidation('rehireEligible')} required />
           </div>
         </div>
 
         <SectionTitle title="Contacto" />
         <div className="grid gap-4 md:grid-cols-2">
           <InputComponent value={form.personalEmail} label="Email personal" type="email" placeholder="Ingresa el email personal" error={errors.personalEmail} onValueChange={(value) => handleChangeField('personalEmail', value)} onBlur={onValidation('personalEmail')} required />
-          <InputComponent value={form.corporateEmail} label="Email corporativo" type="email" placeholder="Ingresa el email corporativo" error={errors.corporateEmail} onValueChange={(value) => handleChangeField('corporateEmail', value)} onBlur={onValidation('corporateEmail')} required />
           <InputComponent value={form.phone} label="Telefono" type="tel" placeholder="Ingresa el telefono" error={errors.phone} onValueChange={(value) => handleChangeField('phone', value)} onBlur={onValidation('phone')} required />
-          <InputComponent value={form.phone2} label="Telefono 2" type="tel" placeholder="Ingresa el telefono secundario" onValueChange={(value) => handleChangeField('phone2', value)} />
+          <InputComponent value={form.corporateEmail} label="Email corporativo" type="email" placeholder="Ingresa el email corporativo" error={errors.corporateEmail} onValueChange={(value) => handleChangeField('corporateEmail', value)} onBlur={onValidation('corporateEmail')} required />
+          <InputComponent value={form.phone2} label="Telefono" type="tel" placeholder="Ingresa el telefono secundario" onValueChange={(value) => handleChangeField('phone2', value)} />
         </div>
 
         <SectionTitle title="Contacto de emergencia" />
         <div className="grid gap-4 md:grid-cols-2">
-          <InputComponent value={form.emergencyContactName} label="Nombre contacto emergencia" type="text" placeholder="Ingresa el nombre del contacto" error={errors.emergencyContactName} onValueChange={(value) => handleChangeField('emergencyContactName', value)} onBlur={onValidation('emergencyContactName')} required />
           <SelectComponent value={form.emergencyContactRelationshipId} label="Parentesco" options={selectEmergencyRelationships} error={errors.emergencyContactRelationshipId} onValueChange={(value) => handleChangeField('emergencyContactRelationshipId', value)} onValidation={onValidation('emergencyContactRelationshipId')} required />
-          <InputComponent value={form.emergencyContactPhone} label="Telefono contacto emergencia" type="tel" placeholder="Ingresa el telefono de emergencia" error={errors.emergencyContactPhone} onValueChange={(value) => handleChangeField('emergencyContactPhone', value)} onBlur={onValidation('emergencyContactPhone')} required />
+          <InputComponent value={form.emergencyContactName} label="Nombre contacto emergencia" type="text" placeholder="Ingresa el nombre del contacto" error={errors.emergencyContactName} onValueChange={(value) => handleChangeField('emergencyContactName', value)} onBlur={onValidation('emergencyContactName')} required />
+          <InputComponent value={form.emergencyContactPhone} label="Telefono emergencia" type="tel" placeholder="Ingresa el telefono de emergencia" error={errors.emergencyContactPhone} onValueChange={(value) => handleChangeField('emergencyContactPhone', value)} onBlur={onValidation('emergencyContactPhone')} required />
           <InputComponent value={form.emergencyContactPhone2} label="Telefono emergencia 2" type="tel" placeholder="Ingresa el telefono secundario" onValueChange={(value) => handleChangeField('emergencyContactPhone2', value)} />
         </div>
 

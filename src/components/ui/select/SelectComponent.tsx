@@ -46,8 +46,8 @@ export default function SelectComponent({
   }
 
   return (
-    <label className="block">
-      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide opacity-80">{label}</span>
+    <label className="flex flex-col gap-1">
+      <span className="text-sm font-medium text-heading text-slate-700 dark:text-slate-200">{label}</span>
       <select
         value={multiple ? values : value}
         multiple={multiple}
@@ -56,10 +56,10 @@ export default function SelectComponent({
         disabled={disabled}
         onChange={handleChange}
         onBlur={onValidation}
-        className={`w-full rounded-lg bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus-visible:ring-2 focus-visible:ring-offset-slate-50 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950 ${
+        className={`block w-full rounded-base rounded-lg border border-default-medium bg-neutral-secondary-medium px-3 py-2.5 text-sm text-heading shadow-xs shadow-sm placeholder:text-body outline-none transition focus:border-brand focus:ring-2 focus:ring-brand disabled:cursor-not-allowed disabled:opacity-60 ${
           error
-            ? 'border border-rose-400 focus-visible:ring-rose-400 dark:border-rose-400 dark:focus-visible:ring-rose-400'
-            : 'border border-slate-300 focus-visible:ring-cyan-400 dark:border-slate-700 dark:focus-visible:ring-cyan-400'
+            ? 'border-rose-400 bg-rose-50 text-rose-900 focus:border-rose-500 focus:ring-rose-400 dark:border-rose-400 dark:bg-rose-950/20 dark:text-rose-200 dark:focus:border-rose-400 dark:focus:ring-rose-400'
+            : 'border-slate-300 bg-slate-100 text-slate-900 focus:border-cyan-500 focus:ring-cyan-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-cyan-400 dark:focus:ring-cyan-400'
         }`}
       >
         {!multiple && (

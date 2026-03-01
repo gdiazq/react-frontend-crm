@@ -42,8 +42,4 @@ export const employeesCreateValidationRules: Record<string, ValidationRule> = {
   clothingSize: { required: true, minLength: 1 },
   shoeSize: { required: true, minLength: 1 },
   pantSize: { required: true, minLength: 1 },
-  rehireEligible: {
-    required: true,
-    custom: (value: string) => (value === 'true' || value === 'false' ? null : 'Selecciona si es recontratable'),
-  },
 }

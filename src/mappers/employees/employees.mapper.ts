@@ -130,6 +130,5 @@ export function mapperCreateEmployeePayload(form: EmployeeCreateForm): EmployeeC
     clothingSize: form.clothingSize.trim(),
     shoeSize: form.shoeSize.trim(),
     pantSize: form.pantSize.trim(),
-    rehireEligible: form.rehireEligible === 'true',
   }
 }
