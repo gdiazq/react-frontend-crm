@@ -33,9 +33,9 @@ export default function SidebarComponent({
 }: SidebarComponentProps) {
   const location = useLocation()
   const isDashboardActive = useMemo(() => location.pathname === '/dashboard', [location.pathname])
-  const isUsersActive = useMemo(() => location.pathname === '/users', [location.pathname])
-  const isEmployeesActive = useMemo(() => location.pathname === '/employees', [location.pathname])
-  const isRolesActive = useMemo(() => location.pathname === '/roles', [location.pathname])
+  const isUsersActive = useMemo(() => location.pathname.startsWith('/users'), [location.pathname])
+  const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
+  const isRolesActive = useMemo(() => location.pathname.startsWith('/roles'), [location.pathname])
   const hasRrhhItems = showEmployees
   const hasAdministrationItems = showUsers || showRoles
 

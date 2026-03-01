@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AUTH_ROUTE_EMPLOYEES_CREATE } from '@/constant'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  EmployeeApprovalStatusBadgeComponent,
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
@@ -15,22 +18,25 @@ import { employeesTableColumns } from '@/factories'
 import { useStoreEmployees, useStoreSelects } from '@/store'
 import type { EmployeeTableRow, EmployeesSortBy } from '@/types'
 
-const EMPLOYEE_ACTIVE_COLUMN_INDEX = 5
+const EMPLOYEE_ACTIVE_COLUMN_INDEX = 6
+const EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX = 4
 
 const EMPLOYEES_SORT_BY_COLUMN: Partial<Record<number, EmployeesSortBy>> = {
   0: 'identification',
   1: 'firstName',
   2: 'corporateEmail',
   3: 'phone',
-  4: 'rehireEligible',
-  5: 'active',
-  6: 'createdAt',
-  7: 'updatedAt',
+  4: 'statusName',
+  5: 'rehireEligible',
+  6: 'active',
+  7: 'createdAt',
+  8: 'updatedAt',
 }
 
 const EMPLOYEES_SORTABLE_COLUMNS = Object.keys(EMPLOYEES_SORT_BY_COLUMN).map((index) => Number(index))
 
 export default function EmployeesDashboardPage() {
+  const navigate = useNavigate()
   const employeesRows = useStoreEmployees((s) => s.employeesRows) as EmployeeTableRow[]
   const pagination = useStoreEmployees((s) => s.pagination)
   const queryParams = useStoreEmployees((s) => s.queryParams)
@@ -75,6 +81,10 @@ export default function EmployeesDashboardPage() {
 
   const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number) => {
     const employeeRow = row as EmployeeTableRow
+    if (columnIndex === EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX) {
+      const statusName = typeof value === 'string' ? value : String(value ?? '')
+      return <EmployeeApprovalStatusBadgeComponent statusName={statusName} />
+    }
     if (columnIndex === EMPLOYEE_ACTIVE_COLUMN_INDEX) {
       return <StatusBadgeComponent enabled={employeeRow.active === true} />
     }
@@ -167,6 +177,14 @@ export default function EmployeesDashboardPage() {
             disabled={loadingEmployees}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loadingEmployees ? 'Buscando...' : 'Buscar'}
+          />
+          <ButtonComponent
+            type="button"
+            variant="primary"
+            disabled={loadingEmployees}
+            className="flex-1 text-white md:flex-none dark:text-white"
+            label="Nuevo trabajador"
+            onClick={() => navigate(AUTH_ROUTE_EMPLOYEES_CREATE)}
           />
         </div>
       </form>

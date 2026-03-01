@@ -9,3 +9,4 @@ export {
 export { settingsUpdateProfileValidationRules } from './settings.validators'
 export { usersCreateValidationRules } from './users.validators'
 export { rolesCreateValidationRules } from './roles.validators'
+export { employeesCreateValidationRules } from './employees.validators'

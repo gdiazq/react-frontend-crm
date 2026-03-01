@@ -17,7 +17,10 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
   pagination: { ...initialEmployeesPagination },
   queryParams: { ...initialEmployeesQueryParams },
   loadingEmployees: false,
+  createEmployeeSubmitting: false,
   errorMessage: null,
+  createEmployeeErrorMessage: null,
+  createEmployeeSuccessMessage: null,
   errorBack: null,
 
   getEmployees: async () => {
@@ -90,6 +93,46 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
       queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
     }))
     await get().getEmployees()
+  },
+
+  mutationCreateEmployee: async (payload) => {
+    try {
+      set({
+        createEmployeeSubmitting: true,
+        createEmployeeErrorMessage: null,
+        createEmployeeSuccessMessage: null,
+        errorBack: null,
+      })
+
+      const data = await employeesService.createEmployee(payload)
+      const fullName = `${data.firstName} ${data.paternalLastName}`.trim()
+      set({
+        createEmployeeSuccessMessage: `${messages.employees.status.success.createEmployeeSuccess} (${fullName})`,
+      })
+      return true
+    } catch (error) {
+      if (employeesService.isAxiosError(error)) {
+        set({
+          createEmployeeErrorMessage: error.response?.data?.message || messages.employees.status.errors.createEmployeeError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          createEmployeeErrorMessage: messages.employees.status.errors.createEmployeeError,
+          errorBack: error,
+        })
+      }
+      return false
+    } finally {
+      set({ createEmployeeSubmitting: false })
+    }
+  },
+
+  clearCreateEmployeeStatus: () => {
+    set({
+      createEmployeeErrorMessage: null,
+      createEmployeeSuccessMessage: null,
+    })
   },
 
   clearStatus: () => {

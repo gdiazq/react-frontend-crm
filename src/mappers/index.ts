@@ -14,7 +14,9 @@ export {
 } from './auth/pre-login.mapper'
 export { mapperLoginCredentialsPayload } from './auth/login-credentials.mapper'
 export { mapperDashboardExample } from './dashboard/dashboard-example.mapper'
+export { mapperEmployeeSelectOptions } from './employee-selects/employee-selects.mapper'
 export {
+  mapperCreateEmployeePayload,
   mapperEmployeesRows,
   mapperEmployeesPagination,
   mapperEmployeesQueryParams,

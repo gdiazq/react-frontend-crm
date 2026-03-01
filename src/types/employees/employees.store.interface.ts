@@ -1,4 +1,5 @@
 import type {
+  EmployeeCreatePayload,
   EmployeesPagination,
   EmployeesQueryParams,
   EmployeesSortBy,
@@ -11,7 +12,10 @@ export interface EmployeesStore {
   pagination: EmployeesPagination
   queryParams: EmployeesQueryParams
   loadingEmployees: boolean
+  createEmployeeSubmitting: boolean
   errorMessage: string | null
+  createEmployeeErrorMessage: string | null
+  createEmployeeSuccessMessage: string | null
   errorBack: unknown | null
   getEmployees: () => Promise<void>
   goToPage: (page: number) => Promise<void>
@@ -22,5 +26,7 @@ export interface EmployeesStore {
   clearActiveFilter: () => void
   searchEmployees: () => Promise<void>
   sortEmployees: (sortBy: EmployeesSortBy, sortDir: EmployeesSortDir) => Promise<void>
+  mutationCreateEmployee: (payload: EmployeeCreatePayload) => Promise<boolean>
+  clearCreateEmployeeStatus: () => void
   clearStatus: () => void
 }

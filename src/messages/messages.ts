@@ -174,11 +174,21 @@ export default {
       rehireEligibleNo: 'No',
       statusActive: 'Activo',
       statusInactive: 'Inactivo',
+      createEmployeeTitle: 'Crear trabajador',
+      createEmployeeDescription: 'Completa la informacion para registrar un nuevo trabajador.',
+      createEmployeeSubmit: 'Crear trabajador',
+      createEmployeeSubmitting: 'Creando trabajador...',
     },
     status: {
-      success: {},
+      success: {
+        createEmployeeSuccess: 'Trabajador creado correctamente.',
+      },
       errors: {
         loadError: 'No se pudo cargar la lista de trabajadores.',
+        createEmployeeError: 'No se pudo crear el trabajador.',
+        loadFormOptionsError: 'No se pudieron cargar las opciones del formulario.',
+        loadCommuneOptionsError: 'No se pudieron cargar las comunas.',
+        loadCityOptionsError: 'No se pudieron cargar las ciudades.',
       },
     },
   },
