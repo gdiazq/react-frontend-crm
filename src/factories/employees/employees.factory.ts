@@ -10,6 +10,7 @@ export const employeesTableColumns: string[] = [
   'Estado',
   'Creado',
   'Actualizado',
+  'Acciones',
 ]
 
 export const initialEmployeesRows: EmployeeTableRow[] = []

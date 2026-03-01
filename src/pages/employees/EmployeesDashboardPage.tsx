@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AUTH_ROUTE_EMPLOYEES_CREATE } from '@/constant'
 import {
+  ActionsDropdownComponent,
   AlertMessageComponent,
   ButtonComponent,
   EmployeeApprovalStatusBadgeComponent,
@@ -15,11 +16,15 @@ import {
 } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { employeesTableColumns } from '@/factories'
+import messages from '@/messages/messages'
 import { useStoreEmployees, useStoreSelects } from '@/store'
 import type { EmployeeTableRow, EmployeesSortBy } from '@/types'
+import { createEmployeesActions } from '@/utils'
+import type { EmployeeDropdownAction } from '@/utils'
 
 const EMPLOYEE_ACTIVE_COLUMN_INDEX = 6
 const EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX = 4
+const ACTIONS_COLUMN_INDEX = employeesTableColumns.length - 1
 
 const EMPLOYEES_SORT_BY_COLUMN: Partial<Record<number, EmployeesSortBy>> = {
   0: 'identification',
@@ -59,6 +64,9 @@ export default function EmployeesDashboardPage() {
 
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({ statusId: queryParams.active }))
+  const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
+  const [actionsMessage, setActionsMessage] = useState('')
+  const { actionViewDetail, actionUpdateEmployee, actionToggleStatus } = createEmployeesActions()
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -79,7 +87,34 @@ export default function EmployeesDashboardPage() {
     void getStatusOptions()
   }, [getEmployees, getStatusOptions])
 
-  const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number) => {
+  useEffect(() => {
+    const closeActions = () => setOpenActionsRowId(null)
+    window.addEventListener('click', closeActions)
+    return () => window.removeEventListener('click', closeActions)
+  }, [])
+
+  const handleViewDetail = (row: EmployeeTableRow) => {
+    setActionsMessage(`${row.values[1]}: ${messages.employees.ui.viewDetailComingSoon}`)
+    setOpenActionsRowId(null)
+  }
+
+  const handleUpdateEmployee = (row: EmployeeTableRow) => {
+    setActionsMessage(`${row.values[1]}: ${messages.employees.ui.updateEmployeeComingSoon}`)
+    setOpenActionsRowId(null)
+  }
+
+  const handleToggleStatus = (row: EmployeeTableRow) => {
+    setActionsMessage(`${row.values[1]}: ${messages.employees.ui.toggleStatusComingSoon}`)
+    setOpenActionsRowId(null)
+  }
+
+  const resolveRowActions = (row: EmployeeTableRow): EmployeeDropdownAction[] => [
+    actionViewDetail(() => handleViewDetail(row)),
+    actionUpdateEmployee(() => handleUpdateEmployee(row)),
+    actionToggleStatus(row.active === true, () => handleToggleStatus(row)),
+  ]
+
+  const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
     const employeeRow = row as EmployeeTableRow
     if (columnIndex === EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX) {
       const statusName = typeof value === 'string' ? value : String(value ?? '')
@@ -87,6 +122,17 @@ export default function EmployeesDashboardPage() {
     }
     if (columnIndex === EMPLOYEE_ACTIVE_COLUMN_INDEX) {
       return <StatusBadgeComponent enabled={employeeRow.active === true} />
+    }
+    if (columnIndex === ACTIONS_COLUMN_INDEX) {
+      const openDirection = employeesRows.length > 2 && rowIndex >= employeesRows.length - 2 ? 'up' : 'down'
+      return (
+        <ActionsDropdownComponent
+          open={openActionsRowId === row.id}
+          actions={resolveRowActions(employeeRow)}
+          openDirection={openDirection}
+          onToggle={() => setOpenActionsRowId((id) => (id === row.id ? null : row.id))}
+        />
+      )
     }
     return <span>{value}</span>
   }
@@ -199,6 +245,14 @@ export default function EmployeesDashboardPage() {
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}
       />
+
+      {actionsMessage && (
+        <AlertMessageComponent
+          message={actionsMessage}
+          tone="info"
+          onClose={() => setActionsMessage('')}
+        />
+      )}
 
       <div className="flex justify-end">
         <PaginationComponent

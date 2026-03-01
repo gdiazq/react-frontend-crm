@@ -24,6 +24,7 @@ export function mapperEmployeesRows(response: EmployeeRaw[]): EmployeeTableRow[]
       item.active ? messages.employees.ui.statusActive : messages.employees.ui.statusInactive,
       formatDate(item.createdAt),
       formatDate(item.updatedAt),
+      '',
     ],
   }))
 }

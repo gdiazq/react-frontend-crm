@@ -23,6 +23,8 @@ export {
   formatPermissionName,
   mapRoleToForm,
 } from './roles/rolesUtils'
+export { createEmployeesActions } from './employees/employeesActions'
+export type { EmployeeDropdownAction } from './employees/employeesActions'
 export { createUsersActions } from './users/usersActions'
 export type { DropdownAction } from './users/usersActions'
 export { createRolesActions } from './roles/rolesActions'
