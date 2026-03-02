@@ -1,16 +1,26 @@
-import { type ReactNode, useEffect } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import {
+  ActionsDropdownComponent,
   AlertMessageComponent,
+  ButtonComponent,
+  DetailSidebarComponent,
   EmployeeApprovalStatusBadgeComponent,
+  InputComponent,
   PaginationComponent,
+  RightSidebarComponent,
   StatsOverviewCardsComponent,
   TableComponent,
 } from '@/components'
 import { requestsTableColumns } from '@/factories'
+import messages from '@/messages/messages'
 import { useStoreRequests } from '@/store'
+import { createRequestsActions } from '@/utils'
 import type { RequestTableRow, TableRow } from '@/types'
+import type { DropdownAction } from '@/utils'
 
 const REQUEST_STATUS_COLUMN_INDEX = 3
+const REQUEST_NAME_COLUMN_INDEX = 1
+const ACTIONS_COLUMN_INDEX = requestsTableColumns.length - 1
 
 export default function RequestsDashboardPage() {
   const requestsRows = useStoreRequests((s) => s.requestsRows) as RequestTableRow[]
@@ -20,6 +30,13 @@ export default function RequestsDashboardPage() {
   const getRequests = useStoreRequests((s) => s.getRequests)
   const goToPage = useStoreRequests((s) => s.goToPage)
   const clearStatus = useStoreRequests((s) => s.clearStatus)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedDetailName, setSelectedDetailName] = useState('')
+  const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
+  const [actionsMessage, setActionsMessage] = useState('')
+  const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -30,10 +47,64 @@ export default function RequestsDashboardPage() {
     void getRequests()
   }, [getRequests])
 
-  const renderCell = (row: TableRow, value: ReactNode, columnIndex: number) => {
+  useEffect(() => {
+    const closeActions = () => setOpenActionsRowId(null)
+    window.addEventListener('click', closeActions)
+    return () => window.removeEventListener('click', closeActions)
+  }, [])
+
+  const handleViewDetail = (row: RequestTableRow) => {
+    setSelectedDetailName(String(row.values[REQUEST_NAME_COLUMN_INDEX] ?? 'Solicitud'))
+    setDetailOpen(true)
+  }
+
+  const handleCloseDetail = () => {
+    setDetailOpen(false)
+    setSelectedDetailName('')
+  }
+
+  const handleApproveRequest = (row: RequestTableRow) => {
+    setActionsMessage(`${row.values[REQUEST_NAME_COLUMN_INDEX]}: ${messages.requests.ui.approveRequestComingSoon}`)
+    setOpenActionsRowId(null)
+  }
+
+  const handleRejectRequest = (row: RequestTableRow) => {
+    setActionsMessage(`${row.values[REQUEST_NAME_COLUMN_INDEX]}: ${messages.requests.ui.rejectRequestComingSoon}`)
+    setOpenActionsRowId(null)
+  }
+
+  const resolveRowActions = (row: RequestTableRow): DropdownAction[] => [
+    actionViewDetail(() => handleViewDetail(row)),
+    actionApproveRequest(() => handleApproveRequest(row)),
+    actionRejectRequest(() => handleRejectRequest(row)),
+  ]
+
+  const renderCell = (row: TableRow, value: ReactNode, columnIndex: number, rowIndex: number) => {
     const requestRow = row as RequestTableRow
+    if (columnIndex === REQUEST_NAME_COLUMN_INDEX) {
+      return (
+        <button
+          type="button"
+          className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
+          onClick={() => handleViewDetail(requestRow)}
+        >
+          {value}
+        </button>
+      )
+    }
     if (columnIndex === REQUEST_STATUS_COLUMN_INDEX) {
       return <EmployeeApprovalStatusBadgeComponent statusName={requestRow.statusName} />
+    }
+    if (columnIndex === ACTIONS_COLUMN_INDEX) {
+      const openDirection = requestsRows.length > 2 && rowIndex >= requestsRows.length - 2 ? 'up' : 'down'
+      return (
+        <ActionsDropdownComponent
+          open={openActionsRowId === row.id}
+          actions={resolveRowActions(requestRow)}
+          openDirection={openDirection}
+          onToggle={() => setOpenActionsRowId((id) => (id === row.id ? null : row.id))}
+        />
+      )
     }
 
     return <span>{value}</span>
@@ -60,6 +131,41 @@ export default function RequestsDashboardPage() {
         />
       )}
 
+      <form
+        className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
+        onSubmit={(event) => {
+          event.preventDefault()
+          void getRequests()
+        }}
+      >
+        <div className="flex items-center gap-2 md:col-start-1 md:row-start-1">
+          <ButtonComponent
+            type="button"
+            variant="outline"
+            disabled={loadingRequests}
+            label="Filtro"
+            onClick={() => setFiltersOpen(true)}
+          />
+          <div className="min-w-0 flex-1">
+            <InputComponent
+              value={searchValue}
+              type="text"
+              placeholder="Buscar por identificacion, nombre o tipo de solicitud"
+              onValueChange={setSearchValue}
+            />
+          </div>
+        </div>
+        <div className="flex items-center gap-2 md:col-start-2 md:row-start-1 md:justify-end">
+          <ButtonComponent
+            type="submit"
+            variant="primary"
+            disabled={loadingRequests}
+            className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
+            label={loadingRequests ? 'Buscando...' : 'Buscar'}
+          />
+        </div>
+      </form>
+
       <TableComponent
         columns={requestsTableColumns}
         rows={requestsRows}
@@ -67,6 +173,14 @@ export default function RequestsDashboardPage() {
         emptyMessage="No hay solicitudes registradas."
         renderCell={renderCell}
       />
+
+      {actionsMessage && (
+        <AlertMessageComponent
+          message={actionsMessage}
+          tone="info"
+          onClose={() => setActionsMessage('')}
+        />
+      )}
 
       <div className="flex justify-end">
         <PaginationComponent
@@ -78,6 +192,20 @@ export default function RequestsDashboardPage() {
           onPageChange={(page) => goToPage(page - 1)}
         />
       </div>
+
+      <RightSidebarComponent
+        open={filtersOpen}
+        title="Filtros"
+        onClose={() => setFiltersOpen(false)}
+      >
+        <p className="text-sm text-slate-500 dark:text-slate-400">Sin filtros disponibles por ahora.</p>
+      </RightSidebarComponent>
+
+      <DetailSidebarComponent
+        open={detailOpen}
+        title={selectedDetailName ? `Detalle de ${selectedDetailName}` : 'Detalle de solicitud'}
+        onClose={handleCloseDetail}
+      />
     </section>
   )
 }

@@ -10,6 +10,7 @@ export const requestsTableColumns: string[] = [
   'Fecha aprobacion',
   'Creado',
   'Actualizado',
+  'Acciones',
 ]
 
 export const initialRequestsRows: RequestTableRow[] = []

@@ -32,6 +32,7 @@ export function mapperRequestsRows(response: HrRequestRaw[]): RequestTableRow[] 
       resolveApprovalDateLabel(item),
       formatDate(item.createdAt),
       formatDate(item.updatedAt),
+      '',
     ],
   }))
 }

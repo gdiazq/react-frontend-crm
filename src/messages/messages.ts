@@ -205,6 +205,11 @@ export default {
       requireApprovalNo: 'No',
       unassignedApprover: 'Sin asignar',
       noApprovalDate: 'Sin aprobacion',
+      actionViewDetail: 'Ver detalle',
+      actionApproveRequest: 'Aprobar solicitud',
+      actionRejectRequest: 'Rechazar solicitud',
+      approveRequestComingSoon: 'Aprobacion de solicitud disponible proximamente.',
+      rejectRequestComingSoon: 'Rechazo de solicitud disponible proximamente.',
     },
     status: {
       success: {},
