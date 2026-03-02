@@ -16,6 +16,7 @@ const HomePage = lazy(() => import('@/pages/frontpage/HomePage'))
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'))
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'))
 const UsersDashboardPage = lazy(() => import('@/pages/users/UsersDashboardPage'))
+const RequestsDashboardPage = lazy(() => import('@/pages/requests/RequestsDashboardPage'))
 const EmployeesDashboardPage = lazy(() => import('@/pages/employees/EmployeesDashboardPage'))
 const EmployeesFormDashboardPage = lazy(() => import('@/pages/employees/EmployeesFormDashboardPage'))
 const UsersFormDashboardPage = lazy(() => import('@/pages/users/UsersFormDashboardPage'))
@@ -119,6 +120,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="USER" permissionType="canRead">
             <UsersDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/requests',
+        element: (
+          <ProtectedRoute requiresPermissions module="HR_REQUEST" permissionType="canRead">
+            <RequestsDashboardPage />
           </ProtectedRoute>
         ),
       },

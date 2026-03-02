@@ -5,6 +5,7 @@ import {
   AUTH_ROUTE_EMPLOYEES,
   AUTH_ROUTE_LOGIN,
   AUTH_ROUTE_LOGOUT,
+  AUTH_ROUTE_REQUESTS,
   AUTH_ROUTE_ROLES,
   AUTH_ROUTE_SETTINGS,
   AUTH_ROUTE_USERS,
@@ -38,6 +39,7 @@ export default function LayoutPrivateDefault() {
   const disconnectRef = useRef(disconnect)
   disconnectRef.current = disconnect
   const canReadUsers = hasPermission('USER', 'canRead')
+  const canReadRequests = hasPermission('HR_REQUEST', 'canRead')
   const canReadEmployees = hasPermission('EMPLOYEE', 'canRead')
   const canReadRoles = hasPermission('ROLE', 'canRead')
 
@@ -82,6 +84,16 @@ export default function LayoutPrivateDefault() {
       return
     }
     navigate(AUTH_ROUTE_USERS)
+  }
+
+  const handleGoRequests = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    if (!canReadRequests) {
+      navigate('/unauthorized')
+      return
+    }
+    navigate(AUTH_ROUTE_REQUESTS)
   }
 
   const handleGoRoles = () => {
@@ -159,12 +171,14 @@ export default function LayoutPrivateDefault() {
         mobileOpen={mobileSidebarOpen}
         collapsed={sidebarCollapsed}
         showUsers={canReadUsers}
+        showRequests={canReadRequests}
         showEmployees={canReadEmployees}
         showRoles={canReadRoles}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         onToggleDesktopCollapse={() => setSidebarCollapsed((v) => !v)}
         onGoDashboard={handleGoDashboard}
         onGoUsers={handleGoUsers}
+        onGoRequests={handleGoRequests}
         onGoEmployees={handleGoEmployees}
         onGoRoles={handleGoRoles}
         onGoLogout={handleGoLogout}

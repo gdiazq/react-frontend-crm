@@ -45,6 +45,11 @@ export {
   mapperRolesQueryParams,
 } from './roles/roles.mapper'
 export {
+  mapperRequestsRows,
+  mapperRequestsPagination,
+  mapperRequestsQueryParams,
+} from './requests/requests.mapper'
+export {
   mapperArchiveNotification,
   mapperMarkAsNotRead,
   mapperMarkAsRead,

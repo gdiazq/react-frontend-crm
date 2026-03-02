@@ -199,6 +199,20 @@ export default {
       },
     },
   },
+  requests: {
+    ui: {
+      requireApprovalYes: 'Si',
+      requireApprovalNo: 'No',
+      unassignedApprover: 'Sin asignar',
+      noApprovalDate: 'Sin aprobacion',
+    },
+    status: {
+      success: {},
+      errors: {
+        loadError: 'No se pudo cargar la lista de solicitudes.',
+      },
+    },
+  },
   roles: {
     ui: {
       statusEnabled: 'Habilitado',
