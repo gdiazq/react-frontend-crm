@@ -11,5 +11,9 @@ export const requestsService = {
     return data
   },
 
+  approveRequest: async (requestId: number) => {
+    await axiosInstance.put(`/rrhh/hr-request/${requestId}/approve`)
+  },
+
   isAxiosError: axios.isAxiosError,
 }

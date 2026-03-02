@@ -5,11 +5,13 @@ export interface RequestsStore {
   pagination: RequestsPagination
   queryParams: RequestsQueryParams
   loadingRequests: boolean
+  loadingApproveRequest: boolean
   errorMessage: string | null
   errorBack: unknown | null
   getRequests: () => Promise<void>
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
+  mutationApproveRequest: (requestId: string) => Promise<boolean>
   clearStatus: () => void
 }

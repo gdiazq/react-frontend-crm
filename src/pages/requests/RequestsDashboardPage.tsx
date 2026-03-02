@@ -8,6 +8,7 @@ import {
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
+  SaveConfirmComponent,
   StatsOverviewCardsComponent,
   TableComponent,
 } from '@/components'
@@ -26,15 +27,19 @@ export default function RequestsDashboardPage() {
   const requestsRows = useStoreRequests((s) => s.requestsRows) as RequestTableRow[]
   const pagination = useStoreRequests((s) => s.pagination)
   const loadingRequests = useStoreRequests((s) => s.loadingRequests)
+  const loadingApproveRequest = useStoreRequests((s) => s.loadingApproveRequest)
   const errorMessage = useStoreRequests((s) => s.errorMessage)
   const getRequests = useStoreRequests((s) => s.getRequests)
   const goToPage = useStoreRequests((s) => s.goToPage)
+  const mutationApproveRequest = useStoreRequests((s) => s.mutationApproveRequest)
   const clearStatus = useStoreRequests((s) => s.clearStatus)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
+  const [confirmApproveOpen, setConfirmApproveOpen] = useState(false)
+  const [pendingApproveRow, setPendingApproveRow] = useState<RequestTableRow | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
   const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
 
@@ -64,7 +69,8 @@ export default function RequestsDashboardPage() {
   }
 
   const handleApproveRequest = (row: RequestTableRow) => {
-    setActionsMessage(`${row.values[REQUEST_NAME_COLUMN_INDEX]}: ${messages.requests.ui.approveRequestComingSoon}`)
+    setPendingApproveRow(row)
+    setConfirmApproveOpen(true)
     setOpenActionsRowId(null)
   }
 
@@ -78,6 +84,29 @@ export default function RequestsDashboardPage() {
     actionApproveRequest(() => handleApproveRequest(row)),
     actionRejectRequest(() => handleRejectRequest(row)),
   ]
+
+  const handleConfirmApproveRequest = async () => {
+    if (!pendingApproveRow || loadingApproveRequest) return
+
+    const success = await mutationApproveRequest(pendingApproveRow.id)
+    if (success) {
+      const requestName = pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]
+      setConfirmApproveOpen(false)
+      setPendingApproveRow(null)
+      await getRequests()
+      setActionsMessage(`${requestName}: ${messages.requests.status.success.approveSuccess}`)
+    }
+  }
+
+  const handleCloseConfirmApprove = () => {
+    if (loadingApproveRequest) return
+    setConfirmApproveOpen(false)
+    setPendingApproveRow(null)
+  }
+
+  const confirmApproveMessage = pendingApproveRow
+    ? `¿Seguro que deseas aprobar la solicitud de ${pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]}?`
+    : ''
 
   const renderCell = (row: TableRow, value: ReactNode, columnIndex: number, rowIndex: number) => {
     const requestRow = row as RequestTableRow
@@ -205,6 +234,17 @@ export default function RequestsDashboardPage() {
         open={detailOpen}
         title={selectedDetailName ? `Detalle de ${selectedDetailName}` : 'Detalle de solicitud'}
         onClose={handleCloseDetail}
+      />
+
+      <SaveConfirmComponent
+        open={confirmApproveOpen}
+        title="Confirmar aprobacion"
+        message={confirmApproveMessage}
+        confirmLabel="Aprobar"
+        cancelLabel="Cancelar"
+        loading={loadingApproveRequest}
+        onClose={handleCloseConfirmApprove}
+        onConfirm={() => { void handleConfirmApproveRequest() }}
       />
     </section>
   )

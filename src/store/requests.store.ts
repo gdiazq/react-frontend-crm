@@ -17,6 +17,7 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => ({
   pagination: { ...initialRequestsPagination },
   queryParams: { ...initialRequestsQueryParams },
   loadingRequests: false,
+  loadingApproveRequest: false,
   errorMessage: null,
   errorBack: null,
 
@@ -62,6 +63,30 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => ({
   previousPage: async () => {
     if (get().pagination.first) return
     await get().goToPage(get().pagination.page - 1)
+  },
+
+  mutationApproveRequest: async (requestId: string) => {
+    const parsedRequestId = Number(requestId)
+    if (!Number.isInteger(parsedRequestId) || parsedRequestId <= 0) {
+      set({ errorMessage: messages.requests.status.errors.invalidRequestId })
+      return false
+    }
+
+    try {
+      set({ loadingApproveRequest: true, errorMessage: null, errorBack: null })
+      await requestsService.approveRequest(parsedRequestId)
+      return true
+    } catch (error) {
+      set({ errorBack: error })
+      if (requestsService.isAxiosError(error)) {
+        set({ errorMessage: error.response?.data?.message || messages.requests.status.errors.approveError })
+      } else {
+        set({ errorMessage: messages.requests.status.errors.approveError })
+      }
+      return false
+    } finally {
+      set({ loadingApproveRequest: false })
+    }
   },
 
   clearStatus: () => {
