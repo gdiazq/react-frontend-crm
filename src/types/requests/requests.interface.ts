@@ -11,8 +11,10 @@ export interface HrRequestRaw {
   statusName: string
   requireApproval: boolean
   approverId?: number | null
+  approverFullName?: string | null
   approvalDate?: string | null
   hhrrApproverId?: number | null
+  hhrrApproverFullName?: string | null
   hhrrApprovalDate?: string | null
   rejectionDetail?: string | null
   createdAt: string

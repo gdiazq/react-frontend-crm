@@ -6,16 +6,16 @@ import type {
   RequestsPagination,
   RequestsQueryParams,
 } from '@/types'
-import { formatDate, formatDateTime } from '@/utils'
+import { formatDate } from '@/utils'
 
 function resolveApproverLabel(item: HrRequestRaw): string {
-  const approverId = item.hhrrApproverId ?? item.approverId
-  return approverId ? String(approverId) : messages.requests.ui.unassignedApprover
+  const approverFullName = (item.hhrrApproverFullName ?? item.approverFullName ?? '').trim()
+  return approverFullName.length > 0 ? approverFullName : messages.requests.ui.unassignedApprover
 }
 
 function resolveApprovalDateLabel(item: HrRequestRaw): string {
   const approvalDate = item.hhrrApprovalDate ?? item.approvalDate
-  return approvalDate ? formatDateTime(approvalDate) : messages.requests.ui.noApprovalDate
+  return approvalDate ? formatDate(approvalDate) : messages.requests.ui.noApprovalDate
 }
 
 export function mapperRequestsRows(response: HrRequestRaw[]): RequestTableRow[] {
