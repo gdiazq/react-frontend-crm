@@ -17,6 +17,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
   pagination: { ...initialEmployeesPagination },
   queryParams: { ...initialEmployeesQueryParams },
   loadingEmployees: false,
+  loadingToggleStatus: false,
   createEmployeeSubmitting: false,
   errorMessage: null,
   createEmployeeErrorMessage: null,
@@ -93,6 +94,29 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
       queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
     }))
     await get().getEmployees()
+  },
+
+  mutationToggleEmployeeStatus: async (employeeId: string, nextStatus: boolean) => {
+    const parsedEmployeeId = Number(employeeId)
+    if (!Number.isInteger(parsedEmployeeId) || parsedEmployeeId <= 0) {
+      set({ errorMessage: messages.employees.status.errors.invalidStatusEmployeeId })
+      return false
+    }
+
+    try {
+      set({ loadingToggleStatus: true, errorMessage: null, errorBack: null })
+      await employeesService.toggleEmployeeStatus(parsedEmployeeId, nextStatus)
+      return true
+    } catch (error) {
+      if (employeesService.isAxiosError(error)) {
+        set({ errorMessage: error.response?.data?.message || messages.employees.status.errors.toggleStatusError })
+      } else {
+        set({ errorMessage: messages.employees.status.errors.toggleStatusError })
+      }
+      return false
+    } finally {
+      set({ loadingToggleStatus: false })
+    }
   },
 
   mutationCreateEmployee: async (payload) => {

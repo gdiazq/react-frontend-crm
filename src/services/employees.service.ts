@@ -16,5 +16,9 @@ export const employeesService = {
     return data
   },
 
+  toggleEmployeeStatus: async (employeeId: number, active: boolean) => {
+    await axiosInstance.put(`/rrhh/employee/${employeeId}/status`, { active })
+  },
+
   isAxiosError: axios.isAxiosError,
 }

@@ -23,7 +23,7 @@ export default function TableComponent({
               {columns.map((column, columnIndex) => (
                 <th
                   key={column}
-                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-200"
+                  className="px-4 py-3 text-left text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-200"
                 >
                   {isSortableColumn(columnIndex) ? (
                     <button

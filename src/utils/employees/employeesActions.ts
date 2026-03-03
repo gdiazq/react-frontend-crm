@@ -1,22 +1,16 @@
 import messages from '@/messages/messages'
-
-export interface EmployeeDropdownAction {
-  id: string
-  label: string
-  tone?: 'default' | 'danger'
-  handler: () => void
-}
+import type { DropdownAction } from '../users/usersActions'
 
 export function createEmployeesActions() {
-  function actionViewDetail(handler: () => void): EmployeeDropdownAction {
+  function actionViewDetail(handler: () => void): DropdownAction {
     return { id: 'view-detail', label: messages.employees.ui.actionViewDetail, handler }
   }
 
-  function actionUpdateEmployee(handler: () => void): EmployeeDropdownAction {
+  function actionUpdateEmployee(handler: () => void): DropdownAction {
     return { id: 'update-employee', label: messages.employees.ui.updateEmployee, handler }
   }
 
-  function actionToggleStatus(enabled: boolean, handler: () => void): EmployeeDropdownAction {
+  function actionToggleStatus(enabled: boolean, handler: () => void): DropdownAction {
     return {
       id: 'toggle-status',
       label: enabled ? messages.employees.ui.actionDisableEmployee : messages.employees.ui.actionEnableEmployee,

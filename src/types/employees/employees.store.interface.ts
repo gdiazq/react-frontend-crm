@@ -12,6 +12,7 @@ export interface EmployeesStore {
   pagination: EmployeesPagination
   queryParams: EmployeesQueryParams
   loadingEmployees: boolean
+  loadingToggleStatus: boolean
   createEmployeeSubmitting: boolean
   errorMessage: string | null
   createEmployeeErrorMessage: string | null
@@ -26,6 +27,7 @@ export interface EmployeesStore {
   clearActiveFilter: () => void
   searchEmployees: () => Promise<void>
   sortEmployees: (sortBy: EmployeesSortBy, sortDir: EmployeesSortDir) => Promise<void>
+  mutationToggleEmployeeStatus: (employeeId: string, nextStatus: boolean) => Promise<boolean>
   mutationCreateEmployee: (payload: EmployeeCreatePayload) => Promise<boolean>
   clearCreateEmployeeStatus: () => void
   clearStatus: () => void

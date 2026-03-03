@@ -189,6 +189,8 @@ export default {
     status: {
       success: {
         createEmployeeSuccess: 'Trabajador creado correctamente.',
+        toggleEnabledSuccess: 'habilitado correctamente.',
+        toggleDisabledSuccess: 'deshabilitado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de trabajadores.',
@@ -196,6 +198,8 @@ export default {
         loadFormOptionsError: 'No se pudieron cargar las opciones del formulario.',
         loadCommuneOptionsError: 'No se pudieron cargar las comunas.',
         loadCityOptionsError: 'No se pudieron cargar las ciudades.',
+        toggleStatusError: 'No se pudo actualizar el estado del trabajador.',
+        invalidStatusEmployeeId: 'Id de trabajador invalido para actualizar estado.',
       },
     },
   },
