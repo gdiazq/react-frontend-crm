@@ -23,15 +23,19 @@ const REQUEST_STATUS_COLUMN_INDEX = 3
 const REQUEST_NAME_COLUMN_INDEX = 1
 const ACTIONS_COLUMN_INDEX = requestsTableColumns.length - 1
 
+const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
+
 export default function RequestsDashboardPage() {
   const requestsRows = useStoreRequests((s) => s.requestsRows) as RequestTableRow[]
   const pagination = useStoreRequests((s) => s.pagination)
   const loadingRequests = useStoreRequests((s) => s.loadingRequests)
   const loadingApproveRequest = useStoreRequests((s) => s.loadingApproveRequest)
+  const loadingRejectRequest = useStoreRequests((s) => s.loadingRejectRequest)
   const errorMessage = useStoreRequests((s) => s.errorMessage)
   const getRequests = useStoreRequests((s) => s.getRequests)
   const goToPage = useStoreRequests((s) => s.goToPage)
   const mutationApproveRequest = useStoreRequests((s) => s.mutationApproveRequest)
+  const mutationRejectRequest = useStoreRequests((s) => s.mutationRejectRequest)
   const clearStatus = useStoreRequests((s) => s.clearStatus)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
@@ -40,6 +44,9 @@ export default function RequestsDashboardPage() {
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [confirmApproveOpen, setConfirmApproveOpen] = useState(false)
   const [pendingApproveRow, setPendingApproveRow] = useState<RequestTableRow | null>(null)
+  const [confirmRejectOpen, setConfirmRejectOpen] = useState(false)
+  const [pendingRejectRow, setPendingRejectRow] = useState<RequestTableRow | null>(null)
+  const [rejectDetail, setRejectDetail] = useState('')
   const [actionsMessage, setActionsMessage] = useState('')
   const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
 
@@ -75,15 +82,20 @@ export default function RequestsDashboardPage() {
   }
 
   const handleRejectRequest = (row: RequestTableRow) => {
-    setActionsMessage(`${row.values[REQUEST_NAME_COLUMN_INDEX]}: ${messages.requests.ui.rejectRequestComingSoon}`)
+    setPendingRejectRow(row)
+    setRejectDetail('')
+    setConfirmRejectOpen(true)
     setOpenActionsRowId(null)
   }
 
-  const resolveRowActions = (row: RequestTableRow): DropdownAction[] => [
-    actionViewDetail(() => handleViewDetail(row)),
-    actionApproveRequest(() => handleApproveRequest(row)),
-    actionRejectRequest(() => handleRejectRequest(row)),
-  ]
+  const resolveRowActions = (row: RequestTableRow): DropdownAction[] => {
+    const actions: DropdownAction[] = [actionViewDetail(() => handleViewDetail(row))]
+    if (!FINAL_REQUEST_STATUS_IDS.has(row.statusId)) {
+      actions.push(actionApproveRequest(() => handleApproveRequest(row)))
+      actions.push(actionRejectRequest(() => handleRejectRequest(row)))
+    }
+    return actions
+  }
 
   const handleConfirmApproveRequest = async () => {
     if (!pendingApproveRow || loadingApproveRequest) return
@@ -102,6 +114,27 @@ export default function RequestsDashboardPage() {
     if (loadingApproveRequest) return
     setConfirmApproveOpen(false)
     setPendingApproveRow(null)
+  }
+
+  const handleConfirmRejectRequest = async () => {
+    if (!pendingRejectRow || loadingRejectRequest) return
+
+    const success = await mutationRejectRequest(pendingRejectRow.id, rejectDetail.trim())
+    if (success) {
+      const requestName = pendingRejectRow.values[REQUEST_NAME_COLUMN_INDEX]
+      setConfirmRejectOpen(false)
+      setPendingRejectRow(null)
+      setRejectDetail('')
+      await getRequests()
+      setActionsMessage(`${requestName}: ${messages.requests.status.success.rejectSuccess}`)
+    }
+  }
+
+  const handleCloseConfirmReject = () => {
+    if (loadingRejectRequest) return
+    setConfirmRejectOpen(false)
+    setPendingRejectRow(null)
+    setRejectDetail('')
   }
 
   const confirmApproveMessage = pendingApproveRow
@@ -171,7 +204,7 @@ export default function RequestsDashboardPage() {
           <ButtonComponent
             type="button"
             variant="outline"
-            disabled={loadingRequests}
+            disabled={loadingRequests || loadingApproveRequest || loadingRejectRequest}
             label="Filtro"
             onClick={() => setFiltersOpen(true)}
           />
@@ -188,7 +221,7 @@ export default function RequestsDashboardPage() {
           <ButtonComponent
             type="submit"
             variant="primary"
-            disabled={loadingRequests}
+            disabled={loadingRequests || loadingApproveRequest || loadingRejectRequest}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loadingRequests ? 'Buscando...' : 'Buscar'}
           />
@@ -217,7 +250,7 @@ export default function RequestsDashboardPage() {
           totalPages={totalPages}
           totalItems={totalItems}
           pageSize={pageSize}
-          loading={loadingRequests}
+          loading={loadingRequests || loadingApproveRequest || loadingRejectRequest}
           onPageChange={(page) => goToPage(page - 1)}
         />
       </div>
@@ -246,6 +279,31 @@ export default function RequestsDashboardPage() {
         onClose={handleCloseConfirmApprove}
         onConfirm={() => { void handleConfirmApproveRequest() }}
       />
+
+      <SaveConfirmComponent
+        open={confirmRejectOpen}
+        title="Confirmar rechazo"
+        message={pendingRejectRow ? `¿Seguro que deseas rechazar la solicitud de ${pendingRejectRow.values[REQUEST_NAME_COLUMN_INDEX]}?` : ''}
+        confirmLabel="Rechazar"
+        cancelLabel="Cancelar"
+        loading={loadingRejectRequest}
+        confirmDisabled={rejectDetail.trim().length === 0}
+        onClose={handleCloseConfirmReject}
+        onConfirm={() => { void handleConfirmRejectRequest() }}
+      >
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            {messages.requests.ui.rejectRequestReasonLabel}
+          </label>
+          <textarea
+            value={rejectDetail}
+            rows={4}
+            placeholder={messages.requests.ui.rejectRequestReasonPlaceholder}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-400 focus:ring-offset-1 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+            onChange={(event) => setRejectDetail(event.target.value)}
+          />
+        </div>
+      </SaveConfirmComponent>
     </section>
   )
 }

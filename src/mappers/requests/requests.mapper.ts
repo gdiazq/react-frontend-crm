@@ -21,6 +21,7 @@ function resolveApprovalDateLabel(item: HrRequestRaw): string {
 export function mapperRequestsRows(response: HrRequestRaw[]): RequestTableRow[] {
   return response.map((item) => ({
     id: String(item.id),
+    statusId: item.statusId,
     statusName: item.statusName,
     values: [
       item.identification,

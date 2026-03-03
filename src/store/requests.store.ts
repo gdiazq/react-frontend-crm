@@ -18,6 +18,7 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => ({
   queryParams: { ...initialRequestsQueryParams },
   loadingRequests: false,
   loadingApproveRequest: false,
+  loadingRejectRequest: false,
   errorMessage: null,
   errorBack: null,
 
@@ -86,6 +87,36 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => ({
       return false
     } finally {
       set({ loadingApproveRequest: false })
+    }
+  },
+
+  mutationRejectRequest: async (requestId: string, rejectionDetail: string) => {
+    const parsedRequestId = Number(requestId)
+    if (!Number.isInteger(parsedRequestId) || parsedRequestId <= 0) {
+      set({ errorMessage: messages.requests.status.errors.invalidRequestId })
+      return false
+    }
+
+    const normalizedRejectionDetail = rejectionDetail.trim()
+    if (normalizedRejectionDetail.length === 0) {
+      set({ errorMessage: messages.requests.status.errors.rejectDetailRequired })
+      return false
+    }
+
+    try {
+      set({ loadingRejectRequest: true, errorMessage: null, errorBack: null })
+      await requestsService.rejectRequest(parsedRequestId, normalizedRejectionDetail)
+      return true
+    } catch (error) {
+      set({ errorBack: error })
+      if (requestsService.isAxiosError(error)) {
+        set({ errorMessage: error.response?.data?.message || messages.requests.status.errors.rejectError })
+      } else {
+        set({ errorMessage: messages.requests.status.errors.rejectError })
+      }
+      return false
+    } finally {
+      set({ loadingRejectRequest: false })
     }
   },
 

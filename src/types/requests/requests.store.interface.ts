@@ -6,6 +6,7 @@ export interface RequestsStore {
   queryParams: RequestsQueryParams
   loadingRequests: boolean
   loadingApproveRequest: boolean
+  loadingRejectRequest: boolean
   errorMessage: string | null
   errorBack: unknown | null
   getRequests: () => Promise<void>
@@ -13,5 +14,6 @@ export interface RequestsStore {
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
   mutationApproveRequest: (requestId: string) => Promise<boolean>
+  mutationRejectRequest: (requestId: string, rejectionDetail: string) => Promise<boolean>
   clearStatus: () => void
 }

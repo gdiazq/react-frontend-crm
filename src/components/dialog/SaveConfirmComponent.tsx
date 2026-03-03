@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import ButtonComponent from '@/components/ui/button/ButtonComponent'
 
 interface SaveConfirmComponentProps {
@@ -7,6 +8,8 @@ interface SaveConfirmComponentProps {
   confirmLabel?: string
   cancelLabel?: string
   loading?: boolean
+  confirmDisabled?: boolean
+  children?: ReactNode
   onClose: () => void
   onConfirm: () => void
 }
@@ -18,6 +21,8 @@ export default function SaveConfirmComponent({
   confirmLabel = 'Confirmar',
   cancelLabel = 'Cancelar',
   loading = false,
+  confirmDisabled = false,
+  children,
   onClose,
   onConfirm,
 }: SaveConfirmComponentProps) {
@@ -33,6 +38,7 @@ export default function SaveConfirmComponent({
       <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-white/10 dark:bg-slate-900">
         <h3 className="text-lg font-semibold">{title}</h3>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{message}</p>
+        {children && <div className="mt-4">{children}</div>}
 
         <div className="mt-5 flex justify-end gap-2">
           <ButtonComponent
@@ -46,7 +52,7 @@ export default function SaveConfirmComponent({
           <ButtonComponent
             type="button"
             variant="danger"
-            disabled={loading}
+            disabled={loading || confirmDisabled}
             onClick={onConfirm}
           >
             {loading ? 'Guardando...' : confirmLabel}

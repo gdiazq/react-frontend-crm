@@ -38,6 +38,7 @@ export interface RequestsQueryParams {
 
 export interface RequestTableRow {
   id: string
+  statusId: number
   statusName: string
   values: string[]
 }

@@ -208,16 +208,20 @@ export default {
       actionViewDetail: 'Ver detalle',
       actionApproveRequest: 'Aprobar solicitud',
       actionRejectRequest: 'Rechazar solicitud',
-      rejectRequestComingSoon: 'Rechazo de solicitud disponible proximamente.',
+      rejectRequestReasonLabel: 'Detalle de rechazo',
+      rejectRequestReasonPlaceholder: 'Ingresa el motivo del rechazo',
     },
     status: {
       success: {
         approveSuccess: 'Solicitud aprobada correctamente.',
+        rejectSuccess: 'Solicitud rechazada correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de solicitudes.',
         invalidRequestId: 'Id de solicitud invalido.',
         approveError: 'No se pudo aprobar la solicitud.',
+        rejectError: 'No se pudo rechazar la solicitud.',
+        rejectDetailRequired: 'Ingresa un motivo para rechazar la solicitud.',
       },
     },
   },
