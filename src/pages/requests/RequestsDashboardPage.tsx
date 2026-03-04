@@ -206,9 +206,12 @@ export default function RequestsDashboardPage() {
 
       <StatsOverviewCardsComponent
         totalLabel="Total solicitudes"
-        activeLabel="Solicitudes en pagina"
-        total={pagination.totalElements}
-        active={pagination.numberOfElements}
+        activeLabel="Solicitudes aprobadas"
+        pendingLabel="Solicitudes pendientes"
+        total={pagination.total}
+        active={pagination.active}
+        pending={pagination.pending}
+        showRatios={false}
       />
 
       {errorMessage && (

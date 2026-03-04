@@ -26,6 +26,9 @@ export interface RequestsPagination {
   size: number
   totalElements: number
   totalPages: number
+  total: number
+  active: number
+  pending: number
   numberOfElements: number
   first: boolean
   last: boolean
@@ -45,6 +48,7 @@ export interface RequestTableRow {
 
 export interface RequestPagedResponse {
   content: HrRequestRaw[]
+  page?: number
   pageable?: {
     pageNumber?: number
     pageSize?: number
@@ -56,4 +60,7 @@ export interface RequestPagedResponse {
   numberOfElements?: number
   size?: number
   number?: number
+  total?: number
+  active?: number
+  pending?: number
 }

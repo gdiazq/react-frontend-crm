@@ -39,10 +39,13 @@ export function mapperRequestsRows(response: HrRequestRaw[]): RequestTableRow[] 
 }
 
 export function mapperRequestsPagination(response: RequestPagedResponse): RequestsPagination {
-  const page = response.number ?? response.pageable?.pageNumber ?? 0
+  const page = response.page ?? response.number ?? response.pageable?.pageNumber ?? 0
   const size = response.size ?? response.pageable?.pageSize ?? 8
-  const totalElements = response.totalElements ?? 0
+  const totalElements = response.totalElements ?? response.total ?? 0
   const totalPages = response.totalPages ?? 0
+  const total = response.total ?? totalElements
+  const active = response.active ?? 0
+  const pending = response.pending ?? 0
   const numberOfElements = response.numberOfElements ?? response.content.length
   const first = response.first ?? page === 0
   const last = response.last ?? page >= totalPages - 1
@@ -52,6 +55,9 @@ export function mapperRequestsPagination(response: RequestPagedResponse): Reques
     size,
     totalElements,
     totalPages,
+    total,
+    active,
+    pending,
     numberOfElements,
     first,
     last,
