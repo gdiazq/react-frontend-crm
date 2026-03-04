@@ -20,9 +20,10 @@ import {
 import type { TableRow, TableSortState } from '@/components'
 import { employeesTableColumns } from '@/factories'
 import messages from '@/messages/messages'
+import { employeesService } from '@/services'
 import { useStoreAuth, useStoreEmployees, useStoreSelects } from '@/store'
 import type { EmployeeTableRow, EmployeesSortBy } from '@/types'
-import { createEmployeesActions } from '@/utils'
+import { createEmployeesActions, downloadBlobFile } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const EMPLOYEE_ACTIVE_COLUMN_INDEX = 6
@@ -77,6 +78,7 @@ export default function EmployeesDashboardPage() {
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<EmployeeTableRow | null>(null)
+  const [downloadingReport, setDownloadingReport] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')
   const { actionViewDetail, actionUpdateEmployee, actionToggleStatus } = createEmployeesActions()
 
@@ -220,8 +222,23 @@ export default function EmployeesDashboardPage() {
     setPendingToggleRow(null)
   }
 
-  const handleDownloadReport = () => {
-    setActionsMessage('Descarga de reporte disponible proximamente.')
+  const handleDownloadReport = async () => {
+    if (downloadingReport) return
+
+    try {
+      setDownloadingReport(true)
+      const csvBlob = await employeesService.exportEmployeesCsv()
+      downloadBlobFile(csvBlob, 'employees.csv')
+      setActionsMessage('Reporte descargado correctamente.')
+    } catch (error) {
+      if (employeesService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
+      } else {
+        setActionsMessage('No se pudo descargar el reporte.')
+      }
+    } finally {
+      setDownloadingReport(false)
+    }
   }
 
   const handleBulkUpload = () => {
@@ -303,8 +320,8 @@ export default function EmployeesDashboardPage() {
             onClick={() => navigate(AUTH_ROUTE_EMPLOYEES_CREATE)}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingEmployees || loadingToggleStatus}
-            onDownloadReport={handleDownloadReport}
+            disabled={loadingEmployees || loadingToggleStatus || downloadingReport}
+            onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
           />
         </div>

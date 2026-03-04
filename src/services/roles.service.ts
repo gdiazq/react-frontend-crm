@@ -40,5 +40,12 @@ export const rolesService = {
     await axiosInstance.put(`/role/${roleId}/status`, { status })
   },
 
+  exportRolesCsv: async () => {
+    const { data } = await axiosInstance.get<Blob>('/role/export/csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
+
   isAxiosError: axios.isAxiosError,
 }

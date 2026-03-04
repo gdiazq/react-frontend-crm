@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 
 interface ToolbarActionsDropdownComponentProps {
   disabled?: boolean
+  showBulkUpload?: boolean
   onDownloadReport: () => void
   onBulkUpload: () => void
 }
 
 export default function ToolbarActionsDropdownComponent({
   disabled = false,
+  showBulkUpload = true,
   onDownloadReport,
   onBulkUpload,
 }: ToolbarActionsDropdownComponentProps) {
@@ -54,16 +56,18 @@ export default function ToolbarActionsDropdownComponent({
           >
             Descargar reporte
           </button>
-          <button
-            type="button"
-            className="flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-            onClick={() => {
-              onBulkUpload()
-              setOpen(false)
-            }}
-          >
-            Carga masiva
-          </button>
+          {showBulkUpload && (
+            <button
+              type="button"
+              className="flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+              onClick={() => {
+                onBulkUpload()
+                setOpen(false)
+              }}
+            >
+              Carga masiva
+            </button>
+          )}
         </div>
       )}
     </div>

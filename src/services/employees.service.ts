@@ -20,5 +20,12 @@ export const employeesService = {
     await axiosInstance.put(`/rrhh/employee/${employeeId}/status`, { active })
   },
 
+  exportEmployeesCsv: async () => {
+    const { data } = await axiosInstance.get<Blob>('/rrhh/employee/export/csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
+
   isAxiosError: axios.isAxiosError,
 }

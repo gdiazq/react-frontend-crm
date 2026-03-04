@@ -19,5 +19,12 @@ export const requestsService = {
     await axiosInstance.put(`/rrhh/hr-request/${requestId}/reject`, { rejectionDetail })
   },
 
+  exportRequestsCsv: async () => {
+    const { data } = await axiosInstance.get<Blob>('/rrhh/hr-request/export/csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
+
   isAxiosError: axios.isAxiosError,
 }

@@ -15,8 +15,9 @@ import {
 } from '@/components'
 import { requestsTableColumns } from '@/factories'
 import messages from '@/messages/messages'
+import { requestsService } from '@/services'
 import { useStoreRequests } from '@/store'
-import { createRequestsActions } from '@/utils'
+import { createRequestsActions, downloadBlobFile } from '@/utils'
 import type { RequestTableRow, TableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
 
@@ -48,6 +49,7 @@ export default function RequestsDashboardPage() {
   const [confirmRejectOpen, setConfirmRejectOpen] = useState(false)
   const [pendingRejectRow, setPendingRejectRow] = useState<RequestTableRow | null>(null)
   const [rejectDetail, setRejectDetail] = useState('')
+  const [downloadingReport, setDownloadingReport] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')
   const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
 
@@ -138,8 +140,23 @@ export default function RequestsDashboardPage() {
     setRejectDetail('')
   }
 
-  const handleDownloadReport = () => {
-    setActionsMessage('Descarga de reporte disponible proximamente.')
+  const handleDownloadReport = async () => {
+    if (downloadingReport) return
+
+    try {
+      setDownloadingReport(true)
+      const csvBlob = await requestsService.exportRequestsCsv()
+      downloadBlobFile(csvBlob, 'hr-requests.csv')
+      setActionsMessage('Reporte descargado correctamente.')
+    } catch (error) {
+      if (requestsService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
+      } else {
+        setActionsMessage('No se pudo descargar el reporte.')
+      }
+    } finally {
+      setDownloadingReport(false)
+    }
   }
 
   const handleBulkUpload = () => {
@@ -235,8 +252,9 @@ export default function RequestsDashboardPage() {
             label={loadingRequests ? 'Buscando...' : 'Buscar'}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingRequests || loadingApproveRequest || loadingRejectRequest}
-            onDownloadReport={handleDownloadReport}
+            disabled={loadingRequests || loadingApproveRequest || loadingRejectRequest || downloadingReport}
+            showBulkUpload={false}
+            onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
           />
         </div>

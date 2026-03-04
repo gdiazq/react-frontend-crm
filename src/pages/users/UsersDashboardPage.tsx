@@ -21,8 +21,9 @@ import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns } from '@/factories'
 import { mapperUserDetailView } from '@/mappers'
 import messages from '@/messages/messages'
+import { usersService } from '@/services'
 import { useStoreAuth, useStoreSelects, useStoreUsers } from '@/store'
-import { createUsersActions } from '@/utils'
+import { createUsersActions, downloadBlobFile } from '@/utils'
 import type { UserTableRow, UsersSortBy } from '@/types'
 import type { DropdownAction } from '@/utils'
 
@@ -85,6 +86,7 @@ export default function UsersDashboardPage() {
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<UserTableRow | null>(null)
+  const [downloadingReport, setDownloadingReport] = useState(false)
   const [filters, setFilters] = useState({
     userNameId: '',
     userEmailId: '',
@@ -270,8 +272,23 @@ export default function UsersDashboardPage() {
     setPendingToggleRow(null)
   }
 
-  const handleDownloadReport = () => {
-    setActionsMessage('Descarga de reporte disponible proximamente.')
+  const handleDownloadReport = async () => {
+    if (downloadingReport) return
+
+    try {
+      setDownloadingReport(true)
+      const csvBlob = await usersService.exportUsersCsv()
+      downloadBlobFile(csvBlob, 'users.csv')
+      setActionsMessage('Reporte descargado correctamente.')
+    } catch (error) {
+      if (usersService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
+      } else {
+        setActionsMessage('No se pudo descargar el reporte.')
+      }
+    } finally {
+      setDownloadingReport(false)
+    }
   }
 
   const handleBulkUpload = () => {
@@ -354,8 +371,8 @@ export default function UsersDashboardPage() {
             onClick={() => navigate(AUTH_ROUTE_USERS_CREATE)}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingUsers || loadingToggleStatus}
-            onDownloadReport={handleDownloadReport}
+            disabled={loadingUsers || loadingToggleStatus || downloadingReport}
+            onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
           />
         </div>

@@ -36,5 +36,12 @@ export const usersService = {
     await axiosInstance.put(`/user/${userId}/status`, { status })
   },
 
+  exportUsersCsv: async () => {
+    const { data } = await axiosInstance.get<Blob>('/user/export/csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
+
   isAxiosError: axios.isAxiosError,
 }

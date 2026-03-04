@@ -23,8 +23,10 @@ import type { RoleTableRow, RolesSortBy } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
 import { rolesTableColumns } from '@/factories'
 import { mapperRoleDetailView } from '@/mappers'
+import { rolesService } from '@/services'
 import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
 import messages from '@/messages/messages'
+import { downloadBlobFile } from '@/utils'
 
 const ROLES_SORT_BY_COLUMN: Partial<Record<number, RolesSortBy>> = {
   0: 'name',
@@ -77,6 +79,7 @@ export default function RolesDashboardPage() {
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<RoleTableRow | null>(null)
+  const [downloadingReport, setDownloadingReport] = useState(false)
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -231,8 +234,23 @@ export default function RolesDashboardPage() {
     setPendingToggleRow(null)
   }
 
-  const handleDownloadReport = () => {
-    setActionsMessage('Descarga de reporte disponible proximamente.')
+  const handleDownloadReport = async () => {
+    if (downloadingReport) return
+
+    try {
+      setDownloadingReport(true)
+      const csvBlob = await rolesService.exportRolesCsv()
+      downloadBlobFile(csvBlob, 'roles.csv')
+      setActionsMessage('Reporte descargado correctamente.')
+    } catch (error) {
+      if (rolesService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
+      } else {
+        setActionsMessage('No se pudo descargar el reporte.')
+      }
+    } finally {
+      setDownloadingReport(false)
+    }
   }
 
   const handleBulkUpload = () => {
@@ -315,8 +333,8 @@ export default function RolesDashboardPage() {
             onClick={() => navigate(AUTH_ROUTE_ROLES_CREATE)}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingRoles || loadingToggleStatus}
-            onDownloadReport={handleDownloadReport}
+            disabled={loadingRoles || loadingToggleStatus || downloadingReport}
+            onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
           />
         </div>
