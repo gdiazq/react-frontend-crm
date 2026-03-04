@@ -49,7 +49,20 @@ export default function ActionsDropdownComponent({
         }}
       >
         <span className="sr-only">Abrir acciones</span>
-        <span className="text-base leading-none">...</span>
+        <svg
+          viewBox="0 0 24 24"
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="5" r="1.5" />
+          <circle cx="12" cy="12" r="1.5" />
+          <circle cx="12" cy="19" r="1.5" />
+        </svg>
       </button>
 
       {open && createPortal(

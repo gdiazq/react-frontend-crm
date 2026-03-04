@@ -15,6 +15,7 @@ import {
   StatsOverviewCardsComponent,
   StatusBadgeComponent,
   TableComponent,
+  ToolbarActionsDropdownComponent,
 } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { employeesTableColumns } from '@/factories'
@@ -219,6 +220,14 @@ export default function EmployeesDashboardPage() {
     setPendingToggleRow(null)
   }
 
+  const handleDownloadReport = () => {
+    setActionsMessage('Descarga de reporte disponible proximamente.')
+  }
+
+  const handleBulkUpload = () => {
+    setActionsMessage('Carga masiva disponible proximamente.')
+  }
+
   const confirmMessage = pendingToggleRow
     ? `¿Seguro que deseas ${pendingToggleRow.active === true ? 'deshabilitar' : 'habilitar'} al trabajador ${pendingToggleRow.values[EMPLOYEE_NAME_COLUMN_INDEX]}?`
     : ''
@@ -292,6 +301,11 @@ export default function EmployeesDashboardPage() {
             className="flex-1 text-white md:flex-none dark:text-white"
             label="Nuevo trabajador"
             onClick={() => navigate(AUTH_ROUTE_EMPLOYEES_CREATE)}
+          />
+          <ToolbarActionsDropdownComponent
+            disabled={loadingEmployees || loadingToggleStatus}
+            onDownloadReport={handleDownloadReport}
+            onBulkUpload={handleBulkUpload}
           />
         </div>
       </form>

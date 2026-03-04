@@ -11,6 +11,7 @@ import {
   SaveConfirmComponent,
   StatsOverviewCardsComponent,
   TableComponent,
+  ToolbarActionsDropdownComponent,
 } from '@/components'
 import { requestsTableColumns } from '@/factories'
 import messages from '@/messages/messages'
@@ -137,6 +138,14 @@ export default function RequestsDashboardPage() {
     setRejectDetail('')
   }
 
+  const handleDownloadReport = () => {
+    setActionsMessage('Descarga de reporte disponible proximamente.')
+  }
+
+  const handleBulkUpload = () => {
+    setActionsMessage('Carga masiva disponible proximamente.')
+  }
+
   const confirmApproveMessage = pendingApproveRow
     ? `¿Seguro que deseas aprobar la solicitud de ${pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]}?`
     : ''
@@ -224,6 +233,11 @@ export default function RequestsDashboardPage() {
             disabled={loadingRequests || loadingApproveRequest || loadingRejectRequest}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loadingRequests ? 'Buscando...' : 'Buscar'}
+          />
+          <ToolbarActionsDropdownComponent
+            disabled={loadingRequests || loadingApproveRequest || loadingRejectRequest}
+            onDownloadReport={handleDownloadReport}
+            onBulkUpload={handleBulkUpload}
           />
         </div>
       </form>

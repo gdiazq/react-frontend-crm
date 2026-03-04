@@ -13,6 +13,7 @@ export { default as PaginationComponent } from './ui/pagination/PaginationCompon
 export { default as TableComponent } from './ui/table/TableComponent'
 export type { TableRow, TableSortState } from '@/types'
 export { default as ActionsDropdownComponent } from './ui/dropdown/ActionsDropdownComponent'
+export { default as ToolbarActionsDropdownComponent } from './ui/dropdown/ToolbarActionsDropdownComponent'
 export { default as AlertMessageComponent } from './ui/alert/AlertMessageComponent'
 
 // Layout Components

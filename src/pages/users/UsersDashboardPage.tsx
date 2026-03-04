@@ -13,6 +13,7 @@ import {
   StatsOverviewCardsComponent,
   StatusBadgeComponent,
   TableComponent,
+  ToolbarActionsDropdownComponent,
   UserDetailComponent,
 } from '@/components'
 import { AUTH_ROUTE_USERS, AUTH_ROUTE_USERS_CREATE, AUTH_ROUTE_USERS_EDIT } from '@/constant'
@@ -269,6 +270,14 @@ export default function UsersDashboardPage() {
     setPendingToggleRow(null)
   }
 
+  const handleDownloadReport = () => {
+    setActionsMessage('Descarga de reporte disponible proximamente.')
+  }
+
+  const handleBulkUpload = () => {
+    setActionsMessage('Carga masiva disponible proximamente.')
+  }
+
   const confirmMessage = pendingToggleRow
     ? `¿Seguro que deseas ${pendingToggleRow.status === true ? 'deshabilitar' : 'habilitar'} al usuario ${pendingToggleRow.values[0]}?`
     : ''
@@ -343,6 +352,11 @@ export default function UsersDashboardPage() {
             className="flex-1 text-white md:flex-none dark:text-white"
             label="Nuevo usuario"
             onClick={() => navigate(AUTH_ROUTE_USERS_CREATE)}
+          />
+          <ToolbarActionsDropdownComponent
+            disabled={loadingUsers || loadingToggleStatus}
+            onDownloadReport={handleDownloadReport}
+            onBulkUpload={handleBulkUpload}
           />
         </div>
       </form>

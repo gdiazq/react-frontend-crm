@@ -5,15 +5,16 @@ import {
   AlertMessageComponent,
   ButtonComponent,
   DetailSidebarComponent,
+  InputComponent,
   PaginationComponent,
   RightSidebarComponent,
   RoleDetailComponent,
   SaveConfirmComponent,
-  SearchBarComponent,
   SelectComponent,
   StatsOverviewCardsComponent,
   StatusBadgeComponent,
   TableComponent,
+  ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_ROLES, AUTH_ROUTE_ROLES_CREATE, AUTH_ROUTE_ROLES_EDIT } from '@/constant'
 import { createRolesActions } from '@/utils'
@@ -230,6 +231,14 @@ export default function RolesDashboardPage() {
     setPendingToggleRow(null)
   }
 
+  const handleDownloadReport = () => {
+    setActionsMessage('Descarga de reporte disponible proximamente.')
+  }
+
+  const handleBulkUpload = () => {
+    setActionsMessage('Carga masiva disponible proximamente.')
+  }
+
   const confirmMessage = pendingToggleRow
     ? `¿Seguro que deseas ${pendingToggleRow.status === true ? 'deshabilitar' : 'habilitar'} al rol ${pendingToggleRow.values[0]}?`
     : ''
@@ -264,8 +273,14 @@ export default function RolesDashboardPage() {
         />
       )}
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-end">
-        <div className="flex items-center">
+      <form
+        className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
+        onSubmit={(event) => {
+          event.preventDefault()
+          void searchRoles()
+        }}
+      >
+        <div className="flex items-center gap-2 md:col-start-1 md:row-start-1">
           <ButtonComponent
             type="button"
             variant="outline"
@@ -273,28 +288,39 @@ export default function RolesDashboardPage() {
             label="Filtro"
             onClick={() => setFiltersOpen(true)}
           />
+          <div className="min-w-0 flex-1">
+            <InputComponent
+              value={queryParams.search}
+              type="text"
+              placeholder="Buscar por nombre o descripcion de rol"
+              onValueChange={setSearch}
+            />
+          </div>
         </div>
-        <div className="flex-1">
-          <SearchBarComponent
-            value={queryParams.search}
-            loading={loadingRoles || loadingToggleStatus}
-            placeholder="Buscar por nombre o descripcion de rol"
-            buttonClassName="bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
-            onValueChange={setSearch}
-            onSearch={() => { void searchRoles() }}
+
+        <div className="flex items-center gap-2 md:col-start-2 md:row-start-1 md:justify-end">
+          <ButtonComponent
+            type="submit"
+            variant="primary"
+            disabled={loadingRoles || loadingToggleStatus}
+            className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
+            label={loadingRoles ? 'Buscando...' : 'Buscar'}
           />
-        </div>
-        <div className="flex items-center md:ml-auto">
           <ButtonComponent
             type="button"
             variant="primary"
             disabled={loadingRoles || loadingToggleStatus}
-            className="text-white dark:text-white"
+            className="flex-1 text-white md:flex-none dark:text-white"
             label="Nuevo rol"
             onClick={() => navigate(AUTH_ROUTE_ROLES_CREATE)}
           />
+          <ToolbarActionsDropdownComponent
+            disabled={loadingRoles || loadingToggleStatus}
+            onDownloadReport={handleDownloadReport}
+            onBulkUpload={handleBulkUpload}
+          />
         </div>
-      </div>
+      </form>
 
       <TableComponent
         columns={rolesTableColumns}
