@@ -145,7 +145,7 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
     currentUserRequest = (async () => {
       try {
         const data = await authService.getCurrentUser()
-        set({ user: data })
+        set({ user: data, permissions: [] })
       } catch (error) {
         set({ errorBack: error })
         if (authService.isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 403)) {

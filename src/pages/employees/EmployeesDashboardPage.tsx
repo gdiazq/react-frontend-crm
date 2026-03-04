@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AUTH_ROUTE_EMPLOYEES, AUTH_ROUTE_EMPLOYEES_CREATE } from '@/constant'
 import {
@@ -23,7 +23,7 @@ import messages from '@/messages/messages'
 import { employeesService } from '@/services'
 import { useStoreAuth, useStoreEmployees, useStoreSelects } from '@/store'
 import type { EmployeeTableRow, EmployeesSortBy } from '@/types'
-import { createEmployeesActions, downloadBlobFile } from '@/utils'
+import { createEmployeesActions, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const EMPLOYEE_ACTIVE_COLUMN_INDEX = 6
@@ -79,6 +79,8 @@ export default function EmployeesDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<EmployeeTableRow | null>(null)
   const [downloadingReport, setDownloadingReport] = useState(false)
+  const [uploadingBulk, setUploadingBulk] = useState(false)
+  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
   const { actionViewDetail, actionUpdateEmployee, actionToggleStatus } = createEmployeesActions()
 
@@ -242,7 +244,29 @@ export default function EmployeesDashboardPage() {
   }
 
   const handleBulkUpload = () => {
-    setActionsMessage('Carga masiva disponible proximamente.')
+    if (uploadingBulk) return
+    bulkUploadInputRef.current?.click()
+  }
+
+  const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file || uploadingBulk) return
+
+    try {
+      setUploadingBulk(true)
+      const result = await employeesService.importEmployeesCsv(file)
+      setActionsMessage(formatCsvImportSummary(result))
+      await getEmployees()
+    } catch (error) {
+      if (employeesService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
+      } else {
+        setActionsMessage('No se pudo realizar la carga masiva.')
+      }
+    } finally {
+      setUploadingBulk(false)
+    }
   }
 
   const confirmMessage = pendingToggleRow
@@ -320,12 +344,20 @@ export default function EmployeesDashboardPage() {
             onClick={() => navigate(AUTH_ROUTE_EMPLOYEES_CREATE)}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingEmployees || loadingToggleStatus || downloadingReport}
+            disabled={loadingEmployees || loadingToggleStatus || downloadingReport || uploadingBulk}
             onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
           />
         </div>
       </form>
+
+      <input
+        ref={bulkUploadInputRef}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={(event) => { void handleBulkUploadFileChange(event) }}
+      />
 
       <TableComponent
         columns={employeesTableColumns}

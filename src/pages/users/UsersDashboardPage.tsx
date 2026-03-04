@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ActionsDropdownComponent,
@@ -23,7 +23,7 @@ import { mapperUserDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { usersService } from '@/services'
 import { useStoreAuth, useStoreSelects, useStoreUsers } from '@/store'
-import { createUsersActions, downloadBlobFile } from '@/utils'
+import { createUsersActions, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { UserTableRow, UsersSortBy } from '@/types'
 import type { DropdownAction } from '@/utils'
 
@@ -87,6 +87,8 @@ export default function UsersDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<UserTableRow | null>(null)
   const [downloadingReport, setDownloadingReport] = useState(false)
+  const [uploadingBulk, setUploadingBulk] = useState(false)
+  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
   const [filters, setFilters] = useState({
     userNameId: '',
     userEmailId: '',
@@ -98,28 +100,16 @@ export default function UsersDashboardPage() {
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
-  const userDetailView = useMemo(() => mapperUserDetailView(userDetail), [userDetail])
+  const userDetailView = mapperUserDetailView(userDetail)
   const activeSortColumn = USERS_SORTABLE_COLUMNS.find((index) => USERS_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
   }
-  const nameSelectOptions = useMemo(
-    () => userNameOptions.map((option) => ({ label: option.name, value: String(option.id) })),
-    [userNameOptions],
-  )
-  const emailSelectOptions = useMemo(
-    () => userEmailOptions.map((option) => ({ label: option.email, value: String(option.id) })),
-    [userEmailOptions],
-  )
-  const statusSelectOptions = useMemo(
-    () => statusOptions.map((option) => ({ label: option.name, value: String(option.id) })),
-    [statusOptions],
-  )
-  const roleSelectOptions = useMemo(
-    () => roleOptions.map((option) => ({ label: option.name, value: String(option.id) })),
-    [roleOptions],
-  )
+  const nameSelectOptions = userNameOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const emailSelectOptions = userEmailOptions.map((option) => ({ label: option.email, value: String(option.id) }))
+  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const roleSelectOptions = roleOptions.map((option) => ({ label: option.name, value: String(option.id) }))
 
   useEffect(() => {
     getUsers()
@@ -292,7 +282,29 @@ export default function UsersDashboardPage() {
   }
 
   const handleBulkUpload = () => {
-    setActionsMessage('Carga masiva disponible proximamente.')
+    if (uploadingBulk) return
+    bulkUploadInputRef.current?.click()
+  }
+
+  const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file || uploadingBulk) return
+
+    try {
+      setUploadingBulk(true)
+      const result = await usersService.importUsersCsv(file)
+      setActionsMessage(formatCsvImportSummary(result))
+      await getUsers()
+    } catch (error) {
+      if (usersService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
+      } else {
+        setActionsMessage('No se pudo realizar la carga masiva.')
+      }
+    } finally {
+      setUploadingBulk(false)
+    }
   }
 
   const confirmMessage = pendingToggleRow
@@ -371,12 +383,20 @@ export default function UsersDashboardPage() {
             onClick={() => navigate(AUTH_ROUTE_USERS_CREATE)}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingUsers || loadingToggleStatus || downloadingReport}
+            disabled={loadingUsers || loadingToggleStatus || downloadingReport || uploadingBulk}
             onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
           />
         </div>
       </form>
+
+      <input
+        ref={bulkUploadInputRef}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={(event) => { void handleBulkUploadFileChange(event) }}
+      />
 
       <TableComponent
         columns={usersTableColumns}

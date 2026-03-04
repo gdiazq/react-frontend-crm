@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
 import type {
+  CsvImportResponse,
   RoleCreatePayload,
   RoleCreateResponse,
   RoleDetail,
@@ -43,6 +44,15 @@ export const rolesService = {
   exportRolesCsv: async () => {
     const { data } = await axiosInstance.get<Blob>('/role/export/csv', {
       responseType: 'blob',
+    })
+    return data
+  },
+
+  importRolesCsv: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await axiosInstance.post<CsvImportResponse>('/role/import/csv', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
     return data
   },

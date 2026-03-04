@@ -1,7 +1,13 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
 import { mapperEmployeesQueryParams } from '@/mappers'
-import type { EmployeeCreatePayload, EmployeeCreateResponse, EmployeePagedResponse, EmployeesQueryParams } from '@/types'
+import type {
+  CsvImportResponse,
+  EmployeeCreatePayload,
+  EmployeeCreateResponse,
+  EmployeePagedResponse,
+  EmployeesQueryParams,
+} from '@/types'
 
 export const employeesService = {
   getEmployees: async (queryParams: EmployeesQueryParams) => {
@@ -23,6 +29,15 @@ export const employeesService = {
   exportEmployeesCsv: async () => {
     const { data } = await axiosInstance.get<Blob>('/rrhh/employee/export/csv', {
       responseType: 'blob',
+    })
+    return data
+  },
+
+  importEmployeesCsv: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await axiosInstance.post<CsvImportResponse>('/rrhh/employee/import/csv', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
     return data
   },

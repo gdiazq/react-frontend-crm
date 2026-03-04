@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ActionsDropdownComponent,
@@ -17,7 +17,7 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_ROLES, AUTH_ROUTE_ROLES_CREATE, AUTH_ROUTE_ROLES_EDIT } from '@/constant'
-import { createRolesActions } from '@/utils'
+import { createRolesActions, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import type { RoleTableRow, RolesSortBy } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
@@ -26,7 +26,6 @@ import { mapperRoleDetailView } from '@/mappers'
 import { rolesService } from '@/services'
 import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
 import messages from '@/messages/messages'
-import { downloadBlobFile } from '@/utils'
 
 const ROLES_SORT_BY_COLUMN: Partial<Record<number, RolesSortBy>> = {
   0: 'name',
@@ -80,17 +79,16 @@ export default function RolesDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<RoleTableRow | null>(null)
   const [downloadingReport, setDownloadingReport] = useState(false)
+  const [uploadingBulk, setUploadingBulk] = useState(false)
+  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
   const activeSortColumn = ROLES_SORTABLE_COLUMNS.find((index) => ROLES_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
-  const roleDetailView = useMemo(() => mapperRoleDetailView(roleDetail), [roleDetail])
-  const statusSelectOptions = useMemo(
-    () => statusOptions.map((option) => ({ label: option.name, value: String(option.id) })),
-    [statusOptions],
-  )
+  const roleDetailView = mapperRoleDetailView(roleDetail)
+  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
@@ -254,7 +252,29 @@ export default function RolesDashboardPage() {
   }
 
   const handleBulkUpload = () => {
-    setActionsMessage('Carga masiva disponible proximamente.')
+    if (uploadingBulk) return
+    bulkUploadInputRef.current?.click()
+  }
+
+  const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file || uploadingBulk) return
+
+    try {
+      setUploadingBulk(true)
+      const result = await rolesService.importRolesCsv(file)
+      setActionsMessage(formatCsvImportSummary(result))
+      await getRoles()
+    } catch (error) {
+      if (rolesService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
+      } else {
+        setActionsMessage('No se pudo realizar la carga masiva.')
+      }
+    } finally {
+      setUploadingBulk(false)
+    }
   }
 
   const confirmMessage = pendingToggleRow
@@ -333,12 +353,20 @@ export default function RolesDashboardPage() {
             onClick={() => navigate(AUTH_ROUTE_ROLES_CREATE)}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingRoles || loadingToggleStatus || downloadingReport}
+            disabled={loadingRoles || loadingToggleStatus || downloadingReport || uploadingBulk}
             onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
           />
         </div>
       </form>
+
+      <input
+        ref={bulkUploadInputRef}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={(event) => { void handleBulkUploadFileChange(event) }}
+      />
 
       <TableComponent
         columns={rolesTableColumns}

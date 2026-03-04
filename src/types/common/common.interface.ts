@@ -11,3 +11,15 @@ export interface ModulePermission {
   canUpdate?: boolean
   canDelete?: boolean
 }
+
+export interface CsvImportError {
+  row: number
+  message: string
+}
+
+export interface CsvImportResponse {
+  total: number
+  success: number
+  failed: number
+  errors: CsvImportError[]
+}

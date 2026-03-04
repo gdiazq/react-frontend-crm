@@ -13,7 +13,7 @@ import { initialCreateRoleForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import { mapperCreateRolePayload, mapperUpdateRolePayload } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreRoles, useStoreSelects } from '@/store'
+import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
 import type { RoleCreatePayload, RoleUpdatePayload } from '@/types'
 import { mapRoleToForm } from '@/utils'
 import { rolesCreateValidationRules } from '@/validators'
@@ -50,6 +50,7 @@ export default function RolesFormDashboardPage() {
   const clearDetailError = useStoreRoles((s) => s.clearDetailError)
   const mutationCreateRole = useStoreRoles((s) => s.mutationCreateRole)
   const mutationUpdateRole = useStoreRoles((s) => s.mutationUpdateRole)
+  const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
   const clearCreateRoleStatus = useStoreRoles((s) => s.clearCreateRoleStatus)
   const clearUpdateRoleStatus = useStoreRoles((s) => s.clearUpdateRoleStatus)
   const permissionOptions = useStoreSelects((s) => s.permissionOptions)
@@ -198,6 +199,11 @@ export default function RolesFormDashboardPage() {
       : await mutationUpdateRole(pendingAction.payload, pendingAction.permissionIds)
 
     if (success) {
+      try {
+        await getCurrentUser()
+      } catch {
+        // Ignore refresh errors; user can continue with current session data.
+      }
       navigate(AUTH_ROUTE_ROLES)
       return
     }
