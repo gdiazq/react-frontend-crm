@@ -76,8 +76,24 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
     set((state) => ({ queryParams: { ...state.queryParams, active } }))
   },
 
+  setApprovalStatusFilter: (statusId: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, statusId } }))
+  },
+
+  setCreatedDateRange: ({ createdFrom, createdTo }) => {
+    set((state) => ({ queryParams: { ...state.queryParams, createdFrom, createdTo } }))
+  },
+
   clearActiveFilter: () => {
     set((state) => ({ queryParams: { ...state.queryParams, active: '' } }))
+  },
+
+  clearApprovalStatusFilter: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, statusId: '' } }))
+  },
+
+  clearCreatedDateRange: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, createdFrom: '', createdTo: '' } }))
   },
 
   searchEmployees: async () => {

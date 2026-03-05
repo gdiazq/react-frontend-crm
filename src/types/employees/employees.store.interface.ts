@@ -24,7 +24,11 @@ export interface EmployeesStore {
   previousPage: () => Promise<void>
   setSearch: (value: string) => void
   setActiveFilter: (active: string) => void
+  setApprovalStatusFilter: (statusId: string) => void
+  setCreatedDateRange: (payload: { createdFrom: string, createdTo: string }) => void
   clearActiveFilter: () => void
+  clearApprovalStatusFilter: () => void
+  clearCreatedDateRange: () => void
   searchEmployees: () => Promise<void>
   sortEmployees: (sortBy: EmployeesSortBy, sortDir: EmployeesSortDir) => Promise<void>
   mutationToggleEmployeeStatus: (employeeId: string, nextStatus: boolean) => Promise<boolean>

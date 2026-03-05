@@ -54,6 +54,9 @@ export function mapperEmployeesPagination(response: EmployeePagedResponse): Empl
 export function mapperEmployeesQueryParams(queryParams: EmployeesQueryParams): Record<string, string | number> {
   const search = queryParams.search.trim()
   const active = queryParams.active.trim()
+  const statusId = queryParams.statusId.trim()
+  const createdFrom = queryParams.createdFrom.trim()
+  const createdTo = queryParams.createdTo.trim()
   const result: Record<string, string | number> = {
     page: queryParams.page,
     size: queryParams.size,
@@ -63,6 +66,12 @@ export function mapperEmployeesQueryParams(queryParams: EmployeesQueryParams): R
 
   if (search.length > 0) result.search = search
   if (active === 'true' || active === 'false') result.active = active
+  if (statusId.length > 0) {
+    const parsedStatusId = Number(statusId)
+    if (Number.isInteger(parsedStatusId) && parsedStatusId > 0) result.statusId = parsedStatusId
+  }
+  if (createdFrom.length > 0) result.createdFrom = createdFrom
+  if (createdTo.length > 0) result.createdTo = createdTo
 
   return result
 }

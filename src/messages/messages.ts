@@ -281,6 +281,7 @@ export default {
         loadPermissionsError: 'No se pudieron cargar los permisos.',
         loadUsersFiltersError: 'No se pudieron cargar los filtros de usuarios.',
         loadStatusError: 'No se pudieron cargar los estados.',
+        loadApprovalEmployeeStatusesError: 'No se pudieron cargar los estados de aprobacion.',
       },
     },
   },

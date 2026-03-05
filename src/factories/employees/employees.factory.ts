@@ -31,6 +31,9 @@ export const initialEmployeesQueryParams: EmployeesQueryParams = {
   size: 8,
   search: '',
   active: '',
+  statusId: '',
+  createdFrom: '',
+  createdTo: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
 }

@@ -109,5 +109,10 @@ export const employeeSelectsService = {
     return data
   },
 
+  getApprovalEmployeeStatusOptions: async () => {
+    const { data } = await axiosInstance.get<EmployeeSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/employee-statuses/approval`)
+    return data
+  },
+
   isAxiosError: axios.isAxiosError,
 }

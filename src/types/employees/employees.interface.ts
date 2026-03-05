@@ -155,6 +155,9 @@ export interface EmployeesQueryParams {
   size: number
   search: string
   active: string
+  statusId: string
+  createdFrom: string
+  createdTo: string
   sortBy: EmployeesSortBy
   sortDir: EmployeesSortDir
 }

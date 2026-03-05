@@ -21,18 +21,23 @@ export interface EmployeeSelectsStore {
   healthInsuranceTariffOptions: EmployeeSelectOption[]
   paymentMethodOptions: EmployeeSelectOption[]
   bankOptions: EmployeeSelectOption[]
+  approvalEmployeeStatusOptions: EmployeeSelectOption[]
   loadingFormOptions: boolean
   loadingCommuneOptions: boolean
   loadingCityOptions: boolean
+  loadingApprovalEmployeeStatusOptions: boolean
   formOptionsErrorMessage: string | null
   communeOptionsErrorMessage: string | null
   cityOptionsErrorMessage: string | null
+  approvalEmployeeStatusOptionsErrorMessage: string | null
   errorBack: unknown | null
   getFormOptions: () => Promise<void>
   getCommuneOptions: (regionId: number) => Promise<void>
   getCityOptions: (communeId: number) => Promise<void>
+  getApprovalEmployeeStatusOptions: () => Promise<void>
   clearFormOptionsStatus: () => void
   clearCommuneOptionsStatus: () => void
   clearCityOptionsStatus: () => void
+  clearApprovalEmployeeStatusOptionsStatus: () => void
   resetLocationOptions: () => void
 }
