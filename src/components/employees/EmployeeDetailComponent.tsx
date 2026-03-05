@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
 import ButtonComponent from '@/components/ui/button/ButtonComponent'
 import DetailSectionDropdownComponent from '@/components/ui/dropdown/DetailSectionDropdownComponent'
 import EmployeeApprovalStatusBadgeComponent from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
@@ -33,12 +34,6 @@ export default function EmployeeDetailComponent({
   const resolveText = (value: string) => {
     const normalized = value.trim()
     return normalized.length > 0 ? normalized : 'Sin registro'
-  }
-
-  const resolveInitials = (fullName: string) => {
-    const [firstName = '', lastName = ''] = fullName.trim().split(/\s+/)
-    const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.trim().toUpperCase()
-    return initials.length > 0 ? initials : 'TR'
   }
 
   if (loading) {
@@ -219,9 +214,11 @@ export default function EmployeeDetailComponent({
     <section className="space-y-5">
       <article className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 dark:border-white/10 dark:from-slate-900/60 dark:to-slate-900/30">
         <div className="flex items-start gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-cyan-100 text-base font-bold text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-200">
-            {resolveInitials(detail.fullName)}
-          </div>
+          <AvatarInitialsComponent
+            fullName={detail.fullName}
+            fallbackInitials="TR"
+            className="bg-cyan-100 font-bold text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-200"
+          />
           <div className="min-w-0 flex-1 space-y-1">
             <p className="truncate text-base font-semibold">{detail.fullName}</p>
             <p className="truncate text-sm text-slate-600 dark:text-slate-300">{resolveText(detail.identification)}</p>

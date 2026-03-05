@@ -7,6 +7,7 @@ import {
   EmployeeApprovalStatusBadgeComponent,
   InputComponent,
   PaginationComponent,
+  RequestDetailComponent,
   RightSidebarComponent,
   SaveConfirmComponent,
   SelectComponent,
@@ -15,6 +16,7 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { requestsTableColumns } from '@/factories'
+import { mapperRequestDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { requestsService } from '@/services'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
@@ -30,13 +32,18 @@ const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
 
 export default function RequestsDashboardPage() {
   const requestsRows = useStoreRequests((s) => s.requestsRows) as RequestTableRow[]
+  const requestDetail = useStoreRequests((s) => s.requestDetail)
   const pagination = useStoreRequests((s) => s.pagination)
   const queryParams = useStoreRequests((s) => s.queryParams)
   const loadingRequests = useStoreRequests((s) => s.loadingRequests)
+  const loadingRequestDetail = useStoreRequests((s) => s.loadingRequestDetail)
   const loadingApproveRequest = useStoreRequests((s) => s.loadingApproveRequest)
   const loadingRejectRequest = useStoreRequests((s) => s.loadingRejectRequest)
   const errorMessage = useStoreRequests((s) => s.errorMessage)
+  const detailErrorMessage = useStoreRequests((s) => s.detailErrorMessage)
   const getRequests = useStoreRequests((s) => s.getRequests)
+  const getRequestDetail = useStoreRequests((s) => s.getRequestDetail)
+  const clearRequestDetail = useStoreRequests((s) => s.clearRequestDetail)
   const goToPage = useStoreRequests((s) => s.goToPage)
   const setSearch = useStoreRequests((s) => s.setSearch)
   const setStatusFilter = useStoreRequests((s) => s.setStatusFilter)
@@ -71,6 +78,7 @@ export default function RequestsDashboardPage() {
     approvalTo: queryParams.approvalTo,
   }))
   const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [confirmApproveOpen, setConfirmApproveOpen] = useState(false)
@@ -81,6 +89,7 @@ export default function RequestsDashboardPage() {
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')
   const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
+  const requestDetailView = mapperRequestDetailView(requestDetail)
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -102,13 +111,23 @@ export default function RequestsDashboardPage() {
   }, [])
 
   const handleViewDetail = (row: RequestTableRow) => {
+    setSelectedDetailRowId(row.id)
     setSelectedDetailName(String(row.values[REQUEST_NAME_COLUMN_INDEX] ?? 'Solicitud'))
     setDetailOpen(true)
+    setOpenActionsRowId(null)
+    void getRequestDetail(row.id)
   }
 
   const handleCloseDetail = () => {
     setDetailOpen(false)
+    setSelectedDetailRowId(null)
     setSelectedDetailName('')
+    clearRequestDetail()
+  }
+
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getRequestDetail(selectedDetailRowId)
   }
 
   const handleApproveRequest = (row: RequestTableRow) => {
@@ -244,6 +263,11 @@ export default function RequestsDashboardPage() {
   const confirmApproveMessage = pendingApproveRow
     ? `¿Seguro que deseas aprobar la solicitud de ${pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]}?`
     : ''
+  const detailTitle = requestDetailView
+    ? `Detalle de ${requestDetailView.fullName}`
+    : selectedDetailName
+      ? `Detalle de ${selectedDetailName}`
+      : 'Detalle de solicitud'
 
   const renderCell = (row: TableRow, value: ReactNode, columnIndex: number, rowIndex: number) => {
     const requestRow = row as RequestTableRow
@@ -468,9 +492,16 @@ export default function RequestsDashboardPage() {
 
       <DetailSidebarComponent
         open={detailOpen}
-        title={selectedDetailName ? `Detalle de ${selectedDetailName}` : 'Detalle de solicitud'}
+        title={detailTitle}
         onClose={handleCloseDetail}
-      />
+      >
+        <RequestDetailComponent
+          detail={requestDetailView}
+          loading={loadingRequestDetail}
+          errorMessage={detailErrorMessage}
+          onRetry={handleRetryDetail}
+        />
+      </DetailSidebarComponent>
 
       <SaveConfirmComponent
         open={confirmApproveOpen}

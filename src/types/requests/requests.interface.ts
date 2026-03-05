@@ -71,3 +71,43 @@ export interface RequestPagedResponse {
   active?: number
   pending?: number
 }
+
+export interface HrRequestDetailReference {
+  id: number
+  name: string
+}
+
+export interface HrRequestDetailRaw {
+  id: number
+  idModule: number
+  identification: string
+  firstName: string
+  paternalLastName: string
+  maternalLastName: string
+  requestType: HrRequestDetailReference
+  status: HrRequestDetailReference
+  requireApproval: boolean
+  approver?: HrRequestDetailReference | null
+  approvalDate?: string | null
+  hhrrApprover?: HrRequestDetailReference | null
+  hhrrApprovalDate?: string | null
+  rejectionDetail?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface RequestDetailView {
+  fullName: string
+  identification: string
+  moduleDisplay: string
+  requestTypeName: string
+  statusName: string
+  requireApprovalLabel: string
+  approverName: string
+  approvalDateDisplay: string
+  hhrrApproverName: string
+  hhrrApprovalDateDisplay: string
+  rejectionDetailDisplay: string
+  createdAtDisplay: string
+  updatedAtDisplay: string
+}

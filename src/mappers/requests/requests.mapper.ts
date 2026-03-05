@@ -1,12 +1,14 @@
 import messages from '@/messages/messages'
 import type {
+  HrRequestDetailRaw,
   HrRequestRaw,
+  RequestDetailView,
   RequestPagedResponse,
   RequestTableRow,
   RequestsPagination,
   RequestsQueryParams,
 } from '@/types'
-import { formatDate } from '@/utils'
+import { formatDate, formatDateTime } from '@/utils'
 
 function resolveApproverLabel(item: HrRequestRaw): string {
   const approverFullName = (item.hhrrApproverFullName ?? item.approverFullName ?? '').trim()
@@ -95,4 +97,26 @@ export function mapperRequestsQueryParams(queryParams: RequestsQueryParams): Rec
   if (approvalTo.length > 0) result.approvalTo = approvalTo
 
   return result
+}
+
+export function mapperRequestDetailView(detail: HrRequestDetailRaw | null): RequestDetailView | null {
+  if (!detail) return null
+
+  const fullName = `${detail.firstName} ${detail.paternalLastName} ${detail.maternalLastName}`.trim()
+
+  return {
+    fullName,
+    identification: detail.identification,
+    moduleDisplay: `Modulo ${detail.idModule}`,
+    requestTypeName: detail.requestType.name,
+    statusName: detail.status.name,
+    requireApprovalLabel: detail.requireApproval ? messages.requests.ui.requireApprovalYes : messages.requests.ui.requireApprovalNo,
+    approverName: detail.approver?.name ?? messages.requests.ui.unassignedApprover,
+    approvalDateDisplay: formatDateTime(detail.approvalDate || '', messages.requests.ui.noApprovalDate),
+    hhrrApproverName: detail.hhrrApprover?.name ?? messages.requests.ui.unassignedApprover,
+    hhrrApprovalDateDisplay: formatDateTime(detail.hhrrApprovalDate || '', messages.requests.ui.noApprovalDate),
+    rejectionDetailDisplay: detail.rejectionDetail?.trim() || 'Sin registro',
+    createdAtDisplay: formatDateTime(detail.createdAt, 'Sin registro'),
+    updatedAtDisplay: formatDateTime(detail.updatedAt, 'Sin registro'),
+  }
 }

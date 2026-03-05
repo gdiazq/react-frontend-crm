@@ -1,4 +1,6 @@
 export type {
+  HrRequestDetailRaw,
+  RequestDetailView,
   HrRequestRaw,
   RequestPagedResponse,
   RequestTableRow,

@@ -1,5 +1,6 @@
 // UI Components
 export { default as ButtonComponent } from './ui/button/ButtonComponent'
+export { default as AvatarInitialsComponent } from './ui/avatar/AvatarInitialsComponent'
 export { default as GitHubLoginButtonComponent } from './ui/button/GitHubLoginButtonComponent'
 export { default as InputComponent } from './ui/input/InputComponent'
 export { default as PasswordInputComponent } from './ui/input/PasswordInputComponent'
@@ -46,6 +47,9 @@ export { default as PricingSection } from './frontpage/PricingSection'
 
 // Employees Components
 export { default as EmployeeDetailComponent } from './employees/EmployeeDetailComponent'
+
+// Requests Components
+export { default as RequestDetailComponent } from './requests/RequestDetailComponent'
 
 // Users Components
 export { default as UserDetailComponent } from './users/UserDetailComponent'

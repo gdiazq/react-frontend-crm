@@ -1,13 +1,18 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
 import { mapperRequestsQueryParams } from '@/mappers'
-import type { RequestPagedResponse, RequestsQueryParams } from '@/types'
+import type { HrRequestDetailRaw, RequestPagedResponse, RequestsQueryParams } from '@/types'
 
 export const requestsService = {
   getRequests: async (queryParams: RequestsQueryParams) => {
     const { data } = await axiosInstance.get<RequestPagedResponse>('/rrhh/hr-request/paged', {
       params: mapperRequestsQueryParams(queryParams),
     })
+    return data
+  },
+
+  getRequestDetail: async (requestId: number) => {
+    const { data } = await axiosInstance.get<HrRequestDetailRaw>(`/rrhh/hr-request/detail/${requestId}`)
     return data
   },
 

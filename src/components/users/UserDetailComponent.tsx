@@ -1,4 +1,5 @@
 import ButtonComponent from '@/components/ui/button/ButtonComponent'
+import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
 import type { UserDetailView } from '@/types'
 
 interface UserDetailComponentProps {
@@ -41,13 +42,12 @@ export default function UserDetailComponent({
   return (
     <section className="space-y-5">
       <article className="flex items-center gap-4 rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-base font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-100">
-          {detail.avatarUrl.length > 0 ? (
-            <img src={detail.avatarUrl} alt="Avatar del usuario" className="h-full w-full object-cover" />
-          ) : (
-            <span>{detail.initials}</span>
-          )}
-        </div>
+        <AvatarInitialsComponent
+          fullName={detail.fullName}
+          avatarUrl={detail.avatarUrl}
+          fallbackInitials={detail.initials}
+          alt="Avatar del usuario"
+        />
 
         <div className="min-w-0">
           <p className="truncate text-base font-semibold">{detail.fullName}</p>

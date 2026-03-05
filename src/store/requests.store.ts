@@ -12,14 +12,19 @@ import {
 import messages from '@/messages/messages'
 import type { RequestsStore } from '@/types'
 
+let latestRequestDetailRequestId = 0
+
 export const useStoreRequests = create<RequestsStore>()((set, get) => ({
   requestsRows: [...initialRequestsRows],
+  requestDetail: null,
   pagination: { ...initialRequestsPagination },
   queryParams: { ...initialRequestsQueryParams },
   loadingRequests: false,
+  loadingRequestDetail: false,
   loadingApproveRequest: false,
   loadingRejectRequest: false,
   errorMessage: null,
+  detailErrorMessage: null,
   errorBack: null,
 
   getRequests: async () => {
@@ -42,6 +47,58 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => ({
     } finally {
       set({ loadingRequests: false })
     }
+  },
+
+  getRequestDetail: async (requestId: string) => {
+    const parsedRequestId = Number(requestId)
+    if (!Number.isInteger(parsedRequestId) || parsedRequestId <= 0) {
+      set({
+        detailErrorMessage: messages.requests.status.errors.invalidRequestId,
+        requestDetail: null,
+      })
+      return null
+    }
+    const currentRequestId = ++latestRequestDetailRequestId
+
+    try {
+      set({
+        loadingRequestDetail: true,
+        detailErrorMessage: null,
+        requestDetail: null,
+        errorBack: null,
+      })
+      const data = await requestsService.getRequestDetail(parsedRequestId)
+      if (currentRequestId !== latestRequestDetailRequestId) return null
+      set({ requestDetail: data })
+      return data
+    } catch (error) {
+      if (currentRequestId !== latestRequestDetailRequestId) return null
+      if (requestsService.isAxiosError(error)) {
+        set({
+          detailErrorMessage: error.response?.data?.message || messages.requests.status.errors.loadError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          detailErrorMessage: messages.requests.status.errors.loadError,
+          errorBack: error,
+        })
+      }
+      return null
+    } finally {
+      if (currentRequestId === latestRequestDetailRequestId) {
+        set({ loadingRequestDetail: false })
+      }
+    }
+  },
+
+  clearRequestDetail: () => {
+    latestRequestDetailRequestId += 1
+    set({ requestDetail: null, detailErrorMessage: null, loadingRequestDetail: false })
+  },
+
+  clearDetailError: () => {
+    set({ detailErrorMessage: null })
   },
 
   goToPage: async (page: number) => {

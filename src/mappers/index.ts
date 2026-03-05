@@ -46,6 +46,7 @@ export {
   mapperRolesQueryParams,
 } from './roles/roles.mapper'
 export {
+  mapperRequestDetailView,
   mapperRequestsRows,
   mapperRequestsPagination,
   mapperRequestsQueryParams,
