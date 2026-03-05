@@ -2,6 +2,8 @@ export type {
   EmployeeCreateForm,
   EmployeeCreatePayload,
   EmployeeCreateResponse,
+  EmployeeDetail,
+  EmployeeDetailView,
   EmployeePagedResponse,
   EmployeeRaw,
   EmployeeTableRow,

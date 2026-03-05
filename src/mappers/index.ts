@@ -17,6 +17,7 @@ export { mapperDashboardExample } from './dashboard/dashboard-example.mapper'
 export { mapperEmployeeSelectOptions } from './employee-selects/employee-selects.mapper'
 export {
   mapperCreateEmployeePayload,
+  mapperEmployeeDetailView,
   mapperEmployeesRows,
   mapperEmployeesPagination,
   mapperEmployeesQueryParams,

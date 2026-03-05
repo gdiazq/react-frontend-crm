@@ -2,6 +2,8 @@ import messages from '@/messages/messages'
 import type {
   EmployeeCreateForm,
   EmployeeCreatePayload,
+  EmployeeDetail,
+  EmployeeDetailView,
   EmployeePagedResponse,
   EmployeeRaw,
   EmployeeTableRow,
@@ -74,6 +76,64 @@ export function mapperEmployeesQueryParams(queryParams: EmployeesQueryParams): R
   if (createdTo.length > 0) result.createdTo = createdTo
 
   return result
+}
+
+export function mapperEmployeeDetailView(result: EmployeeDetail): EmployeeDetailView {
+  return {
+    id: String(result.id),
+    fullName: `${result.firstName} ${result.paternalLastName} ${result.maternalLastName}`.trim(),
+    active: result.active,
+    statusName: result.status?.name ?? '',
+    rehireEligible: result.rehireEligible,
+    identification: result.identification,
+    identificationType: result.identificationType?.name ?? '',
+    birthDate: result.birthDate ?? '',
+    gender: result.gender?.name ?? '',
+    maritalStatus: result.maritalStatus?.name ?? '',
+    educationLevel: result.educationLevel?.name ?? '',
+    driverLicense: result.driverLicense?.name ?? '',
+    profession: result.profession?.name ?? '',
+    nationality: result.nationality?.name ?? '',
+    expat: result.expat?.name ?? '',
+    personalEmail: result.personalEmail ?? '',
+    corporateEmail: result.corporateEmail,
+    phone: result.phone ?? '',
+    phone2: result.phone2 ?? '',
+    emergencyContactName: result.emergencyContactName ?? '',
+    emergencyContactRelationship: result.emergencyContactRelationship?.name ?? '',
+    emergencyContactPhone: result.emergencyContactPhone ?? '',
+    emergencyContactPhone2: result.emergencyContactPhone2 ?? '',
+    streetName: result.streetName ?? '',
+    streetNumber: result.streetNumber ?? '',
+    postalCode: result.postalCode ?? '',
+    department: result.department ?? '',
+    village: result.village ?? '',
+    block: result.block ?? '',
+    region: result.region?.name ?? '',
+    commune: result.commune?.name ?? '',
+    city: result.city?.name ?? '',
+    familyAllowanceTier: result.familyAllowanceTier?.name ?? '',
+    retirementStatus: result.retirementStatus?.name ?? '',
+    isapreFun: result.isapreFun ?? '',
+    pensionStatus: result.pensionStatus?.name ?? '',
+    afp: result.afp?.name ?? '',
+    healthInsurance: result.healthInsurance?.name ?? '',
+    healthInsuranceTariff: result.healthInsuranceTariff?.name ?? '',
+    healthInsuranceUF: result.healthInsuranceUF ?? '',
+    healthInsurancePesos: result.healthInsurancePesos ?? '',
+    paymentMethod: result.paymentMethod?.name ?? '',
+    bank: result.bank?.name ?? '',
+    bankAccount: result.bankAccount ?? '',
+    clothingSize: result.clothingSize ?? '',
+    shoeSize: result.shoeSize ?? '',
+    pantSize: result.pantSize ?? '',
+    username: result.username ?? '',
+    userEmail: result.userEmail ?? '',
+    userEnabled: result.userEnabled != null ? (result.userEnabled ? 'Si' : 'No') : '',
+    requestId: result.requestId != null ? String(result.requestId) : '',
+    createdAtDisplay: formatDate(result.createdAt),
+    updatedAtDisplay: formatDate(result.updatedAt),
+  }
 }
 
 function parseRequiredNumber(value: string): number {

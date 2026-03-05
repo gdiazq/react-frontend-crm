@@ -12,17 +12,60 @@ import {
 import messages from '@/messages/messages'
 import type { EmployeesSortBy, EmployeesSortDir, EmployeesStore } from '@/types'
 
+let latestEmployeeDetailRequestId = 0
+
 export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
   employeesRows: [...initialEmployeesRows],
+  employeeDetail: null,
   pagination: { ...initialEmployeesPagination },
   queryParams: { ...initialEmployeesQueryParams },
   loadingEmployees: false,
+  loadingEmployeeDetail: false,
   loadingToggleStatus: false,
   createEmployeeSubmitting: false,
   errorMessage: null,
+  detailErrorMessage: null,
   createEmployeeErrorMessage: null,
   createEmployeeSuccessMessage: null,
   errorBack: null,
+
+  getEmployeeDetail: async (employeeId: string) => {
+    const parsedId = Number(employeeId)
+    if (!Number.isInteger(parsedId) || parsedId <= 0) {
+      set({ detailErrorMessage: messages.employees.status.errors.detailInvalidEmployeeId, employeeDetail: null })
+      return null
+    }
+    const requestId = ++latestEmployeeDetailRequestId
+
+    try {
+      set({ loadingEmployeeDetail: true, detailErrorMessage: null, employeeDetail: null, errorBack: null })
+      const data = await employeesService.getEmployeeDetail(parsedId)
+      if (requestId !== latestEmployeeDetailRequestId) return null
+      set({ employeeDetail: data })
+      return data
+    } catch (error) {
+      if (requestId !== latestEmployeeDetailRequestId) return null
+      if (employeesService.isAxiosError(error)) {
+        set({ detailErrorMessage: error.response?.data?.message || messages.employees.status.errors.detailLoadError, errorBack: error })
+      } else {
+        set({ detailErrorMessage: messages.employees.status.errors.detailLoadError, errorBack: error })
+      }
+      return null
+    } finally {
+      if (requestId === latestEmployeeDetailRequestId) {
+        set({ loadingEmployeeDetail: false })
+      }
+    }
+  },
+
+  clearEmployeeDetail: () => {
+    latestEmployeeDetailRequestId += 1
+    set({ employeeDetail: null, detailErrorMessage: null, loadingEmployeeDetail: false })
+  },
+
+  clearDetailError: () => {
+    set({ detailErrorMessage: null })
+  },
 
   getEmployees: async () => {
     try {

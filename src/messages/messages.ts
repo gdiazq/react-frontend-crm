@@ -198,6 +198,8 @@ export default {
         loadFormOptionsError: 'No se pudieron cargar las opciones del formulario.',
         loadCommuneOptionsError: 'No se pudieron cargar las comunas.',
         loadCityOptionsError: 'No se pudieron cargar las ciudades.',
+        detailLoadError: 'No se pudo cargar el detalle del trabajador.',
+        detailInvalidEmployeeId: 'Id de trabajador invalido para ver detalle.',
         toggleStatusError: 'No se pudo actualizar el estado del trabajador.',
         invalidStatusEmployeeId: 'Id de trabajador invalido para actualizar estado.',
       },

@@ -5,6 +5,7 @@ import type {
   CsvImportResponse,
   EmployeeCreatePayload,
   EmployeeCreateResponse,
+  EmployeeDetail,
   EmployeePagedResponse,
   EmployeesQueryParams,
 } from '@/types'
@@ -14,6 +15,11 @@ export const employeesService = {
     const { data } = await axiosInstance.get<EmployeePagedResponse>('/rrhh/employee/paged', {
       params: mapperEmployeesQueryParams(queryParams),
     })
+    return data
+  },
+
+  getEmployeeDetail: async (employeeId: number) => {
+    const { data } = await axiosInstance.get<EmployeeDetail>(`/rrhh/employee/detail/${employeeId}`)
     return data
   },
 

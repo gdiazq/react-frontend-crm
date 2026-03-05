@@ -1,5 +1,6 @@
 import type {
   EmployeeCreatePayload,
+  EmployeeDetail,
   EmployeesPagination,
   EmployeesQueryParams,
   EmployeesSortBy,
@@ -9,16 +10,22 @@ import type {
 
 export interface EmployeesStore {
   employeesRows: EmployeeTableRow[]
+  employeeDetail: EmployeeDetail | null
   pagination: EmployeesPagination
   queryParams: EmployeesQueryParams
   loadingEmployees: boolean
+  loadingEmployeeDetail: boolean
   loadingToggleStatus: boolean
   createEmployeeSubmitting: boolean
   errorMessage: string | null
+  detailErrorMessage: string | null
   createEmployeeErrorMessage: string | null
   createEmployeeSuccessMessage: string | null
   errorBack: unknown | null
   getEmployees: () => Promise<void>
+  getEmployeeDetail: (employeeId: string) => Promise<EmployeeDetail | null>
+  clearEmployeeDetail: () => void
+  clearDetailError: () => void
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>

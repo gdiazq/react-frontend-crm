@@ -7,6 +7,7 @@ import {
   ButtonComponent,
   DetailSidebarComponent,
   EmployeeApprovalStatusBadgeComponent,
+  EmployeeDetailComponent,
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
@@ -19,6 +20,7 @@ import {
 } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { employeesTableColumns } from '@/factories'
+import { mapperEmployeeDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { employeesService } from '@/services'
 import { useStoreAuth, useStoreEmployeeSelects, useStoreEmployees, useStoreSelects } from '@/store'
@@ -51,6 +53,9 @@ export default function EmployeesDashboardPage() {
   const pagination = useStoreEmployees((s) => s.pagination)
   const queryParams = useStoreEmployees((s) => s.queryParams)
   const loadingEmployees = useStoreEmployees((s) => s.loadingEmployees)
+  const employeeDetail = useStoreEmployees((s) => s.employeeDetail)
+  const loadingEmployeeDetail = useStoreEmployees((s) => s.loadingEmployeeDetail)
+  const detailErrorMessage = useStoreEmployees((s) => s.detailErrorMessage)
   const loadingToggleStatus = useStoreEmployees((s) => s.loadingToggleStatus)
   const errorMessage = useStoreEmployees((s) => s.errorMessage)
   const getEmployees = useStoreEmployees((s) => s.getEmployees)
@@ -64,6 +69,8 @@ export default function EmployeesDashboardPage() {
   const clearCreatedDateRange = useStoreEmployees((s) => s.clearCreatedDateRange)
   const searchEmployees = useStoreEmployees((s) => s.searchEmployees)
   const sortEmployees = useStoreEmployees((s) => s.sortEmployees)
+  const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
+  const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
   const mutationToggleEmployeeStatus = useStoreEmployees((s) => s.mutationToggleEmployeeStatus)
   const clearStatus = useStoreEmployees((s) => s.clearStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
@@ -89,6 +96,7 @@ export default function EmployeesDashboardPage() {
   }))
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<EmployeeTableRow | null>(null)
@@ -97,6 +105,8 @@ export default function EmployeesDashboardPage() {
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
   const { actionViewDetail, actionUpdateEmployee, actionToggleStatus } = createEmployeesActions()
+
+  const employeeDetailView = employeeDetail ? mapperEmployeeDetailView(employeeDetail) : null
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -123,14 +133,23 @@ export default function EmployeesDashboardPage() {
   }, [])
 
   const handleViewDetail = (row: EmployeeTableRow) => {
+    setSelectedDetailRowId(row.id)
     setSelectedDetailName(String(row.values[EMPLOYEE_NAME_COLUMN_INDEX] ?? 'Trabajador'))
     setDetailOpen(true)
     setOpenActionsRowId(null)
+    void getEmployeeDetail(row.id)
   }
 
   const handleCloseDetail = () => {
     setDetailOpen(false)
+    setSelectedDetailRowId(null)
     setSelectedDetailName('')
+    clearEmployeeDetail()
+  }
+
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getEmployeeDetail(selectedDetailRowId)
   }
 
   const handleUpdateEmployee = (row: EmployeeTableRow) => {
@@ -497,7 +516,14 @@ export default function EmployeesDashboardPage() {
         open={detailOpen}
         title={selectedDetailName ? `Detalle de ${selectedDetailName}` : 'Detalle de trabajador'}
         onClose={handleCloseDetail}
-      />
+      >
+        <EmployeeDetailComponent
+          detail={employeeDetailView}
+          loading={loadingEmployeeDetail}
+          errorMessage={detailErrorMessage}
+          onRetry={handleRetryDetail}
+        />
+      </DetailSidebarComponent>
 
       <SaveConfirmComponent
         open={confirmOpen}

@@ -120,6 +120,126 @@ export interface EmployeeCreateResponse {
   createdAt: string
 }
 
+interface EmployeeNamedRef {
+  id: number
+  name: string
+}
+
+export interface EmployeeDetail {
+  id: number
+  userId?: number | null
+  identification: string
+  identificationType?: EmployeeNamedRef | null
+  firstName: string
+  paternalLastName: string
+  maternalLastName: string
+  birthDate?: string | null
+  gender?: EmployeeNamedRef | null
+  maritalStatus?: EmployeeNamedRef | null
+  educationLevel?: EmployeeNamedRef | null
+  driverLicense?: EmployeeNamedRef | null
+  profession?: EmployeeNamedRef | null
+  personalEmail?: string | null
+  corporateEmail: string
+  phone?: string | null
+  phone2?: string | null
+  emergencyContactName?: string | null
+  emergencyContactRelationship?: EmployeeNamedRef | null
+  emergencyContactPhone?: string | null
+  emergencyContactPhone2?: string | null
+  streetName?: string | null
+  streetNumber?: string | null
+  postalCode?: string | null
+  department?: string | null
+  village?: string | null
+  block?: string | null
+  region?: EmployeeNamedRef | null
+  city?: EmployeeNamedRef | null
+  commune?: EmployeeNamedRef | null
+  expat?: EmployeeNamedRef | null
+  nationality?: EmployeeNamedRef | null
+  familyAllowanceTier?: EmployeeNamedRef | null
+  retirementStatus?: EmployeeNamedRef | null
+  isapreFun?: string | null
+  pensionStatus?: EmployeeNamedRef | null
+  afp?: EmployeeNamedRef | null
+  healthInsurance?: EmployeeNamedRef | null
+  healthInsuranceTariff?: EmployeeNamedRef | null
+  healthInsuranceUF?: string | null
+  healthInsurancePesos?: string | null
+  paymentMethod?: EmployeeNamedRef | null
+  bank?: EmployeeNamedRef | null
+  bankAccount?: string | null
+  status?: EmployeeNamedRef | null
+  clothingSize?: string | null
+  shoeSize?: string | null
+  pantSize?: string | null
+  active: boolean
+  rehireEligible: boolean
+  createdAt: string
+  updatedAt: string
+  username?: string | null
+  userEmail?: string | null
+  userEnabled?: boolean | null
+  requestId?: number | null
+}
+
+export interface EmployeeDetailView {
+  id: string
+  fullName: string
+  active: boolean
+  statusName: string
+  rehireEligible: boolean
+  identification: string
+  identificationType: string
+  birthDate: string
+  gender: string
+  maritalStatus: string
+  educationLevel: string
+  driverLicense: string
+  profession: string
+  nationality: string
+  expat: string
+  personalEmail: string
+  corporateEmail: string
+  phone: string
+  phone2: string
+  emergencyContactName: string
+  emergencyContactRelationship: string
+  emergencyContactPhone: string
+  emergencyContactPhone2: string
+  streetName: string
+  streetNumber: string
+  postalCode: string
+  department: string
+  village: string
+  block: string
+  region: string
+  commune: string
+  city: string
+  familyAllowanceTier: string
+  retirementStatus: string
+  isapreFun: string
+  pensionStatus: string
+  afp: string
+  healthInsurance: string
+  healthInsuranceTariff: string
+  healthInsuranceUF: string
+  healthInsurancePesos: string
+  paymentMethod: string
+  bank: string
+  bankAccount: string
+  clothingSize: string
+  shoeSize: string
+  pantSize: string
+  username: string
+  userEmail: string
+  userEnabled: string
+  requestId: string
+  createdAtDisplay: string
+  updatedAtDisplay: string
+}
+
 export interface EmployeeTableRow {
   id: string
   values: string[]

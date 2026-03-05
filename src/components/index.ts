@@ -43,6 +43,9 @@ export { default as FeatureGrid } from './frontpage/FeatureGrid'
 export { default as KpiPanel } from './frontpage/KpiPanel'
 export { default as PricingSection } from './frontpage/PricingSection'
 
+// Employees Components
+export { default as EmployeeDetailComponent } from './employees/EmployeeDetailComponent'
+
 // Users Components
 export { default as UserDetailComponent } from './users/UserDetailComponent'
 
