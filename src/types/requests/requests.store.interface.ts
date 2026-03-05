@@ -13,6 +13,16 @@ export interface RequestsStore {
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
+  setSearch: (value: string) => void
+  setStatusFilter: (statusId: string) => void
+  setModuleFilter: (idModule: string) => void
+  setCreatedDateRange: (payload: { createdFrom: string, createdTo: string }) => void
+  setApprovalDateRange: (payload: { approvalFrom: string, approvalTo: string }) => void
+  clearStatusFilter: () => void
+  clearModuleFilter: () => void
+  clearCreatedDateRange: () => void
+  clearApprovalDateRange: () => void
+  searchRequests: () => Promise<void>
   mutationApproveRequest: (requestId: string) => Promise<boolean>
   mutationRejectRequest: (requestId: string, rejectionDetail: string) => Promise<boolean>
   clearStatus: () => void

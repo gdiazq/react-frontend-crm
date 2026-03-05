@@ -22,22 +22,27 @@ export interface EmployeeSelectsStore {
   paymentMethodOptions: EmployeeSelectOption[]
   bankOptions: EmployeeSelectOption[]
   approvalEmployeeStatusOptions: EmployeeSelectOption[]
+  hrRequestTypeOptions: EmployeeSelectOption[]
   loadingFormOptions: boolean
   loadingCommuneOptions: boolean
   loadingCityOptions: boolean
   loadingApprovalEmployeeStatusOptions: boolean
+  loadingHrRequestTypeOptions: boolean
   formOptionsErrorMessage: string | null
   communeOptionsErrorMessage: string | null
   cityOptionsErrorMessage: string | null
   approvalEmployeeStatusOptionsErrorMessage: string | null
+  hrRequestTypeOptionsErrorMessage: string | null
   errorBack: unknown | null
   getFormOptions: () => Promise<void>
   getCommuneOptions: (regionId: number) => Promise<void>
   getCityOptions: (communeId: number) => Promise<void>
   getApprovalEmployeeStatusOptions: () => Promise<void>
+  getHrRequestTypeOptions: () => Promise<void>
   clearFormOptionsStatus: () => void
   clearCommuneOptionsStatus: () => void
   clearCityOptionsStatus: () => void
   clearApprovalEmployeeStatusOptionsStatus: () => void
+  clearHrRequestTypeOptionsStatus: () => void
   resetLocationOptions: () => void
 }

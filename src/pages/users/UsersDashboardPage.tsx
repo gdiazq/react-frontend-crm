@@ -208,6 +208,10 @@ export default function UsersDashboardPage() {
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
+  const handleUserNameFilterChange = (value: string) => handleChangeFilter('userNameId', value)
+  const handleUserEmailFilterChange = (value: string) => handleChangeFilter('userEmailId', value)
+  const handleStatusFilterChange = (value: string) => handleChangeFilter('statusId', value)
+  const handleRoleFilterChange = (value: string) => handleChangeFilter('roleId', value)
 
   const handleApplyFilters = async () => {
     const selectedNameRaw = userNameOptions.find((option) => String(option.id) === filters.userNameId)?.name.trim() ?? ''
@@ -437,25 +441,25 @@ export default function UsersDashboardPage() {
             value={filters.userNameId}
             label="Nombre"
             options={nameSelectOptions}
-            onValueChange={(value) => handleChangeFilter('userNameId', value)}
+            onValueChange={handleUserNameFilterChange}
           />
           <SelectComponent
             value={filters.userEmailId}
             label="Email"
             options={emailSelectOptions}
-            onValueChange={(value) => handleChangeFilter('userEmailId', value)}
+            onValueChange={handleUserEmailFilterChange}
           />
           <SelectComponent
             value={filters.statusId}
             label="Estado"
             options={statusSelectOptions}
-            onValueChange={(value) => handleChangeFilter('statusId', value)}
+            onValueChange={handleStatusFilterChange}
           />
           <SelectComponent
             value={filters.roleId}
             label="Rol"
             options={roleSelectOptions}
-            onValueChange={(value) => handleChangeFilter('roleId', value)}
+            onValueChange={handleRoleFilterChange}
           />
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent

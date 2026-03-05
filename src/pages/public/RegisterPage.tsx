@@ -23,6 +23,9 @@ export default function RegisterPage() {
 
   const [form, setForm] = useState({ ...initialRegisterForm })
   const { errors, isValid, validateField, validateAll, setFieldError } = useFormValidation(form, registerValidationRules)
+  const handleFormFieldChange = (field: keyof typeof form) => (value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+  }
 
   const canSubmit = isValid && emailAvailable !== false && !checkEmailSubmitting
 
@@ -92,7 +95,7 @@ export default function RegisterPage() {
               autoComplete="username"
               placeholder="Ingresa tu usuario"
               error={errors.username}
-              onValueChange={(v) => setForm((f) => ({ ...f, username: v }))}
+              onValueChange={handleFormFieldChange('username')}
               required
             />
 
@@ -103,7 +106,7 @@ export default function RegisterPage() {
               autoComplete="given-name"
               placeholder="Ingresa tu nombre"
               error={errors.firstName}
-              onValueChange={(v) => setForm((f) => ({ ...f, firstName: v }))}
+              onValueChange={handleFormFieldChange('firstName')}
               required
             />
 
@@ -114,7 +117,7 @@ export default function RegisterPage() {
               autoComplete="family-name"
               placeholder="Ingresa tu apellido"
               error={errors.lastName}
-              onValueChange={(v) => setForm((f) => ({ ...f, lastName: v }))}
+              onValueChange={handleFormFieldChange('lastName')}
               required
             />
 
@@ -136,7 +139,7 @@ export default function RegisterPage() {
               autoComplete="tel"
               placeholder="Ingresa tu telefono"
               error={errors.phoneNumber}
-              onValueChange={(v) => setForm((f) => ({ ...f, phoneNumber: v }))}
+              onValueChange={handleFormFieldChange('phoneNumber')}
               required
             />
 

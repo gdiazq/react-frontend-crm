@@ -23,6 +23,12 @@ export default function CreatePasswordPage() {
   const clearPendingPasswordToken = useStoreAuthFlow((s) => s.clearPendingPasswordToken)
 
   const [form, setForm] = useState({ ...initialCreatePasswordForm })
+  const handlePasswordChange = (value: string) => {
+    setForm((prev) => ({ ...prev, password: value }))
+  }
+  const handleConfirmPasswordChange = (value: string) => {
+    setForm((prev) => ({ ...prev, confirmPassword: value }))
+  }
 
   const redirectToLogin = () => {
     clearPendingPasswordToken()
@@ -103,7 +109,7 @@ export default function CreatePasswordPage() {
               value={form.password}
               label="Nueva contrasena"
               autocomplete="new-password"
-              onValueChange={(v) => setForm((f) => ({ ...f, password: v }))}
+              onValueChange={handlePasswordChange}
               required
             />
 
@@ -111,7 +117,7 @@ export default function CreatePasswordPage() {
               value={form.confirmPassword}
               label="Confirmar contrasena"
               autocomplete="new-password"
-              onValueChange={(v) => setForm((f) => ({ ...f, confirmPassword: v }))}
+              onValueChange={handleConfirmPasswordChange}
               required
             />
 

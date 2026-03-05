@@ -282,6 +282,7 @@ export default {
         loadUsersFiltersError: 'No se pudieron cargar los filtros de usuarios.',
         loadStatusError: 'No se pudieron cargar los estados.',
         loadApprovalEmployeeStatusesError: 'No se pudieron cargar los estados de aprobacion.',
+        loadHrRequestTypesError: 'No se pudieron cargar los tipos de solicitud.',
       },
     },
   },

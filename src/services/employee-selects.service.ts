@@ -114,5 +114,10 @@ export const employeeSelectsService = {
     return data
   },
 
+  getHrRequestTypeOptions: async () => {
+    const { data } = await axiosInstance.get<EmployeeSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/hr-request-types`)
+    return data
+  },
+
   isAxiosError: axios.isAxiosError,
 }

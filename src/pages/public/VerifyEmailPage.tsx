@@ -32,6 +32,12 @@ export default function VerifyEmailPage() {
   const [showResendModal, setShowResendModal] = useState(false)
   const [resendModalError, setResendModalError] = useState<string | null>(null)
   const { errors, validateAll } = useFormValidation(form, verifyEmailValidationRules)
+  const handleVerificationCodeChange = (value: string) => {
+    setForm({ code: value })
+  }
+  const handleResendPhoneNumberChange = (value: string) => {
+    setResendForm({ phoneNumber: value })
+  }
 
   useEffect(() => {
     if (queryEmail) {
@@ -122,7 +128,7 @@ export default function VerifyEmailPage() {
             <VerificationCodeInputComponent
               value={form.code}
               error={errors.code}
-              onValueChange={(v) => setForm({ code: v })}
+              onValueChange={handleVerificationCodeChange}
             />
 
             <button
@@ -167,7 +173,7 @@ export default function VerifyEmailPage() {
         errorMessage={resendModalError}
         onClose={() => setShowResendModal(false)}
         onConfirm={handleResendCode}
-        onPhoneNumberChange={(v) => setResendForm({ phoneNumber: v })}
+        onPhoneNumberChange={handleResendPhoneNumberChange}
       />
     </main>
   )

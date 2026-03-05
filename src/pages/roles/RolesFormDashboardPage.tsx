@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
@@ -6,7 +6,6 @@ import {
   InputComponent,
   SaveConfirmComponent,
   SelectComponent,
-  StatusBadgeComponent,
 } from '@/components'
 import { AUTH_ROUTE_ROLES } from '@/constant'
 import { initialCreateRoleForm } from '@/factories'
@@ -31,8 +30,7 @@ export default function RolesFormDashboardPage() {
   const isEditMode = Number.isInteger(editRoleId) && editRoleId > 0
 
   const [form, setForm] = useState({ ...initialCreateRoleForm })
-  const [selectedPermissionIds, setSelectedPermissionIds] = useState<number[]>([])
-  const [permissionPickerValue, setPermissionPickerValue] = useState('')
+  const [selectedPermissionValues, setSelectedPermissionValues] = useState<string[]>([])
   const [permissionsError, setPermissionsError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
@@ -61,9 +59,7 @@ export default function RolesFormDashboardPage() {
 
   const { errors, validateAll, onValidation } = useFormValidation(form, rolesCreateValidationRules)
 
-  const creating = createRoleSubmitting
-  const updating = updateRoleSubmitting
-  const saving = creating || updating
+  const saving = createRoleSubmitting || updateRoleSubmitting
 
   const headerTitle = isEditMode ? 'Editar rol' : 'Crear rol'
   const headerDescription = isEditMode
@@ -73,22 +69,11 @@ export default function RolesFormDashboardPage() {
   const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : 'Creando rol...'
   const submitErrorMessage = isEditMode ? updateRoleErrorMessage : createRoleErrorMessage
   const submitSuccessMessage = isEditMode ? updateRoleSuccessMessage : createRoleSuccessMessage
-  const canSubmit = !saving && !loadingPermissionOptions && selectedPermissionIds.length > 0
-  const permissionSelectOptions = useMemo(
-    () => permissionOptions
-      .filter((permission) => !selectedPermissionIds.includes(permission.id))
-      .map((permission) => ({ value: String(permission.id), label: permission.name })),
-    [permissionOptions, selectedPermissionIds],
-  )
-  const selectedPermissionItems = useMemo(() => (
-    selectedPermissionIds.map((id) => {
-      const matchedOption = permissionOptions.find((permission) => permission.id === id)
-      return {
-        id,
-        name: matchedOption?.name || `PERMISSION:${id}`,
-      }
-    })
-  ), [permissionOptions, selectedPermissionIds])
+  const canSubmit = !saving && !loadingPermissionOptions && selectedPermissionValues.length > 0
+  const permissionSelectOptions = permissionOptions.map((permission) => ({
+    value: String(permission.id),
+    label: permission.name,
+  }))
 
   useEffect(() => {
     void getPermissionOptions()
@@ -119,8 +104,7 @@ export default function RolesFormDashboardPage() {
       if (!detail || cancelled) return
 
       setForm(mapRoleToForm({ name: detail.name, description: detail.description }))
-      setSelectedPermissionIds(detail.permissions.map((permission) => permission.id))
-      setPermissionPickerValue('')
+      setSelectedPermissionValues(detail.permissions.map((permission) => String(permission.id)))
       setPermissionsError(null)
     }
 
@@ -140,19 +124,11 @@ export default function RolesFormDashboardPage() {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
+  const handleRoleNameChange = (value: string) => handleChangeField('name', value)
+  const handleRoleDescriptionChange = (value: string) => handleChangeField('description', value)
 
-  const handlePermissionsChange = (value: string) => {
-    const selectedId = Number(value)
-    if (!Number.isInteger(selectedId) || selectedId <= 0) return
-
-    setSelectedPermissionIds((prev) => (prev.includes(selectedId) ? prev : [...prev, selectedId]))
-    setPermissionPickerValue('')
-    setPermissionsError(null)
-    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
-  }
-
-  const handleRemovePermission = (permissionId: number) => {
-    setSelectedPermissionIds((prev) => prev.filter((id) => id !== permissionId))
+  const handlePermissionsValuesChange = (values: string[]) => {
+    setSelectedPermissionValues(values)
     setPermissionsError(null)
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
@@ -160,7 +136,7 @@ export default function RolesFormDashboardPage() {
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
     if (!validateAll()) return
-    if (selectedPermissionIds.length === 0) {
+    if (selectedPermissionValues.length === 0) {
       setPermissionsError(
         isEditMode
           ? messages.roles.status.errors.updateRolePermissionsRequired
@@ -169,18 +145,12 @@ export default function RolesFormDashboardPage() {
       return
     }
 
+    const permissionIds = selectedPermissionValues.map(Number)
+
     if (isEditMode) {
-      setPendingAction({
-        mode: 'update',
-        payload: mapperUpdateRolePayload(editRoleId, form),
-        permissionIds: [...selectedPermissionIds],
-      })
+      setPendingAction({ mode: 'update', payload: mapperUpdateRolePayload(editRoleId, form), permissionIds })
     } else {
-      setPendingAction({
-        mode: 'create',
-        payload: mapperCreateRolePayload(form),
-        permissionIds: [...selectedPermissionIds],
-      })
+      setPendingAction({ mode: 'create', payload: mapperCreateRolePayload(form), permissionIds })
     }
     setConfirmOpen(true)
   }
@@ -271,7 +241,7 @@ export default function RolesFormDashboardPage() {
             placeholder="Ingresa el nombre del rol"
             autoComplete="off"
             error={errors.name}
-            onValueChange={(value) => handleChangeField('name', value)}
+            onValueChange={handleRoleNameChange}
             onBlur={onValidation('name')}
             required
           />
@@ -282,67 +252,22 @@ export default function RolesFormDashboardPage() {
             type="text"
             placeholder="Ingresa la descripcion"
             autoComplete="off"
-            onValueChange={(value) => handleChangeField('description', value)}
+            onValueChange={handleRoleDescriptionChange}
           />
         </div>
 
-        <section className="space-y-3">
-          <header>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-              Permisos
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Selecciona al menos un permiso para este rol.
-            </p>
-          </header>
-
-          {loadingPermissionOptions ? (
-            <p className="text-sm text-slate-600 dark:text-slate-300">Cargando permisos...</p>
-          ) : permissionOptions.length === 0 ? (
-            <p className="text-sm text-slate-600 dark:text-slate-300">Sin permisos disponibles.</p>
-          ) : (
-            <div className="space-y-2">
-              <SelectComponent
-                value={permissionPickerValue}
-                label="Permisos"
-                disabled={saving || loadingPermissionOptions}
-                options={permissionSelectOptions}
-                placeholder="Selecciona un permiso"
-                onValueChange={handlePermissionsChange}
-                helperText="Selecciona permisos uno por uno."
-              />
-
-              {selectedPermissionItems.length === 0 ? (
-                <p className="text-xs text-slate-500 dark:text-slate-400">Sin permisos seleccionados.</p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {selectedPermissionItems.map((permission) => (
-                    <div key={permission.id} className="inline-flex items-center gap-1">
-                      <StatusBadgeComponent
-                        enabled
-                        activeLabel={permission.name}
-                        inactiveLabel={permission.name}
-                      />
-                      <button
-                        type="button"
-                        className="inline-flex h-5 w-5 items-center justify-center rounded border border-slate-300 text-xs text-slate-500 transition hover:border-rose-300 hover:text-rose-500 dark:border-slate-700 dark:text-slate-400 dark:hover:border-rose-400/40 dark:hover:text-rose-400"
-                        onClick={() => handleRemovePermission(permission.id)}
-                        aria-label={`Quitar permiso ${permission.name}`}
-                        disabled={saving || loadingPermissionOptions}
-                      >
-                        x
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {permissionsError && (
-            <p className="text-xs text-rose-500 dark:text-rose-400">{permissionsError}</p>
-          )}
-        </section>
+        <SelectComponent
+          label="Permisos"
+          multiple
+          disabled={saving || loadingPermissionOptions}
+          options={permissionSelectOptions}
+          values={selectedPermissionValues}
+          placeholder="Selecciona permisos"
+          helperText="Selecciona al menos un permiso para este rol."
+          error={permissionsError}
+          loading={loadingPermissionOptions}
+          onValuesChange={handlePermissionsValuesChange}
+        />
 
         <div className="flex flex-wrap justify-end gap-2">
           <ButtonComponent

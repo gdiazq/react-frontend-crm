@@ -66,6 +66,50 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => ({
     await get().goToPage(get().pagination.page - 1)
   },
 
+  setSearch: (value: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, search: value } }))
+  },
+
+  setStatusFilter: (statusId: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, statusId } }))
+  },
+
+  setModuleFilter: (idModule: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, idModule } }))
+  },
+
+  setCreatedDateRange: ({ createdFrom, createdTo }) => {
+    set((state) => ({ queryParams: { ...state.queryParams, createdFrom, createdTo } }))
+  },
+
+  setApprovalDateRange: ({ approvalFrom, approvalTo }) => {
+    set((state) => ({ queryParams: { ...state.queryParams, approvalFrom, approvalTo } }))
+  },
+
+  clearStatusFilter: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, statusId: '' } }))
+  },
+
+  clearModuleFilter: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, idModule: '' } }))
+  },
+
+  clearCreatedDateRange: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, createdFrom: '', createdTo: '' } }))
+  },
+
+  clearApprovalDateRange: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, approvalFrom: '', approvalTo: '' } }))
+  },
+
+  searchRequests: async () => {
+    set((state) => ({
+      pagination: { ...state.pagination, page: 0 },
+      queryParams: { ...state.queryParams, page: 0 },
+    }))
+    await get().getRequests()
+  },
+
   mutationApproveRequest: async (requestId: string) => {
     const parsedRequestId = Number(requestId)
     if (!Number.isInteger(parsedRequestId) || parsedRequestId <= 0) {

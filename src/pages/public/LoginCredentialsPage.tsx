@@ -21,6 +21,12 @@ export default function LoginCredentialsPage() {
 
   const [form, setForm] = useState({ ...initialLoginCredentialsForm })
   const { errors, validateField } = useFormValidation(form, loginCredentialsValidationRules)
+  const handlePasswordChange = (value: string) => {
+    setForm((prev) => ({ ...prev, password: value }))
+  }
+  const handleTotpCodeChange = (value: string) => {
+    setForm((prev) => ({ ...prev, totpCode: value.replace(/\s+/g, '') }))
+  }
 
   useEffect(() => {
     const hasSession = hydrate()
@@ -69,7 +75,7 @@ export default function LoginCredentialsPage() {
               placeholder="••••••••"
               required
               error={errors.password}
-              onValueChange={(v) => setForm((f) => ({ ...f, password: v }))}
+              onValueChange={handlePasswordChange}
             />
 
             {mfaRequired && (
@@ -79,7 +85,7 @@ export default function LoginCredentialsPage() {
                 type="text"
                 autoComplete="one-time-code"
                 placeholder="123456"
-                onValueChange={(v) => setForm((f) => ({ ...f, totpCode: v.replace(/\s+/g, '') }))}
+                onValueChange={handleTotpCodeChange}
               />
             )}
 

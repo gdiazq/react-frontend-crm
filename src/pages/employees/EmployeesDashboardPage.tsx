@@ -202,6 +202,14 @@ export default function EmployeesDashboardPage() {
     await sortEmployees(sortBy, nextSortDir)
   }
 
+  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+    setFilters((prev) => ({ ...prev, [field]: value }))
+  }
+  const handleActiveFilterChange = (value: string) => handleChangeFilter('activeId', value)
+  const handleApprovalStatusFilterChange = (value: string) => handleChangeFilter('approvalStatusId', value)
+  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
+  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
+
   const handleApplyFilters = async () => {
     const selectedStatus = statusOptions.find((option) => String(option.id) === filters.activeId)
     const selectedApprovalStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.approvalStatusId)
@@ -436,26 +444,35 @@ export default function EmployeesDashboardPage() {
             value={filters.activeId}
             label="Estado"
             options={statusSelectOptions}
-            onValueChange={(value) => setFilters((prev) => ({ ...prev, activeId: value }))}
+            onValueChange={handleActiveFilterChange}
           />
           <SelectComponent
             value={filters.approvalStatusId}
             label="Estado de aprobacion"
             options={approvalStatusSelectOptions}
-            onValueChange={(value) => setFilters((prev) => ({ ...prev, approvalStatusId: value }))}
+            onValueChange={handleApprovalStatusFilterChange}
           />
-          <InputComponent
-            value={filters.createdFrom}
-            type="date"
-            label="Fecha creacion desde"
-            onValueChange={(value) => setFilters((prev) => ({ ...prev, createdFrom: value }))}
-          />
-          <InputComponent
-            value={filters.createdTo}
-            type="date"
-            label="Fecha creacion hasta"
-            onValueChange={(value) => setFilters((prev) => ({ ...prev, createdTo: value }))}
-          />
+          <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              Fecha creacion
+            </p>
+            <div className="grid gap-2">
+              <InputComponent
+                value={filters.createdFrom}
+                type="date"
+                label="Desde"
+                aria-label="Fecha creacion desde"
+                onValueChange={handleCreatedFromFilterChange}
+              />
+              <InputComponent
+                value={filters.createdTo}
+                type="date"
+                label="Hasta"
+                aria-label="Fecha creacion hasta"
+                onValueChange={handleCreatedToFilterChange}
+              />
+            </div>
+          </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent
               type="button"

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
@@ -68,10 +68,7 @@ export default function UsersFormDashboardPage() {
   const submitSuccessMessage = isEditMode ? updateUserSuccessMessage : createUserSuccessMessage
   const canSubmit = !saving && !loadingRoleOptions && form.roleId.trim().length > 0
 
-  const selectOptions = useMemo(
-    () => roleOptions.map((role) => ({ label: role.name, value: String(role.id) })),
-    [roleOptions],
-  )
+  const selectOptions = roleOptions.map((role) => ({ label: role.name, value: String(role.id) }))
 
   useEffect(() => {
     void getRoleOptions()
@@ -166,6 +163,9 @@ export default function UsersFormDashboardPage() {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
+  const handleFieldValueChange = (field: keyof typeof initialCreateUserForm) => (value: string) => {
+    handleChangeField(field, value)
+  }
 
   const confirmMessage = pendingAction?.mode === 'update'
     ? `¿Deseas guardar los cambios del usuario ${form.username}?`
@@ -228,7 +228,7 @@ export default function UsersFormDashboardPage() {
             placeholder="Ingresa el usuario"
             autoComplete="username"
             error={errors.username}
-            onValueChange={(value) => handleChangeField('username', value)}
+            onValueChange={handleFieldValueChange('username')}
             onBlur={onValidation('username')}
             disabled={isEditMode}
             required
@@ -241,7 +241,7 @@ export default function UsersFormDashboardPage() {
             placeholder="Ingresa el correo"
             autoComplete="email"
             error={errors.email}
-            onValueChange={(value) => handleChangeField('email', value)}
+            onValueChange={handleFieldValueChange('email')}
             onBlur={onValidation('email')}
             required
           />
@@ -253,7 +253,7 @@ export default function UsersFormDashboardPage() {
             placeholder="Ingresa el nombre"
             autoComplete="given-name"
             error={errors.firstName}
-            onValueChange={(value) => handleChangeField('firstName', value)}
+            onValueChange={handleFieldValueChange('firstName')}
             onBlur={onValidation('firstName')}
             required
           />
@@ -265,7 +265,7 @@ export default function UsersFormDashboardPage() {
             placeholder="Ingresa el apellido"
             autoComplete="family-name"
             error={errors.lastName}
-            onValueChange={(value) => handleChangeField('lastName', value)}
+            onValueChange={handleFieldValueChange('lastName')}
             onBlur={onValidation('lastName')}
             required
           />
@@ -277,7 +277,7 @@ export default function UsersFormDashboardPage() {
             placeholder="Ingresa el telefono"
             autoComplete="tel"
             error={errors.phoneNumber}
-            onValueChange={(value) => handleChangeField('phoneNumber', value)}
+            onValueChange={handleFieldValueChange('phoneNumber')}
             onBlur={onValidation('phoneNumber')}
             required
           />
@@ -287,7 +287,7 @@ export default function UsersFormDashboardPage() {
             label={messages.users.ui.createUserRoleLabel}
             options={selectOptions}
             error={errors.roleId}
-            onValueChange={(value) => handleChangeField('roleId', value)}
+            onValueChange={handleFieldValueChange('roleId')}
             onValidation={onValidation('roleId')}
             required
           />

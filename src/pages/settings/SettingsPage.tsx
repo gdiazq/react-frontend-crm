@@ -116,6 +116,9 @@ export default function SettingsPage() {
 
   const showAccountTab = activeTab === 'account'
   const showMfaTab = activeTab === 'mfa'
+  const handleProfileChange = (field: keyof typeof profile) => (value: string) => {
+    setProfile((prev) => ({ ...prev, [field]: value }))
+  }
 
   return (
     <section className="space-y-6">
@@ -172,10 +175,10 @@ export default function SettingsPage() {
           </div>
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <InputComponent value={profile.firstName} label="Nombre" type="text" error={profileErrors.firstName} onValueChange={(v) => setProfile((p) => ({ ...p, firstName: v }))} onBlur={onProfileValidation('firstName')} required />
-            <InputComponent value={profile.lastName} label="Apellido" type="text" error={profileErrors.lastName} onValueChange={(v) => setProfile((p) => ({ ...p, lastName: v }))} onBlur={onProfileValidation('lastName')} required />
-            <InputComponent value={profile.email} label="Correo electronico" type="email" error={profileErrors.email} onValueChange={(v) => setProfile((p) => ({ ...p, email: v }))} onBlur={onProfileValidation('email')} required />
-            <InputComponent value={profile.phoneNumber} label="Telefono" type="tel" placeholder="+1 555 000 0000" error={profileErrors.phoneNumber} onValueChange={(v) => setProfile((p) => ({ ...p, phoneNumber: v }))} onBlur={onProfileValidation('phoneNumber')} required />
+            <InputComponent value={profile.firstName} label="Nombre" type="text" error={profileErrors.firstName} onValueChange={handleProfileChange('firstName')} onBlur={onProfileValidation('firstName')} required />
+            <InputComponent value={profile.lastName} label="Apellido" type="text" error={profileErrors.lastName} onValueChange={handleProfileChange('lastName')} onBlur={onProfileValidation('lastName')} required />
+            <InputComponent value={profile.email} label="Correo electronico" type="email" error={profileErrors.email} onValueChange={handleProfileChange('email')} onBlur={onProfileValidation('email')} required />
+            <InputComponent value={profile.phoneNumber} label="Telefono" type="tel" placeholder="+1 555 000 0000" error={profileErrors.phoneNumber} onValueChange={handleProfileChange('phoneNumber')} onBlur={onProfileValidation('phoneNumber')} required />
           </div>
 
           <div className="mt-4">

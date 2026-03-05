@@ -37,6 +37,13 @@ export interface RequestsPagination {
 export interface RequestsQueryParams {
   page: number
   size: number
+  search: string
+  statusId: string
+  idModule: string
+  createdFrom: string
+  createdTo: string
+  approvalFrom: string
+  approvalTo: string
 }
 
 export interface RequestTableRow {

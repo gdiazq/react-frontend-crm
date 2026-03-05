@@ -9,6 +9,7 @@ import {
   PaginationComponent,
   RightSidebarComponent,
   SaveConfirmComponent,
+  SelectComponent,
   StatsOverviewCardsComponent,
   TableComponent,
   ToolbarActionsDropdownComponent,
@@ -16,7 +17,7 @@ import {
 import { requestsTableColumns } from '@/factories'
 import messages from '@/messages/messages'
 import { requestsService } from '@/services'
-import { useStoreRequests } from '@/store'
+import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
 import { createRequestsActions, downloadBlobFile } from '@/utils'
 import type { RequestTableRow, TableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
@@ -30,17 +31,45 @@ const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
 export default function RequestsDashboardPage() {
   const requestsRows = useStoreRequests((s) => s.requestsRows) as RequestTableRow[]
   const pagination = useStoreRequests((s) => s.pagination)
+  const queryParams = useStoreRequests((s) => s.queryParams)
   const loadingRequests = useStoreRequests((s) => s.loadingRequests)
   const loadingApproveRequest = useStoreRequests((s) => s.loadingApproveRequest)
   const loadingRejectRequest = useStoreRequests((s) => s.loadingRejectRequest)
   const errorMessage = useStoreRequests((s) => s.errorMessage)
   const getRequests = useStoreRequests((s) => s.getRequests)
   const goToPage = useStoreRequests((s) => s.goToPage)
+  const setSearch = useStoreRequests((s) => s.setSearch)
+  const setStatusFilter = useStoreRequests((s) => s.setStatusFilter)
+  const setModuleFilter = useStoreRequests((s) => s.setModuleFilter)
+  const setCreatedDateRange = useStoreRequests((s) => s.setCreatedDateRange)
+  const setApprovalDateRange = useStoreRequests((s) => s.setApprovalDateRange)
+  const clearStatusFilter = useStoreRequests((s) => s.clearStatusFilter)
+  const clearModuleFilter = useStoreRequests((s) => s.clearModuleFilter)
+  const clearCreatedDateRange = useStoreRequests((s) => s.clearCreatedDateRange)
+  const clearApprovalDateRange = useStoreRequests((s) => s.clearApprovalDateRange)
+  const searchRequests = useStoreRequests((s) => s.searchRequests)
   const mutationApproveRequest = useStoreRequests((s) => s.mutationApproveRequest)
   const mutationRejectRequest = useStoreRequests((s) => s.mutationRejectRequest)
   const clearStatus = useStoreRequests((s) => s.clearStatus)
+  const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
+  const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
+  const approvalEmployeeStatusOptionsErrorMessage = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
+  const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
+  const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
+  const hrRequestTypeOptions = useStoreEmployeeSelects((s) => s.hrRequestTypeOptions)
+  const loadingHrRequestTypeOptions = useStoreEmployeeSelects((s) => s.loadingHrRequestTypeOptions)
+  const hrRequestTypeOptionsErrorMessage = useStoreEmployeeSelects((s) => s.hrRequestTypeOptionsErrorMessage)
+  const getHrRequestTypeOptions = useStoreEmployeeSelects((s) => s.getHrRequestTypeOptions)
+  const clearHrRequestTypeOptionsStatus = useStoreEmployeeSelects((s) => s.clearHrRequestTypeOptionsStatus)
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [searchValue, setSearchValue] = useState('')
+  const [filters, setFilters] = useState(() => ({
+    statusId: queryParams.statusId,
+    moduleId: queryParams.idModule,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    approvalFrom: queryParams.approvalFrom,
+    approvalTo: queryParams.approvalTo,
+  }))
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
@@ -57,10 +86,14 @@ export default function RequestsDashboardPage() {
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
+  const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const moduleSelectOptions = hrRequestTypeOptions.map((option) => ({ label: option.name, value: String(option.id) }))
 
   useEffect(() => {
     void getRequests()
-  }, [getRequests])
+    void getApprovalEmployeeStatusOptions()
+    void getHrRequestTypeOptions()
+  }, [getRequests, getApprovalEmployeeStatusOptions, getHrRequestTypeOptions])
 
   useEffect(() => {
     const closeActions = () => setOpenActionsRowId(null)
@@ -163,6 +196,51 @@ export default function RequestsDashboardPage() {
     setActionsMessage('Carga masiva disponible proximamente.')
   }
 
+  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+    setFilters((prev) => ({ ...prev, [field]: value }))
+  }
+  const handleStatusFilterChange = (value: string) => handleChangeFilter('statusId', value)
+  const handleModuleFilterChange = (value: string) => handleChangeFilter('moduleId', value)
+  const handleApprovalFromFilterChange = (value: string) => handleChangeFilter('approvalFrom', value)
+  const handleApprovalToFilterChange = (value: string) => handleChangeFilter('approvalTo', value)
+  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
+  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
+
+  const handleApplyFilters = async () => {
+    const selectedStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.statusId)
+    const selectedModule = hrRequestTypeOptions.find((option) => String(option.id) === filters.moduleId)
+
+    setStatusFilter(selectedStatus ? String(selectedStatus.id) : '')
+    setModuleFilter(selectedModule ? String(selectedModule.id) : '')
+    setCreatedDateRange({
+      createdFrom: filters.createdFrom.trim(),
+      createdTo: filters.createdTo.trim(),
+    })
+    setApprovalDateRange({
+      approvalFrom: filters.approvalFrom.trim(),
+      approvalTo: filters.approvalTo.trim(),
+    })
+    await searchRequests()
+    setFiltersOpen(false)
+  }
+
+  const handleClearFilters = async () => {
+    setFilters({
+      statusId: '',
+      moduleId: '',
+      createdFrom: '',
+      createdTo: '',
+      approvalFrom: '',
+      approvalTo: '',
+    })
+    clearStatusFilter()
+    clearModuleFilter()
+    clearCreatedDateRange()
+    clearApprovalDateRange()
+    await searchRequests()
+    setFiltersOpen(false)
+  }
+
   const confirmApproveMessage = pendingApproveRow
     ? `¿Seguro que deseas aprobar la solicitud de ${pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]}?`
     : ''
@@ -222,27 +300,43 @@ export default function RequestsDashboardPage() {
         />
       )}
 
+      {approvalEmployeeStatusOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={approvalEmployeeStatusOptionsErrorMessage}
+          tone="error"
+          onClose={clearApprovalEmployeeStatusOptionsStatus}
+        />
+      )}
+
+      {hrRequestTypeOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={hrRequestTypeOptionsErrorMessage}
+          tone="error"
+          onClose={clearHrRequestTypeOptionsStatus}
+        />
+      )}
+
       <form
         className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
         onSubmit={(event) => {
           event.preventDefault()
-          void getRequests()
+          void searchRequests()
         }}
       >
         <div className="flex items-center gap-2 md:col-start-1 md:row-start-1">
           <ButtonComponent
             type="button"
             variant="outline"
-            disabled={loadingRequests || loadingApproveRequest || loadingRejectRequest}
+            disabled={loadingRequests}
             label="Filtro"
             onClick={() => setFiltersOpen(true)}
           />
           <div className="min-w-0 flex-1">
             <InputComponent
-              value={searchValue}
+              value={queryParams.search}
               type="text"
-              placeholder="Buscar por identificacion, nombre o tipo de solicitud"
-              onValueChange={setSearchValue}
+              placeholder="Buscar por nombre"
+              onValueChange={setSearch}
             />
           </div>
         </div>
@@ -250,12 +344,12 @@ export default function RequestsDashboardPage() {
           <ButtonComponent
             type="submit"
             variant="primary"
-            disabled={loadingRequests || loadingApproveRequest || loadingRejectRequest}
+            disabled={loadingRequests}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loadingRequests ? 'Buscando...' : 'Buscar'}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingRequests || loadingApproveRequest || loadingRejectRequest || downloadingReport}
+            disabled={loadingRequests || downloadingReport}
             showBulkUpload={false}
             onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
@@ -285,7 +379,7 @@ export default function RequestsDashboardPage() {
           totalPages={totalPages}
           totalItems={totalItems}
           pageSize={pageSize}
-          loading={loadingRequests || loadingApproveRequest || loadingRejectRequest}
+          loading={loadingRequests}
           onPageChange={(page) => goToPage(page - 1)}
         />
       </div>
@@ -295,7 +389,81 @@ export default function RequestsDashboardPage() {
         title="Filtros"
         onClose={() => setFiltersOpen(false)}
       >
-        <p className="text-sm text-slate-500 dark:text-slate-400">Sin filtros disponibles por ahora.</p>
+        <div className="space-y-4">
+          <SelectComponent
+            value={filters.statusId}
+            label="Estado de aprobacion"
+            options={statusSelectOptions}
+            loading={loadingApprovalEmployeeStatusOptions}
+            onValueChange={handleStatusFilterChange}
+          />
+          <SelectComponent
+            value={filters.moduleId}
+            label="Tipo solicitud"
+            options={moduleSelectOptions}
+            loading={loadingHrRequestTypeOptions}
+            onValueChange={handleModuleFilterChange}
+          />
+          <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/30 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">
+              Fecha aprobacion
+            </p>
+            <div className="grid gap-2">
+              <InputComponent
+                value={filters.approvalFrom}
+                label="Desde"
+                type="date"
+                aria-label="Fecha aprobacion desde"
+                onValueChange={handleApprovalFromFilterChange}
+              />
+              <InputComponent
+                value={filters.approvalTo}
+                label="Hasta"
+                type="date"
+                aria-label="Fecha aprobacion hasta"
+                onValueChange={handleApprovalToFilterChange}
+              />
+            </div>
+          </div>
+          <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              Fecha creacion
+            </p>
+            <div className="grid gap-2">
+              <InputComponent
+                value={filters.createdFrom}
+                label="Desde"
+                type="date"
+                aria-label="Fecha creacion desde"
+                onValueChange={handleCreatedFromFilterChange}
+              />
+              <InputComponent
+                value={filters.createdTo}
+                label="Hasta"
+                type="date"
+                aria-label="Fecha creacion hasta"
+                onValueChange={handleCreatedToFilterChange}
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-end gap-2 pt-2">
+            <ButtonComponent
+              type="button"
+              variant="outline"
+              disabled={loadingRequests || loadingApprovalEmployeeStatusOptions || loadingHrRequestTypeOptions}
+              label="Limpiar"
+              onClick={() => { void handleClearFilters() }}
+            />
+            <ButtonComponent
+              type="button"
+              variant="primary"
+              disabled={loadingRequests || loadingApprovalEmployeeStatusOptions || loadingHrRequestTypeOptions}
+              className="text-white dark:text-white"
+              label={loadingApprovalEmployeeStatusOptions || loadingHrRequestTypeOptions ? 'Aplicando...' : 'Aplicar'}
+              onClick={() => { void handleApplyFilters() }}
+            />
+          </div>
+        </div>
       </RightSidebarComponent>
 
       <DetailSidebarComponent

@@ -31,4 +31,11 @@ export const initialRequestsPagination: RequestsPagination = {
 export const initialRequestsQueryParams: RequestsQueryParams = {
   page: 0,
   size: 8,
+  search: '',
+  statusId: '',
+  idModule: '',
+  createdFrom: '',
+  createdTo: '',
+  approvalFrom: '',
+  approvalTo: '',
 }

@@ -17,6 +17,9 @@ export default function RecoveryPage() {
   const setPendingVerifyEmail = useStoreAuthFlow((s) => s.setPendingVerifyEmail)
 
   const [form, setForm] = useState({ ...initialForgotPasswordForm })
+  const handleEmailChange = (value: string) => {
+    setForm((prev) => ({ ...prev, email: value }))
+  }
 
   useEffect(() => {
     useStoreAuthFlow.setState({ errorMessage: null, successMessage: null })
@@ -68,7 +71,7 @@ export default function RecoveryPage() {
               type="email"
               autoComplete="email"
               placeholder="Ingresa tu correo"
-              onValueChange={(v) => setForm((f) => ({ ...f, email: v }))}
+              onValueChange={handleEmailChange}
               required
             />
 

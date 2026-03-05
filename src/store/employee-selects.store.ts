@@ -26,14 +26,17 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
   paymentMethodOptions: [],
   bankOptions: [],
   approvalEmployeeStatusOptions: [],
+  hrRequestTypeOptions: [],
   loadingFormOptions: false,
   loadingCommuneOptions: false,
   loadingCityOptions: false,
   loadingApprovalEmployeeStatusOptions: false,
+  loadingHrRequestTypeOptions: false,
   formOptionsErrorMessage: null,
   communeOptionsErrorMessage: null,
   cityOptionsErrorMessage: null,
   approvalEmployeeStatusOptionsErrorMessage: null,
+  hrRequestTypeOptionsErrorMessage: null,
   errorBack: null,
 
   getFormOptions: async () => {
@@ -199,6 +202,32 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
     }
   },
 
+  getHrRequestTypeOptions: async () => {
+    try {
+      set({
+        loadingHrRequestTypeOptions: true,
+        hrRequestTypeOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await employeeSelectsService.getHrRequestTypeOptions()
+      set({ hrRequestTypeOptions: mapperEmployeeSelectOptions(data) })
+    } catch (error) {
+      if (employeeSelectsService.isAxiosError(error)) {
+        set({
+          hrRequestTypeOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadHrRequestTypesError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          hrRequestTypeOptionsErrorMessage: messages.selects.status.errors.loadHrRequestTypesError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingHrRequestTypeOptions: false })
+    }
+  },
+
   clearFormOptionsStatus: () => {
     set({ formOptionsErrorMessage: null })
   },
@@ -213,6 +242,10 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
 
   clearApprovalEmployeeStatusOptionsStatus: () => {
     set({ approvalEmployeeStatusOptionsErrorMessage: null })
+  },
+
+  clearHrRequestTypeOptionsStatus: () => {
+    set({ hrRequestTypeOptionsErrorMessage: null })
   },
 
   resetLocationOptions: () => {
