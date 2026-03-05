@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import ButtonComponent from '@/components/ui/button/ButtonComponent'
+import DetailSectionDropdownComponent from '@/components/ui/dropdown/DetailSectionDropdownComponent'
 import EmployeeApprovalStatusBadgeComponent from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
 import StatusBadgeComponent from '@/components/ui/status/StatusBadgeComponent'
 import type { EmployeeDetailView } from '@/types'
@@ -10,12 +12,24 @@ interface EmployeeDetailComponentProps {
   onRetry?: () => void
 }
 
+type EmployeeDetailTabKey =
+  | 'personal'
+  | 'contact'
+  | 'emergency'
+  | 'address'
+  | 'health'
+  | 'payment'
+  | 'linkedUser'
+  | 'dates'
+
 export default function EmployeeDetailComponent({
   detail,
   loading,
   errorMessage,
   onRetry,
 }: EmployeeDetailComponentProps) {
+  const [activeTab, setActiveTab] = useState<EmployeeDetailTabKey>('personal')
+
   const resolveText = (value: string) => {
     const normalized = value.trim()
     return normalized.length > 0 ? normalized : 'Sin registro'
@@ -53,6 +67,17 @@ export default function EmployeeDetailComponent({
 
   const rehireLabel = detail.rehireEligible ? 'Si' : 'No'
   const userEnabled = detail.userEnabled === 'Si'
+  const tabs: { key: EmployeeDetailTabKey, label: string }[] = [
+    { key: 'personal', label: 'Datos personales' },
+    { key: 'contact', label: 'Contacto' },
+    { key: 'emergency', label: 'Emergencia' },
+    { key: 'address', label: 'Direccion' },
+    { key: 'health', label: 'Salud y prevision' },
+    { key: 'payment', label: 'Pago y tallas' },
+    { key: 'linkedUser', label: 'Usuario vinculado' },
+    { key: 'dates', label: 'Fechas' },
+  ]
+  const tabSelectOptions = tabs.map((tab) => ({ value: tab.key, label: tab.label }))
   const personalFields = [
     { label: 'Tipo identificacion', value: detail.identificationType },
     { label: 'Fecha nacimiento', value: detail.birthDate },
@@ -107,6 +132,89 @@ export default function EmployeeDetailComponent({
     { label: 'Talla pantalon', value: detail.pantSize },
   ]
 
+  const renderFieldsGrid = (fields: { label: string, value: string }[]) => (
+    <div className="grid gap-3 md:grid-cols-2">
+      {fields.map((field) => (
+        <article key={field.label} className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{field.label}</p>
+          <p className="mt-1 text-sm font-medium">{resolveText(field.value)}</p>
+        </article>
+      ))}
+    </div>
+  )
+
+  const tabContentByKey: Record<EmployeeDetailTabKey, { title: string, content: React.ReactNode }> = {
+    personal: {
+      title: 'Datos personales',
+      content: renderFieldsGrid(personalFields),
+    },
+    contact: {
+      title: 'Contacto',
+      content: renderFieldsGrid(contactFields),
+    },
+    emergency: {
+      title: 'Contacto de emergencia',
+      content: renderFieldsGrid(emergencyFields),
+    },
+    address: {
+      title: 'Direccion',
+      content: renderFieldsGrid(addressFields),
+    },
+    health: {
+      title: 'Salud y prevision',
+      content: renderFieldsGrid(healthFields),
+    },
+    payment: {
+      title: 'Pago y tallas',
+      content: renderFieldsGrid(paymentFields),
+    },
+    linkedUser: {
+      title: 'Usuario vinculado',
+      content: (
+        <div className="grid gap-3 md:grid-cols-2">
+          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Usuario</p>
+            <p className="mt-1 text-sm font-medium">{resolveText(detail.username)}</p>
+          </article>
+          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Email</p>
+            <p className="mt-1 text-sm font-medium break-all">{resolveText(detail.userEmail)}</p>
+          </article>
+          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20 md:col-span-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Habilitado</p>
+            <div className="mt-1">
+              <StatusBadgeComponent enabled={userEnabled} />
+            </div>
+          </article>
+        </div>
+      ),
+    },
+    dates: {
+      title: 'Fechas',
+      content: (
+        <div className="grid gap-3 md:grid-cols-2">
+          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Solicitud</p>
+            <p className="mt-1 text-sm font-medium">{resolveText(detail.requestId)}</p>
+          </article>
+          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Creado</p>
+            <p className="mt-1 text-sm font-medium">{resolveText(detail.createdAtDisplay)}</p>
+          </article>
+          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20 md:col-span-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Actualizado</p>
+            <p className="mt-1 text-sm font-medium">{resolveText(detail.updatedAtDisplay)}</p>
+          </article>
+        </div>
+      ),
+    },
+  }
+
+  const activeTabContent = tabContentByKey[activeTab]
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as EmployeeDetailTabKey)
+  }
+
   return (
     <section className="space-y-5">
       <article className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 dark:border-white/10 dark:from-slate-900/60 dark:to-slate-900/30">
@@ -128,130 +236,20 @@ export default function EmployeeDetailComponent({
         </div>
       </article>
 
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Datos personales
-        </h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          {personalFields.map((field) => (
-            <article key={field.label} className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{field.label}</p>
-              <p className="mt-1 text-sm font-medium">{resolveText(field.value)}</p>
-            </article>
-          ))}
-        </div>
+      <article className="rounded-xl border border-slate-200 p-2 dark:border-white/10">
+        <DetailSectionDropdownComponent
+          value={activeTab}
+          label="Seccion"
+          options={tabSelectOptions}
+          onValueChange={handleTabChange}
+        />
       </article>
 
       <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Contacto
+          {activeTabContent.title}
         </h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          {contactFields.map((field) => (
-            <article key={field.label} className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{field.label}</p>
-              <p className="mt-1 text-sm font-medium break-all">{resolveText(field.value)}</p>
-            </article>
-          ))}
-        </div>
-      </article>
-
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Contacto de emergencia
-        </h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          {emergencyFields.map((field) => (
-            <article key={field.label} className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{field.label}</p>
-              <p className="mt-1 text-sm font-medium">{resolveText(field.value)}</p>
-            </article>
-          ))}
-        </div>
-      </article>
-
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Direccion
-        </h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          {addressFields.map((field) => (
-            <article key={field.label} className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{field.label}</p>
-              <p className="mt-1 text-sm font-medium">{resolveText(field.value)}</p>
-            </article>
-          ))}
-        </div>
-      </article>
-
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Salud y prevision
-        </h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          {healthFields.map((field) => (
-            <article key={field.label} className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{field.label}</p>
-              <p className="mt-1 text-sm font-medium">{resolveText(field.value)}</p>
-            </article>
-          ))}
-        </div>
-      </article>
-
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Pago y tallas
-        </h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          {paymentFields.map((field) => (
-            <article key={field.label} className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{field.label}</p>
-              <p className="mt-1 text-sm font-medium">{resolveText(field.value)}</p>
-            </article>
-          ))}
-        </div>
-      </article>
-
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Usuario vinculado
-        </h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Usuario</p>
-            <p className="mt-1 text-sm font-medium">{resolveText(detail.username)}</p>
-          </article>
-          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Email</p>
-            <p className="mt-1 text-sm font-medium break-all">{resolveText(detail.userEmail)}</p>
-          </article>
-          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20 md:col-span-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Habilitado</p>
-            <div className="mt-1">
-              <StatusBadgeComponent enabled={userEnabled} />
-            </div>
-          </article>
-        </div>
-      </article>
-
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Fechas
-        </h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Solicitud</p>
-            <p className="mt-1 text-sm font-medium">{resolveText(detail.requestId)}</p>
-          </article>
-          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Creado</p>
-            <p className="mt-1 text-sm font-medium">{resolveText(detail.createdAtDisplay)}</p>
-          </article>
-          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20 md:col-span-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Actualizado</p>
-            <p className="mt-1 text-sm font-medium">{resolveText(detail.updatedAtDisplay)}</p>
-          </article>
-        </div>
+        {activeTabContent.content}
       </article>
     </section>
   )

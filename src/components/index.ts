@@ -14,6 +14,7 @@ export { default as TableComponent } from './ui/table/TableComponent'
 export type { TableRow, TableSortState } from '@/types'
 export { default as ActionsDropdownComponent } from './ui/dropdown/ActionsDropdownComponent'
 export { default as ToolbarActionsDropdownComponent } from './ui/dropdown/ToolbarActionsDropdownComponent'
+export { default as DetailSectionDropdownComponent } from './ui/dropdown/DetailSectionDropdownComponent'
 export { default as AlertMessageComponent } from './ui/alert/AlertMessageComponent'
 
 // Layout Components

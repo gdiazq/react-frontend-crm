@@ -518,6 +518,7 @@ export default function EmployeesDashboardPage() {
         onClose={handleCloseDetail}
       >
         <EmployeeDetailComponent
+          key={selectedDetailRowId ?? 'empty-employee-detail'}
           detail={employeeDetailView}
           loading={loadingEmployeeDetail}
           errorMessage={detailErrorMessage}
