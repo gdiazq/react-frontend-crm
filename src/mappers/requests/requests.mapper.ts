@@ -20,6 +20,13 @@ function resolveApprovalDateLabel(item: HrRequestRaw): string {
   return approvalDate ? formatDate(approvalDate) : messages.requests.ui.noApprovalDate
 }
 
+function resolveActionLabel(action?: string | null): string {
+  const normalized = action?.trim().toUpperCase() ?? ''
+  if (normalized === 'CREATE') return 'Crear'
+  if (normalized === 'UPDATE') return 'Actualizar'
+  return normalized.length > 0 ? normalized : '-'
+}
+
 export function mapperRequestsRows(response: HrRequestRaw[]): RequestTableRow[] {
   return response.map((item) => ({
     id: String(item.id),
@@ -29,8 +36,8 @@ export function mapperRequestsRows(response: HrRequestRaw[]): RequestTableRow[] 
       item.identification,
       `${item.firstName} ${item.paternalLastName} ${item.maternalLastName}`.trim(),
       item.requestTypeName,
+      resolveActionLabel(item.action),
       item.statusName,
-      item.requireApproval ? messages.requests.ui.requireApprovalYes : messages.requests.ui.requireApprovalNo,
       resolveApproverLabel(item),
       resolveApprovalDateLabel(item),
       formatDate(item.createdAt),
@@ -109,6 +116,7 @@ export function mapperRequestDetailView(detail: HrRequestDetailRaw | null): Requ
     identification: detail.identification,
     moduleDisplay: `Modulo ${detail.idModule}`,
     requestTypeName: detail.requestType.name,
+    actionDisplay: resolveActionLabel(detail.action),
     statusName: detail.status.name,
     requireApprovalLabel: detail.requireApproval ? messages.requests.ui.requireApprovalYes : messages.requests.ui.requireApprovalNo,
     approverName: detail.approver?.name ?? messages.requests.ui.unassignedApprover,

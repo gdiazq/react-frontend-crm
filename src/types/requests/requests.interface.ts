@@ -10,6 +10,7 @@ export interface HrRequestRaw {
   statusId: number
   statusName: string
   requireApproval: boolean
+  action?: string | null
   approverId?: number | null
   approverFullName?: string | null
   approvalDate?: string | null
@@ -87,6 +88,7 @@ export interface HrRequestDetailRaw {
   requestType: HrRequestDetailReference
   status: HrRequestDetailReference
   requireApproval: boolean
+  action?: string | null
   approver?: HrRequestDetailReference | null
   approvalDate?: string | null
   hhrrApprover?: HrRequestDetailReference | null
@@ -101,6 +103,7 @@ export interface RequestDetailView {
   identification: string
   moduleDisplay: string
   requestTypeName: string
+  actionDisplay: string
   statusName: string
   requireApprovalLabel: string
   approverName: string

@@ -24,7 +24,7 @@ import { createRequestsActions, downloadBlobFile } from '@/utils'
 import type { RequestTableRow, TableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
 
-const REQUEST_STATUS_COLUMN_INDEX = 3
+const REQUEST_STATUS_COLUMN_INDEX = 4
 const REQUEST_NAME_COLUMN_INDEX = 1
 const ACTIONS_COLUMN_INDEX = requestsTableColumns.length - 1
 
@@ -434,6 +434,7 @@ export default function RequestsDashboardPage() {
             </p>
             <div className="grid gap-2">
               <InputComponent
+                id="requests-approval-from"
                 value={filters.approvalFrom}
                 label="Desde"
                 type="date"
@@ -441,6 +442,7 @@ export default function RequestsDashboardPage() {
                 onValueChange={handleApprovalFromFilterChange}
               />
               <InputComponent
+                id="requests-approval-to"
                 value={filters.approvalTo}
                 label="Hasta"
                 type="date"
@@ -455,6 +457,7 @@ export default function RequestsDashboardPage() {
             </p>
             <div className="grid gap-2">
               <InputComponent
+                id="requests-created-from"
                 value={filters.createdFrom}
                 label="Desde"
                 type="date"
@@ -462,6 +465,7 @@ export default function RequestsDashboardPage() {
                 onValueChange={handleCreatedFromFilterChange}
               />
               <InputComponent
+                id="requests-created-to"
                 value={filters.createdTo}
                 label="Hasta"
                 type="date"
