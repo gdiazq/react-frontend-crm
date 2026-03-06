@@ -4,6 +4,7 @@ export type {
   EmployeeCreateResponse,
   EmployeeDetail,
   EmployeeDetailView,
+  EmployeeUpdatePayload,
   EmployeePagedResponse,
   EmployeeRaw,
   EmployeeTableRow,

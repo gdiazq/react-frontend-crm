@@ -4,6 +4,7 @@ import type {
   EmployeeCreatePayload,
   EmployeeDetail,
   EmployeeDetailView,
+  EmployeeUpdatePayload,
   EmployeePagedResponse,
   EmployeeRaw,
   EmployeeTableRow,
@@ -141,6 +142,13 @@ function parseRequiredNumber(value: string): number {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : 0
 }
 
+function parseNullableId(value: string): number | null {
+  const normalized = value.trim()
+  if (!normalized) return null
+  const parsed = Number(normalized)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
+}
+
 function parseNullableNumber(value: string): number | null {
   const normalized = value.trim()
   if (!normalized) return null
@@ -200,5 +208,113 @@ export function mapperCreateEmployeePayload(form: EmployeeCreateForm): EmployeeC
     clothingSize: form.clothingSize.trim(),
     shoeSize: form.shoeSize.trim(),
     pantSize: form.pantSize.trim(),
+  }
+}
+
+export function mapperEmployeeDetailToForm(detail: EmployeeDetail): EmployeeCreateForm {
+  return {
+    identification: detail.identification,
+    identificationTypeId: detail.identificationType?.id ? String(detail.identificationType.id) : '',
+    firstName: detail.firstName,
+    paternalLastName: detail.paternalLastName,
+    maternalLastName: detail.maternalLastName,
+    birthDate: detail.birthDate ?? '',
+    genderId: detail.gender?.id ? String(detail.gender.id) : '',
+    maritalStatusId: detail.maritalStatus?.id ? String(detail.maritalStatus.id) : '',
+    educationLevelId: detail.educationLevel?.id ? String(detail.educationLevel.id) : '',
+    driverLicenseId: detail.driverLicense?.id ? String(detail.driverLicense.id) : '',
+    professionId: detail.profession?.id ? String(detail.profession.id) : '',
+    personalEmail: detail.personalEmail ?? '',
+    corporateEmail: detail.corporateEmail,
+    phone: detail.phone ?? '',
+    phone2: detail.phone2 ?? '',
+    emergencyContactName: detail.emergencyContactName ?? '',
+    emergencyContactRelationshipId: detail.emergencyContactRelationship?.id ? String(detail.emergencyContactRelationship.id) : '',
+    emergencyContactPhone: detail.emergencyContactPhone ?? '',
+    emergencyContactPhone2: detail.emergencyContactPhone2 ?? '',
+    streetName: detail.streetName ?? '',
+    streetNumber: detail.streetNumber ?? '',
+    postalCode: detail.postalCode ?? '',
+    department: detail.department ?? '',
+    village: detail.village ?? '',
+    block: detail.block ?? '',
+    regionId: detail.region?.id ? String(detail.region.id) : '',
+    communeId: detail.commune?.id ? String(detail.commune.id) : '',
+    cityId: detail.city?.id ? String(detail.city.id) : '',
+    expatId: detail.expat?.id ? String(detail.expat.id) : '',
+    nationalityId: detail.nationality?.id ? String(detail.nationality.id) : '',
+    familyAllowanceTierId: detail.familyAllowanceTier?.id ? String(detail.familyAllowanceTier.id) : '',
+    retirementStatusId: detail.retirementStatus?.id ? String(detail.retirementStatus.id) : '',
+    isapreFun: detail.isapreFun ?? '',
+    pensionStatusId: detail.pensionStatus?.id ? String(detail.pensionStatus.id) : '',
+    afpId: detail.afp?.id ? String(detail.afp.id) : '',
+    healthInsuranceId: detail.healthInsurance?.id ? String(detail.healthInsurance.id) : '',
+    healthInsuranceTariffId: detail.healthInsuranceTariff?.id ? String(detail.healthInsuranceTariff.id) : '',
+    healthInsuranceUF: detail.healthInsuranceUF ?? '',
+    healthInsurancePesos: detail.healthInsurancePesos ?? '',
+    paymentMethodId: detail.paymentMethod?.id ? String(detail.paymentMethod.id) : '',
+    bankId: detail.bank?.id ? String(detail.bank.id) : '',
+    bankAccount: detail.bankAccount ?? '',
+    clothingSize: detail.clothingSize ?? '',
+    shoeSize: detail.shoeSize ?? '',
+    pantSize: detail.pantSize ?? '',
+  }
+}
+
+export function mapperUpdateEmployeePayload(
+  employeeId: number,
+  form: EmployeeCreateForm,
+  meta: { statusId: number, active: boolean, rehireEligible: boolean },
+): EmployeeUpdatePayload {
+  return {
+    id: employeeId,
+    identification: form.identification.trim(),
+    identificationTypeId: parseRequiredNumber(form.identificationTypeId),
+    firstName: form.firstName.trim(),
+    paternalLastName: form.paternalLastName.trim(),
+    maternalLastName: form.maternalLastName.trim(),
+    birthDate: form.birthDate.trim(),
+    genderId: parseRequiredNumber(form.genderId),
+    maritalStatusId: parseRequiredNumber(form.maritalStatusId),
+    educationLevelId: parseRequiredNumber(form.educationLevelId),
+    driverLicenseId: parseRequiredNumber(form.driverLicenseId),
+    professionId: parseRequiredNumber(form.professionId),
+    personalEmail: form.personalEmail.trim(),
+    corporateEmail: form.corporateEmail.trim(),
+    phone: form.phone.trim(),
+    phone2: parseNullableString(form.phone2),
+    emergencyContactName: form.emergencyContactName.trim(),
+    emergencyContactRelationshipId: parseRequiredNumber(form.emergencyContactRelationshipId),
+    emergencyContactPhone: form.emergencyContactPhone.trim(),
+    emergencyContactPhone2: parseNullableString(form.emergencyContactPhone2),
+    streetName: form.streetName.trim(),
+    streetNumber: form.streetNumber.trim(),
+    postalCode: form.postalCode.trim(),
+    department: parseNullableString(form.department),
+    village: parseNullableString(form.village),
+    block: parseNullableString(form.block),
+    regionId: parseRequiredNumber(form.regionId),
+    communeId: parseRequiredNumber(form.communeId),
+    cityId: parseRequiredNumber(form.cityId),
+    expatId: parseNullableId(form.expatId),
+    nationalityId: parseRequiredNumber(form.nationalityId),
+    familyAllowanceTierId: parseRequiredNumber(form.familyAllowanceTierId),
+    retirementStatusId: parseRequiredNumber(form.retirementStatusId),
+    isapreFun: parseNullableString(form.isapreFun),
+    pensionStatusId: parseRequiredNumber(form.pensionStatusId),
+    afpId: parseRequiredNumber(form.afpId),
+    healthInsuranceId: parseRequiredNumber(form.healthInsuranceId),
+    healthInsuranceTariffId: parseNullableNumber(form.healthInsuranceTariffId),
+    healthInsuranceUF: parseNullableNumber(form.healthInsuranceUF),
+    healthInsurancePesos: parseNullableNumber(form.healthInsurancePesos),
+    paymentMethodId: parseRequiredNumber(form.paymentMethodId),
+    bankId: parseRequiredNumber(form.bankId),
+    bankAccount: form.bankAccount.trim(),
+    clothingSize: form.clothingSize.trim(),
+    shoeSize: form.shoeSize.trim(),
+    pantSize: form.pantSize.trim(),
+    statusId: meta.statusId,
+    active: meta.active,
+    rehireEligible: meta.rehireEligible,
   }
 }

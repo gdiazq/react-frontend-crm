@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
@@ -10,13 +10,16 @@ import {
 import { AUTH_ROUTE_EMPLOYEES } from '@/constant'
 import { initialCreateEmployeeForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateEmployeePayload } from '@/mappers'
+import { mapperCreateEmployeePayload, mapperEmployeeDetailToForm, mapperUpdateEmployeePayload } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreEmployeeSelects, useStoreEmployees } from '@/store'
-import type { EmployeeCreatePayload, EmployeeSelectOption } from '@/types'
+import type { EmployeeCreatePayload, EmployeeSelectOption, EmployeeUpdatePayload } from '@/types'
 import { employeesCreateValidationRules } from '@/validators'
 
-type PendingAction = { payload: EmployeeCreatePayload } | null
+type PendingAction =
+  | { mode: 'create', payload: EmployeeCreatePayload }
+  | { mode: 'update', payload: EmployeeUpdatePayload }
+  | null
 
 const toSelectOptions = (options: EmployeeSelectOption[]) =>
   options.map((option) => ({ label: option.name, value: String(option.id) }))
@@ -27,16 +30,31 @@ function SectionTitle({ title }: { title: string }) {
 
 export default function EmployeesFormDashboardPage() {
   const navigate = useNavigate()
+  const params = useParams<{ editId: string }>()
+  const rawEditParam = params.editId || ''
+  const editEmployeeId = rawEditParam.startsWith('edit=') ? Number(rawEditParam.slice(5)) : Number.NaN
+  const isEditMode = Number.isInteger(editEmployeeId) && editEmployeeId > 0
 
   const [form, setForm] = useState({ ...initialCreateEmployeeForm })
+  const [editMeta, setEditMeta] = useState<{ statusId: number, active: boolean, rehireEligible: boolean } | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
+  const loadingEmployeeDetail = useStoreEmployees((s) => s.loadingEmployeeDetail)
+  const detailErrorMessage = useStoreEmployees((s) => s.detailErrorMessage)
   const createEmployeeSubmitting = useStoreEmployees((s) => s.createEmployeeSubmitting)
+  const updateEmployeeSubmitting = useStoreEmployees((s) => s.updateEmployeeSubmitting)
   const createEmployeeErrorMessage = useStoreEmployees((s) => s.createEmployeeErrorMessage)
   const createEmployeeSuccessMessage = useStoreEmployees((s) => s.createEmployeeSuccessMessage)
+  const updateEmployeeErrorMessage = useStoreEmployees((s) => s.updateEmployeeErrorMessage)
+  const updateEmployeeSuccessMessage = useStoreEmployees((s) => s.updateEmployeeSuccessMessage)
+  const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
+  const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
+  const clearDetailError = useStoreEmployees((s) => s.clearDetailError)
   const mutationCreateEmployee = useStoreEmployees((s) => s.mutationCreateEmployee)
+  const mutationUpdateEmployee = useStoreEmployees((s) => s.mutationUpdateEmployee)
   const clearCreateEmployeeStatus = useStoreEmployees((s) => s.clearCreateEmployeeStatus)
+  const clearUpdateEmployeeStatus = useStoreEmployees((s) => s.clearUpdateEmployeeStatus)
 
   const identificationTypeOptions = useStoreEmployeeSelects((s) => s.identificationTypeOptions)
   const genderOptions = useStoreEmployeeSelects((s) => s.genderOptions)
@@ -75,7 +93,13 @@ export default function EmployeesFormDashboardPage() {
 
   const { errors, validateAll, onValidation } = useFormValidation(form, employeesCreateValidationRules)
 
-  const saving = createEmployeeSubmitting
+  const saving = createEmployeeSubmitting || updateEmployeeSubmitting
+  const headerTitle = isEditMode ? messages.employees.ui.editEmployeeTitle : messages.employees.ui.createEmployeeTitle
+  const headerDescription = isEditMode ? messages.employees.ui.editEmployeeDescription : messages.employees.ui.createEmployeeDescription
+  const submitLabel = isEditMode ? messages.employees.ui.updateEmployeeSubmit : messages.employees.ui.createEmployeeSubmit
+  const submitLoadingLabel = isEditMode ? messages.employees.ui.updateEmployeeSubmitting : messages.employees.ui.createEmployeeSubmitting
+  const submitErrorMessage = isEditMode ? updateEmployeeErrorMessage : createEmployeeErrorMessage
+  const submitSuccessMessage = isEditMode ? updateEmployeeSuccessMessage : createEmployeeSuccessMessage
   const canSubmit = !saving && !loadingFormOptions
 
   const selectIdentificationTypes = toSelectOptions(identificationTypeOptions)
@@ -104,6 +128,9 @@ export default function EmployeesFormDashboardPage() {
 
     return () => {
       clearCreateEmployeeStatus()
+      clearUpdateEmployeeStatus()
+      clearDetailError()
+      clearEmployeeDetail()
       clearFormOptionsStatus()
       clearCommuneOptionsStatus()
       clearCityOptionsStatus()
@@ -113,10 +140,37 @@ export default function EmployeesFormDashboardPage() {
     clearCityOptionsStatus,
     clearCommuneOptionsStatus,
     clearCreateEmployeeStatus,
+    clearDetailError,
+    clearEmployeeDetail,
     clearFormOptionsStatus,
+    clearUpdateEmployeeStatus,
     getFormOptions,
     resetLocationOptions,
   ])
+
+  useEffect(() => {
+    if (!isEditMode) return
+
+    let cancelled = false
+
+    const load = async () => {
+      const detail = await getEmployeeDetail(String(editEmployeeId))
+      if (!detail || cancelled) return
+
+      setForm(mapperEmployeeDetailToForm(detail))
+      setEditMeta({
+        statusId: detail.status?.id ?? 0,
+        active: detail.active,
+        rehireEligible: detail.rehireEligible,
+      })
+    }
+
+    void load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [editEmployeeId, getEmployeeDetail, isEditMode])
 
   useEffect(() => {
     const regionId = Number(form.regionId)
@@ -137,6 +191,7 @@ export default function EmployeesFormDashboardPage() {
 
   const clearSubmitStatus = () => {
     clearCreateEmployeeStatus()
+    clearUpdateEmployeeStatus()
   }
 
   const handleChangeField = (field: keyof typeof initialCreateEmployeeForm, value: string) => {
@@ -160,8 +215,14 @@ export default function EmployeesFormDashboardPage() {
     event.preventDefault()
     if (!validateAll()) return
 
-    const payload = mapperCreateEmployeePayload(form)
-    setPendingAction({ payload })
+    if (isEditMode) {
+      if (!editMeta) return
+      const payload = mapperUpdateEmployeePayload(editEmployeeId, form, editMeta)
+      setPendingAction({ mode: 'update', payload })
+    } else {
+      const payload = mapperCreateEmployeePayload(form)
+      setPendingAction({ mode: 'create', payload })
+    }
     setConfirmOpen(true)
   }
 
@@ -173,7 +234,9 @@ export default function EmployeesFormDashboardPage() {
 
   const handleConfirmSave = async () => {
     if (!pendingAction || saving) return
-    const success = await mutationCreateEmployee(pendingAction.payload)
+    const success = pendingAction.mode === 'create'
+      ? await mutationCreateEmployee(pendingAction.payload)
+      : await mutationUpdateEmployee(pendingAction.payload)
     if (success) {
       navigate(AUTH_ROUTE_EMPLOYEES)
     }
@@ -181,13 +244,15 @@ export default function EmployeesFormDashboardPage() {
     setPendingAction(null)
   }
 
-  const confirmMessage = `¿Deseas crear al trabajador ${form.firstName} ${form.paternalLastName}?`
+  const confirmMessage = pendingAction?.mode === 'update'
+    ? `¿Deseas guardar los cambios del trabajador ${form.firstName} ${form.paternalLastName}?`
+    : `¿Deseas crear al trabajador ${form.firstName} ${form.paternalLastName}?`
 
   return (
     <section className="space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">{messages.employees.ui.createEmployeeTitle}</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{messages.employees.ui.createEmployeeDescription}</p>
+        <h1 className="text-2xl font-bold">{headerTitle}</h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{headerDescription}</p>
       </header>
 
       {formOptionsErrorMessage && (
@@ -214,17 +279,25 @@ export default function EmployeesFormDashboardPage() {
         />
       )}
 
-      {createEmployeeErrorMessage && (
+      {isEditMode && detailErrorMessage && (
         <AlertMessageComponent
-          message={createEmployeeErrorMessage}
+          message={detailErrorMessage}
+          tone="error"
+          onClose={clearDetailError}
+        />
+      )}
+
+      {submitErrorMessage && (
+        <AlertMessageComponent
+          message={submitErrorMessage}
           tone="error"
           onClose={clearSubmitStatus}
         />
       )}
 
-      {createEmployeeSuccessMessage && (
+      {submitSuccessMessage && (
         <AlertMessageComponent
-          message={createEmployeeSuccessMessage}
+          message={submitSuccessMessage}
           tone="success"
           onClose={clearSubmitStatus}
         />
@@ -234,6 +307,10 @@ export default function EmployeesFormDashboardPage() {
         className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60"
         onSubmit={handleSubmit}
       >
+        {isEditMode && loadingEmployeeDetail && (
+          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando datos del trabajador...</p>
+        )}
+
         <SectionTitle title="Datos personales" />
         <div className="space-y-4">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Identificacion y nacimiento</h3>
@@ -320,15 +397,15 @@ export default function EmployeesFormDashboardPage() {
 
         <div className="flex flex-wrap justify-end gap-2">
           <ButtonComponent type="button" variant="outline" disabled={saving} label="Volver" onClick={() => navigate(AUTH_ROUTE_EMPLOYEES)} />
-          <ButtonComponent type="submit" variant="primary" disabled={!canSubmit} label={saving ? messages.employees.ui.createEmployeeSubmitting : messages.employees.ui.createEmployeeSubmit} />
+          <ButtonComponent type="submit" variant="primary" disabled={!canSubmit} label={saving ? submitLoadingLabel : submitLabel} />
         </div>
       </form>
 
       <SaveConfirmComponent
         open={confirmOpen}
-        title="Confirmar creacion de trabajador"
+        title={isEditMode ? 'Confirmar actualizacion de trabajador' : 'Confirmar creacion de trabajador'}
         message={confirmMessage}
-        confirmLabel={messages.employees.ui.createEmployeeSubmit}
+        confirmLabel={submitLabel}
         cancelLabel="Cancelar"
         loading={saving}
         onClose={handleCloseConfirm}

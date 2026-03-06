@@ -23,10 +23,13 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
   loadingEmployeeDetail: false,
   loadingToggleStatus: false,
   createEmployeeSubmitting: false,
+  updateEmployeeSubmitting: false,
   errorMessage: null,
   detailErrorMessage: null,
   createEmployeeErrorMessage: null,
   createEmployeeSuccessMessage: null,
+  updateEmployeeErrorMessage: null,
+  updateEmployeeSuccessMessage: null,
   errorBack: null,
 
   getEmployeeDetail: async (employeeId: string) => {
@@ -211,10 +214,52 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
     }
   },
 
+  mutationUpdateEmployee: async (payload) => {
+    if (!Number.isInteger(payload.id) || payload.id <= 0) {
+      set({ updateEmployeeErrorMessage: messages.employees.status.errors.detailInvalidEmployeeId })
+      return false
+    }
+
+    try {
+      set({
+        updateEmployeeSubmitting: true,
+        updateEmployeeErrorMessage: null,
+        updateEmployeeSuccessMessage: null,
+        errorBack: null,
+      })
+
+      await employeesService.updateEmployee(payload)
+      set({ updateEmployeeSuccessMessage: messages.employees.status.success.updateEmployeeSuccess })
+      return true
+    } catch (error) {
+      if (employeesService.isAxiosError(error)) {
+        set({
+          updateEmployeeErrorMessage: error.response?.data?.message || messages.employees.status.errors.updateEmployeeError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          updateEmployeeErrorMessage: messages.employees.status.errors.updateEmployeeError,
+          errorBack: error,
+        })
+      }
+      return false
+    } finally {
+      set({ updateEmployeeSubmitting: false })
+    }
+  },
+
   clearCreateEmployeeStatus: () => {
     set({
       createEmployeeErrorMessage: null,
       createEmployeeSuccessMessage: null,
+    })
+  },
+
+  clearUpdateEmployeeStatus: () => {
+    set({
+      updateEmployeeErrorMessage: null,
+      updateEmployeeSuccessMessage: null,
     })
   },
 

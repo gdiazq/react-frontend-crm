@@ -7,6 +7,7 @@ import type {
   EmployeeCreateResponse,
   EmployeeDetail,
   EmployeePagedResponse,
+  EmployeeUpdatePayload,
   EmployeesQueryParams,
 } from '@/types'
 
@@ -26,6 +27,10 @@ export const employeesService = {
   createEmployee: async (payload: EmployeeCreatePayload) => {
     const { data } = await axiosInstance.post<EmployeeCreateResponse>('/rrhh/employee/create', payload)
     return data
+  },
+
+  updateEmployee: async (payload: EmployeeUpdatePayload) => {
+    await axiosInstance.put('/rrhh/employee/update', payload)
   },
 
   toggleEmployeeStatus: async (employeeId: number, active: boolean) => {

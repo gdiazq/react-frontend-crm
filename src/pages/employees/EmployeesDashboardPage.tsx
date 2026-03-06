@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AUTH_ROUTE_EMPLOYEES, AUTH_ROUTE_EMPLOYEES_CREATE } from '@/constant'
+import { AUTH_ROUTE_EMPLOYEES, AUTH_ROUTE_EMPLOYEES_CREATE, AUTH_ROUTE_EMPLOYEES_EDIT } from '@/constant'
 import {
   ActionsDropdownComponent,
   AlertMessageComponent,
@@ -153,7 +153,7 @@ export default function EmployeesDashboardPage() {
   }
 
   const handleUpdateEmployee = (row: EmployeeTableRow) => {
-    setActionsMessage(`${row.values[1]}: ${messages.employees.ui.updateEmployeeComingSoon}`)
+    navigate(`${AUTH_ROUTE_EMPLOYEES_EDIT}=${row.id}`)
     setOpenActionsRowId(null)
   }
 

@@ -109,6 +109,58 @@ export interface EmployeeCreatePayload {
   pantSize: string
 }
 
+export interface EmployeeUpdatePayload {
+  id: number
+  identification: string
+  identificationTypeId: number
+  firstName: string
+  paternalLastName: string
+  maternalLastName: string
+  birthDate: string
+  genderId: number
+  maritalStatusId: number
+  educationLevelId: number
+  driverLicenseId: number
+  professionId: number
+  personalEmail: string
+  corporateEmail: string
+  phone: string
+  phone2: string | null
+  emergencyContactName: string
+  emergencyContactRelationshipId: number
+  emergencyContactPhone: string
+  emergencyContactPhone2: string | null
+  streetName: string
+  streetNumber: string
+  postalCode: string
+  department: string | null
+  village: string | null
+  block: string | null
+  regionId: number
+  communeId: number
+  cityId: number
+  expatId: number | null
+  nationalityId: number
+  familyAllowanceTierId: number
+  retirementStatusId: number
+  isapreFun: string | null
+  pensionStatusId: number
+  afpId: number
+  healthInsuranceId: number
+  healthInsuranceTariffId: number | null
+  healthInsuranceUF: number | null
+  healthInsurancePesos: number | null
+  paymentMethodId: number
+  bankId: number
+  bankAccount: string
+  clothingSize: string
+  shoeSize: string
+  pantSize: string
+  statusId: number
+  active: boolean
+  rehireEligible: boolean
+}
+
 export interface EmployeeCreateResponse {
   id: number
   identification: string

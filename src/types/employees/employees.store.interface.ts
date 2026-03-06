@@ -1,6 +1,7 @@
 import type {
   EmployeeCreatePayload,
   EmployeeDetail,
+  EmployeeUpdatePayload,
   EmployeesPagination,
   EmployeesQueryParams,
   EmployeesSortBy,
@@ -17,10 +18,13 @@ export interface EmployeesStore {
   loadingEmployeeDetail: boolean
   loadingToggleStatus: boolean
   createEmployeeSubmitting: boolean
+  updateEmployeeSubmitting: boolean
   errorMessage: string | null
   detailErrorMessage: string | null
   createEmployeeErrorMessage: string | null
   createEmployeeSuccessMessage: string | null
+  updateEmployeeErrorMessage: string | null
+  updateEmployeeSuccessMessage: string | null
   errorBack: unknown | null
   getEmployees: () => Promise<void>
   getEmployeeDetail: (employeeId: string) => Promise<EmployeeDetail | null>
@@ -40,6 +44,8 @@ export interface EmployeesStore {
   sortEmployees: (sortBy: EmployeesSortBy, sortDir: EmployeesSortDir) => Promise<void>
   mutationToggleEmployeeStatus: (employeeId: string, nextStatus: boolean) => Promise<boolean>
   mutationCreateEmployee: (payload: EmployeeCreatePayload) => Promise<boolean>
+  mutationUpdateEmployee: (payload: EmployeeUpdatePayload) => Promise<boolean>
   clearCreateEmployeeStatus: () => void
+  clearUpdateEmployeeStatus: () => void
   clearStatus: () => void
 }

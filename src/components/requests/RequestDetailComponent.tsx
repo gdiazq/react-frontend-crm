@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
 import ButtonComponent from '@/components/ui/button/ButtonComponent'
 import DetailSectionDropdownComponent from '@/components/ui/dropdown/DetailSectionDropdownComponent'
@@ -53,7 +53,7 @@ export default function RequestDetailComponent({
     { value: 'dates', label: 'Fechas' },
   ]
 
-  const tabContentByKey: Record<RequestDetailTabKey, { title: string, content: JSX.Element }> = {
+  const tabContentByKey: Record<RequestDetailTabKey, { title: string, content: ReactNode }> = {
     general: {
       title: 'Informacion general',
       content: (
