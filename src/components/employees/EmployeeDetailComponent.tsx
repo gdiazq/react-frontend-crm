@@ -189,14 +189,10 @@ export default function EmployeeDetailComponent({
       content: (
         <div className="grid gap-3 md:grid-cols-2">
           <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Solicitud</p>
-            <p className="mt-1 text-sm font-medium">{resolveText(detail.requestId)}</p>
-          </article>
-          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Creado</p>
             <p className="mt-1 text-sm font-medium">{resolveText(detail.createdAtDisplay)}</p>
           </article>
-          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20 md:col-span-2">
+          <article className="rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Actualizado</p>
             <p className="mt-1 text-sm font-medium">{resolveText(detail.updatedAtDisplay)}</p>
           </article>

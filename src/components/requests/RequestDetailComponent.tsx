@@ -58,7 +58,6 @@ export default function RequestDetailComponent({
       title: 'Informacion general',
       content: (
         <div className="grid gap-3 md:grid-cols-2">
-          <p className="text-sm"><span className="font-semibold">Modulo:</span> {detail.moduleDisplay}</p>
           <p className="text-sm"><span className="font-semibold">Tipo solicitud:</span> {detail.requestTypeName}</p>
           <p className="text-sm"><span className="font-semibold">Operacion:</span> {detail.actionDisplay}</p>
           <p className="text-sm"><span className="font-semibold">Requiere aprobacion:</span> {detail.requireApprovalLabel}</p>

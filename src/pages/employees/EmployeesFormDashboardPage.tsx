@@ -21,8 +21,17 @@ type PendingAction =
   | { mode: 'update', payload: EmployeeUpdatePayload }
   | null
 
+type HealthTariffUnit = 'uf' | 'pesos' | 'unknown'
+
 const toSelectOptions = (options: EmployeeSelectOption[]) =>
   options.map((option) => ({ label: option.name, value: String(option.id) }))
+
+function resolveHealthTariffUnit(label: string): HealthTariffUnit {
+  const normalized = label.toLowerCase()
+  if (normalized.includes('uf')) return 'uf'
+  if (normalized.includes('peso')) return 'pesos'
+  return 'unknown'
+}
 
 function SectionTitle({ title }: { title: string }) {
   return <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">{title}</h2>
@@ -122,6 +131,10 @@ export default function EmployeesFormDashboardPage() {
   const selectHealthInsuranceTariffs = toSelectOptions(healthInsuranceTariffOptions)
   const selectPaymentMethods = toSelectOptions(paymentMethodOptions)
   const selectBanks = toSelectOptions(bankOptions)
+  const selectedTariffLabel = selectHealthInsuranceTariffs.find((option) => option.value === form.healthInsuranceTariffId)?.label ?? ''
+  const selectedTariffUnit = resolveHealthTariffUnit(selectedTariffLabel)
+  const showHealthInsuranceUFInput = selectedTariffUnit !== 'pesos'
+  const showHealthInsurancePesosInput = selectedTariffUnit !== 'uf'
 
   useEffect(() => {
     void getFormOptions()
@@ -201,6 +214,17 @@ export default function EmployeesFormDashboardPage() {
       }
       if (field === 'communeId') {
         return { ...prev, communeId: value, cityId: '' }
+      }
+      if (field === 'healthInsuranceTariffId') {
+        const nextTariffLabel = selectHealthInsuranceTariffs.find((option) => option.value === value)?.label ?? ''
+        const nextTariffUnit = resolveHealthTariffUnit(nextTariffLabel)
+        if (nextTariffUnit === 'uf') {
+          return { ...prev, healthInsuranceTariffId: value, healthInsurancePesos: '' }
+        }
+        if (nextTariffUnit === 'pesos') {
+          return { ...prev, healthInsuranceTariffId: value, healthInsuranceUF: '' }
+        }
+        return { ...prev, healthInsuranceTariffId: value }
       }
       return { ...prev, [field]: value }
     })
@@ -381,8 +405,12 @@ export default function EmployeesFormDashboardPage() {
           <SelectComponent value={form.healthInsuranceId} label="Prevision salud" options={selectHealthInsurances} error={errors.healthInsuranceId} onValueChange={handleFieldValueChange('healthInsuranceId')} onValidation={onValidation('healthInsuranceId')} required />
           <SelectComponent value={form.healthInsuranceTariffId} label="Tarifa salud" options={selectHealthInsuranceTariffs} onValueChange={handleFieldValueChange('healthInsuranceTariffId')} />
           <InputComponent value={form.isapreFun} label="Isapre FUN" type="text" placeholder="Ingresa isapre FUN" onValueChange={handleFieldValueChange('isapreFun')} />
-          <InputComponent value={form.healthInsuranceUF} label="Salud UF" type="number" placeholder="Ingresa valor en UF" onValueChange={handleFieldValueChange('healthInsuranceUF')} />
-          <InputComponent value={form.healthInsurancePesos} label="Salud Pesos" type="number" placeholder="Ingresa valor en pesos" onValueChange={handleFieldValueChange('healthInsurancePesos')} />
+          {showHealthInsuranceUFInput && (
+            <InputComponent value={form.healthInsuranceUF} label="Salud UF" type="number" placeholder="Ingresa valor en UF" onValueChange={handleFieldValueChange('healthInsuranceUF')} />
+          )}
+          {showHealthInsurancePesosInput && (
+            <InputComponent value={form.healthInsurancePesos} label="Salud Pesos" type="number" placeholder="Ingresa valor en pesos" onValueChange={handleFieldValueChange('healthInsurancePesos')} />
+          )}
         </div>
 
         <SectionTitle title="Pago y tallas" />
