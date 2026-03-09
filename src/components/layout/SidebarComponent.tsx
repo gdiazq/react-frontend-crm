@@ -8,6 +8,7 @@ interface SidebarComponentProps {
   showUsers?: boolean
   showRequests?: boolean
   showEmployees?: boolean
+  showContracts?: boolean
   showRoles?: boolean
   onCloseMobile?: () => void
   onToggleDesktopCollapse?: () => void
@@ -15,6 +16,7 @@ interface SidebarComponentProps {
   onGoUsers: () => void
   onGoRequests: () => void
   onGoEmployees: () => void
+  onGoContracts: () => void
   onGoRoles: () => void
   onGoLogout: () => void
 }
@@ -25,6 +27,7 @@ export default function SidebarComponent({
   showUsers = true,
   showRequests = true,
   showEmployees = true,
+  showContracts = true,
   showRoles = true,
   onCloseMobile,
   onToggleDesktopCollapse,
@@ -32,6 +35,7 @@ export default function SidebarComponent({
   onGoUsers,
   onGoRequests,
   onGoEmployees,
+  onGoContracts,
   onGoRoles,
   onGoLogout,
 }: SidebarComponentProps) {
@@ -40,8 +44,9 @@ export default function SidebarComponent({
   const isUsersActive = useMemo(() => location.pathname.startsWith('/users'), [location.pathname])
   const isRequestsActive = useMemo(() => location.pathname.startsWith('/requests'), [location.pathname])
   const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
+  const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
   const isRolesActive = useMemo(() => location.pathname.startsWith('/roles'), [location.pathname])
-  const hasRrhhItems = showRequests || showEmployees
+  const hasRrhhItems = showRequests || showEmployees || showContracts
   const hasAdministrationItems = showUsers || showRoles
 
   const getItemClasses = (active: boolean) => {
@@ -153,6 +158,24 @@ export default function SidebarComponent({
                       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
                     <span className={collapsed ? 'lg:hidden' : ''}>Trabajadores</span>
+                  </button>
+                </SidebarTooltipComponent>
+              )}
+
+              {showContracts && (
+                <SidebarTooltipComponent enabled={collapsed} active={isContractsActive} label="Contratos">
+                  <button
+                    type="button"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isContractsActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    onClick={onGoContracts}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M8 3h8l5 5v13H3V3z" />
+                      <path d="M16 3v5h5" />
+                      <path d="M8 13h8" />
+                      <path d="M8 17h8" />
+                    </svg>
+                    <span className={collapsed ? 'lg:hidden' : ''}>Contratos</span>
                   </button>
                 </SidebarTooltipComponent>
               )}

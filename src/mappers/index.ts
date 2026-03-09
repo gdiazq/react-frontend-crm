@@ -16,6 +16,11 @@ export { mapperLoginCredentialsPayload } from './auth/login-credentials.mapper'
 export { mapperDashboardExample } from './dashboard/dashboard-example.mapper'
 export { mapperEmployeeSelectOptions } from './employee-selects/employee-selects.mapper'
 export {
+  mapperContractsPagination,
+  mapperContractsQueryParams,
+  mapperContractsRows,
+} from './contracts/contracts.mapper'
+export {
   mapperCreateEmployeePayload,
   mapperEmployeeDetailToForm,
   mapperEmployeeDetailView,

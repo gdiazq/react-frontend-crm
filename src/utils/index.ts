@@ -24,6 +24,7 @@ export {
   mapRoleToForm,
 } from './roles/rolesUtils'
 export { createEmployeesActions } from './employees/employeesActions'
+export { createContractsActions } from './contracts/contractsActions'
 export { createUsersActions } from './users/usersActions'
 export type { DropdownAction } from './users/usersActions'
 export { createRolesActions } from './roles/rolesActions'

@@ -211,6 +211,27 @@ export default {
       },
     },
   },
+  contracts: {
+    ui: {
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      actionViewDetail: 'Ver detalle',
+      updateContract: 'Editar contrato',
+      actionEnableContract: 'Habilitar contrato',
+      actionDisableContract: 'Deshabilitar contrato',
+      filtersComingSoon: 'Filtros de contratos disponibles proximamente.',
+      createComingSoon: 'Creacion de contrato disponible proximamente.',
+      viewDetailComingSoon: 'Detalle de contrato disponible proximamente.',
+      updateContractComingSoon: 'Edicion de contrato disponible proximamente.',
+      toggleStatusComingSoon: 'Cambio de estado de contrato disponible proximamente.',
+    },
+    status: {
+      success: {},
+      errors: {
+        loadError: 'No se pudo cargar la lista de contratos.',
+      },
+    },
+  },
   requests: {
     ui: {
       requireApprovalYes: 'Si',

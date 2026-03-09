@@ -339,93 +339,463 @@ export default function EmployeesFormDashboardPage() {
         <div className="space-y-4">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Identificacion y nacimiento</h3>
           <div className="grid gap-4 md:grid-cols-3">
-            <SelectComponent value={form.identificationTypeId} label="Tipo identificacion" options={selectIdentificationTypes} error={errors.identificationTypeId} onValueChange={handleFieldValueChange('identificationTypeId')} onValidation={onValidation('identificationTypeId')} required />
-            <InputComponent value={form.identification} label="Identificacion" type="text" placeholder="Ingresa la identificacion" error={errors.identification} onValueChange={handleFieldValueChange('identification')} onBlur={onValidation('identification')} required />
-            <InputComponent value={form.birthDate} label="Fecha nacimiento" type="date" error={errors.birthDate} onValueChange={handleFieldValueChange('birthDate')} onBlur={onValidation('birthDate')} required />
+            <SelectComponent 
+              value={form.identificationTypeId} 
+              label="Tipo identificacion" 
+              options={selectIdentificationTypes} 
+              error={errors.identificationTypeId} 
+              onValueChange={handleFieldValueChange('identificationTypeId')} 
+              onValidation={onValidation('identificationTypeId')} required 
+            />
+
+            <InputComponent 
+              value={form.identification} 
+              label="Identificacion" 
+              type="text" 
+              placeholder="Ingresa la identificacion" 
+              error={errors.identification} 
+              onValueChange={handleFieldValueChange('identification')} 
+              onBlur={onValidation('identification')} 
+              required 
+            />
+            <InputComponent 
+              value={form.birthDate} 
+              label="Fecha nacimiento" 
+              type="date" 
+              error={errors.birthDate} 
+              onValueChange={handleFieldValueChange('birthDate')} 
+              onBlur={onValidation('birthDate')} 
+              required 
+            />
           </div>
 
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Nombre completo</h3>
           <div className="grid gap-4 md:grid-cols-3">
-            <InputComponent value={form.firstName} label="Nombre" type="text" placeholder="Ingresa el nombre" error={errors.firstName} onValueChange={handleFieldValueChange('firstName')} onBlur={onValidation('firstName')} required />
-            <InputComponent value={form.paternalLastName} label="Apellido paterno" type="text" placeholder="Ingresa el apellido paterno" error={errors.paternalLastName} onValueChange={handleFieldValueChange('paternalLastName')} onBlur={onValidation('paternalLastName')} required />
-            <InputComponent value={form.maternalLastName} label="Apellido materno" type="text" placeholder="Ingresa el apellido materno" error={errors.maternalLastName} onValueChange={handleFieldValueChange('maternalLastName')} onBlur={onValidation('maternalLastName')} required />
+            <InputComponent 
+              value={form.firstName} 
+              label="Nombre" 
+              type="text" 
+              placeholder="Ingresa el nombre" 
+              error={errors.firstName} 
+              onValueChange={handleFieldValueChange('firstName')} 
+              onBlur={onValidation('firstName')} 
+              required 
+            />
+            <InputComponent 
+              value={form.paternalLastName} 
+              label="Apellido paterno" 
+              type="text" 
+              placeholder="Ingresa el apellido paterno" 
+              error={errors.paternalLastName} 
+              onValueChange={handleFieldValueChange('paternalLastName')} 
+              onBlur={onValidation('paternalLastName')} 
+              required 
+            />
+            <InputComponent 
+              value={form.maternalLastName} 
+              label="Apellido materno" 
+              type="text" 
+              placeholder="Ingresa el apellido materno" 
+              error={errors.maternalLastName} 
+              onValueChange={handleFieldValueChange('maternalLastName')} 
+              onBlur={onValidation('maternalLastName')} 
+              required 
+            />
           </div>
 
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Perfil personal</h3>
           <div className="grid gap-4 md:grid-cols-3">
-            <SelectComponent value={form.genderId} label="Genero" options={selectGenders} error={errors.genderId} onValueChange={handleFieldValueChange('genderId')} onValidation={onValidation('genderId')} required />
-            <SelectComponent value={form.maritalStatusId} label="Estado civil" options={selectMaritalStatuses} error={errors.maritalStatusId} onValueChange={handleFieldValueChange('maritalStatusId')} onValidation={onValidation('maritalStatusId')} required />
-            <SelectComponent value={form.nationalityId} label="Nacionalidad" options={selectNationalities} error={errors.nationalityId} onValueChange={handleFieldValueChange('nationalityId')} onValidation={onValidation('nationalityId')} required />
+            <SelectComponent 
+              value={form.genderId} 
+              label="Genero" 
+              options={selectGenders} 
+              error={errors.genderId} 
+              onValueChange={handleFieldValueChange('genderId')} 
+              onValidation={onValidation('genderId')} 
+              required 
+            />
+            <SelectComponent 
+              value={form.maritalStatusId} 
+              label="Estado civil" 
+              options={selectMaritalStatuses} 
+              error={errors.maritalStatusId} 
+              onValueChange={handleFieldValueChange('maritalStatusId')} 
+              onValidation={onValidation('maritalStatusId')} 
+              required 
+            />
+            <SelectComponent 
+              value={form.nationalityId} 
+              label="Nacionalidad" 
+              options={selectNationalities} 
+              error={errors.nationalityId} 
+              onValueChange={handleFieldValueChange('nationalityId')} 
+              onValidation={onValidation('nationalityId')} 
+              required 
+            />
           </div>
 
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Perfil laboral base</h3>
           <div className="grid gap-4 md:grid-cols-3">
-            <SelectComponent value={form.educationLevelId} label="Nivel educacional" options={selectEducationLevels} error={errors.educationLevelId} onValueChange={handleFieldValueChange('educationLevelId')} onValidation={onValidation('educationLevelId')} required />
-            <SelectComponent value={form.professionId} label="Profesion" options={selectProfessions} error={errors.professionId} onValueChange={handleFieldValueChange('professionId')} onValidation={onValidation('professionId')} required />
-            <SelectComponent value={form.driverLicenseId} label="Licencia conducir" options={selectDriverLicenses} error={errors.driverLicenseId} onValueChange={handleFieldValueChange('driverLicenseId')} onValidation={onValidation('driverLicenseId')} required />
-            <SelectComponent value={form.expatId} label="Expatriado" options={selectExpats} error={errors.expatId} onValueChange={handleFieldValueChange('expatId')} onValidation={onValidation('expatId')} required />
+            <SelectComponent 
+              value={form.educationLevelId} 
+              label="Nivel educacional" 
+              options={selectEducationLevels} 
+              error={errors.educationLevelId} 
+              onValueChange={handleFieldValueChange('educationLevelId')} 
+              onValidation={onValidation('educationLevelId')} 
+              required 
+            />
+            <SelectComponent 
+              value={form.professionId} 
+              label="Profesion" 
+              options={selectProfessions} 
+              error={errors.professionId} 
+              onValueChange={handleFieldValueChange('professionId')} 
+              onValidation={onValidation('professionId')} 
+              required 
+            />
+            <SelectComponent 
+              value={form.driverLicenseId} 
+              label="Licencia conducir" 
+              options={selectDriverLicenses} 
+              error={errors.driverLicenseId} 
+              onValueChange={handleFieldValueChange('driverLicenseId')} 
+              onValidation={onValidation('driverLicenseId')} 
+              required 
+            />
+            <SelectComponent 
+              value={form.expatId} 
+              label="Expatriado" 
+              options={selectExpats} 
+              error={errors.expatId} 
+              onValueChange={handleFieldValueChange('expatId')} 
+              onValidation={onValidation('expatId')} 
+              required 
+            />
           </div>
         </div>
 
         <SectionTitle title="Contacto" />
         <div className="grid gap-4 md:grid-cols-2">
-          <InputComponent value={form.personalEmail} label="Email personal" type="email" placeholder="Ingresa el email personal" error={errors.personalEmail} onValueChange={handleFieldValueChange('personalEmail')} onBlur={onValidation('personalEmail')} required />
-          <InputComponent value={form.phone} label="Telefono" type="tel" placeholder="Ingresa el telefono" error={errors.phone} onValueChange={handleFieldValueChange('phone')} onBlur={onValidation('phone')} required />
-          <InputComponent value={form.corporateEmail} label="Email corporativo" type="email" placeholder="Ingresa el email corporativo" error={errors.corporateEmail} onValueChange={handleFieldValueChange('corporateEmail')} onBlur={onValidation('corporateEmail')} required />
-          <InputComponent value={form.phone2} label="Telefono" type="tel" placeholder="Ingresa el telefono secundario" onValueChange={handleFieldValueChange('phone2')} />
+          <InputComponent 
+            value={form.personalEmail} 
+            label="Email personal" 
+            type="email" 
+            placeholder="Ingresa el email personal" 
+            error={errors.personalEmail} 
+            onValueChange={handleFieldValueChange('personalEmail')} 
+            onBlur={onValidation('personalEmail')} 
+            required 
+          />
+          <InputComponent 
+            value={form.phone} 
+            label="Telefono" 
+            type="tel" 
+            placeholder="Ingresa el telefono" 
+            error={errors.phone} 
+            onValueChange={handleFieldValueChange('phone')} 
+            onBlur={onValidation('phone')} 
+            required 
+          />
+          <InputComponent 
+            value={form.corporateEmail} 
+            label="Email corporativo" 
+            type="email" 
+            placeholder="Ingresa el email corporativo" 
+            error={errors.corporateEmail} 
+            onValueChange={handleFieldValueChange('corporateEmail')} 
+            onBlur={onValidation('corporateEmail')} 
+            required 
+          />
+          <InputComponent 
+            value={form.phone2} 
+            label="Telefono" 
+            type="tel" 
+            placeholder="Ingresa el telefono secundario" 
+            onValueChange={handleFieldValueChange('phone2')} 
+          />
         </div>
 
         <SectionTitle title="Contacto de emergencia" />
         <div className="grid gap-4 md:grid-cols-2">
-          <SelectComponent value={form.emergencyContactRelationshipId} label="Parentesco" options={selectEmergencyRelationships} error={errors.emergencyContactRelationshipId} onValueChange={handleFieldValueChange('emergencyContactRelationshipId')} onValidation={onValidation('emergencyContactRelationshipId')} required />
-          <InputComponent value={form.emergencyContactName} label="Nombre contacto emergencia" type="text" placeholder="Ingresa el nombre del contacto" error={errors.emergencyContactName} onValueChange={handleFieldValueChange('emergencyContactName')} onBlur={onValidation('emergencyContactName')} required />
-          <InputComponent value={form.emergencyContactPhone} label="Telefono emergencia" type="tel" placeholder="Ingresa el telefono de emergencia" error={errors.emergencyContactPhone} onValueChange={handleFieldValueChange('emergencyContactPhone')} onBlur={onValidation('emergencyContactPhone')} required />
-          <InputComponent value={form.emergencyContactPhone2} label="Telefono emergencia 2" type="tel" placeholder="Ingresa el telefono secundario" onValueChange={handleFieldValueChange('emergencyContactPhone2')} />
+          <SelectComponent 
+            value={form.emergencyContactRelationshipId} 
+            label="Parentesco" 
+            options={selectEmergencyRelationships} 
+            error={errors.emergencyContactRelationshipId} 
+            onValueChange={handleFieldValueChange('emergencyContactRelationshipId')} 
+            onValidation={onValidation('emergencyContactRelationshipId')} 
+            required 
+          />
+          <InputComponent 
+            value={form.emergencyContactName} 
+            label="Nombre contacto emergencia" 
+            type="text" 
+            placeholder="Ingresa el nombre del contacto" 
+            error={errors.emergencyContactName} 
+            onValueChange={handleFieldValueChange('emergencyContactName')} 
+            onBlur={onValidation('emergencyContactName')} 
+            required 
+          />
+          <InputComponent 
+            value={form.emergencyContactPhone} 
+            label="Telefono emergencia" 
+            type="tel" 
+            placeholder="Ingresa el telefono de emergencia" 
+            error={errors.emergencyContactPhone} 
+            onValueChange={handleFieldValueChange('emergencyContactPhone')} 
+            onBlur={onValidation('emergencyContactPhone')} 
+            required 
+          />
+          <InputComponent 
+            value={form.emergencyContactPhone2} 
+            label="Telefono emergencia 2" 
+            type="tel" 
+            placeholder="Ingresa el telefono secundario" 
+            onValueChange={handleFieldValueChange('emergencyContactPhone2')} 
+          />
         </div>
 
         <SectionTitle title="Direccion" />
         <div className="grid gap-4 md:grid-cols-3">
-          <InputComponent value={form.streetName} label="Calle" type="text" placeholder="Ingresa la calle" error={errors.streetName} onValueChange={handleFieldValueChange('streetName')} onBlur={onValidation('streetName')} required />
-          <InputComponent value={form.streetNumber} label="Numero" type="text" placeholder="Ingresa el numero" error={errors.streetNumber} onValueChange={handleFieldValueChange('streetNumber')} onBlur={onValidation('streetNumber')} required />
-          <InputComponent value={form.postalCode} label="Codigo postal" type="text" placeholder="Ingresa el codigo postal" error={errors.postalCode} onValueChange={handleFieldValueChange('postalCode')} onBlur={onValidation('postalCode')} required />
-          <InputComponent value={form.department} label="Departamento" type="text" placeholder="Ingresa el departamento" onValueChange={handleFieldValueChange('department')} />
-          <InputComponent value={form.village} label="Villa" type="text" placeholder="Ingresa la villa" onValueChange={handleFieldValueChange('village')} />
-          <InputComponent value={form.block} label="Block" type="text" placeholder="Ingresa el block" onValueChange={handleFieldValueChange('block')} />
-          <SelectComponent value={form.regionId} label="Region" options={selectRegions} error={errors.regionId} onValueChange={handleFieldValueChange('regionId')} onValidation={onValidation('regionId')} required />
-          <SelectComponent value={form.communeId} label="Comuna" options={selectCommunes} error={errors.communeId} disabled={loadingCommuneOptions || !form.regionId} onValueChange={handleFieldValueChange('communeId')} onValidation={onValidation('communeId')} required />
-          <SelectComponent value={form.cityId} label="Ciudad" options={selectCities} error={errors.cityId} disabled={loadingCityOptions || !form.communeId} onValueChange={handleFieldValueChange('cityId')} onValidation={onValidation('cityId')} required />
+          <InputComponent 
+            value={form.streetName} 
+            label="Calle" 
+            type="text" 
+            placeholder="Ingresa la calle" 
+            error={errors.streetName} 
+            onValueChange={handleFieldValueChange('streetName')} 
+            onBlur={onValidation('streetName')} 
+            required 
+          />
+          <InputComponent 
+            value={form.streetNumber} 
+            label="Numero" 
+            type="text" 
+            placeholder="Ingresa el numero" 
+            error={errors.streetNumber} 
+            onValueChange={handleFieldValueChange('streetNumber')} 
+            onBlur={onValidation('streetNumber')} 
+            required 
+          />
+          <InputComponent 
+            value={form.postalCode} 
+            label="Codigo postal" 
+            type="text" 
+            placeholder="Ingresa el codigo postal" 
+            error={errors.postalCode} 
+            onValueChange={handleFieldValueChange('postalCode')} 
+            onBlur={onValidation('postalCode')} 
+            required 
+          />
+          <InputComponent 
+            value={form.department} 
+            label="Departamento" 
+            type="text" 
+            placeholder="Ingresa el departamento" 
+            onValueChange={handleFieldValueChange('department')} 
+          />
+          <InputComponent 
+            value={form.village} 
+            label="Villa" 
+            type="text" 
+            placeholder="Ingresa la villa" 
+            onValueChange={handleFieldValueChange('village')} 
+          />
+          <InputComponent 
+            value={form.block} 
+            label="Block" 
+            type="text" 
+            placeholder="Ingresa el block" 
+            onValueChange={handleFieldValueChange('block')} 
+          />
+          <SelectComponent 
+            value={form.regionId} 
+            label="Region" 
+            options={selectRegions} 
+            error={errors.regionId} 
+            onValueChange={handleFieldValueChange('regionId')} 
+            onValidation={onValidation('regionId')} 
+            required 
+          />
+          <SelectComponent 
+            value={form.communeId} 
+            label="Comuna" 
+            options={selectCommunes} 
+            error={errors.communeId} 
+            disabled={loadingCommuneOptions || !form.regionId} 
+            onValueChange={handleFieldValueChange('communeId')} 
+            onValidation={onValidation('communeId')} 
+            required 
+          />
+          <SelectComponent 
+            value={form.cityId} 
+            label="Ciudad" 
+            options={selectCities} 
+            error={errors.cityId} 
+            disabled={loadingCityOptions || !form.communeId} 
+            onValueChange={handleFieldValueChange('cityId')} 
+            onValidation={onValidation('cityId')} 
+            required 
+          />
         </div>
 
         <SectionTitle title="Prevision y salud" />
         <div className="grid gap-4 md:grid-cols-3">
-          <SelectComponent value={form.familyAllowanceTierId} label="Tramo carga familiar" options={selectFamilyAllowanceTiers} error={errors.familyAllowanceTierId} onValueChange={handleFieldValueChange('familyAllowanceTierId')} onValidation={onValidation('familyAllowanceTierId')} required />
-          <SelectComponent value={form.retirementStatusId} label="Estado retiro" options={selectRetirementStatuses} error={errors.retirementStatusId} onValueChange={handleFieldValueChange('retirementStatusId')} onValidation={onValidation('retirementStatusId')} required />
-          <SelectComponent value={form.pensionStatusId} label="Estado pension" options={selectPensionStatuses} error={errors.pensionStatusId} onValueChange={handleFieldValueChange('pensionStatusId')} onValidation={onValidation('pensionStatusId')} required />
-          <SelectComponent value={form.afpId} label="AFP" options={selectAfps} error={errors.afpId} onValueChange={handleFieldValueChange('afpId')} onValidation={onValidation('afpId')} required />
-          <SelectComponent value={form.healthInsuranceId} label="Prevision salud" options={selectHealthInsurances} error={errors.healthInsuranceId} onValueChange={handleFieldValueChange('healthInsuranceId')} onValidation={onValidation('healthInsuranceId')} required />
-          <SelectComponent value={form.healthInsuranceTariffId} label="Tarifa salud" options={selectHealthInsuranceTariffs} onValueChange={handleFieldValueChange('healthInsuranceTariffId')} />
-          <InputComponent value={form.isapreFun} label="Isapre FUN" type="text" placeholder="Ingresa isapre FUN" onValueChange={handleFieldValueChange('isapreFun')} />
+          <SelectComponent 
+            value={form.familyAllowanceTierId} 
+            label="Tramo carga familiar" 
+            options={selectFamilyAllowanceTiers} 
+            error={errors.familyAllowanceTierId} 
+            onValueChange={handleFieldValueChange('familyAllowanceTierId')} 
+            onValidation={onValidation('familyAllowanceTierId')} 
+            required 
+          />
+          <SelectComponent 
+            value={form.retirementStatusId} 
+            label="Estado retiro" 
+            options={selectRetirementStatuses} 
+            error={errors.retirementStatusId} 
+            onValueChange={handleFieldValueChange('retirementStatusId')} 
+            onValidation={onValidation('retirementStatusId')} 
+            required 
+          />
+          <SelectComponent 
+            value={form.pensionStatusId} 
+            label="Estado pension" 
+            options={selectPensionStatuses} 
+            error={errors.pensionStatusId} 
+            onValueChange={handleFieldValueChange('pensionStatusId')} 
+            onValidation={onValidation('pensionStatusId')} 
+            required 
+          />
+          <SelectComponent 
+            value={form.afpId} 
+            label="AFP" 
+            options={selectAfps} 
+            error={errors.afpId} 
+            onValueChange={handleFieldValueChange('afpId')} 
+            onValidation={onValidation('afpId')} 
+            required 
+          />
+          <SelectComponent 
+            value={form.healthInsuranceId} 
+            label="Prevision salud" 
+            options={selectHealthInsurances} 
+            error={errors.healthInsuranceId} 
+            onValueChange={handleFieldValueChange('healthInsuranceId')} 
+            onValidation={onValidation('healthInsuranceId')} 
+            required 
+          />
+          <SelectComponent 
+            value={form.healthInsuranceTariffId} 
+            label="Tarifa salud" 
+            options={selectHealthInsuranceTariffs} 
+            onValueChange={handleFieldValueChange('healthInsuranceTariffId')} 
+          />
+          <InputComponent 
+            value={form.isapreFun} 
+            label="Isapre FUN" 
+            type="text" 
+            placeholder="Ingresa isapre FUN" 
+            onValueChange={handleFieldValueChange('isapreFun')} 
+          />
           {showHealthInsuranceUFInput && (
-            <InputComponent value={form.healthInsuranceUF} label="Salud UF" type="number" placeholder="Ingresa valor en UF" onValueChange={handleFieldValueChange('healthInsuranceUF')} />
+            <InputComponent 
+              value={form.healthInsuranceUF} 
+              label="Salud UF" 
+              type="number" 
+              placeholder="Ingresa valor en UF" 
+              onValueChange={handleFieldValueChange('healthInsuranceUF')} 
+            />
           )}
           {showHealthInsurancePesosInput && (
-            <InputComponent value={form.healthInsurancePesos} label="Salud Pesos" type="number" placeholder="Ingresa valor en pesos" onValueChange={handleFieldValueChange('healthInsurancePesos')} />
+            <InputComponent 
+              value={form.healthInsurancePesos} 
+              label="Salud Pesos" 
+              type="number" 
+              placeholder="Ingresa valor en pesos" 
+              onValueChange={handleFieldValueChange('healthInsurancePesos')} 
+            />
           )}
         </div>
 
         <SectionTitle title="Pago y tallas" />
         <div className="grid gap-4 md:grid-cols-3">
-          <SelectComponent value={form.paymentMethodId} label="Forma pago" options={selectPaymentMethods} error={errors.paymentMethodId} onValueChange={handleFieldValueChange('paymentMethodId')} onValidation={onValidation('paymentMethodId')} required />
-          <SelectComponent value={form.bankId} label="Banco" options={selectBanks} error={errors.bankId} onValueChange={handleFieldValueChange('bankId')} onValidation={onValidation('bankId')} required />
-          <InputComponent value={form.bankAccount} label="Cuenta bancaria" type="text" placeholder="Ingresa la cuenta bancaria" error={errors.bankAccount} onValueChange={handleFieldValueChange('bankAccount')} onBlur={onValidation('bankAccount')} required />
-          <InputComponent value={form.clothingSize} label="Talla ropa" type="text" placeholder="Ingresa talla de ropa" error={errors.clothingSize} onValueChange={handleFieldValueChange('clothingSize')} onBlur={onValidation('clothingSize')} required />
-          <InputComponent value={form.shoeSize} label="Talla zapato" type="text" placeholder="Ingresa talla de zapato" error={errors.shoeSize} onValueChange={handleFieldValueChange('shoeSize')} onBlur={onValidation('shoeSize')} required />
-          <InputComponent value={form.pantSize} label="Talla pantalon" type="text" placeholder="Ingresa talla de pantalon" error={errors.pantSize} onValueChange={handleFieldValueChange('pantSize')} onBlur={onValidation('pantSize')} required />
+          <SelectComponent 
+            value={form.paymentMethodId} 
+            label="Forma pago" 
+            options={selectPaymentMethods} 
+            error={errors.paymentMethodId} 
+            onValueChange={handleFieldValueChange('paymentMethodId')} 
+            onValidation={onValidation('paymentMethodId')} 
+            required 
+          />
+          <SelectComponent 
+            value={form.bankId} 
+            label="Banco" 
+            options={selectBanks} 
+            error={errors.bankId} 
+            onValueChange={handleFieldValueChange('bankId')} 
+            onValidation={onValidation('bankId')} 
+            required 
+          />
+          <InputComponent 
+            value={form.bankAccount} 
+            label="Cuenta bancaria" 
+            type="text" 
+            placeholder="Ingresa la cuenta bancaria" 
+            error={errors.bankAccount} 
+            onValueChange={handleFieldValueChange('bankAccount')} 
+            onBlur={onValidation('bankAccount')} 
+            required 
+          />
+          <InputComponent 
+            value={form.clothingSize} 
+            label="Talla ropa" 
+            type="text" 
+            placeholder="Ingresa talla de ropa" 
+            error={errors.clothingSize} 
+            onValueChange={handleFieldValueChange('clothingSize')} 
+            onBlur={onValidation('clothingSize')} 
+            required 
+          />
+          <InputComponent 
+            value={form.shoeSize} 
+            label="Talla zapato" 
+            type="text" 
+            placeholder="Ingresa talla de zapato" 
+            error={errors.shoeSize} 
+            onValueChange={handleFieldValueChange('shoeSize')} 
+            onBlur={onValidation('shoeSize')} 
+            required 
+          />
+          <InputComponent 
+            value={form.pantSize} 
+            label="Talla pantalon" 
+            type="text" 
+            placeholder="Ingresa talla de pantalon" 
+            error={errors.pantSize} 
+            onValueChange={handleFieldValueChange('pantSize')} 
+            onBlur={onValidation('pantSize')} 
+            required 
+          />
         </div>
 
         <div className="flex flex-wrap justify-end gap-2">
-          <ButtonComponent type="button" variant="outline" disabled={saving} label="Volver" onClick={() => navigate(AUTH_ROUTE_EMPLOYEES)} />
-          <ButtonComponent type="submit" variant="primary" disabled={!canSubmit} label={saving ? submitLoadingLabel : submitLabel} />
+          <ButtonComponent 
+            type="button" 
+            variant="outline" 
+            disabled={saving} 
+            label="Volver" 
+            onClick={() => navigate(AUTH_ROUTE_EMPLOYEES)} 
+          />
+          <ButtonComponent 
+            type="submit" 
+            variant="primary" 
+            disabled={!canSubmit} 
+            label={saving ? submitLoadingLabel : submitLabel} 
+          />
         </div>
       </form>
 

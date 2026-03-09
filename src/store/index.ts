@@ -1,5 +1,6 @@
 export { useStoreAuth } from './auth.store'
 export { useStoreAuthFlow } from './auth-flow.store'
+export { useStoreContracts } from './contracts.store'
 export { useStoreDashboardExample } from './dashboard-example.store'
 export { useStoreEmployeeSelects } from './employee-selects.store'
 export { useStoreEmployees } from './employees.store'
