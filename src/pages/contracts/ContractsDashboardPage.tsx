@@ -18,7 +18,7 @@ import {
 import { AUTH_ROUTE_CONTRACTS_CREATE } from '@/constant'
 import { contractsTableColumns } from '@/factories'
 import { useStoreAuth, useStoreContracts } from '@/store'
-import type { ContractTableRow, TableRow } from '@/types'
+import type { ContractTableRow, ContractsSortBy, TableRow, TableSortState } from '@/types'
 import { createContractsActions } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import messages from '@/messages/messages'
@@ -29,14 +29,28 @@ const CONTRACT_STATUS_COLUMN_INDEX = 3
 const CONTRACT_NAME_COLUMN_INDEX = 0
 const ACTIONS_COLUMN_INDEX = contractsTableColumns.length - 1
 
+const CONTRACTS_SORT_BY_COLUMN: Partial<Record<number, ContractsSortBy>> = {
+  0: 'name',
+  1: 'companyId',
+  2: 'contractTypeId',
+  3: 'contractStatusId',
+  4: 'startDate',
+  5: 'endDate',
+  7: 'createdAt',
+}
+
+const CONTRACTS_SORTABLE_COLUMNS = Object.keys(CONTRACTS_SORT_BY_COLUMN).map((index) => Number(index))
+
 export default function ContractsDashboardPage() {
   const navigate = useNavigate()
   const contractsRows = useStoreContracts((s) => s.contractsRows) as ContractTableRow[]
   const pagination = useStoreContracts((s) => s.pagination)
+  const queryParams = useStoreContracts((s) => s.queryParams)
   const loadingContracts = useStoreContracts((s) => s.loadingContracts)
   const loadingToggleStatus = useStoreContracts((s) => s.loadingToggleStatus)
   const errorMessage = useStoreContracts((s) => s.errorMessage)
   const getContracts = useStoreContracts((s) => s.getContracts)
+  const sortContracts = useStoreContracts((s) => s.sortContracts)
   const mutationToggleContractStatus = useStoreContracts((s) => s.mutationToggleContractStatus)
   const goToPage = useStoreContracts((s) => s.goToPage)
   const clearStatus = useStoreContracts((s) => s.clearStatus)
@@ -55,6 +69,11 @@ export default function ContractsDashboardPage() {
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
+  const activeSortColumn = CONTRACTS_SORTABLE_COLUMNS.find((index) => CONTRACTS_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
+  const sortState: TableSortState = {
+    columnIndex: activeSortColumn,
+    direction: queryParams.sortDir,
+  }
 
   useEffect(() => {
     void getContracts()
@@ -122,6 +141,17 @@ export default function ContractsDashboardPage() {
 
   const handleSearchSubmit = async () => {
     await getContracts()
+  }
+
+  const handleSortChange = async (columnIndex: number) => {
+    const sortBy = CONTRACTS_SORT_BY_COLUMN[columnIndex]
+    if (!sortBy) return
+
+    const currentSortBy = queryParams.sortBy
+    const currentSortDir = queryParams.sortDir
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+
+    await sortContracts(sortBy, nextSortDir)
   }
 
   const handleDownloadReport = () => {
@@ -237,6 +267,9 @@ export default function ContractsDashboardPage() {
         loading={loadingContracts}
         emptyMessage="No hay contratos registrados."
         renderCell={renderCell}
+        sortableColumnIndexes={CONTRACTS_SORTABLE_COLUMNS}
+        sortState={sortState}
+        onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}
       />
 
       {actionsMessage && (

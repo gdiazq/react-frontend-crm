@@ -10,7 +10,7 @@ import {
   mapperContractsRows,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import type { ContractsStore } from '@/types'
+import type { ContractsSortBy, ContractsSortDir, ContractsStore } from '@/types'
 
 export const useStoreContracts = create<ContractsStore>()((set, get) => ({
   contractsRows: [...initialContractsRows],
@@ -66,6 +66,14 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
   previousPage: async () => {
     if (get().pagination.first) return
     await get().goToPage(get().pagination.page - 1)
+  },
+
+  sortContracts: async (sortBy: ContractsSortBy, sortDir: ContractsSortDir) => {
+    set((state) => ({
+      pagination: { ...state.pagination, page: 0 },
+      queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
+    }))
+    await get().getContracts()
   },
 
   mutationToggleContractStatus: async (contractId, nextStatus) => {

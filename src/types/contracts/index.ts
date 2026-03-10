@@ -4,6 +4,8 @@ export type {
   ContractCreateResponse,
   ContractPagedResponse,
   ContractRaw,
+  ContractsSortBy,
+  ContractsSortDir,
   ContractsPagination,
   ContractsQueryParams,
   ContractTableRow,

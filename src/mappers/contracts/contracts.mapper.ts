@@ -57,6 +57,8 @@ export function mapperContractsQueryParams(result: ContractsQueryParams): Record
   const queryParams: Record<string, number | string> = {
     page: result.page,
     size: result.size,
+    sortBy: result.sortBy,
+    sortDir: result.sortDir,
   }
 
   if (employeeId.length > 0) {

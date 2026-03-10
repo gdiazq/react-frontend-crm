@@ -1,5 +1,7 @@
 import type {
   ContractCreatePayload,
+  ContractsSortBy,
+  ContractsSortDir,
   ContractTableRow,
   ContractsPagination,
   ContractsQueryParams,
@@ -20,6 +22,7 @@ export interface ContractsStore {
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
+  sortContracts: (sortBy: ContractsSortBy, sortDir: ContractsSortDir) => Promise<void>
   mutationToggleContractStatus: (contractId: string, nextStatus: boolean) => Promise<boolean>
   mutationCreateContract: (payload: ContractCreatePayload, files?: File[]) => Promise<boolean>
   clearCreateContractStatus: () => void

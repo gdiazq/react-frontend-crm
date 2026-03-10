@@ -31,6 +31,8 @@ export const initialContractsQueryParams: ContractsQueryParams = {
   employeeId: '',
   createdFrom: '',
   createdTo: '',
+  sortBy: 'createdAt',
+  sortDir: 'desc',
 }
 
 export const initialCreateContractForm: ContractCreateForm = {

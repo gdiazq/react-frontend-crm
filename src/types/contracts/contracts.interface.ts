@@ -72,6 +72,17 @@ export interface ContractTableRow {
   values: string[]
 }
 
+export type ContractsSortBy =
+  | 'name'
+  | 'companyId'
+  | 'contractTypeId'
+  | 'contractStatusId'
+  | 'startDate'
+  | 'endDate'
+  | 'createdAt'
+
+export type ContractsSortDir = 'asc' | 'desc'
+
 export interface ContractsPagination {
   page: number
   size: number
@@ -89,6 +100,8 @@ export interface ContractsQueryParams {
   employeeId: string
   createdFrom: string
   createdTo: string
+  sortBy: ContractsSortBy
+  sortDir: ContractsSortDir
 }
 
 export interface ContractPagedResponse {
