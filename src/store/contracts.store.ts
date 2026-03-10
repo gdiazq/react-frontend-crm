@@ -17,7 +17,10 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
   pagination: { ...initialContractsPagination },
   queryParams: { ...initialContractsQueryParams },
   loadingContracts: false,
+  createContractSubmitting: false,
   errorMessage: null,
+  createContractErrorMessage: null,
+  createContractSuccessMessage: null,
   errorBack: null,
 
   getContracts: async () => {
@@ -62,6 +65,41 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
   previousPage: async () => {
     if (get().pagination.first) return
     await get().goToPage(get().pagination.page - 1)
+  },
+
+  mutationCreateContract: async (payload) => {
+    try {
+      set({
+        createContractSubmitting: true,
+        createContractErrorMessage: null,
+        createContractSuccessMessage: null,
+        errorBack: null,
+      })
+      const data = await contractsService.createContract(payload)
+      set({
+        createContractSuccessMessage: `${messages.contracts.status.success.createContractSuccess} (${data.name})`,
+      })
+      return true
+    } catch (error) {
+      if (contractsService.isAxiosError(error)) {
+        set({
+          createContractErrorMessage: error.response?.data?.message || messages.contracts.status.errors.createContractError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          createContractErrorMessage: messages.contracts.status.errors.createContractError,
+          errorBack: error,
+        })
+      }
+      return false
+    } finally {
+      set({ createContractSubmitting: false })
+    }
+  },
+
+  clearCreateContractStatus: () => {
+    set({ createContractErrorMessage: null, createContractSuccessMessage: null })
   },
 
   clearStatus: () => {

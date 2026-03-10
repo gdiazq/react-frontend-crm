@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ActionsDropdownComponent,
   AlertMessageComponent,
@@ -11,6 +12,7 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
+import { AUTH_ROUTE_CONTRACTS_CREATE } from '@/constant'
 import { contractsTableColumns } from '@/factories'
 import { useStoreContracts } from '@/store'
 import type { ContractTableRow, TableRow } from '@/types'
@@ -18,11 +20,12 @@ import { createContractsActions } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import messages from '@/messages/messages'
 
-const CONTRACT_ACTIVE_COLUMN_INDEX = 6
+const CONTRACT_ACTIVE_COLUMN_INDEX = 5
 const CONTRACT_NAME_COLUMN_INDEX = 0
 const ACTIONS_COLUMN_INDEX = contractsTableColumns.length - 1
 
 export default function ContractsDashboardPage() {
+  const navigate = useNavigate()
   const contractsRows = useStoreContracts((s) => s.contractsRows) as ContractTableRow[]
   const pagination = useStoreContracts((s) => s.pagination)
   const loadingContracts = useStoreContracts((s) => s.loadingContracts)
@@ -166,7 +169,7 @@ export default function ContractsDashboardPage() {
             disabled={loadingContracts}
             className="flex-1 text-white md:flex-none dark:text-white"
             label="Nuevo contrato"
-            onClick={() => setActionsMessage(messages.contracts.ui.createComingSoon)}
+            onClick={() => navigate(AUTH_ROUTE_CONTRACTS_CREATE)}
           />
           <ToolbarActionsDropdownComponent
             disabled={loadingContracts || downloadingReport}

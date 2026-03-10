@@ -1,4 +1,6 @@
 import type {
+  ContractCreateForm,
+  ContractCreatePayload,
   ContractPagedResponse,
   ContractRaw,
   ContractsPagination,
@@ -15,7 +17,6 @@ export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
     values: [
       item.name,
       item.contractType,
-      item.contractStatus,
       item.company,
       formatDate(item.startDate),
       formatDate(item.endDate || '', '-'),
@@ -50,7 +51,6 @@ export function mapperContractsPagination(result: ContractPagedResponse): Contra
 
 export function mapperContractsQueryParams(result: ContractsQueryParams): Record<string, number | string> {
   const employeeId = result.employeeId.trim()
-  const statusId = result.statusId.trim()
   const createdFrom = result.createdFrom.trim()
   const createdTo = result.createdTo.trim()
   const queryParams: Record<string, number | string> = {
@@ -63,13 +63,42 @@ export function mapperContractsQueryParams(result: ContractsQueryParams): Record
     if (Number.isInteger(parsedEmployeeId) && parsedEmployeeId > 0) queryParams.employeeId = parsedEmployeeId
   }
 
-  if (statusId.length > 0) {
-    const parsedStatusId = Number(statusId)
-    if (Number.isInteger(parsedStatusId) && parsedStatusId > 0) queryParams.statusId = parsedStatusId
-  }
-
   if (createdFrom.length > 0) queryParams.createdFrom = createdFrom
   if (createdTo.length > 0) queryParams.createdTo = createdTo
 
   return queryParams
+}
+
+function parseRequiredNumber(value: string): number {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 0
+}
+
+function parseNullableString(value: string): string | null {
+  const normalized = value.trim()
+  return normalized.length > 0 ? normalized : null
+}
+
+export function mapperCreateContractPayload(form: ContractCreateForm): ContractCreatePayload {
+  return {
+    employeeId: parseRequiredNumber(form.employeeId),
+    name: form.name.trim(),
+    contractNumber: form.contractNumber.trim(),
+    contractTypeId: parseRequiredNumber(form.contractTypeId),
+    safetyGroupId: parseRequiredNumber(form.safetyGroupId),
+    contractDetail: parseNullableString(form.contractDetail),
+    baseSalary: form.baseSalary.trim(),
+    agreedSalary: form.agreedSalary.trim(),
+    companyId: parseRequiredNumber(form.companyId),
+    zoneId: parseRequiredNumber(form.zoneId),
+    jobTitleId: parseRequiredNumber(form.jobTitleId),
+    siteId: parseRequiredNumber(form.siteId),
+    laborUnionId: parseRequiredNumber(form.laborUnionId),
+    weeklyWorkHours: form.weeklyWorkHours.trim(),
+    workDays: form.workDays.trim(),
+    startDate: form.startDate.trim(),
+    endDate: parseNullableString(form.endDate),
+    mealTypeId: parseRequiredNumber(form.mealTypeId),
+    transportTypeId: parseRequiredNumber(form.transportTypeId),
+  }
 }

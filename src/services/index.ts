@@ -1,4 +1,5 @@
 export { authService } from './auth.service'
+export { contractSelectsService } from './contract-selects.service'
 export { contractsService } from './contracts.service'
 export { dashboardService } from './dashboard.service'
 export { employeeSelectsService } from './employee-selects.service'

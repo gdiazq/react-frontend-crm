@@ -226,9 +226,13 @@ export default {
       toggleStatusComingSoon: 'Cambio de estado de contrato disponible proximamente.',
     },
     status: {
-      success: {},
+      success: {
+        createContractSuccess: 'Contrato creado correctamente.',
+      },
       errors: {
         loadError: 'No se pudo cargar la lista de contratos.',
+        createContractError: 'No se pudo crear el contrato.',
+        loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de contrato.',
       },
     },
   },

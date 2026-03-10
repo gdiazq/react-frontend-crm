@@ -1,9 +1,8 @@
-import type { ContractsPagination, ContractsQueryParams, ContractTableRow } from '@/types'
+import type { ContractCreateForm, ContractsPagination, ContractsQueryParams, ContractTableRow } from '@/types'
 
 export const contractsTableColumns: string[] = [
   'Nombre contrato',
   'Tipo contrato',
-  'Estado contrato',
   'Empresa',
   'Inicio',
   'Fin',
@@ -29,7 +28,28 @@ export const initialContractsQueryParams: ContractsQueryParams = {
   page: 0,
   size: 10,
   employeeId: '',
-  statusId: '',
   createdFrom: '',
   createdTo: '',
+}
+
+export const initialCreateContractForm: ContractCreateForm = {
+  employeeId: '',
+  name: '',
+  contractNumber: '',
+  contractTypeId: '',
+  safetyGroupId: '',
+  contractDetail: '',
+  baseSalary: '',
+  agreedSalary: '',
+  companyId: '',
+  zoneId: '',
+  jobTitleId: '',
+  siteId: '',
+  laborUnionId: '',
+  weeklyWorkHours: '',
+  workDays: '',
+  startDate: '',
+  endDate: '',
+  mealTypeId: '',
+  transportTypeId: '',
 }

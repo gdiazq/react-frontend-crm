@@ -19,6 +19,7 @@ const UsersDashboardPage = lazy(() => import('@/pages/users/UsersDashboardPage')
 const RequestsDashboardPage = lazy(() => import('@/pages/requests/RequestsDashboardPage'))
 const EmployeesDashboardPage = lazy(() => import('@/pages/employees/EmployeesDashboardPage'))
 const ContractsDashboardPage = lazy(() => import('@/pages/contracts/ContractsDashboardPage'))
+const ContractsFormDashboardPage = lazy(() => import('@/pages/contracts/ContractsFormDashboardPage'))
 const EmployeesFormDashboardPage = lazy(() => import('@/pages/employees/EmployeesFormDashboardPage'))
 const UsersFormDashboardPage = lazy(() => import('@/pages/users/UsersFormDashboardPage'))
 const RolesDashboardPage = lazy(() => import('@/pages/roles/RolesDashboardPage'))
@@ -145,6 +146,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canRead">
             <ContractsDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/contracts/new',
+        element: (
+          <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canCreate">
+            <ContractsFormDashboardPage />
           </ProtectedRoute>
         ),
       },
