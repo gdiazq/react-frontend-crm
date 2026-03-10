@@ -8,7 +8,7 @@ export interface EmployeeRaw {
   phone?: string | null
   statusName: string
   active: boolean
-  rehireEligible: boolean
+  hasContract: boolean
   createdAt: string
   updatedAt: string
 }
@@ -228,6 +228,7 @@ export interface EmployeeDetail {
   pantSize?: string | null
   active: boolean
   rehireEligible: boolean
+  hasContract: boolean
   createdAt: string
   updatedAt: string
   username?: string | null
@@ -242,6 +243,7 @@ export interface EmployeeDetailView {
   active: boolean
   statusName: string
   rehireEligible: boolean
+  hasContract: boolean
   identification: string
   identificationType: string
   birthDate: string
@@ -296,6 +298,7 @@ export interface EmployeeTableRow {
   id: string
   values: string[]
   active?: boolean
+  hasContract?: boolean
 }
 
 export type EmployeesSortBy =
@@ -304,7 +307,7 @@ export type EmployeesSortBy =
   | 'corporateEmail'
   | 'phone'
   | 'statusName'
-  | 'rehireEligible'
+  | 'hasContract'
   | 'active'
   | 'createdAt'
   | 'updatedAt'

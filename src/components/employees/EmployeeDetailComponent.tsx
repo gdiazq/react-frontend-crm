@@ -60,7 +60,6 @@ export default function EmployeeDetailComponent({
     return <p className="text-sm text-slate-600 dark:text-slate-300">Selecciona un trabajador para ver su detalle.</p>
   }
 
-  const rehireLabel = detail.rehireEligible ? 'Si' : 'No'
   const userEnabled = detail.userEnabled === 'Si'
   const tabs: { key: EmployeeDetailTabKey, label: string }[] = [
     { key: 'personal', label: 'Datos personales' },
@@ -220,10 +219,17 @@ export default function EmployeeDetailComponent({
             <p className="truncate text-sm text-slate-600 dark:text-slate-300">{resolveText(detail.identification)}</p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <EmployeeApprovalStatusBadgeComponent statusName={resolveText(detail.statusName)} />
+              <StatusBadgeComponent
+                enabled={detail.hasContract}
+                activeLabel="Contrato: Si"
+                inactiveLabel="Contrato: No"
+              />
               <StatusBadgeComponent enabled={detail.active} />
-              <span className="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:border-emerald-400/40 dark:bg-emerald-900/20 dark:text-emerald-300">
-                Recontratable: {rehireLabel}
-              </span>
+              <StatusBadgeComponent
+                enabled={detail.rehireEligible}
+                activeLabel="Recontratable: Si"
+                inactiveLabel="Recontratable: No"
+              />
             </div>
           </div>
         </div>

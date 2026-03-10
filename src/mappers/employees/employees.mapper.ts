@@ -17,13 +17,14 @@ export function mapperEmployeesRows(response: EmployeeRaw[]): EmployeeTableRow[]
   return response.map((item) => ({
     id: String(item.id),
     active: item.active,
+    hasContract: item.hasContract,
     values: [
       item.identification,
       `${item.firstName} ${item.paternalLastName} ${item.maternalLastName}`.trim(),
       item.corporateEmail,
       item.phone ?? '',
       item.statusName,
-      item.rehireEligible ? messages.employees.ui.rehireEligibleYes : messages.employees.ui.rehireEligibleNo,
+      item.hasContract ? messages.employees.ui.rehireEligibleYes : messages.employees.ui.rehireEligibleNo,
       item.active ? messages.employees.ui.statusActive : messages.employees.ui.statusInactive,
       formatDate(item.createdAt),
       formatDate(item.updatedAt),
@@ -86,6 +87,7 @@ export function mapperEmployeeDetailView(result: EmployeeDetail): EmployeeDetail
     active: result.active,
     statusName: result.status?.name ?? '',
     rehireEligible: result.rehireEligible,
+    hasContract: result.hasContract,
     identification: result.identification,
     identificationType: result.identificationType?.name ?? '',
     birthDate: result.birthDate ?? '',

@@ -30,6 +30,7 @@ import type { DropdownAction } from '@/utils'
 
 const EMPLOYEE_ACTIVE_COLUMN_INDEX = 6
 const EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX = 4
+const EMPLOYEE_CONTRACT_COLUMN_INDEX = 5
 const EMPLOYEE_NAME_COLUMN_INDEX = 1
 const ACTIONS_COLUMN_INDEX = employeesTableColumns.length - 1
 
@@ -39,7 +40,7 @@ const EMPLOYEES_SORT_BY_COLUMN: Partial<Record<number, EmployeesSortBy>> = {
   2: 'corporateEmail',
   3: 'phone',
   4: 'statusName',
-  5: 'rehireEligible',
+  5: 'hasContract',
   6: 'active',
   7: 'createdAt',
   8: 'updatedAt',
@@ -192,6 +193,15 @@ export default function EmployeesDashboardPage() {
     if (columnIndex === EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX) {
       const statusName = typeof value === 'string' ? value : String(value ?? '')
       return <EmployeeApprovalStatusBadgeComponent statusName={statusName} />
+    }
+    if (columnIndex === EMPLOYEE_CONTRACT_COLUMN_INDEX) {
+      return (
+        <StatusBadgeComponent
+          enabled={employeeRow.hasContract === true}
+          activeLabel={messages.employees.ui.rehireEligibleYes}
+          inactiveLabel={messages.employees.ui.rehireEligibleNo}
+        />
+      )
     }
     if (columnIndex === EMPLOYEE_ACTIVE_COLUMN_INDEX) {
       return <StatusBadgeComponent enabled={employeeRow.active === true} />

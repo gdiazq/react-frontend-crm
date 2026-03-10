@@ -6,7 +6,7 @@ export const employeesTableColumns: string[] = [
   'Email',
   'Telefono',
   'Estado de aprobacion',
-  'Recontratable',
+  'Contrato',
   'Estado',
   'Creado',
   'Actualizado',
