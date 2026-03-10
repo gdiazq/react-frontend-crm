@@ -77,6 +77,8 @@ export function mapperRequestsQueryParams(queryParams: RequestsQueryParams): Rec
   const result: Record<string, number | string> = {
     page: queryParams.page,
     size: queryParams.size,
+    sortBy: queryParams.sortBy,
+    sortDir: queryParams.sortDir,
   }
 
   const search = queryParams.search.trim()

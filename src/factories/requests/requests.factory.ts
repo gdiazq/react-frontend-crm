@@ -38,4 +38,6 @@ export const initialRequestsQueryParams: RequestsQueryParams = {
   createdTo: '',
   approvalFrom: '',
   approvalTo: '',
+  sortBy: 'createdAt',
+  sortDir: 'desc',
 }

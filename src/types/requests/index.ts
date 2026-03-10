@@ -6,5 +6,7 @@ export type {
   RequestTableRow,
   RequestsPagination,
   RequestsQueryParams,
+  RequestsSortBy,
+  RequestsSortDir,
 } from './requests.interface'
 export type { RequestsStore } from './requests.store.interface'

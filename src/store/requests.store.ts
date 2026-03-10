@@ -10,7 +10,7 @@ import {
   mapperRequestsRows,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import type { RequestsStore } from '@/types'
+import type { RequestsSortBy, RequestsSortDir, RequestsStore } from '@/types'
 
 let latestRequestDetailRequestId = 0
 
@@ -163,6 +163,14 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => ({
     set((state) => ({
       pagination: { ...state.pagination, page: 0 },
       queryParams: { ...state.queryParams, page: 0 },
+    }))
+    await get().getRequests()
+  },
+
+  sortRequests: async (sortBy: RequestsSortBy, sortDir: RequestsSortDir) => {
+    set((state) => ({
+      pagination: { ...state.pagination, page: 0 },
+      queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
     }))
     await get().getRequests()
   },

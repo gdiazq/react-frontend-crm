@@ -21,7 +21,7 @@ import messages from '@/messages/messages'
 import { requestsService } from '@/services'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
 import { createRequestsActions, downloadBlobFile } from '@/utils'
-import type { RequestTableRow, TableRow } from '@/types'
+import type { RequestTableRow, RequestsSortBy, TableRow, TableSortState } from '@/types'
 import type { DropdownAction } from '@/utils'
 
 const REQUEST_STATUS_COLUMN_INDEX = 4
@@ -29,6 +29,20 @@ const REQUEST_NAME_COLUMN_INDEX = 1
 const ACTIONS_COLUMN_INDEX = requestsTableColumns.length - 1
 
 const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
+
+const REQUESTS_SORT_BY_COLUMN: Partial<Record<number, RequestsSortBy>> = {
+  0: 'identification',
+  1: 'firstName',
+  2: 'requestTypeName',
+  3: 'action',
+  4: 'statusName',
+  5: 'approverFullName',
+  6: 'approvalDate',
+  7: 'createdAt',
+  8: 'updatedAt',
+}
+
+const REQUESTS_SORTABLE_COLUMNS = Object.keys(REQUESTS_SORT_BY_COLUMN).map((index) => Number(index))
 
 export default function RequestsDashboardPage() {
   const requestsRows = useStoreRequests((s) => s.requestsRows) as RequestTableRow[]
@@ -55,6 +69,7 @@ export default function RequestsDashboardPage() {
   const clearCreatedDateRange = useStoreRequests((s) => s.clearCreatedDateRange)
   const clearApprovalDateRange = useStoreRequests((s) => s.clearApprovalDateRange)
   const searchRequests = useStoreRequests((s) => s.searchRequests)
+  const sortRequests = useStoreRequests((s) => s.sortRequests)
   const mutationApproveRequest = useStoreRequests((s) => s.mutationApproveRequest)
   const mutationRejectRequest = useStoreRequests((s) => s.mutationRejectRequest)
   const clearStatus = useStoreRequests((s) => s.clearStatus)
@@ -95,6 +110,11 @@ export default function RequestsDashboardPage() {
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
+  const activeSortColumn = REQUESTS_SORTABLE_COLUMNS.find((index) => REQUESTS_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
+  const sortState: TableSortState = {
+    columnIndex: activeSortColumn,
+    direction: queryParams.sortDir,
+  }
   const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const moduleSelectOptions = hrRequestTypeOptions.map((option) => ({ label: option.name, value: String(option.id) }))
 
@@ -300,6 +320,17 @@ export default function RequestsDashboardPage() {
     return <span>{value}</span>
   }
 
+  const handleSortChange = async (columnIndex: number) => {
+    const sortBy = REQUESTS_SORT_BY_COLUMN[columnIndex]
+    if (!sortBy) return
+
+    const currentSortBy = queryParams.sortBy
+    const currentSortDir = queryParams.sortDir
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+
+    await sortRequests(sortBy, nextSortDir)
+  }
+
   return (
     <section className="min-w-0 space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
@@ -387,6 +418,9 @@ export default function RequestsDashboardPage() {
         loading={loadingRequests}
         emptyMessage="No hay solicitudes registradas."
         renderCell={renderCell}
+        sortableColumnIndexes={REQUESTS_SORTABLE_COLUMNS}
+        sortState={sortState}
+        onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}
       />
 
       {actionsMessage && (

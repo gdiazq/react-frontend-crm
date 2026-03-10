@@ -45,7 +45,22 @@ export interface RequestsQueryParams {
   createdTo: string
   approvalFrom: string
   approvalTo: string
+  sortBy: RequestsSortBy
+  sortDir: RequestsSortDir
 }
+
+export type RequestsSortBy =
+  | 'identification'
+  | 'firstName'
+  | 'requestTypeName'
+  | 'action'
+  | 'statusName'
+  | 'approverFullName'
+  | 'approvalDate'
+  | 'createdAt'
+  | 'updatedAt'
+
+export type RequestsSortDir = 'asc' | 'desc'
 
 export interface RequestTableRow {
   id: string

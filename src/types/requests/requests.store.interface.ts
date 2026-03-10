@@ -3,6 +3,8 @@ import type {
   RequestTableRow,
   RequestsPagination,
   RequestsQueryParams,
+  RequestsSortBy,
+  RequestsSortDir,
 } from './requests.interface'
 
 export interface RequestsStore {
@@ -34,6 +36,7 @@ export interface RequestsStore {
   clearCreatedDateRange: () => void
   clearApprovalDateRange: () => void
   searchRequests: () => Promise<void>
+  sortRequests: (sortBy: RequestsSortBy, sortDir: RequestsSortDir) => Promise<void>
   mutationApproveRequest: (requestId: string) => Promise<boolean>
   mutationRejectRequest: (requestId: string, rejectionDetail: string) => Promise<boolean>
   clearStatus: () => void
