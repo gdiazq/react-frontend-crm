@@ -9,6 +9,7 @@ import {
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
+  SaveConfirmComponent,
   StatsOverviewCardsComponent,
   StatusBadgeComponent,
   TableComponent,
@@ -16,7 +17,7 @@ import {
 } from '@/components'
 import { AUTH_ROUTE_CONTRACTS_CREATE } from '@/constant'
 import { contractsTableColumns } from '@/factories'
-import { useStoreContracts } from '@/store'
+import { useStoreAuth, useStoreContracts } from '@/store'
 import type { ContractTableRow, TableRow } from '@/types'
 import { createContractsActions } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -33,13 +34,19 @@ export default function ContractsDashboardPage() {
   const contractsRows = useStoreContracts((s) => s.contractsRows) as ContractTableRow[]
   const pagination = useStoreContracts((s) => s.pagination)
   const loadingContracts = useStoreContracts((s) => s.loadingContracts)
+  const loadingToggleStatus = useStoreContracts((s) => s.loadingToggleStatus)
   const errorMessage = useStoreContracts((s) => s.errorMessage)
   const getContracts = useStoreContracts((s) => s.getContracts)
+  const mutationToggleContractStatus = useStoreContracts((s) => s.mutationToggleContractStatus)
   const goToPage = useStoreContracts((s) => s.goToPage)
   const clearStatus = useStoreContracts((s) => s.clearStatus)
+  const hasPermission = useStoreAuth((s) => s.hasPermission)
+  const canToggleContractStatus = hasPermission('CONTRACT', 'canUpdate')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingToggleRow, setPendingToggleRow] = useState<ContractTableRow | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
   const { actionViewDetail, actionUpdateContract, actionToggleStatus } = createContractsActions()
@@ -70,15 +77,48 @@ export default function ContractsDashboardPage() {
   }
 
   const handleToggleStatus = (row: ContractTableRow) => {
-    setActionsMessage(`${row.values[CONTRACT_NAME_COLUMN_INDEX]}: ${messages.contracts.ui.toggleStatusComingSoon}`)
+    setPendingToggleRow(row)
+    setConfirmOpen(true)
     setOpenActionsRowId(null)
   }
 
-  const resolveRowActions = (row: ContractTableRow): DropdownAction[] => [
-    actionViewDetail(() => handleViewDetail(row)),
-    actionUpdateContract(() => handleUpdateContract(row)),
-    actionToggleStatus(row.active === true, () => handleToggleStatus(row)),
-  ]
+  const resolveRowActions = (row: ContractTableRow): DropdownAction[] => {
+    const actions: DropdownAction[] = [
+      actionViewDetail(() => handleViewDetail(row)),
+      actionUpdateContract(() => handleUpdateContract(row)),
+    ]
+
+    if (canToggleContractStatus) {
+      actions.push(actionToggleStatus(row.active === true, () => handleToggleStatus(row)))
+    }
+
+    return actions
+  }
+
+  const handleCloseConfirm = () => {
+    if (loadingToggleStatus) return
+    setConfirmOpen(false)
+    setPendingToggleRow(null)
+  }
+
+  const handleConfirmToggleStatus = async () => {
+    if (!pendingToggleRow || loadingToggleStatus) return
+    const nextStatus = !pendingToggleRow.active
+    const success = await mutationToggleContractStatus(pendingToggleRow.id, nextStatus)
+    if (success) {
+      const contractName = pendingToggleRow.values[CONTRACT_NAME_COLUMN_INDEX]
+      await getContracts()
+      setActionsMessage(
+        `${contractName}: ${
+          nextStatus
+            ? messages.contracts.status.success.toggleEnabledSuccess
+            : messages.contracts.status.success.toggleDisabledSuccess
+        }`,
+      )
+      setConfirmOpen(false)
+      setPendingToggleRow(null)
+    }
+  }
 
   const handleSearchSubmit = async () => {
     await getContracts()
@@ -237,6 +277,19 @@ export default function ContractsDashboardPage() {
           </div>
         </div>
       </RightSidebarComponent>
+
+      <SaveConfirmComponent
+        open={confirmOpen}
+        title="Confirmar cambio de estado"
+        message={pendingToggleRow
+          ? `¿Seguro que deseas ${pendingToggleRow.active ? 'deshabilitar' : 'habilitar'} el contrato ${pendingToggleRow.values[CONTRACT_NAME_COLUMN_INDEX]}?`
+          : ''}
+        confirmLabel={pendingToggleRow?.active ? 'Deshabilitar' : 'Habilitar'}
+        cancelLabel="Cancelar"
+        loading={loadingToggleStatus}
+        onClose={handleCloseConfirm}
+        onConfirm={() => { void handleConfirmToggleStatus() }}
+      />
     </section>
   )
 }

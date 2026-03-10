@@ -24,5 +24,9 @@ export const contractsService = {
     return data
   },
 
+  toggleContractStatus: async (contractId: number, active: boolean) => {
+    await axiosInstance.put(`/rrhh/contract/${contractId}/status`, { active })
+  },
+
   isAxiosError: axios.isAxiosError,
 }

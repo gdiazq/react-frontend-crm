@@ -17,6 +17,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
   pagination: { ...initialContractsPagination },
   queryParams: { ...initialContractsQueryParams },
   loadingContracts: false,
+  loadingToggleStatus: false,
   createContractSubmitting: false,
   errorMessage: null,
   createContractErrorMessage: null,
@@ -65,6 +66,29 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
   previousPage: async () => {
     if (get().pagination.first) return
     await get().goToPage(get().pagination.page - 1)
+  },
+
+  mutationToggleContractStatus: async (contractId, nextStatus) => {
+    const parsedContractId = Number(contractId)
+    if (!Number.isInteger(parsedContractId) || parsedContractId <= 0) {
+      set({ errorMessage: messages.contracts.status.errors.invalidStatusContractId })
+      return false
+    }
+
+    try {
+      set({ loadingToggleStatus: true, errorMessage: null, errorBack: null })
+      await contractsService.toggleContractStatus(parsedContractId, nextStatus)
+      return true
+    } catch (error) {
+      if (contractsService.isAxiosError(error)) {
+        set({ errorMessage: error.response?.data?.message || messages.contracts.status.errors.toggleStatusError })
+      } else {
+        set({ errorMessage: messages.contracts.status.errors.toggleStatusError })
+      }
+      return false
+    } finally {
+      set({ loadingToggleStatus: false })
+    }
   },
 
   mutationCreateContract: async (payload, files = []) => {

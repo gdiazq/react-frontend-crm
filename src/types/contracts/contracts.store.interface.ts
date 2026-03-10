@@ -10,6 +10,7 @@ export interface ContractsStore {
   pagination: ContractsPagination
   queryParams: ContractsQueryParams
   loadingContracts: boolean
+  loadingToggleStatus: boolean
   createContractSubmitting: boolean
   errorMessage: string | null
   createContractErrorMessage: string | null
@@ -19,6 +20,7 @@ export interface ContractsStore {
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
+  mutationToggleContractStatus: (contractId: string, nextStatus: boolean) => Promise<boolean>
   mutationCreateContract: (payload: ContractCreatePayload, files?: File[]) => Promise<boolean>
   clearCreateContractStatus: () => void
   clearStatus: () => void
