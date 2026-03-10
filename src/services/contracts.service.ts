@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
-import { mapperContractsQueryParams } from '@/mappers'
+import { mapperContractsQueryParams, mapperCreateContractFormData } from '@/mappers'
 import type {
   ContractCreatePayload,
   ContractCreateResponse,
@@ -16,8 +16,11 @@ export const contractsService = {
     return data
   },
 
-  createContract: async (payload: ContractCreatePayload) => {
-    const { data } = await axiosInstance.post<ContractCreateResponse>('/rrhh/contract/create', payload)
+  createContract: async (payload: ContractCreatePayload, files: File[] = []) => {
+    const formData = mapperCreateContractFormData(payload, files)
+    const { data } = await axiosInstance.post<ContractCreateResponse>('/rrhh/contract/create', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     return data
   },
 

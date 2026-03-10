@@ -17,6 +17,7 @@ export { mapperDashboardExample } from './dashboard/dashboard-example.mapper'
 export { mapperEmployeeSelectOptions } from './employee-selects/employee-selects.mapper'
 export { mapperContractSelectOptions } from './contract-selects/contract-selects.mapper'
 export {
+  mapperCreateContractFormData,
   mapperCreateContractPayload,
   mapperContractsPagination,
   mapperContractsQueryParams,

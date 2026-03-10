@@ -67,7 +67,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
     await get().goToPage(get().pagination.page - 1)
   },
 
-  mutationCreateContract: async (payload) => {
+  mutationCreateContract: async (payload, files = []) => {
     try {
       set({
         createContractSubmitting: true,
@@ -75,7 +75,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
         createContractSuccessMessage: null,
         errorBack: null,
       })
-      const data = await contractsService.createContract(payload)
+      const data = await contractsService.createContract(payload, files)
       set({
         createContractSuccessMessage: `${messages.contracts.status.success.createContractSuccess} (${data.name})`,
       })

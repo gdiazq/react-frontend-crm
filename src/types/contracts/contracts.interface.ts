@@ -5,6 +5,7 @@ export interface ContractRaw {
   name: string
   contractNumber: string
   contractType: string
+  contractStatus: string
   company: string
   jobTitle: string
   baseSalary: string

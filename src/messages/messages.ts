@@ -233,6 +233,8 @@ export default {
         loadError: 'No se pudo cargar la lista de contratos.',
         createContractError: 'No se pudo crear el contrato.',
         loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de contrato.',
+        filesMaxCountError: 'Puedes adjuntar un maximo de 5 archivos.',
+        filesMaxSizeError: 'Cada archivo debe tener un peso maximo de 10 MB.',
       },
     },
   },

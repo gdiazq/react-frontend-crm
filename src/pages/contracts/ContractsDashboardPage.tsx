@@ -4,6 +4,8 @@ import {
   ActionsDropdownComponent,
   AlertMessageComponent,
   ButtonComponent,
+  ContractStatusBadgeComponent,
+  ContractTypeBadgeComponent,
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
@@ -20,7 +22,9 @@ import { createContractsActions } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import messages from '@/messages/messages'
 
-const CONTRACT_ACTIVE_COLUMN_INDEX = 5
+const CONTRACT_ACTIVE_COLUMN_INDEX = 6
+const CONTRACT_TYPE_COLUMN_INDEX = 2
+const CONTRACT_STATUS_COLUMN_INDEX = 3
 const CONTRACT_NAME_COLUMN_INDEX = 0
 const ACTIONS_COLUMN_INDEX = contractsTableColumns.length - 1
 
@@ -93,6 +97,14 @@ export default function ContractsDashboardPage() {
 
   const renderCell = (row: TableRow, value: ReactNode, columnIndex: number, rowIndex: number) => {
     const contractRow = row as ContractTableRow
+    if (columnIndex === CONTRACT_TYPE_COLUMN_INDEX) {
+      const contractType = typeof value === 'string' ? value : String(value ?? '')
+      return <ContractTypeBadgeComponent contractType={contractType} />
+    }
+    if (columnIndex === CONTRACT_STATUS_COLUMN_INDEX) {
+      const contractStatus = typeof value === 'string' ? value : String(value ?? '')
+      return <ContractStatusBadgeComponent contractStatus={contractStatus} />
+    }
     if (columnIndex === CONTRACT_ACTIVE_COLUMN_INDEX) {
       return <StatusBadgeComponent enabled={contractRow.active === true} />
     }

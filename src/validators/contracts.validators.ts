@@ -22,7 +22,7 @@ export const contractsCreateValidationRules: Record<string, ValidationRule> = {
   siteId: selectRequiredRule('la sede'),
   laborUnionId: selectRequiredRule('el sindicato'),
   weeklyWorkHours: { required: true, minLength: 1 },
-  workDays: { required: true, minLength: 3 },
+  workDays: { required: true, minLength: 1 },
   startDate: { required: true },
   mealTypeId: selectRequiredRule('el tipo de colacion'),
   transportTypeId: selectRequiredRule('el tipo de movilizacion'),

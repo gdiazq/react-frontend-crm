@@ -16,8 +16,9 @@ export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
     active: item.active,
     values: [
       item.name,
-      item.contractType,
       item.company,
+      item.contractType,
+      item.contractStatus,
       formatDate(item.startDate),
       formatDate(item.endDate || '', '-'),
       item.active ? messages.contracts.ui.statusActive : messages.contracts.ui.statusInactive,
@@ -101,4 +102,11 @@ export function mapperCreateContractPayload(form: ContractCreateForm): ContractC
     mealTypeId: parseRequiredNumber(form.mealTypeId),
     transportTypeId: parseRequiredNumber(form.transportTypeId),
   }
+}
+
+export function mapperCreateContractFormData(payload: ContractCreatePayload, files: File[] = []): FormData {
+  const formData = new FormData()
+  formData.append('data', new Blob([JSON.stringify(payload)], { type: 'application/json' }))
+  files.forEach((file) => formData.append('files', file))
+  return formData
 }

@@ -19,7 +19,7 @@ export interface ContractsStore {
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
-  mutationCreateContract: (payload: ContractCreatePayload) => Promise<boolean>
+  mutationCreateContract: (payload: ContractCreatePayload, files?: File[]) => Promise<boolean>
   clearCreateContractStatus: () => void
   clearStatus: () => void
 }

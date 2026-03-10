@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  FileDropzoneComponent,
   InputComponent,
   SaveConfirmComponent,
   SelectComponent,
@@ -11,6 +12,7 @@ import { AUTH_ROUTE_CONTRACTS } from '@/constant'
 import { initialCreateContractForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import { mapperCreateContractPayload } from '@/mappers'
+import messages from '@/messages/messages'
 import { useStoreContractSelects, useStoreContracts } from '@/store'
 import type { ContractCreatePayload, ContractSelectOption } from '@/types'
 import { contractsCreateValidationRules } from '@/validators'
@@ -26,11 +28,19 @@ function isIndefiniteContractType(label: string): boolean {
   return label.trim().toLowerCase().includes('indefinido')
 }
 
+const CONTRACT_FILES_MAX_COUNT = 5
+const CONTRACT_FILE_MAX_SIZE_BYTES = 10 * 1024 * 1024
+
+const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
+
 export default function ContractsFormDashboardPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ ...initialCreateContractForm })
+  const [contractFiles, setContractFiles] = useState<File[]>([])
+  const [filesError, setFilesError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingPayload, setPendingPayload] = useState<ContractCreatePayload | null>(null)
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
 
   const createContractSubmitting = useStoreContracts((s) => s.createContractSubmitting)
   const createContractErrorMessage = useStoreContracts((s) => s.createContractErrorMessage)
@@ -106,7 +116,12 @@ export default function ContractsFormDashboardPage() {
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
     if (!validateAll()) return
+    if (contractFiles.length > CONTRACT_FILES_MAX_COUNT) {
+      setFilesError(messages.contracts.status.errors.filesMaxCountError)
+      return
+    }
     setPendingPayload(mapperCreateContractPayload(form))
+    setPendingFiles([...contractFiles])
     setConfirmOpen(true)
   }
 
@@ -114,18 +129,70 @@ export default function ContractsFormDashboardPage() {
     if (saving) return
     setConfirmOpen(false)
     setPendingPayload(null)
+    setPendingFiles([])
   }
 
   const handleConfirmSave = async () => {
     if (!pendingPayload || saving) return
 
-    const success = await mutationCreateContract(pendingPayload)
+    const success = await mutationCreateContract(pendingPayload, pendingFiles)
     if (success) {
       navigate(AUTH_ROUTE_CONTRACTS)
     }
 
     setConfirmOpen(false)
     setPendingPayload(null)
+    setPendingFiles([])
+  }
+
+  const handleAddFiles = (incomingFiles: File[]) => {
+    const nextFiles: File[] = []
+    const existingKeys = new Set<string>()
+    let hasFileSizeError = false
+
+    contractFiles.forEach((file) => {
+      const key = fileKey(file)
+      if (!existingKeys.has(key)) {
+        existingKeys.add(key)
+        nextFiles.push(file)
+      }
+    })
+
+    incomingFiles.forEach((file) => {
+      if (file.size > CONTRACT_FILE_MAX_SIZE_BYTES) {
+        hasFileSizeError = true
+        return
+      }
+      const key = fileKey(file)
+      if (existingKeys.has(key)) return
+      existingKeys.add(key)
+      nextFiles.push(file)
+    })
+
+    if (nextFiles.length > CONTRACT_FILES_MAX_COUNT) {
+      setContractFiles(nextFiles.slice(0, CONTRACT_FILES_MAX_COUNT))
+      setFilesError(messages.contracts.status.errors.filesMaxCountError)
+    } else if (hasFileSizeError) {
+      setContractFiles(nextFiles)
+      setFilesError(messages.contracts.status.errors.filesMaxSizeError)
+    } else {
+      setContractFiles(nextFiles)
+      setFilesError(null)
+    }
+
+    if (createContractErrorMessage || createContractSuccessMessage) clearSubmitStatus()
+  }
+
+  const handleRemoveFile = (index: number) => {
+    setContractFiles((prev) => prev.filter((_, currentIndex) => currentIndex !== index))
+    setFilesError(null)
+    if (createContractErrorMessage || createContractSuccessMessage) clearSubmitStatus()
+  }
+
+  const handleClearFiles = () => {
+    setContractFiles([])
+    setFilesError(null)
+    if (createContractErrorMessage || createContractSuccessMessage) clearSubmitStatus()
   }
 
   return (
@@ -366,6 +433,18 @@ export default function ContractsFormDashboardPage() {
           type="text"
           placeholder="Ingresa el detalle del contrato"
           onValueChange={handleFieldValueChange('contractDetail')}
+        />
+
+        <SectionTitle title="Adjuntos" />
+        <FileDropzoneComponent
+          files={contractFiles}
+          error={filesError}
+          maxFiles={CONTRACT_FILES_MAX_COUNT}
+          disabled={saving}
+          helperText="Opcional. Maximo 5 archivos y 10 MB por archivo."
+          onAddFiles={handleAddFiles}
+          onRemoveFile={handleRemoveFile}
+          onClearFiles={handleClearFiles}
         />
 
         <div className="flex flex-wrap justify-end gap-2">
