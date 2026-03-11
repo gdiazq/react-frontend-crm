@@ -229,7 +229,7 @@ export default function EmployeesFormDashboardPage() {
       return { ...prev, [field]: value }
     })
 
-    if (createEmployeeErrorMessage || createEmployeeSuccessMessage) clearSubmitStatus()
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
   const handleFieldValueChange = (field: keyof typeof initialCreateEmployeeForm) => (value: string) => {
     handleChangeField(field, value)

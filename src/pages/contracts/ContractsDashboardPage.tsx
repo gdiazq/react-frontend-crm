@@ -15,7 +15,7 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_CONTRACTS_CREATE } from '@/constant'
+import { AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
 import { contractsTableColumns } from '@/factories'
 import { useStoreAuth, useStoreContracts } from '@/store'
 import type { ContractTableRow, ContractsSortBy, TableRow, TableSortState } from '@/types'
@@ -23,20 +23,23 @@ import { createContractsActions } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import messages from '@/messages/messages'
 
-const CONTRACT_ACTIVE_COLUMN_INDEX = 6
-const CONTRACT_TYPE_COLUMN_INDEX = 2
-const CONTRACT_STATUS_COLUMN_INDEX = 3
-const CONTRACT_NAME_COLUMN_INDEX = 0
+const CONTRACT_ACTIVE_COLUMN_INDEX = 8
+const CONTRACT_TYPE_COLUMN_INDEX = 4
+const CONTRACT_STATUS_COLUMN_INDEX = 5
+const CONTRACT_NAME_COLUMN_INDEX = 2
 const ACTIONS_COLUMN_INDEX = contractsTableColumns.length - 1
 
 const CONTRACTS_SORT_BY_COLUMN: Partial<Record<number, ContractsSortBy>> = {
-  0: 'name',
-  1: 'companyId',
-  2: 'contractTypeId',
-  3: 'contractStatusId',
-  4: 'startDate',
-  5: 'endDate',
-  7: 'createdAt',
+  0: 'employeeName',
+  1: 'employeeIdentification',
+  2: 'name',
+  3: 'companyId',
+  4: 'contractTypeId',
+  5: 'contractStatusId',
+  6: 'startDate',
+  7: 'endDate',
+  8: 'active',
+  9: 'createdAt',
 }
 
 const CONTRACTS_SORTABLE_COLUMNS = Object.keys(CONTRACTS_SORT_BY_COLUMN).map((index) => Number(index))
@@ -91,7 +94,7 @@ export default function ContractsDashboardPage() {
   }
 
   const handleUpdateContract = (row: ContractTableRow) => {
-    setActionsMessage(`${row.values[CONTRACT_NAME_COLUMN_INDEX]}: ${messages.contracts.ui.updateContractComingSoon}`)
+    navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${row.id}`)
     setOpenActionsRowId(null)
   }
 

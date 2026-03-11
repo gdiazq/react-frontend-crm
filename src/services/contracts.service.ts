@@ -1,10 +1,12 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
-import { mapperContractsQueryParams, mapperCreateContractFormData } from '@/mappers'
+import { mapperContractsQueryParams, mapperCreateContractFormData, mapperUpdateContractFormData } from '@/mappers'
 import type {
   ContractCreatePayload,
   ContractCreateResponse,
+  ContractDetail,
   ContractPagedResponse,
+  ContractUpdatePayload,
   ContractsQueryParams,
 } from '@/types'
 
@@ -16,12 +18,28 @@ export const contractsService = {
     return data
   },
 
+  getContractDetail: async (contractId: number) => {
+    const { data } = await axiosInstance.get<ContractDetail>(`/rrhh/contract/detail/${contractId}`)
+    return data
+  },
+
   createContract: async (payload: ContractCreatePayload, files: File[] = []) => {
     const formData = mapperCreateContractFormData(payload, files)
     const { data } = await axiosInstance.post<ContractCreateResponse>('/rrhh/contract/create', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return data
+  },
+
+  updateContract: async (payload: ContractUpdatePayload, files: File[] = []) => {
+    if (files.length > 0) {
+      const formData = mapperUpdateContractFormData(payload, files)
+      await axiosInstance.put('/rrhh/contract/update', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      return
+    }
+    await axiosInstance.put('/rrhh/contract/update', payload)
   },
 
   toggleContractStatus: async (contractId: number, active: boolean) => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
@@ -11,10 +11,10 @@ import {
 import { AUTH_ROUTE_CONTRACTS } from '@/constant'
 import { initialCreateContractForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateContractPayload } from '@/mappers'
+import { mapperContractDetailToForm, mapperCreateContractPayload, mapperUpdateContractPayload } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreContractSelects, useStoreContracts } from '@/store'
-import type { ContractCreatePayload, ContractSelectOption } from '@/types'
+import type { ContractCreatePayload, ContractDocument, ContractSelectOption, ContractUpdatePayload } from '@/types'
 import { contractsCreateValidationRules } from '@/validators'
 
 function SectionTitle({ title }: { title: string }) {
@@ -33,20 +33,40 @@ const CONTRACT_FILE_MAX_SIZE_BYTES = 10 * 1024 * 1024
 
 const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
 
+type PendingAction =
+  | { mode: 'create', payload: ContractCreatePayload, files: File[] }
+  | { mode: 'update', payload: ContractUpdatePayload, files: File[] }
+  | null
+
 export default function ContractsFormDashboardPage() {
   const navigate = useNavigate()
+  const params = useParams<{ editId: string }>()
+  const rawEditParam = params.editId || ''
+  const editContractId = rawEditParam.startsWith('edit=') ? Number(rawEditParam.slice(5)) : Number.NaN
+  const isEditMode = Number.isInteger(editContractId) && editContractId > 0
   const [form, setForm] = useState({ ...initialCreateContractForm })
+  const [editEmployeeLabel, setEditEmployeeLabel] = useState('')
+  const [existingDocuments, setExistingDocuments] = useState<ContractDocument[]>([])
   const [contractFiles, setContractFiles] = useState<File[]>([])
   const [filesError, setFilesError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingPayload, setPendingPayload] = useState<ContractCreatePayload | null>(null)
-  const [pendingFiles, setPendingFiles] = useState<File[]>([])
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
+  const loadingContractDetail = useStoreContracts((s) => s.loadingContractDetail)
+  const detailErrorMessage = useStoreContracts((s) => s.detailErrorMessage)
   const createContractSubmitting = useStoreContracts((s) => s.createContractSubmitting)
+  const updateContractSubmitting = useStoreContracts((s) => s.updateContractSubmitting)
   const createContractErrorMessage = useStoreContracts((s) => s.createContractErrorMessage)
   const createContractSuccessMessage = useStoreContracts((s) => s.createContractSuccessMessage)
+  const updateContractErrorMessage = useStoreContracts((s) => s.updateContractErrorMessage)
+  const updateContractSuccessMessage = useStoreContracts((s) => s.updateContractSuccessMessage)
+  const getContractDetail = useStoreContracts((s) => s.getContractDetail)
+  const clearContractDetail = useStoreContracts((s) => s.clearContractDetail)
+  const clearDetailError = useStoreContracts((s) => s.clearDetailError)
   const mutationCreateContract = useStoreContracts((s) => s.mutationCreateContract)
+  const mutationUpdateContract = useStoreContracts((s) => s.mutationUpdateContract)
   const clearCreateContractStatus = useStoreContracts((s) => s.clearCreateContractStatus)
+  const clearUpdateContractStatus = useStoreContracts((s) => s.clearUpdateContractStatus)
 
   const employeeWithoutContractOptions = useStoreContractSelects((s) => s.employeeWithoutContractOptions)
   const contractTypeOptions = useStoreContractSelects((s) => s.contractTypeOptions)
@@ -65,12 +85,24 @@ export default function ContractsFormDashboardPage() {
 
   const { errors, validateAll, onValidation } = useFormValidation(form, contractsCreateValidationRules)
 
-  const saving = createContractSubmitting
-  const submitLabel = 'Crear contrato'
-  const submitLoadingLabel = 'Creando contrato...'
+  const saving = createContractSubmitting || updateContractSubmitting
+  const submitLabel = isEditMode ? 'Guardar cambios' : 'Crear contrato'
+  const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : 'Creando contrato...'
+  const headerTitle = isEditMode ? 'Editar contrato' : 'Crear contrato'
+  const headerDescription = isEditMode
+    ? 'Actualiza los datos del contrato seleccionado.'
+    : 'Completa los datos para registrar un nuevo contrato.'
+  const submitErrorMessage = isEditMode ? updateContractErrorMessage : createContractErrorMessage
+  const submitSuccessMessage = isEditMode ? updateContractSuccessMessage : createContractSuccessMessage
   const canSubmit = !saving && !loadingFormOptions
 
   const selectEmployeesWithoutContract = toSelectOptions(employeeWithoutContractOptions)
+  const shouldIncludeCurrentEmployee = isEditMode
+    && form.employeeId.trim().length > 0
+    && !selectEmployeesWithoutContract.some((option) => option.value === form.employeeId)
+  const selectEmployees = shouldIncludeCurrentEmployee
+    ? [{ label: editEmployeeLabel || `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployeesWithoutContract]
+    : selectEmployeesWithoutContract
   const selectContractTypes = toSelectOptions(contractTypeOptions)
   const selectSafetyGroups = toSelectOptions(safetyGroupOptions)
   const selectCompanies = toSelectOptions(companyOptions)
@@ -89,11 +121,44 @@ export default function ContractsFormDashboardPage() {
     return () => {
       clearFormOptionsStatus()
       clearCreateContractStatus()
+      clearUpdateContractStatus()
+      clearDetailError()
+      clearContractDetail()
     }
-  }, [clearCreateContractStatus, clearFormOptionsStatus, getFormOptions])
+  }, [
+    clearCreateContractStatus,
+    clearContractDetail,
+    clearDetailError,
+    clearFormOptionsStatus,
+    clearUpdateContractStatus,
+    getFormOptions,
+  ])
+
+  useEffect(() => {
+    if (!isEditMode) return
+
+    let cancelled = false
+
+    const load = async () => {
+      const detail = await getContractDetail(String(editContractId))
+      if (!detail || cancelled) return
+
+      setForm(mapperContractDetailToForm(detail))
+      setEditEmployeeLabel((detail.employeeName ?? '').trim())
+      setExistingDocuments(detail.documents ?? [])
+      setContractFiles([])
+    }
+
+    void load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [editContractId, getContractDetail, isEditMode])
 
   const clearSubmitStatus = () => {
     clearCreateContractStatus()
+    clearUpdateContractStatus()
   }
 
   const handleChangeField = (field: keyof typeof initialCreateContractForm, value: string) => {
@@ -107,7 +172,7 @@ export default function ContractsFormDashboardPage() {
       }
       return { ...prev, [field]: value }
     })
-    if (createContractErrorMessage || createContractSuccessMessage) clearSubmitStatus()
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
   const handleFieldValueChange = (field: keyof typeof initialCreateContractForm) => (value: string) => {
     handleChangeField(field, value)
@@ -120,32 +185,42 @@ export default function ContractsFormDashboardPage() {
       setFilesError(messages.contracts.status.errors.filesMaxCountError)
       return
     }
-    setPendingPayload(mapperCreateContractPayload(form))
-    setPendingFiles([...contractFiles])
+
+    if (isEditMode) {
+      setPendingAction({ mode: 'update', payload: mapperUpdateContractPayload(editContractId, form), files: [...contractFiles] })
+    } else {
+      setPendingAction({ mode: 'create', payload: mapperCreateContractPayload(form), files: [...contractFiles] })
+    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingPayload(null)
-    setPendingFiles([])
+    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingPayload || saving) return
-
-    const success = await mutationCreateContract(pendingPayload, pendingFiles)
+    if (!pendingAction || saving) return
+    const success = pendingAction.mode === 'create'
+      ? await mutationCreateContract(pendingAction.payload, pendingAction.files)
+      : await mutationUpdateContract(pendingAction.payload, pendingAction.files)
     if (success) {
       navigate(AUTH_ROUTE_CONTRACTS)
+      return
     }
 
     setConfirmOpen(false)
-    setPendingPayload(null)
-    setPendingFiles([])
+    setPendingAction(null)
   }
 
   const handleAddFiles = (incomingFiles: File[]) => {
+    const maxNewFiles = Math.max(0, CONTRACT_FILES_MAX_COUNT - existingDocuments.length)
+    if (maxNewFiles === 0) {
+      setFilesError(messages.contracts.status.errors.filesMaxCountError)
+      return
+    }
+
     const nextFiles: File[] = []
     const existingKeys = new Set<string>()
     let hasFileSizeError = false
@@ -169,8 +244,8 @@ export default function ContractsFormDashboardPage() {
       nextFiles.push(file)
     })
 
-    if (nextFiles.length > CONTRACT_FILES_MAX_COUNT) {
-      setContractFiles(nextFiles.slice(0, CONTRACT_FILES_MAX_COUNT))
+    if (nextFiles.length > maxNewFiles) {
+      setContractFiles(nextFiles.slice(0, maxNewFiles))
       setFilesError(messages.contracts.status.errors.filesMaxCountError)
     } else if (hasFileSizeError) {
       setContractFiles(nextFiles)
@@ -180,27 +255,43 @@ export default function ContractsFormDashboardPage() {
       setFilesError(null)
     }
 
-    if (createContractErrorMessage || createContractSuccessMessage) clearSubmitStatus()
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
   const handleRemoveFile = (index: number) => {
     setContractFiles((prev) => prev.filter((_, currentIndex) => currentIndex !== index))
     setFilesError(null)
-    if (createContractErrorMessage || createContractSuccessMessage) clearSubmitStatus()
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
   const handleClearFiles = () => {
     setContractFiles([])
     setFilesError(null)
-    if (createContractErrorMessage || createContractSuccessMessage) clearSubmitStatus()
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
+
+  const handleRemoveExistingFile = (index: number) => {
+    setExistingDocuments((prev) => prev.filter((_, currentIndex) => currentIndex !== index))
+    setFilesError(null)
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
+  }
+
+  const handleClearExistingFiles = () => {
+    setExistingDocuments([])
+    setFilesError(null)
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
+  }
+
+  const confirmMessage = pendingAction?.mode === 'update'
+    ? `¿Deseas guardar los cambios del contrato ${form.name}?`
+    : `¿Deseas crear el contrato ${form.name}?`
 
   return (
     <section className="space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Crear contrato</h1>
+        <h1 className="text-2xl font-bold">{headerTitle}</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Completa los datos para registrar un nuevo contrato.
+          {headerDescription}
         </p>
       </header>
 
@@ -212,17 +303,25 @@ export default function ContractsFormDashboardPage() {
         />
       )}
 
-      {createContractErrorMessage && (
+      {isEditMode && detailErrorMessage && (
         <AlertMessageComponent
-          message={createContractErrorMessage}
+          message={detailErrorMessage}
+          tone="error"
+          onClose={clearDetailError}
+        />
+      )}
+
+      {submitErrorMessage && (
+        <AlertMessageComponent
+          message={submitErrorMessage}
           tone="error"
           onClose={clearSubmitStatus}
         />
       )}
 
-      {createContractSuccessMessage && (
+      {submitSuccessMessage && (
         <AlertMessageComponent
-          message={createContractSuccessMessage}
+          message={submitSuccessMessage}
           tone="success"
           onClose={clearSubmitStatus}
         />
@@ -232,13 +331,18 @@ export default function ContractsFormDashboardPage() {
         className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60"
         onSubmit={handleSubmit}
       >
+        {isEditMode && loadingContractDetail && (
+          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando datos del contrato...</p>
+        )}
+
         <SectionTitle title="Datos base" />
         <div className="grid gap-4 md:grid-cols-3">
           <SelectComponent
             value={form.employeeId}
             label="Trabajador"
-            options={selectEmployeesWithoutContract}
+            options={selectEmployees}
             error={errors.employeeId}
+            disabled={isEditMode}
             onValueChange={handleFieldValueChange('employeeId')}
             onValidation={onValidation('employeeId')}
             required
@@ -438,13 +542,16 @@ export default function ContractsFormDashboardPage() {
         <SectionTitle title="Adjuntos" />
         <FileDropzoneComponent
           files={contractFiles}
+          existingFiles={existingDocuments}
           error={filesError}
           maxFiles={CONTRACT_FILES_MAX_COUNT}
           disabled={saving}
           helperText="Opcional. Maximo 5 archivos y 10 MB por archivo."
           onAddFiles={handleAddFiles}
           onRemoveFile={handleRemoveFile}
+          onRemoveExistingFile={handleRemoveExistingFile}
           onClearFiles={handleClearFiles}
+          onClearExistingFiles={handleClearExistingFiles}
         />
 
         <div className="flex flex-wrap justify-end gap-2">
@@ -466,8 +573,8 @@ export default function ContractsFormDashboardPage() {
 
       <SaveConfirmComponent
         open={confirmOpen}
-        title="Confirmar creacion de contrato"
-        message={`¿Deseas crear el contrato ${form.name}?`}
+        title={isEditMode ? 'Confirmar actualizacion de contrato' : 'Confirmar creacion de contrato'}
+        message={confirmMessage}
         confirmLabel={submitLabel}
         cancelLabel="Cancelar"
         loading={saving}

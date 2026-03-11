@@ -12,16 +12,24 @@ import {
 import messages from '@/messages/messages'
 import type { ContractsSortBy, ContractsSortDir, ContractsStore } from '@/types'
 
+let latestContractDetailRequestId = 0
+
 export const useStoreContracts = create<ContractsStore>()((set, get) => ({
   contractsRows: [...initialContractsRows],
+  contractDetail: null,
   pagination: { ...initialContractsPagination },
   queryParams: { ...initialContractsQueryParams },
   loadingContracts: false,
+  loadingContractDetail: false,
   loadingToggleStatus: false,
   createContractSubmitting: false,
+  updateContractSubmitting: false,
   errorMessage: null,
+  detailErrorMessage: null,
   createContractErrorMessage: null,
   createContractSuccessMessage: null,
+  updateContractErrorMessage: null,
+  updateContractSuccessMessage: null,
   errorBack: null,
 
   getContracts: async () => {
@@ -44,6 +52,58 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
     } finally {
       set({ loadingContracts: false })
     }
+  },
+
+  getContractDetail: async (contractId: string) => {
+    const parsedContractId = Number(contractId)
+    if (!Number.isInteger(parsedContractId) || parsedContractId <= 0) {
+      set({
+        detailErrorMessage: messages.contracts.status.errors.detailInvalidContractId,
+        contractDetail: null,
+      })
+      return null
+    }
+    const requestId = ++latestContractDetailRequestId
+
+    try {
+      set({
+        loadingContractDetail: true,
+        detailErrorMessage: null,
+        contractDetail: null,
+        errorBack: null,
+      })
+      const data = await contractsService.getContractDetail(parsedContractId)
+      if (requestId !== latestContractDetailRequestId) return null
+      set({ contractDetail: data })
+      return data
+    } catch (error) {
+      if (requestId !== latestContractDetailRequestId) return null
+      if (contractsService.isAxiosError(error)) {
+        set({
+          detailErrorMessage: error.response?.data?.message || messages.contracts.status.errors.detailLoadError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          detailErrorMessage: messages.contracts.status.errors.detailLoadError,
+          errorBack: error,
+        })
+      }
+      return null
+    } finally {
+      if (requestId === latestContractDetailRequestId) {
+        set({ loadingContractDetail: false })
+      }
+    }
+  },
+
+  clearContractDetail: () => {
+    latestContractDetailRequestId += 1
+    set({ contractDetail: null, detailErrorMessage: null, loadingContractDetail: false })
+  },
+
+  clearDetailError: () => {
+    set({ detailErrorMessage: null })
   },
 
   goToPage: async (page: number) => {
@@ -130,8 +190,46 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
     }
   },
 
+  mutationUpdateContract: async (payload, files = []) => {
+    if (!Number.isInteger(payload.id) || payload.id <= 0) {
+      set({ updateContractErrorMessage: messages.contracts.status.errors.detailInvalidContractId })
+      return false
+    }
+
+    try {
+      set({
+        updateContractSubmitting: true,
+        updateContractErrorMessage: null,
+        updateContractSuccessMessage: null,
+        errorBack: null,
+      })
+      await contractsService.updateContract(payload, files)
+      set({ updateContractSuccessMessage: messages.contracts.status.success.updateContractSuccess })
+      return true
+    } catch (error) {
+      if (contractsService.isAxiosError(error)) {
+        set({
+          updateContractErrorMessage: error.response?.data?.message || messages.contracts.status.errors.updateContractError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          updateContractErrorMessage: messages.contracts.status.errors.updateContractError,
+          errorBack: error,
+        })
+      }
+      return false
+    } finally {
+      set({ updateContractSubmitting: false })
+    }
+  },
+
   clearCreateContractStatus: () => {
     set({ createContractErrorMessage: null, createContractSuccessMessage: null })
+  },
+
+  clearUpdateContractStatus: () => {
+    set({ updateContractErrorMessage: null, updateContractSuccessMessage: null })
   },
 
   clearStatus: () => {

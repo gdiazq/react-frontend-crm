@@ -1,6 +1,8 @@
 import type { ContractCreateForm, ContractsPagination, ContractsQueryParams, ContractTableRow } from '@/types'
 
 export const contractsTableColumns: string[] = [
+  'Trabajador',
+  'Identificacion',
   'Nombre contrato',
   'Empresa',
   'Tipo contrato',

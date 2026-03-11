@@ -1,9 +1,17 @@
 import { useRef, useState } from 'react'
 import ButtonComponent from '../button/ButtonComponent'
 
+interface ExistingFileItem {
+  id: number | string
+  fileName: string
+  size: number
+  url?: string | null
+}
+
 interface FileDropzoneComponentProps {
   label?: string
   files: File[]
+  existingFiles?: ExistingFileItem[]
   error?: string | null
   helperText?: string
   accept?: string
@@ -11,12 +19,15 @@ interface FileDropzoneComponentProps {
   disabled?: boolean
   onAddFiles: (files: File[]) => void
   onRemoveFile: (index: number) => void
+  onRemoveExistingFile?: (index: number) => void
   onClearFiles: () => void
+  onClearExistingFiles?: () => void
 }
 
 export default function FileDropzoneComponent({
   label = 'Adjuntar archivos',
   files,
+  existingFiles = [],
   error,
   helperText,
   accept,
@@ -24,11 +35,14 @@ export default function FileDropzoneComponent({
   disabled = false,
   onAddFiles,
   onRemoveFile,
+  onRemoveExistingFile,
   onClearFiles,
+  onClearExistingFiles,
 }: FileDropzoneComponentProps) {
   const [dragOver, setDragOver] = useState(false)
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const reachedMaxFiles = typeof maxFiles === 'number' && maxFiles > 0 && files.length >= maxFiles
+  const totalAttachedFiles = existingFiles.length + files.length
+  const reachedMaxFiles = typeof maxFiles === 'number' && maxFiles > 0 && totalAttachedFiles >= maxFiles
 
   const handleSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files ? Array.from(event.target.files) : []
@@ -61,6 +75,11 @@ export default function FileDropzoneComponent({
     if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`
     if (size >= 1024) return `${(size / 1024).toFixed(2)} KB`
     return `${size} B`
+  }
+
+  const handleClearAllFiles = () => {
+    onClearFiles()
+    if (onClearExistingFiles) onClearExistingFiles()
   }
 
   return (
@@ -135,21 +154,57 @@ export default function FileDropzoneComponent({
       )}
       {error && <p className="text-xs text-rose-500 dark:text-rose-400">{error}</p>}
 
-      {files.length > 0 && (
+      {totalAttachedFiles > 0 && (
         <div className="space-y-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
-              Archivos adjuntos ({files.length})
+              Archivos adjuntos ({totalAttachedFiles})
             </p>
-            <ButtonComponent
-              type="button"
-              variant="outline"
-              disabled={disabled}
-              label="Limpiar"
-              onClick={onClearFiles}
-            />
+            {totalAttachedFiles > 0 && (
+              <ButtonComponent
+                type="button"
+                variant="outline"
+                disabled={disabled}
+                label="Limpiar"
+                onClick={handleClearAllFiles}
+              />
+            )}
           </div>
           <ul className="space-y-1">
+            {existingFiles.map((file, index) => (
+              <li
+                key={`existing-${file.id}`}
+                className="flex items-center justify-between gap-3 rounded-md border border-slate-200 px-3 py-2 text-sm dark:border-slate-700"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-slate-700 dark:text-slate-200">{file.fileName}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{formatSize(file.size)}</p>
+                </div>
+                {onRemoveExistingFile
+                  ? (
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-rose-600 hover:text-rose-700 disabled:opacity-50 dark:text-rose-400 dark:hover:text-rose-300"
+                      disabled={disabled}
+                      onClick={() => onRemoveExistingFile(index)}
+                    >
+                      Quitar
+                    </button>
+                  )
+                  : file.url
+                    ? (
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-semibold text-cyan-700 hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
+                      >
+                        Ver
+                      </a>
+                    )
+                    : null}
+              </li>
+            ))}
             {files.map((file, index) => (
               <li
                 key={`${file.name}-${file.size}-${file.lastModified}-${index}`}

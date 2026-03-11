@@ -228,12 +228,16 @@ export default {
     status: {
       success: {
         createContractSuccess: 'Contrato creado correctamente.',
+        updateContractSuccess: 'Contrato actualizado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de contratos.',
         createContractError: 'No se pudo crear el contrato.',
+        updateContractError: 'No se pudo actualizar el contrato.',
+        detailLoadError: 'No se pudo cargar el detalle del contrato.',
+        detailInvalidContractId: 'Id de contrato invalido para editar.',
         toggleStatusError: 'No se pudo actualizar el estado del contrato.',
         invalidStatusContractId: 'Id de contrato invalido para actualizar estado.',
         loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de contrato.',

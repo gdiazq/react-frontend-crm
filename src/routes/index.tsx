@@ -158,6 +158,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: '/contracts/:editId',
+        element: (
+          <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canUpdate">
+            <ContractsFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/employees/new',
         element: (
           <ProtectedRoute requiresPermissions module="EMPLOYEE" permissionType="canCreate">

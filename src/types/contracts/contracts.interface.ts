@@ -2,6 +2,7 @@ export interface ContractRaw {
   id: number
   employeeId: number
   employeeName: string
+  employeeIdentification: string
   name: string
   contractNumber: string
   contractType: string
@@ -59,6 +60,85 @@ export interface ContractCreatePayload {
   transportTypeId: number
 }
 
+export interface ContractUpdatePayload {
+  id: number
+  employeeId: number
+  name: string
+  contractNumber: string
+  contractTypeId: number
+  safetyGroupId: number
+  contractDetail: string | null
+  baseSalary: string
+  agreedSalary: string
+  companyId: number
+  zoneId: number
+  jobTitleId: number
+  siteId: number
+  laborUnionId: number
+  weeklyWorkHours: string
+  workDays: string
+  startDate: string
+  endDate: string | null
+  mealTypeId: number
+  transportTypeId: number
+}
+
+export interface ContractDetailReference {
+  id: number
+  name: string
+}
+
+export interface ContractDocument {
+  id: number
+  fileName: string
+  contentType?: string | null
+  size: number
+  url?: string | null
+  entityType?: string | null
+  entityId?: number | null
+  createdAt?: string
+}
+
+export interface ContractDetail {
+  id: number
+  employeeId: number
+  employeeName?: string | null
+  name: string
+  contractNumber: string
+  contractType?: ContractDetailReference | null
+  contractTypeId?: number
+  contractStatus?: ContractDetailReference | null
+  safetyGroup?: ContractDetailReference | null
+  safetyGroupId?: number
+  contractDetail?: string | null
+  baseSalary: string
+  agreedSalary: string
+  company?: ContractDetailReference | null
+  companyId?: number
+  zone?: ContractDetailReference | null
+  zoneId?: number
+  jobTitle?: ContractDetailReference | null
+  jobTitleId?: number
+  site?: ContractDetailReference | null
+  siteId?: number
+  laborUnion?: ContractDetailReference | null
+  laborUnionId?: number
+  weeklyWorkHours: string
+  workDays: string
+  startDate: string
+  endDate?: string | null
+  mealType?: ContractDetailReference | null
+  mealTypeId?: number
+  transportType?: ContractDetailReference | null
+  transportTypeId?: number
+  status?: ContractDetailReference | null
+  active?: boolean
+  createdAt?: string
+  updatedAt?: string
+  requestId?: number | null
+  documents?: ContractDocument[]
+}
+
 export interface ContractCreateResponse {
   id: number
   name: string
@@ -73,12 +153,15 @@ export interface ContractTableRow {
 }
 
 export type ContractsSortBy =
+  | 'employeeName'
+  | 'employeeIdentification'
   | 'name'
   | 'companyId'
   | 'contractTypeId'
   | 'contractStatusId'
   | 'startDate'
   | 'endDate'
+  | 'active'
   | 'createdAt'
 
 export type ContractsSortDir = 'asc' | 'desc'
