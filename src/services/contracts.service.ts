@@ -32,14 +32,10 @@ export const contractsService = {
   },
 
   updateContract: async (payload: ContractUpdatePayload, files: File[] = []) => {
-    if (files.length > 0) {
-      const formData = mapperUpdateContractFormData(payload, files)
-      await axiosInstance.put('/rrhh/contract/update', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      return
-    }
-    await axiosInstance.put('/rrhh/contract/update', payload)
+    const formData = mapperUpdateContractFormData(payload, files)
+    await axiosInstance.put('/rrhh/contract/update', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
   },
 
   toggleContractStatus: async (contractId: number, active: boolean) => {
