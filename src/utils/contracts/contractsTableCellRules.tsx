@@ -1,26 +1,37 @@
 import {
   ContractStatusBadgeComponent,
   ContractTypeBadgeComponent,
-  StatusBadgeComponent,
 } from '@/components'
 import type { TableCellCustomRenderer } from '@/components'
 import type { TableRow } from '@/types'
 
 interface CreateContractsTableCustomRendererParams {
+  employeeNameColumnIndex: number
   contractTypeColumnIndex: number
   contractStatusColumnIndex: number
-  contractActiveColumnIndex: number
-  getIsActive: (rowId: string) => boolean
+  onViewDetail: (rowId: string) => void
 }
 
 export function createContractsTableCustomRenderer({
+  employeeNameColumnIndex,
   contractTypeColumnIndex,
   contractStatusColumnIndex,
-  contractActiveColumnIndex,
-  getIsActive,
+  onViewDetail,
 }: CreateContractsTableCustomRendererParams): TableCellCustomRenderer {
   return ({ row, value, columnIndex }) => {
     const tableRow: TableRow = row
+
+    if (columnIndex == employeeNameColumnIndex) {
+      return (
+        <button
+          type="button"
+          className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
+          onClick={() => onViewDetail(tableRow.id)}
+        >
+          {value}
+        </button>
+      )
+    }
 
     if (columnIndex == contractTypeColumnIndex) {
       const contractType = String(value ?? '')
@@ -30,10 +41,6 @@ export function createContractsTableCustomRenderer({
     if (columnIndex == contractStatusColumnIndex) {
       const contractStatus = String(value ?? '')
       return <ContractStatusBadgeComponent contractStatus={contractStatus} />
-    }
-
-    if (columnIndex == contractActiveColumnIndex) {
-      return <StatusBadgeComponent enabled={Boolean(getIsActive(tableRow.id))} />
     }
 
     return null

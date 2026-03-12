@@ -6,19 +6,18 @@ export const contractsTableColumns: string[] = [
   'Nombre contrato', // 2
   'Empresa',         // 3
   'Tipo contrato',   // 4
-  'Estado contrato', // 5
-  'Inicio',          // 6
-  'Fin',             // 7
-  'Estado',          // 8
-  'Creado',          // 9
-  'Acciones',        // 10
+  'Inicio',          // 5
+  'Fin',             // 6
+  'Estado contrato', // 7
+  'Creado',          // 8
+  'Acciones',        // 9
 ]
 
 export const contractsTableColumnIndex = {
+  employeeName: 1,
   name: 2,
   contractType: 4,
-  contractStatus: 5,
-  active: 8,
+  contractStatus: 7,
 }
 
 export const contractsTableSortByColumn: Partial<Record<number, ContractsSortBy>> = {
@@ -27,11 +26,10 @@ export const contractsTableSortByColumn: Partial<Record<number, ContractsSortBy>
   2: 'name',
   3: 'companyId',
   4: 'contractTypeId',
-  5: 'contractStatusId',
-  6: 'startDate',
-  7: 'endDate',
-  8: 'active',
-  9: 'createdAt',
+  5: 'startDate',
+  6: 'endDate',
+  7: 'contractStatusId',
+  8: 'createdAt',
 }
 
 export const initialContractsRows: ContractTableRow[] = []

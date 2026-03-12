@@ -1,5 +1,7 @@
 import type {
   ContractDetail,
+  ContractDetailDocumentView,
+  ContractDetailView,
   ContractCreateForm,
   ContractCreatePayload,
   ContractPagedResponse,
@@ -9,8 +11,7 @@ import type {
   ContractsQueryParams,
   ContractTableRow,
 } from '@/types'
-import messages from '@/messages/messages'
-import { formatDate } from '@/utils'
+import { formatDate, formatDateTime } from '@/utils'
 
 export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
   return result.map((item) => ({
@@ -22,10 +23,9 @@ export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
       item.name,
       item.company,
       item.contractType,
-      item.contractStatus,
       formatDate(item.startDate),
       formatDate(item.endDate || '', '-'),
-      item.active ? messages.contracts.ui.statusActive : messages.contracts.ui.statusInactive,
+      item.contractStatus,
       formatDate(item.createdAt),
       '',
     ],
@@ -89,6 +89,28 @@ function parseNullableString(value: string): string | null {
 function normalizeDateValue(value?: string | null): string {
   const normalized = (value ?? '').trim()
   return normalized.length >= 10 ? normalized.slice(0, 10) : normalized
+}
+
+function resolveText(value?: string | null): string {
+  const normalized = value?.trim() ?? ''
+  return normalized.length > 0 ? normalized : 'Sin registro'
+}
+
+function resolveFileSize(size: number): string {
+  if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`
+  if (size >= 1024) return `${(size / 1024).toFixed(2)} KB`
+  return `${size} B`
+}
+
+function mapperContractDocuments(documents: ContractDetail['documents']): ContractDetailDocumentView[] {
+  if (!documents || documents.length === 0) return []
+
+  return documents.map((document) => ({
+    id: document.id,
+    fileName: resolveText(document.fileName),
+    sizeDisplay: resolveFileSize(document.size),
+    url: document.url?.trim() ?? '',
+  }))
 }
 
 export function mapperCreateContractPayload(form: ContractCreateForm): ContractCreatePayload {
@@ -161,6 +183,38 @@ export function mapperContractDetailToForm(detail: ContractDetail): ContractCrea
     endDate: normalizeDateValue(detail.endDate),
     mealTypeId: String(detail.mealType?.id ?? detail.mealTypeId ?? ''),
     transportTypeId: String(detail.transportType?.id ?? detail.transportTypeId ?? ''),
+  }
+}
+
+export function mapperContractDetailView(detail: ContractDetail | null): ContractDetailView | null {
+  if (!detail) return null
+
+  return {
+    contractName: resolveText(detail.name),
+    contractNumber: resolveText(detail.contractNumber),
+    employeeName: resolveText(detail.employeeName),
+    employeeIdentification: resolveText(detail.employeeIdentification),
+    contractTypeName: resolveText(detail.contractType?.name),
+    contractStatusName: resolveText(detail.contractStatus?.name),
+    approvalStatusName: resolveText(detail.status?.name),
+    companyName: resolveText(detail.company?.name),
+    zoneName: resolveText(detail.zone?.name),
+    jobTitleName: resolveText(detail.jobTitle?.name),
+    siteName: resolveText(detail.site?.name),
+    laborUnionName: resolveText(detail.laborUnion?.name),
+    safetyGroupName: resolveText(detail.safetyGroup?.name),
+    baseSalary: resolveText(detail.baseSalary),
+    agreedSalary: resolveText(detail.agreedSalary),
+    weeklyWorkHours: resolveText(detail.weeklyWorkHours),
+    workDays: resolveText(detail.workDays),
+    startDateDisplay: formatDate(detail.startDate, 'Sin registro'),
+    endDateDisplay: formatDate(detail.endDate || '', 'Sin registro'),
+    mealTypeName: resolveText(detail.mealType?.name),
+    transportTypeName: resolveText(detail.transportType?.name),
+    contractDetailText: resolveText(detail.contractDetail),
+    createdAtDisplay: formatDateTime(detail.createdAt, 'Sin registro'),
+    updatedAtDisplay: formatDateTime(detail.updatedAt, 'Sin registro'),
+    documents: mapperContractDocuments(detail.documents),
   }
 }
 

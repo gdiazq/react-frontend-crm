@@ -103,6 +103,7 @@ export interface ContractDetail {
   id: number
   employeeId: number
   employeeName?: string | null
+  employeeIdentification?: string | null
   name: string
   contractNumber: string
   contractType?: ContractDetailReference | null
@@ -137,6 +138,41 @@ export interface ContractDetail {
   updatedAt?: string
   requestId?: number | null
   documents?: ContractDocument[]
+}
+
+export interface ContractDetailDocumentView {
+  id: number
+  fileName: string
+  sizeDisplay: string
+  url: string
+}
+
+export interface ContractDetailView {
+  contractName: string
+  contractNumber: string
+  employeeName: string
+  employeeIdentification: string
+  contractTypeName: string
+  contractStatusName: string
+  approvalStatusName: string
+  companyName: string
+  zoneName: string
+  jobTitleName: string
+  siteName: string
+  laborUnionName: string
+  safetyGroupName: string
+  baseSalary: string
+  agreedSalary: string
+  weeklyWorkHours: string
+  workDays: string
+  startDateDisplay: string
+  endDateDisplay: string
+  mealTypeName: string
+  transportTypeName: string
+  contractDetailText: string
+  createdAtDisplay: string
+  updatedAtDisplay: string
+  documents: ContractDetailDocumentView[]
 }
 
 export interface ContractCreateResponse {

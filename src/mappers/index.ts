@@ -18,6 +18,7 @@ export { mapperEmployeeSelectOptions } from './employee-selects/employee-selects
 export { mapperContractSelectOptions } from './contract-selects/contract-selects.mapper'
 export {
   mapperContractDetailToForm,
+  mapperContractDetailView,
   mapperCreateContractFormData,
   mapperCreateContractPayload,
   mapperUpdateContractFormData,

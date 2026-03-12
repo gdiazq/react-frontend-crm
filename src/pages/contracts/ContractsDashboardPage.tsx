@@ -3,23 +3,25 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  ContractDetailComponent,
+  DetailSidebarComponent,
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
-  SaveConfirmComponent,
   StatsOverviewCardsComponent,
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
+import { mapperContractDetailView } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAuth, useStoreContracts } from '@/store'
+import { useStoreContracts } from '@/store'
 import type { ContractTableRow, TableRow, TableSortState } from '@/types'
 import { createContractsActions, createContractsTableCustomRenderer } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
-const CONTRACT_ACTIVE_COLUMN_INDEX = contractsTableColumnIndex.active
+const CONTRACT_EMPLOYEE_NAME_COLUMN_INDEX = contractsTableColumnIndex.employeeName
 const CONTRACT_TYPE_COLUMN_INDEX = contractsTableColumnIndex.contractType
 const CONTRACT_STATUS_COLUMN_INDEX = contractsTableColumnIndex.contractStatus
 const CONTRACT_NAME_COLUMN_INDEX = contractsTableColumnIndex.name
@@ -30,31 +32,33 @@ export default function ContractsDashboardPage() {
   // --- Store ---
   const navigate = useNavigate()
   const contractsRows = useStoreContracts((s) => s.contractsRows)
+  const contractDetail = useStoreContracts((s) => s.contractDetail)
   const pagination = useStoreContracts((s) => s.pagination)
   const queryParams = useStoreContracts((s) => s.queryParams)
   const loadingContracts = useStoreContracts((s) => s.loadingContracts)
-  const loadingToggleStatus = useStoreContracts((s) => s.loadingToggleStatus)
+  const loadingContractDetail = useStoreContracts((s) => s.loadingContractDetail)
   const listError = useStoreContracts((s) => s.operationStatus.list.error)
-  const toggleError = useStoreContracts((s) => s.operationStatus.toggle.error)
+  const detailError = useStoreContracts((s) => s.operationStatus.detail.error)
   const clearOperationStatus = useStoreContracts((s) => s.clearOperationStatus)
   const getContracts = useStoreContracts((s) => s.getContracts)
+  const getContractDetail = useStoreContracts((s) => s.getContractDetail)
+  const clearContractDetail = useStoreContracts((s) => s.clearContractDetail)
   const sortContracts = useStoreContracts((s) => s.sortContracts)
-  const toggleContractStatus = useStoreContracts((s) => s.toggleContractStatus)
   const goToPage = useStoreContracts((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleContractStatus = hasPermission('CONTRACT', 'canUpdate')
 
-  const { actionViewDetail, actionUpdateContract, actionToggleStatus } = createContractsActions()
+  const { actionViewDetail, actionUpdateContract } = createContractsActions()
 
   // --- State ---
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingToggleRow, setPendingToggleRow] = useState<ContractTableRow | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
+  const [selectedDetailName, setSelectedDetailName] = useState('')
   const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
 
   // --- Derived ---
+  const contractDetailView = mapperContractDetailView(contractDetail)
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
@@ -64,6 +68,11 @@ export default function ContractsDashboardPage() {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
   }
+  const detailTitle = contractDetailView
+    ? `Detalle de ${contractDetailView.contractName}`
+    : selectedDetailName
+      ? `Detalle de ${selectedDetailName}`
+      : 'Detalle de contrato'
 
   // --- Effects ---
   useEffect(() => {
@@ -72,7 +81,22 @@ export default function ContractsDashboardPage() {
 
   // --- Handlers: Detail ---
   const handleViewDetail = (row: ContractTableRow) => {
-    setActionsMessage(`${row.values[CONTRACT_NAME_COLUMN_INDEX]}: ${messages.contracts.ui.viewDetailComingSoon}`)
+    setSelectedDetailRowId(row.id)
+    setSelectedDetailName(String(row.values[CONTRACT_NAME_COLUMN_INDEX] ?? 'Contrato'))
+    setDetailOpen(true)
+    void getContractDetail(row.id)
+  }
+
+  const handleCloseDetail = () => {
+    setDetailOpen(false)
+    setSelectedDetailRowId(null)
+    setSelectedDetailName('')
+    clearContractDetail()
+  }
+
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getContractDetail(selectedDetailRowId)
   }
 
   // --- Handlers: Navigate ---
@@ -80,38 +104,31 @@ export default function ContractsDashboardPage() {
     navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${row.id}`)
   }
 
-  // --- Handlers: Toggle status ---
-  const handleToggleStatus = (row: ContractTableRow) => {
-    setPendingToggleRow(row)
-    setConfirmOpen(true)
-  }
-
   // --- Row actions & table helpers ---
   const resolveRowActions = (row: ContractTableRow): DropdownAction[] => {
-    const actions: DropdownAction[] = [
+    return [
       actionViewDetail(() => handleViewDetail(row)),
       actionUpdateContract(() => handleUpdateContract(row)),
     ]
-
-    if (canToggleContractStatus) {
-      actions.push(actionToggleStatus(row.active === true, () => handleToggleStatus(row)))
-    }
-
-    return actions
   }
 
-  const getContractIsActive = (rowId: string) => Boolean(contractsRows.find((row) => row.id === rowId)?.active)
+  const findContractRowById = (rowId: string) => contractsRows.find((row) => row.id === rowId) ?? null
+  const handleViewDetailById = (rowId: string) => {
+    const contractRow = findContractRowById(rowId)
+    if (!contractRow) return
+    handleViewDetail(contractRow)
+  }
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const contractRow = contractsRows.find((row) => row.id === tableRow.id)
+    const contractRow = findContractRowById(tableRow.id)
     if (!contractRow) return []
     return resolveRowActions(contractRow)
   }
 
   const renderCustomCell = createContractsTableCustomRenderer({
+    employeeNameColumnIndex: CONTRACT_EMPLOYEE_NAME_COLUMN_INDEX,
     contractTypeColumnIndex: CONTRACT_TYPE_COLUMN_INDEX,
     contractStatusColumnIndex: CONTRACT_STATUS_COLUMN_INDEX,
-    contractActiveColumnIndex: CONTRACT_ACTIVE_COLUMN_INDEX,
-    getIsActive: getContractIsActive,
+    onViewDetail: handleViewDetailById,
   })
 
   // --- Handlers: Sort ---
@@ -129,32 +146,6 @@ export default function ContractsDashboardPage() {
   // --- Handlers: Search ---
   const handleSearchSubmit = async () => {
     await getContracts()
-  }
-
-  // --- Handlers: Confirm ---
-  const handleCloseConfirm = () => {
-    if (loadingToggleStatus) return
-    setConfirmOpen(false)
-    setPendingToggleRow(null)
-  }
-
-  const handleConfirmToggleStatus = async () => {
-    if (!pendingToggleRow || loadingToggleStatus) return
-    const nextStatus = !pendingToggleRow.active
-    const success = await toggleContractStatus(pendingToggleRow.id, nextStatus)
-    if (success) {
-      const contractName = pendingToggleRow.values[CONTRACT_NAME_COLUMN_INDEX]
-      await getContracts()
-      setActionsMessage(
-        `${contractName}: ${
-          nextStatus
-            ? messages.contracts.status.success.toggleEnabledSuccess
-            : messages.contracts.status.success.toggleDisabledSuccess
-        }`,
-      )
-      setConfirmOpen(false)
-      setPendingToggleRow(null)
-    }
   }
 
   // --- Handlers: Download & Upload ---
@@ -182,14 +173,11 @@ export default function ContractsDashboardPage() {
         active={pagination.active}
       />
 
-      {(listError || toggleError) && (
+      {listError && (
         <AlertMessageComponent
-          message={(listError || toggleError)!}
+          message={listError}
           tone="error"
-          onClose={() => {
-            if (listError) clearOperationStatus('list')
-            if (toggleError) clearOperationStatus('toggle')
-          }}
+          onClose={() => clearOperationStatus('list')}
         />
       )}
 
@@ -295,18 +283,19 @@ export default function ContractsDashboardPage() {
         </div>
       </RightSidebarComponent>
 
-      <SaveConfirmComponent
-        open={confirmOpen}
-        title="Confirmar cambio de estado"
-        message={pendingToggleRow
-          ? `¿Seguro que deseas ${pendingToggleRow.active ? 'deshabilitar' : 'habilitar'} el contrato ${pendingToggleRow.values[CONTRACT_NAME_COLUMN_INDEX]}?`
-          : ''}
-        confirmLabel={pendingToggleRow?.active ? 'Deshabilitar' : 'Habilitar'}
-        cancelLabel="Cancelar"
-        loading={loadingToggleStatus}
-        onClose={handleCloseConfirm}
-        onConfirm={() => { void handleConfirmToggleStatus() }}
-      />
+      <DetailSidebarComponent
+        open={detailOpen}
+        title={detailTitle}
+        onClose={handleCloseDetail}
+      >
+        <ContractDetailComponent
+          key={selectedDetailRowId ?? 'empty-contract-detail'}
+          detail={contractDetailView}
+          loading={loadingContractDetail}
+          errorMessage={detailError}
+          onRetry={handleRetryDetail}
+        />
+      </DetailSidebarComponent>
     </section>
   )
 }

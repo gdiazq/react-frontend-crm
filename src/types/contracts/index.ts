@@ -3,6 +3,8 @@ export type {
   ContractCreatePayload,
   ContractCreateResponse,
   ContractDetail,
+  ContractDetailDocumentView,
+  ContractDetailView,
   ContractDocument,
   ContractDetailReference,
   ContractPagedResponse,

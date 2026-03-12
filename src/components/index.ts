@@ -53,6 +53,9 @@ export { default as PricingSection } from './frontpage/PricingSection'
 // Employees Components
 export { default as EmployeeDetailComponent } from './employees/EmployeeDetailComponent'
 
+// Contracts Components
+export { default as ContractDetailComponent } from './contracts/ContractDetailComponent'
+
 // Requests Components
 export { default as RequestDetailComponent } from './requests/RequestDetailComponent'
 
