@@ -1,12 +1,24 @@
-import type { RoleCreateForm, RoleTableRow, RolesPagination, RolesQueryParams } from '@/types'
+import type { RoleCreateForm, RoleTableRow, RolesPagination, RolesQueryParams, RolesSortBy } from '@/types'
 
 export const rolesTableColumns: string[] = [
-  'Rol',
-  'Estado',
-  'Creado',
-  'Actualizado',
-  'Acciones',
+  'Rol',       // 0
+  'Estado',    // 1
+  'Creado',    // 2
+  'Actualizado', // 3
+  'Acciones',  // 4
 ]
+
+export const rolesTableColumnIndex = {
+  name: 0,
+  status: 1,
+}
+
+export const rolesTableSortByColumn: Partial<Record<number, RolesSortBy>> = {
+  0: 'name',
+  1: 'enabled',
+  2: 'createdAt',
+  3: 'updatedAt',
+}
 
 export const initialRolesRows: RoleTableRow[] = []
 

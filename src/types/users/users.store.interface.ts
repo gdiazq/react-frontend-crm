@@ -44,6 +44,7 @@ export interface UsersStore {
   clearCreateUserStatus: () => void
   clearUpdateUserStatus: () => void
   clearDetailError: () => void
+  clearStatus: () => void
   mutationCreateUser: (payload: UserCreatePayload) => Promise<boolean>
   mutationUpdateUser: (payload: UserUpdatePayload) => Promise<boolean>
   mutationToggleUserStatus: (userId: string, nextStatus: boolean) => Promise<boolean>

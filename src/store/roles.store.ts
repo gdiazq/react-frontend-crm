@@ -3,6 +3,7 @@ import {
   initialRolesPagination,
   initialRolesQueryParams,
   initialRolesRows,
+  rolesTableColumnIndex,
 } from '@/factories'
 import {
   mapperRolesPagination,
@@ -13,7 +14,6 @@ import { rolesService } from '@/services'
 import type { RolesStore } from '@/types'
 import { formatRoleLabel } from '@/utils'
 
-const ROLE_STATUS_COLUMN_INDEX = 1
 let latestRoleDetailRequestId = 0
 
 export const useStoreRoles = create<RolesStore>()((set, get) => ({
@@ -307,7 +307,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
             ...row,
             status: nextStatus,
             values: row.values.map((value, index) => {
-              if (index !== ROLE_STATUS_COLUMN_INDEX) return value
+              if (index !== rolesTableColumnIndex.status) return value
               return nextStatus ? messages.roles.ui.statusEnabled : messages.roles.ui.statusDisabled
             }),
           }

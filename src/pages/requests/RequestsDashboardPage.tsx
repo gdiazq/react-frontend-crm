@@ -1,10 +1,8 @@
 import { type ReactNode, useEffect, useState } from 'react'
 import {
-  ActionsDropdownComponent,
   AlertMessageComponent,
   ButtonComponent,
   DetailSidebarComponent,
-  EmployeeApprovalStatusBadgeComponent,
   InputComponent,
   PaginationComponent,
   RequestDetailComponent,
@@ -15,37 +13,27 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { requestsTableColumns } from '@/factories'
+import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
+import { requestsTableColumns, requestsTableColumnIndex, requestsTableSortByColumn } from '@/factories'
 import { mapperRequestDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { requestsService } from '@/services'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
 import { createRequestsActions, downloadBlobFile } from '@/utils'
-import type { RequestTableRow, RequestsSortBy, TableRow, TableSortState } from '@/types'
+import { createRequestsTableCustomRenderer } from '@/utils/requests/requestsTableCellRules'
+import type { RequestTableRow, TableRow, TableSortState } from '@/types'
 import type { DropdownAction } from '@/utils'
 
-const REQUEST_STATUS_COLUMN_INDEX = 4
-const REQUEST_NAME_COLUMN_INDEX = 1
+const REQUEST_STATUS_COLUMN_INDEX = requestsTableColumnIndex.status
+const REQUEST_NAME_COLUMN_INDEX = requestsTableColumnIndex.name
 const ACTIONS_COLUMN_INDEX = requestsTableColumns.length - 1
 
 const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
 
-const REQUESTS_SORT_BY_COLUMN: Partial<Record<number, RequestsSortBy>> = {
-  0: 'identification',
-  1: 'firstName',
-  2: 'requestTypeName',
-  3: 'action',
-  4: 'statusName',
-  5: 'approverFullName',
-  6: 'approvalDate',
-  7: 'createdAt',
-  8: 'updatedAt',
-}
-
-const REQUESTS_SORTABLE_COLUMNS = Object.keys(REQUESTS_SORT_BY_COLUMN).map((index) => Number(index))
+const REQUESTS_SORTABLE_COLUMNS = Object.keys(requestsTableSortByColumn).map((index) => Number(index))
 
 export default function RequestsDashboardPage() {
-  const requestsRows = useStoreRequests((s) => s.requestsRows) as RequestTableRow[]
+  const requestsRows = useStoreRequests((s) => s.requestsRows)
   const requestDetail = useStoreRequests((s) => s.requestDetail)
   const pagination = useStoreRequests((s) => s.pagination)
   const queryParams = useStoreRequests((s) => s.queryParams)
@@ -110,7 +98,7 @@ export default function RequestsDashboardPage() {
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
-  const activeSortColumn = REQUESTS_SORTABLE_COLUMNS.find((index) => REQUESTS_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
+  const activeSortColumn = REQUESTS_SORTABLE_COLUMNS.find((index) => requestsTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
@@ -289,39 +277,54 @@ export default function RequestsDashboardPage() {
       ? `Detalle de ${selectedDetailName}`
       : 'Detalle de solicitud'
 
-  const renderCell = (row: TableRow, value: ReactNode, columnIndex: number, rowIndex: number) => {
-    const requestRow = row as RequestTableRow
-    if (columnIndex === REQUEST_NAME_COLUMN_INDEX) {
-      return (
-        <button
-          type="button"
-          className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
-          onClick={() => handleViewDetail(requestRow)}
-        >
-          {value}
-        </button>
-      )
-    }
-    if (columnIndex === REQUEST_STATUS_COLUMN_INDEX) {
-      return <EmployeeApprovalStatusBadgeComponent statusName={requestRow.statusName} />
-    }
-    if (columnIndex === ACTIONS_COLUMN_INDEX) {
-      const openDirection = requestsRows.length > 2 && rowIndex >= requestsRows.length - 2 ? 'up' : 'down'
-      return (
-        <ActionsDropdownComponent
-          open={openActionsRowId === row.id}
-          actions={resolveRowActions(requestRow)}
-          openDirection={openDirection}
-          onToggle={() => setOpenActionsRowId((id) => (id === row.id ? null : row.id))}
-        />
-      )
-    }
+  const handleToggleActionsRow = (rowId: string) => {
+    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
+  }
 
-    return <span>{value}</span>
+  const findRequestRowById = (rowId: string) => requestsRows.find((row) => row.id === rowId) ?? null
+  const handleViewDetailById = (rowId: string) => {
+    const requestRow = findRequestRowById(rowId)
+    if (!requestRow) return
+    handleViewDetail(requestRow)
+  }
+  const getRequestStatusName = (rowId: string, fallbackStatusName: string) => {
+    const requestRow = findRequestRowById(rowId)
+    return requestRow?.statusName || fallbackStatusName
+  }
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const requestRow = findRequestRowById(tableRow.id)
+    if (!requestRow) return []
+    return resolveRowActions(requestRow)
+  }
+
+  const renderCustomCell = createRequestsTableCustomRenderer({
+    requestNameColumnIndex: REQUEST_NAME_COLUMN_INDEX,
+    statusColumnIndex: REQUEST_STATUS_COLUMN_INDEX,
+    onViewDetail: handleViewDetailById,
+    getStatusName: getRequestStatusName,
+  })
+
+  const renderCell = (row: TableRow, value: ReactNode, columnIndex: number, rowIndex: number) => {
+    return (
+      <TableCellRendererComponent
+        row={row}
+        value={value}
+        columnIndex={columnIndex}
+        rowIndex={rowIndex}
+        rowsLength={requestsRows.length}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+        }}
+      />
+    )
   }
 
   const handleSortChange = async (columnIndex: number) => {
-    const sortBy = REQUESTS_SORT_BY_COLUMN[columnIndex]
+    const sortBy = requestsTableSortByColumn[columnIndex]
     if (!sortBy) return
 
     const currentSortBy = queryParams.sortBy

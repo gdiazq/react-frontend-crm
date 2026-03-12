@@ -1,18 +1,38 @@
-import type { ContractCreateForm, ContractsPagination, ContractsQueryParams, ContractTableRow } from '@/types'
+import type { ContractCreateForm, ContractsPagination, ContractsQueryParams, ContractTableRow, ContractsSortBy } from '@/types'
 
 export const contractsTableColumns: string[] = [
-  'Trabajador',
-  'Identificacion',
-  'Nombre contrato',
-  'Empresa',
-  'Tipo contrato',
-  'Estado contrato',
-  'Inicio',
-  'Fin',
-  'Estado',
-  'Creado',
-  'Acciones',
+  'Identificacion',  // 0
+  'Trabajador',      // 1
+  'Nombre contrato', // 2
+  'Empresa',         // 3
+  'Tipo contrato',   // 4
+  'Estado contrato', // 5
+  'Inicio',          // 6
+  'Fin',             // 7
+  'Estado',          // 8
+  'Creado',          // 9
+  'Acciones',        // 10
 ]
+
+export const contractsTableColumnIndex = {
+  name: 2,
+  contractType: 4,
+  contractStatus: 5,
+  active: 8,
+}
+
+export const contractsTableSortByColumn: Partial<Record<number, ContractsSortBy>> = {
+  0: 'employeeIdentification',
+  1: 'employeeName',
+  2: 'name',
+  3: 'companyId',
+  4: 'contractTypeId',
+  5: 'contractStatusId',
+  6: 'startDate',
+  7: 'endDate',
+  8: 'active',
+  9: 'createdAt',
+}
 
 export const initialContractsRows: ContractTableRow[] = []
 

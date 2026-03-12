@@ -1,17 +1,36 @@
-import type { EmployeeCreateForm, EmployeesPagination, EmployeesQueryParams, EmployeeTableRow } from '@/types'
+import type { EmployeeCreateForm, EmployeesPagination, EmployeesQueryParams, EmployeeTableRow, EmployeesSortBy } from '@/types'
 
 export const employeesTableColumns: string[] = [
-  'Identificacion',
-  'Nombre',
-  'Email',
-  'Telefono',
-  'Estado de aprobacion',
-  'Contrato',
-  'Estado',
-  'Creado',
-  'Actualizado',
-  'Acciones',
+  'Identificacion',       // 0
+  'Nombre',               // 1
+  'Email',                // 2
+  'Telefono',             // 3
+  'Estado de aprobacion', // 4
+  'Contrato',             // 5
+  'Estado',               // 6
+  'Creado',               // 7
+  'Actualizado',          // 8
+  'Acciones',             // 9
 ]
+
+export const employeesTableColumnIndex = {
+  name: 1,
+  approvalStatus: 4,
+  contract: 5,
+  active: 6,
+}
+
+export const employeesTableSortByColumn: Partial<Record<number, EmployeesSortBy>> = {
+  0: 'identification',
+  1: 'firstName',
+  2: 'corporateEmail',
+  3: 'phone',
+  4: 'statusName',
+  5: 'hasContract',
+  6: 'active',
+  7: 'createdAt',
+  8: 'updatedAt',
+}
 
 export const initialEmployeesRows: EmployeeTableRow[] = []
 

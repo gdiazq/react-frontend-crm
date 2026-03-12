@@ -1,6 +1,8 @@
 export {
   initialCreateRoleForm,
   rolesTableColumns,
+  rolesTableColumnIndex,
+  rolesTableSortByColumn,
   initialRolesRows,
   initialRolesPagination,
   initialRolesQueryParams,

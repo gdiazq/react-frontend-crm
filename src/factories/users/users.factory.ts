@@ -1,17 +1,34 @@
-import type { UserCreateForm, UserTableRow, UsersPagination, UsersQueryParams } from '@/types'
+import type { UserCreateForm, UserTableRow, UsersPagination, UsersQueryParams, UsersSortBy } from '@/types'
 
 export const usersTableColumns: string[] = [
-  'Usuario',
-  'Nombre',
-  'Email',
-  'Telefono',
-  'Roles',
-  'Verificado',
-  'Estado',
-  'Creado',
-  'Ultimo acceso',
-  'Acciones',
+  'Usuario',       // 0
+  'Nombre',        // 1
+  'Email',         // 2
+  'Telefono',      // 3
+  'Roles',         // 4
+  'Verificado',    // 5
+  'Estado',        // 6
+  'Creado',        // 7
+  'Ultimo acceso', // 8
+  'Acciones',      // 9
 ]
+
+export const usersTableColumnIndex = {
+  email: 2,
+  status: 6,
+}
+
+export const usersTableSortByColumn: Partial<Record<number, UsersSortBy>> = {
+  0: 'username',
+  1: 'firstName',
+  2: 'email',
+  3: 'phoneNumber',
+  4: 'roles',
+  5: 'emailVerified',
+  6: 'enabled',
+  7: 'createdAt',
+  8: 'lastLogin',
+}
 
 export const initialUsersRows: UserTableRow[] = []
 

@@ -17,8 +17,8 @@ export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
     id: String(item.id),
     active: item.active,
     values: [
-      item.employeeName,
       item.employeeIdentification,
+      item.employeeName,
       item.name,
       item.company,
       item.contractType,

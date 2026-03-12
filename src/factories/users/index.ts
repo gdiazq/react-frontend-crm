@@ -1,6 +1,8 @@
 export {
   initialCreateUserForm,
   usersTableColumns,
+  usersTableColumnIndex,
+  usersTableSortByColumn,
   initialUsersRows,
   initialUsersPagination,
   initialUsersQueryParams,

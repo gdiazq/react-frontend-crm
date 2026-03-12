@@ -1,17 +1,34 @@
-import type { RequestTableRow, RequestsPagination, RequestsQueryParams } from '@/types'
+import type { RequestTableRow, RequestsPagination, RequestsQueryParams, RequestsSortBy } from '@/types'
 
 export const requestsTableColumns: string[] = [
-  'Identificacion',
-  'Nombre',
-  'Tipo solicitud',
-  'Operacion',
-  'Estado de aprobacion',
-  'Aprobador',
-  'Fecha aprobacion',
-  'Creado',
-  'Actualizado',
-  'Acciones',
+  'Identificacion',       // 0
+  'Nombre',               // 1
+  'Tipo solicitud',       // 2
+  'Operacion',            // 3
+  'Estado de aprobacion', // 4
+  'Aprobador',            // 5
+  'Fecha aprobacion',     // 6
+  'Creado',               // 7
+  'Actualizado',          // 8
+  'Acciones',             // 9
 ]
+
+export const requestsTableColumnIndex = {
+  name: 1,
+  status: 4,
+}
+
+export const requestsTableSortByColumn: Partial<Record<number, RequestsSortBy>> = {
+  0: 'identification',
+  1: 'firstName',
+  2: 'requestTypeName',
+  3: 'action',
+  4: 'statusName',
+  5: 'approverFullName',
+  6: 'approvalDate',
+  7: 'createdAt',
+  8: 'updatedAt',
+}
 
 export const initialRequestsRows: RequestTableRow[] = []
 

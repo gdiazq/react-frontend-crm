@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ActionsDropdownComponent,
   AlertMessageComponent,
   ButtonComponent,
   DetailSidebarComponent,
@@ -11,43 +10,32 @@ import {
   SaveConfirmComponent,
   SelectComponent,
   StatsOverviewCardsComponent,
-  StatusBadgeComponent,
   TableComponent,
   ToolbarActionsDropdownComponent,
   UserDetailComponent,
 } from '@/components'
+import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
 import { AUTH_ROUTE_USERS, AUTH_ROUTE_USERS_CREATE, AUTH_ROUTE_USERS_EDIT } from '@/constant'
 import type { TableRow, TableSortState } from '@/components'
-import { usersTableColumns } from '@/factories'
+import { usersTableColumns, usersTableColumnIndex, usersTableSortByColumn } from '@/factories'
 import { mapperUserDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { usersService } from '@/services'
 import { useStoreAuth, useStoreSelects, useStoreUsers } from '@/store'
 import { createUsersActions, downloadBlobFile, formatCsvImportSummary } from '@/utils'
-import type { UserTableRow, UsersSortBy } from '@/types'
+import { createUsersTableCustomRenderer } from '@/utils/users/usersTableCellRules'
+import type { UserTableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
 
-const STATUS_COLUMN_INDEX = 6
-const EMAIL_COLUMN_INDEX = 2
+const STATUS_COLUMN_INDEX = usersTableColumnIndex.status
+const EMAIL_COLUMN_INDEX = usersTableColumnIndex.email
 const ACTIONS_COLUMN_INDEX = usersTableColumns.length - 1
 
-const USERS_SORT_BY_COLUMN: Partial<Record<number, UsersSortBy>> = {
-  0: 'username',
-  1: 'firstName',
-  2: 'email',
-  3: 'phoneNumber',
-  4: 'roles',
-  5: 'emailVerified',
-  6: 'enabled',
-  7: 'createdAt',
-  8: 'lastLogin',
-}
-
-const USERS_SORTABLE_COLUMNS = Object.keys(USERS_SORT_BY_COLUMN).map((index) => Number(index))
+const USERS_SORTABLE_COLUMNS = Object.keys(usersTableSortByColumn).map((index) => Number(index))
 
 export default function UsersDashboardPage() {
   const navigate = useNavigate()
-  const usersRows = useStoreUsers((s) => s.usersRows) as UserTableRow[]
+  const usersRows = useStoreUsers((s) => s.usersRows)
   const userDetail = useStoreUsers((s) => s.userDetail)
   const pagination = useStoreUsers((s) => s.pagination)
   const queryParams = useStoreUsers((s) => s.queryParams)
@@ -66,6 +54,7 @@ export default function UsersDashboardPage() {
   const clearUserDetail = useStoreUsers((s) => s.clearUserDetail)
   const mutationToggleUserStatus = useStoreUsers((s) => s.mutationToggleUserStatus)
   const goToPage = useStoreUsers((s) => s.goToPage)
+  const clearStatus = useStoreUsers((s) => s.clearStatus)
   const roleOptions = useStoreSelects((s) => s.roleOptions)
   const userNameOptions = useStoreSelects((s) => s.userNameOptions)
   const userEmailOptions = useStoreSelects((s) => s.userEmailOptions)
@@ -101,7 +90,7 @@ export default function UsersDashboardPage() {
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
   const userDetailView = mapperUserDetailView(userDetail)
-  const activeSortColumn = USERS_SORTABLE_COLUMNS.find((index) => USERS_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
+  const activeSortColumn = USERS_SORTABLE_COLUMNS.find((index) => usersTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
@@ -153,38 +142,54 @@ export default function UsersDashboardPage() {
     return actions
   }
 
+  const handleToggleActionsRow = (rowId: string) => {
+    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
+  }
+
+  const findUserRowById = (rowId: string) => usersRows.find((row) => row.id === rowId) ?? null
+  const handleViewDetailById = (rowId: string) => {
+    const userRow = findUserRowById(rowId)
+    if (!userRow) return
+    handleViewDetail(userRow)
+  }
+  const getUserStatusEnabled = (rowId: string) => Boolean(findUserRowById(rowId)?.status)
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const userRow = findUserRowById(tableRow.id)
+    if (!userRow) return []
+    return resolveRowActions(userRow)
+  }
+
+  const renderCustomCell = createUsersTableCustomRenderer({
+    emailColumnIndex: EMAIL_COLUMN_INDEX,
+    statusColumnIndex: STATUS_COLUMN_INDEX,
+    onViewDetail: handleViewDetailById,
+    getStatusEnabled: getUserStatusEnabled,
+  })
+
   const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
-    const userRow = row as UserTableRow
-    if (columnIndex === EMAIL_COLUMN_INDEX) {
-      return (
-        <button
-          type="button"
-          className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
-          onClick={() => handleViewDetail(userRow)}
-        >
-          {value}
-        </button>
-      )
-    }
-    if (columnIndex === STATUS_COLUMN_INDEX) {
-      return <StatusBadgeComponent enabled={userRow.status === true} />
-    }
-    if (columnIndex === ACTIONS_COLUMN_INDEX) {
-      const openDirection = rowIndex >= Math.max(usersRows.length - 2, 0) ? 'up' : 'down'
-      return (
-        <ActionsDropdownComponent
-          open={openActionsRowId === row.id}
-          actions={resolveRowActions(userRow)}
-          openDirection={openDirection}
-          onToggle={() => setOpenActionsRowId((id) => (id === row.id ? null : row.id))}
-        />
-      )
-    }
-    return <span>{value}</span>
+    return (
+      <TableCellRendererComponent
+        row={row}
+        value={value}
+        columnIndex={columnIndex}
+        rowIndex={rowIndex}
+        rowsLength={usersRows.length}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+          resolveOpenDirection: (activeRowIndex, rowsLength) => (
+            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
+          ),
+        }}
+      />
+    )
   }
 
   const handleSortChange = async (columnIndex: number) => {
-    const sortBy = USERS_SORT_BY_COLUMN[columnIndex]
+    const sortBy = usersTableSortByColumn[columnIndex]
     if (!sortBy) return
 
     const currentSortBy = queryParams.sortBy
@@ -333,7 +338,7 @@ export default function UsersDashboardPage() {
         <AlertMessageComponent
           message={errorMessage}
           tone="error"
-          onClose={() => useStoreUsers.setState({ errorMessage: null })}
+          onClose={clearStatus}
         />
       )}
 

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ActionsDropdownComponent,
   AlertMessageComponent,
   ButtonComponent,
   DetailSidebarComponent,
@@ -12,36 +11,30 @@ import {
   SaveConfirmComponent,
   SelectComponent,
   StatsOverviewCardsComponent,
-  StatusBadgeComponent,
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
+import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
 import { AUTH_ROUTE_ROLES, AUTH_ROUTE_ROLES_CREATE, AUTH_ROUTE_ROLES_EDIT } from '@/constant'
 import { createRolesActions, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
-import type { RoleTableRow, RolesSortBy } from '@/types'
+import type { RoleTableRow } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
-import { rolesTableColumns } from '@/factories'
+import { rolesTableColumns, rolesTableColumnIndex, rolesTableSortByColumn } from '@/factories'
 import { mapperRoleDetailView } from '@/mappers'
 import { rolesService } from '@/services'
 import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
 import messages from '@/messages/messages'
+import { createRolesTableCustomRenderer } from '@/utils/roles/rolesTableCellRules'
 
-const ROLES_SORT_BY_COLUMN: Partial<Record<number, RolesSortBy>> = {
-  0: 'name',
-  1: 'enabled',
-  2: 'createdAt',
-  3: 'updatedAt',
-}
-
-const ROLES_SORTABLE_COLUMNS = Object.keys(ROLES_SORT_BY_COLUMN).map((index) => Number(index))
-const ROLE_NAME_COLUMN_INDEX = 0
-const STATUS_COLUMN_INDEX = 1
+const ROLES_SORTABLE_COLUMNS = Object.keys(rolesTableSortByColumn).map((index) => Number(index))
+const ROLE_NAME_COLUMN_INDEX = rolesTableColumnIndex.name
+const STATUS_COLUMN_INDEX = rolesTableColumnIndex.status
 const ACTIONS_COLUMN_INDEX = rolesTableColumns.length - 1
 
 export default function RolesDashboardPage() {
   const navigate = useNavigate()
-  const rolesRows = useStoreRoles((s) => s.rolesRows) as RoleTableRow[]
+  const rolesRows = useStoreRoles((s) => s.rolesRows)
   const roleDetail = useStoreRoles((s) => s.roleDetail)
   const pagination = useStoreRoles((s) => s.pagination)
   const queryParams = useStoreRoles((s) => s.queryParams)
@@ -86,7 +79,7 @@ export default function RolesDashboardPage() {
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
-  const activeSortColumn = ROLES_SORTABLE_COLUMNS.find((index) => ROLES_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
+  const activeSortColumn = ROLES_SORTABLE_COLUMNS.find((index) => rolesTableSortByColumn[index] === queryParams.sortBy) ?? null
   const roleDetailView = mapperRoleDetailView(roleDetail)
   const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const sortState: TableSortState = {
@@ -106,7 +99,7 @@ export default function RolesDashboardPage() {
   }, [])
 
   const handleSortChange = async (columnIndex: number) => {
-    const sortBy = ROLES_SORT_BY_COLUMN[columnIndex]
+    const sortBy = rolesTableSortByColumn[columnIndex]
     if (!sortBy) return
 
     const currentSortBy = queryParams.sortBy
@@ -147,34 +140,50 @@ export default function RolesDashboardPage() {
     return actions
   }
 
+  const handleToggleActionsRow = (rowId: string) => {
+    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
+  }
+
+  const findRoleRowById = (rowId: string) => rolesRows.find((row) => row.id === rowId) ?? null
+  const handleViewDetailById = (rowId: string) => {
+    const roleRow = findRoleRowById(rowId)
+    if (!roleRow) return
+    handleViewDetail(roleRow)
+  }
+  const getRoleStatusEnabled = (rowId: string) => Boolean(findRoleRowById(rowId)?.status)
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const roleRow = findRoleRowById(tableRow.id)
+    if (!roleRow) return []
+    return resolveRowActions(roleRow)
+  }
+
+  const renderCustomCell = createRolesTableCustomRenderer({
+    roleNameColumnIndex: ROLE_NAME_COLUMN_INDEX,
+    statusColumnIndex: STATUS_COLUMN_INDEX,
+    onViewDetail: handleViewDetailById,
+    getStatusEnabled: getRoleStatusEnabled,
+  })
+
   const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
-    const roleRow = row as RoleTableRow
-    if (columnIndex === ROLE_NAME_COLUMN_INDEX) {
-      return (
-        <button
-          type="button"
-          className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
-          onClick={() => handleViewDetail(roleRow)}
-        >
-          {value}
-        </button>
-      )
-    }
-    if (columnIndex === STATUS_COLUMN_INDEX) {
-      return <StatusBadgeComponent enabled={roleRow.status === true} />
-    }
-    if (columnIndex === ACTIONS_COLUMN_INDEX) {
-      const openDirection = rowIndex >= Math.max(rolesRows.length - 2, 0) ? 'up' : 'down'
-      return (
-        <ActionsDropdownComponent
-          open={openActionsRowId === row.id}
-          actions={resolveRowActions(roleRow)}
-          openDirection={openDirection}
-          onToggle={() => setOpenActionsRowId((id) => (id === row.id ? null : row.id))}
-        />
-      )
-    }
-    return <span>{value}</span>
+    return (
+      <TableCellRendererComponent
+        row={row}
+        value={value}
+        columnIndex={columnIndex}
+        rowIndex={rowIndex}
+        rowsLength={rolesRows.length}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+          resolveOpenDirection: (activeRowIndex, rowsLength) => (
+            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
+          ),
+        }}
+      />
+    )
   }
 
   const handleCloseDetail = () => {

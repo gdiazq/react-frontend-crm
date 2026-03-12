@@ -4,6 +4,7 @@ import {
   initialUsersPagination,
   initialUsersQueryParams,
   initialUsersRows,
+  usersTableColumnIndex,
 } from '@/factories'
 import {
   mapperUsersPagination,
@@ -284,7 +285,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
             ...row,
             status: nextStatus,
             values: row.values.map((value, index) => {
-              if (index !== 6) return value
+              if (index !== usersTableColumnIndex.status) return value
               return nextStatus ? messages.users.ui.statusEnabled : messages.users.ui.statusDisabled
             }),
           }
@@ -306,5 +307,9 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
     } finally {
       set({ loadingToggleStatus: false })
     }
+  },
+
+  clearStatus: () => {
+    set({ errorMessage: null })
   },
 }))

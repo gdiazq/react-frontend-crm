@@ -1,5 +1,7 @@
 export {
   contractsTableColumns,
+  contractsTableColumnIndex,
+  contractsTableSortByColumn,
   initialContractsRows,
   initialContractsPagination,
   initialContractsQueryParams,

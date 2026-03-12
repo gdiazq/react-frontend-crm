@@ -1,52 +1,37 @@
 import { type ReactNode, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ActionsDropdownComponent,
   AlertMessageComponent,
   ButtonComponent,
-  ContractStatusBadgeComponent,
-  ContractTypeBadgeComponent,
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
   SaveConfirmComponent,
   StatsOverviewCardsComponent,
-  StatusBadgeComponent,
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
+import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
 import { AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
-import { contractsTableColumns } from '@/factories'
+import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
 import { useStoreAuth, useStoreContracts } from '@/store'
-import type { ContractTableRow, ContractsSortBy, TableRow, TableSortState } from '@/types'
+import type { ContractTableRow, TableRow, TableSortState } from '@/types'
 import { createContractsActions } from '@/utils'
+import { createContractsTableCustomRenderer } from '@/utils/contracts/contractsTableCellRules'
 import type { DropdownAction } from '@/utils'
 import messages from '@/messages/messages'
 
-const CONTRACT_ACTIVE_COLUMN_INDEX = 8
-const CONTRACT_TYPE_COLUMN_INDEX = 4
-const CONTRACT_STATUS_COLUMN_INDEX = 5
-const CONTRACT_NAME_COLUMN_INDEX = 2
+const CONTRACT_ACTIVE_COLUMN_INDEX = contractsTableColumnIndex.active
+const CONTRACT_TYPE_COLUMN_INDEX = contractsTableColumnIndex.contractType
+const CONTRACT_STATUS_COLUMN_INDEX = contractsTableColumnIndex.contractStatus
+const CONTRACT_NAME_COLUMN_INDEX = contractsTableColumnIndex.name
 const ACTIONS_COLUMN_INDEX = contractsTableColumns.length - 1
 
-const CONTRACTS_SORT_BY_COLUMN: Partial<Record<number, ContractsSortBy>> = {
-  0: 'employeeName',
-  1: 'employeeIdentification',
-  2: 'name',
-  3: 'companyId',
-  4: 'contractTypeId',
-  5: 'contractStatusId',
-  6: 'startDate',
-  7: 'endDate',
-  8: 'active',
-  9: 'createdAt',
-}
-
-const CONTRACTS_SORTABLE_COLUMNS = Object.keys(CONTRACTS_SORT_BY_COLUMN).map((index) => Number(index))
+const CONTRACTS_SORTABLE_COLUMNS = Object.keys(contractsTableSortByColumn).map((index) => Number(index))
 
 export default function ContractsDashboardPage() {
   const navigate = useNavigate()
-  const contractsRows = useStoreContracts((s) => s.contractsRows) as ContractTableRow[]
+  const contractsRows = useStoreContracts((s) => s.contractsRows)
   const pagination = useStoreContracts((s) => s.pagination)
   const queryParams = useStoreContracts((s) => s.queryParams)
   const loadingContracts = useStoreContracts((s) => s.loadingContracts)
@@ -72,7 +57,7 @@ export default function ContractsDashboardPage() {
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
-  const activeSortColumn = CONTRACTS_SORTABLE_COLUMNS.find((index) => CONTRACTS_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
+  const activeSortColumn = CONTRACTS_SORTABLE_COLUMNS.find((index) => contractsTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
@@ -147,7 +132,7 @@ export default function ContractsDashboardPage() {
   }
 
   const handleSortChange = async (columnIndex: number) => {
-    const sortBy = CONTRACTS_SORT_BY_COLUMN[columnIndex]
+    const sortBy = contractsTableSortByColumn[columnIndex]
     if (!sortBy) return
 
     const currentSortBy = queryParams.sortBy
@@ -168,31 +153,41 @@ export default function ContractsDashboardPage() {
     setActionsMessage('Carga masiva de contratos disponible proximamente.')
   }
 
+  const handleToggleActionsRow = (rowId: string) => {
+    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
+  }
+
+  const getContractIsActive = (rowId: string) => Boolean(contractsRows.find((row) => row.id === rowId)?.active)
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const contractRow = contractsRows.find((row) => row.id === tableRow.id)
+    if (!contractRow) return []
+    return resolveRowActions(contractRow)
+  }
+
+  const renderCustomCell = createContractsTableCustomRenderer({
+    contractTypeColumnIndex: CONTRACT_TYPE_COLUMN_INDEX,
+    contractStatusColumnIndex: CONTRACT_STATUS_COLUMN_INDEX,
+    contractActiveColumnIndex: CONTRACT_ACTIVE_COLUMN_INDEX,
+    getIsActive: getContractIsActive,
+  })
+
   const renderCell = (row: TableRow, value: ReactNode, columnIndex: number, rowIndex: number) => {
-    const contractRow = row as ContractTableRow
-    if (columnIndex === CONTRACT_TYPE_COLUMN_INDEX) {
-      const contractType = typeof value === 'string' ? value : String(value ?? '')
-      return <ContractTypeBadgeComponent contractType={contractType} />
-    }
-    if (columnIndex === CONTRACT_STATUS_COLUMN_INDEX) {
-      const contractStatus = typeof value === 'string' ? value : String(value ?? '')
-      return <ContractStatusBadgeComponent contractStatus={contractStatus} />
-    }
-    if (columnIndex === CONTRACT_ACTIVE_COLUMN_INDEX) {
-      return <StatusBadgeComponent enabled={contractRow.active === true} />
-    }
-    if (columnIndex === ACTIONS_COLUMN_INDEX) {
-      const openDirection = contractsRows.length > 2 && rowIndex >= contractsRows.length - 2 ? 'up' : 'down'
-      return (
-        <ActionsDropdownComponent
-          open={openActionsRowId === row.id}
-          actions={resolveRowActions(contractRow)}
-          openDirection={openDirection}
-          onToggle={() => setOpenActionsRowId((id) => (id === row.id ? null : row.id))}
-        />
-      )
-    }
-    return <span>{value}</span>
+    return (
+      <TableCellRendererComponent
+        row={row}
+        value={value}
+        columnIndex={columnIndex}
+        rowIndex={rowIndex}
+        rowsLength={contractsRows.length}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+        }}
+      />
+    )
   }
 
   return (

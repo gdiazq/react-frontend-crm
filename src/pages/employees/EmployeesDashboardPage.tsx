@@ -2,11 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AUTH_ROUTE_EMPLOYEES, AUTH_ROUTE_EMPLOYEES_CREATE, AUTH_ROUTE_EMPLOYEES_EDIT } from '@/constant'
 import {
-  ActionsDropdownComponent,
   AlertMessageComponent,
   ButtonComponent,
   DetailSidebarComponent,
-  EmployeeApprovalStatusBadgeComponent,
   EmployeeDetailComponent,
   InputComponent,
   PaginationComponent,
@@ -14,43 +12,32 @@ import {
   SaveConfirmComponent,
   SelectComponent,
   StatsOverviewCardsComponent,
-  StatusBadgeComponent,
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
+import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
 import type { TableRow, TableSortState } from '@/components'
-import { employeesTableColumns } from '@/factories'
+import { employeesTableColumns, employeesTableColumnIndex, employeesTableSortByColumn } from '@/factories'
 import { mapperEmployeeDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { employeesService } from '@/services'
 import { useStoreAuth, useStoreEmployeeSelects, useStoreEmployees, useStoreSelects } from '@/store'
-import type { EmployeeTableRow, EmployeesSortBy } from '@/types'
+import type { EmployeeTableRow } from '@/types'
 import { createEmployeesActions, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import { createEmployeesTableCustomRenderer } from '@/utils/employees/employeesTableCellRules'
 import type { DropdownAction } from '@/utils'
 
-const EMPLOYEE_ACTIVE_COLUMN_INDEX = 6
-const EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX = 4
-const EMPLOYEE_CONTRACT_COLUMN_INDEX = 5
-const EMPLOYEE_NAME_COLUMN_INDEX = 1
+const EMPLOYEE_ACTIVE_COLUMN_INDEX = employeesTableColumnIndex.active
+const EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX = employeesTableColumnIndex.approvalStatus
+const EMPLOYEE_CONTRACT_COLUMN_INDEX = employeesTableColumnIndex.contract
+const EMPLOYEE_NAME_COLUMN_INDEX = employeesTableColumnIndex.name
 const ACTIONS_COLUMN_INDEX = employeesTableColumns.length - 1
 
-const EMPLOYEES_SORT_BY_COLUMN: Partial<Record<number, EmployeesSortBy>> = {
-  0: 'identification',
-  1: 'firstName',
-  2: 'corporateEmail',
-  3: 'phone',
-  4: 'statusName',
-  5: 'hasContract',
-  6: 'active',
-  7: 'createdAt',
-  8: 'updatedAt',
-}
-
-const EMPLOYEES_SORTABLE_COLUMNS = Object.keys(EMPLOYEES_SORT_BY_COLUMN).map((index) => Number(index))
+const EMPLOYEES_SORTABLE_COLUMNS = Object.keys(employeesTableSortByColumn).map((index) => Number(index))
 
 export default function EmployeesDashboardPage() {
   const navigate = useNavigate()
-  const employeesRows = useStoreEmployees((s) => s.employeesRows) as EmployeeTableRow[]
+  const employeesRows = useStoreEmployees((s) => s.employeesRows)
   const pagination = useStoreEmployees((s) => s.pagination)
   const queryParams = useStoreEmployees((s) => s.queryParams)
   const loadingEmployees = useStoreEmployees((s) => s.loadingEmployees)
@@ -115,7 +102,7 @@ export default function EmployeesDashboardPage() {
   const pageSize = pagination.size
   const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const approvalStatusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const activeSortColumn = EMPLOYEES_SORTABLE_COLUMNS.find((index) => EMPLOYEES_SORT_BY_COLUMN[index] === queryParams.sortBy) ?? null
+  const activeSortColumn = EMPLOYEES_SORTABLE_COLUMNS.find((index) => employeesTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
@@ -177,51 +164,55 @@ export default function EmployeesDashboardPage() {
     return actions
   }
 
+  const handleToggleActionsRow = (rowId: string) => {
+    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
+  }
+
+  const findEmployeeRowById = (rowId: string) => employeesRows.find((row) => row.id === rowId) ?? null
+  const handleViewDetailById = (rowId: string) => {
+    const employeeRow = findEmployeeRowById(rowId)
+    if (!employeeRow) return
+    handleViewDetail(employeeRow)
+  }
+  const getEmployeeHasContract = (rowId: string) => Boolean(findEmployeeRowById(rowId)?.hasContract)
+  const getEmployeeIsActive = (rowId: string) => Boolean(findEmployeeRowById(rowId)?.active)
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const employeeRow = findEmployeeRowById(tableRow.id)
+    if (!employeeRow) return []
+    return resolveRowActions(employeeRow)
+  }
+
+  const renderCustomCell = createEmployeesTableCustomRenderer({
+    nameColumnIndex: EMPLOYEE_NAME_COLUMN_INDEX,
+    approvalStatusColumnIndex: EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX,
+    contractColumnIndex: EMPLOYEE_CONTRACT_COLUMN_INDEX,
+    activeColumnIndex: EMPLOYEE_ACTIVE_COLUMN_INDEX,
+    onViewDetail: handleViewDetailById,
+    getHasContract: getEmployeeHasContract,
+    getIsActive: getEmployeeIsActive,
+  })
+
   const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
-    const employeeRow = row as EmployeeTableRow
-    if (columnIndex === EMPLOYEE_NAME_COLUMN_INDEX) {
-      return (
-        <button
-          type="button"
-          className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
-          onClick={() => handleViewDetail(employeeRow)}
-        >
-          {value}
-        </button>
-      )
-    }
-    if (columnIndex === EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX) {
-      const statusName = typeof value === 'string' ? value : String(value ?? '')
-      return <EmployeeApprovalStatusBadgeComponent statusName={statusName} />
-    }
-    if (columnIndex === EMPLOYEE_CONTRACT_COLUMN_INDEX) {
-      return (
-        <StatusBadgeComponent
-          enabled={employeeRow.hasContract === true}
-          activeLabel={messages.employees.ui.rehireEligibleYes}
-          inactiveLabel={messages.employees.ui.rehireEligibleNo}
-        />
-      )
-    }
-    if (columnIndex === EMPLOYEE_ACTIVE_COLUMN_INDEX) {
-      return <StatusBadgeComponent enabled={employeeRow.active === true} />
-    }
-    if (columnIndex === ACTIONS_COLUMN_INDEX) {
-      const openDirection = employeesRows.length > 2 && rowIndex >= employeesRows.length - 2 ? 'up' : 'down'
-      return (
-        <ActionsDropdownComponent
-          open={openActionsRowId === row.id}
-          actions={resolveRowActions(employeeRow)}
-          openDirection={openDirection}
-          onToggle={() => setOpenActionsRowId((id) => (id === row.id ? null : row.id))}
-        />
-      )
-    }
-    return <span>{value}</span>
+    return (
+      <TableCellRendererComponent
+        row={row}
+        value={value}
+        columnIndex={columnIndex}
+        rowIndex={rowIndex}
+        rowsLength={employeesRows.length}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+        }}
+      />
+    )
   }
 
   const handleSortChange = async (columnIndex: number) => {
-    const sortBy = EMPLOYEES_SORT_BY_COLUMN[columnIndex]
+    const sortBy = employeesTableSortByColumn[columnIndex]
     if (!sortBy) return
 
     const currentSortBy = queryParams.sortBy
