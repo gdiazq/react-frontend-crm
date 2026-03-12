@@ -15,7 +15,6 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
 import type { TableRow, TableSortState } from '@/components'
 import { employeesTableColumns, employeesTableColumnIndex, employeesTableSortByColumn } from '@/factories'
 import { mapperEmployeeDetailView } from '@/mappers'
@@ -23,8 +22,7 @@ import messages from '@/messages/messages'
 import { employeesService } from '@/services'
 import { useStoreAuth, useStoreEmployeeSelects, useStoreEmployees, useStoreSelects } from '@/store'
 import type { EmployeeTableRow } from '@/types'
-import { createEmployeesActions, downloadBlobFile, formatCsvImportSummary } from '@/utils'
-import { createEmployeesTableCustomRenderer } from '@/utils/employees/employeesTableCellRules'
+import { createEmployeesActions, createEmployeesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const EMPLOYEE_ACTIVE_COLUMN_INDEX = employeesTableColumnIndex.active
@@ -191,25 +189,6 @@ export default function EmployeesDashboardPage() {
     getHasContract: getEmployeeHasContract,
     getIsActive: getEmployeeIsActive,
   })
-
-  const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
-    return (
-      <TableCellRendererComponent
-        row={row}
-        value={value}
-        columnIndex={columnIndex}
-        rowIndex={rowIndex}
-        rowsLength={employeesRows.length}
-        customRenderer={renderCustomCell}
-        actionsConfig={{
-          columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
-          resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
-        }}
-      />
-    )
-  }
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = employeesTableSortByColumn[columnIndex]
@@ -429,7 +408,13 @@ export default function EmployeesDashboardPage() {
         rows={employeesRows}
         loading={loadingEmployees}
         emptyMessage="No hay trabajadores registrados."
-        renderCell={renderCell}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+        }}
         sortableColumnIndexes={EMPLOYEES_SORTABLE_COLUMNS}
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}

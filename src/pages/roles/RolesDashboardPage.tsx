@@ -14,9 +14,8 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
 import { AUTH_ROUTE_ROLES, AUTH_ROUTE_ROLES_CREATE, AUTH_ROUTE_ROLES_EDIT } from '@/constant'
-import { createRolesActions, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import { createRolesActions, createRolesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import type { RoleTableRow } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
@@ -25,7 +24,6 @@ import { mapperRoleDetailView } from '@/mappers'
 import { rolesService } from '@/services'
 import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
 import messages from '@/messages/messages'
-import { createRolesTableCustomRenderer } from '@/utils/roles/rolesTableCellRules'
 
 const ROLES_SORTABLE_COLUMNS = Object.keys(rolesTableSortByColumn).map((index) => Number(index))
 const ROLE_NAME_COLUMN_INDEX = rolesTableColumnIndex.name
@@ -163,28 +161,6 @@ export default function RolesDashboardPage() {
     onViewDetail: handleViewDetailById,
     getStatusEnabled: getRoleStatusEnabled,
   })
-
-  const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
-    return (
-      <TableCellRendererComponent
-        row={row}
-        value={value}
-        columnIndex={columnIndex}
-        rowIndex={rowIndex}
-        rowsLength={rolesRows.length}
-        customRenderer={renderCustomCell}
-        actionsConfig={{
-          columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
-          resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
-          resolveOpenDirection: (activeRowIndex, rowsLength) => (
-            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
-          ),
-        }}
-      />
-    )
-  }
 
   const handleCloseDetail = () => {
     setDetailOpen(false)
@@ -383,7 +359,16 @@ export default function RolesDashboardPage() {
         loading={loadingRoles}
         emptyMessage="No hay roles registrados."
         scrollContainerClassName="roles-table-no-vertical-scrollbar"
-        renderCell={renderCell}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+          resolveOpenDirection: (activeRowIndex, rowsLength) => (
+            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
+          ),
+        }}
         sortableColumnIndexes={ROLES_SORTABLE_COLUMNS}
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}

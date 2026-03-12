@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
@@ -11,13 +11,11 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
 import { AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
 import { useStoreAuth, useStoreContracts } from '@/store'
 import type { ContractTableRow, TableRow, TableSortState } from '@/types'
-import { createContractsActions } from '@/utils'
-import { createContractsTableCustomRenderer } from '@/utils/contracts/contractsTableCellRules'
+import { createContractsActions, createContractsTableCustomRenderer } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import messages from '@/messages/messages'
 
@@ -171,25 +169,6 @@ export default function ContractsDashboardPage() {
     getIsActive: getContractIsActive,
   })
 
-  const renderCell = (row: TableRow, value: ReactNode, columnIndex: number, rowIndex: number) => {
-    return (
-      <TableCellRendererComponent
-        row={row}
-        value={value}
-        columnIndex={columnIndex}
-        rowIndex={rowIndex}
-        rowsLength={contractsRows.length}
-        customRenderer={renderCustomCell}
-        actionsConfig={{
-          columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
-          resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
-        }}
-      />
-    )
-  }
-
   return (
     <section className="min-w-0 space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
@@ -264,7 +243,13 @@ export default function ContractsDashboardPage() {
         rows={contractsRows}
         loading={loadingContracts}
         emptyMessage="No hay contratos registrados."
-        renderCell={renderCell}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+        }}
         sortableColumnIndexes={CONTRACTS_SORTABLE_COLUMNS}
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}

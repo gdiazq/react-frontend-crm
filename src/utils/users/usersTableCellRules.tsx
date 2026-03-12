@@ -1,5 +1,5 @@
 import { StatusBadgeComponent } from '@/components'
-import type { TableCellCustomRenderer } from '@/components/ui/table/TableCellRendererComponent'
+import type { TableCellCustomRenderer } from '@/components'
 import type { TableRow } from '@/types'
 
 interface CreateUsersTableCustomRendererParams {

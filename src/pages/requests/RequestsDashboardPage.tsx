@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AlertMessageComponent,
   ButtonComponent,
@@ -13,14 +13,12 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
 import { requestsTableColumns, requestsTableColumnIndex, requestsTableSortByColumn } from '@/factories'
 import { mapperRequestDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { requestsService } from '@/services'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
-import { createRequestsActions, downloadBlobFile } from '@/utils'
-import { createRequestsTableCustomRenderer } from '@/utils/requests/requestsTableCellRules'
+import { createRequestsActions, createRequestsTableCustomRenderer, downloadBlobFile } from '@/utils'
 import type { RequestTableRow, TableRow, TableSortState } from '@/types'
 import type { DropdownAction } from '@/utils'
 
@@ -304,25 +302,6 @@ export default function RequestsDashboardPage() {
     getStatusName: getRequestStatusName,
   })
 
-  const renderCell = (row: TableRow, value: ReactNode, columnIndex: number, rowIndex: number) => {
-    return (
-      <TableCellRendererComponent
-        row={row}
-        value={value}
-        columnIndex={columnIndex}
-        rowIndex={rowIndex}
-        rowsLength={requestsRows.length}
-        customRenderer={renderCustomCell}
-        actionsConfig={{
-          columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
-          resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
-        }}
-      />
-    )
-  }
-
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = requestsTableSortByColumn[columnIndex]
     if (!sortBy) return
@@ -420,7 +399,13 @@ export default function RequestsDashboardPage() {
         rows={requestsRows}
         loading={loadingRequests}
         emptyMessage="No hay solicitudes registradas."
-        renderCell={renderCell}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+        }}
         sortableColumnIndexes={REQUESTS_SORTABLE_COLUMNS}
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}

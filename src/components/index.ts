@@ -15,6 +15,8 @@ export { default as ContractTypeBadgeComponent } from './ui/status/ContractTypeB
 export { default as ContractStatusBadgeComponent } from './ui/status/ContractStatusBadgeComponent'
 export { default as PaginationComponent } from './ui/pagination/PaginationComponent'
 export { default as TableComponent } from './ui/table/TableComponent'
+export type { TableActionsConfig } from './ui/table/TableComponent'
+export type { TableCellCustomRenderer, TableCellRenderContext } from './ui/table/TableCellRendererComponent'
 export type { TableRow, TableSortState } from '@/types'
 export { default as ActionsDropdownComponent } from './ui/dropdown/ActionsDropdownComponent'
 export { default as ToolbarActionsDropdownComponent } from './ui/dropdown/ToolbarActionsDropdownComponent'

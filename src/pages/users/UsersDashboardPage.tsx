@@ -14,7 +14,6 @@ import {
   ToolbarActionsDropdownComponent,
   UserDetailComponent,
 } from '@/components'
-import TableCellRendererComponent from '@/components/ui/table/TableCellRendererComponent'
 import { AUTH_ROUTE_USERS, AUTH_ROUTE_USERS_CREATE, AUTH_ROUTE_USERS_EDIT } from '@/constant'
 import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns, usersTableColumnIndex, usersTableSortByColumn } from '@/factories'
@@ -22,8 +21,7 @@ import { mapperUserDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { usersService } from '@/services'
 import { useStoreAuth, useStoreSelects, useStoreUsers } from '@/store'
-import { createUsersActions, downloadBlobFile, formatCsvImportSummary } from '@/utils'
-import { createUsersTableCustomRenderer } from '@/utils/users/usersTableCellRules'
+import { createUsersActions, createUsersTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { UserTableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
 
@@ -165,28 +163,6 @@ export default function UsersDashboardPage() {
     onViewDetail: handleViewDetailById,
     getStatusEnabled: getUserStatusEnabled,
   })
-
-  const renderCell = (row: TableRow, value: React.ReactNode, columnIndex: number, rowIndex: number) => {
-    return (
-      <TableCellRendererComponent
-        row={row}
-        value={value}
-        columnIndex={columnIndex}
-        rowIndex={rowIndex}
-        rowsLength={usersRows.length}
-        customRenderer={renderCustomCell}
-        actionsConfig={{
-          columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
-          resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
-          resolveOpenDirection: (activeRowIndex, rowsLength) => (
-            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
-          ),
-        }}
-      />
-    )
-  }
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = usersTableSortByColumn[columnIndex]
@@ -412,7 +388,16 @@ export default function UsersDashboardPage() {
         rows={usersRows}
         loading={loadingUsers}
         emptyMessage="No hay usuarios registrados."
-        renderCell={renderCell}
+        customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          openRowId: openActionsRowId,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          onToggleRow: handleToggleActionsRow,
+          resolveOpenDirection: (activeRowIndex, rowsLength) => (
+            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
+          ),
+        }}
         sortableColumnIndexes={USERS_SORTABLE_COLUMNS}
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}

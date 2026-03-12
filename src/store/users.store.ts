@@ -13,9 +13,10 @@ import {
 import messages from '@/messages/messages'
 import type { UsersSortBy, UsersSortDir, UsersStore } from '@/types'
 
-let latestUserDetailRequestId = 0
+export const useStoreUsers = create<UsersStore>()((set, get) => {
+  let latestUserDetailRequestId = 0
 
-export const useStoreUsers = create<UsersStore>()((set, get) => ({
+  return {
   usersRows: [...initialUsersRows],
   userDetail: null,
   pagination: { ...initialUsersPagination },
@@ -312,4 +313,5 @@ export const useStoreUsers = create<UsersStore>()((set, get) => ({
   clearStatus: () => {
     set({ errorMessage: null })
   },
-}))
+  }
+})

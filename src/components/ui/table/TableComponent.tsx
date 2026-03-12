@@ -1,4 +1,19 @@
-import type { TableComponentProps } from '@/types'
+import type { TableComponentProps, TableRow } from '@/types'
+import type { DropdownAction } from '@/utils'
+import TableCellRendererComponent, { type TableCellCustomRenderer } from './TableCellRendererComponent'
+
+export interface TableActionsConfig {
+  columnIndex: number
+  openRowId: string | null
+  resolveRowActions: (row: TableRow) => DropdownAction[]
+  onToggleRow: (rowId: string) => void
+  resolveOpenDirection?: (rowIndex: number, rowsLength: number) => 'up' | 'down'
+}
+
+interface FullTableComponentProps extends TableComponentProps {
+  customRenderer?: TableCellCustomRenderer
+  actionsConfig?: TableActionsConfig
+}
 
 export default function TableComponent({
   columns,
@@ -7,10 +22,12 @@ export default function TableComponent({
   emptyMessage = 'Sin datos',
   scrollContainerClassName = '',
   renderCell,
+  customRenderer,
+  actionsConfig,
   sortableColumnIndexes = [],
   sortState = { columnIndex: null, direction: 'desc' },
   onSortChange,
-}: TableComponentProps) {
+}: FullTableComponentProps) {
   const isSortableColumn = (columnIndex: number) =>
     sortableColumnIndexes.includes(columnIndex) && typeof onSortChange === 'function'
 
@@ -91,7 +108,21 @@ export default function TableComponent({
                         key={`${row.id}-${column}-${index}`}
                         className="whitespace-nowrap px-4 py-3 text-sm text-slate-700 dark:text-slate-200"
                       >
-                        {renderCell ? renderCell(row, cellValue, index, rowIndex) : cellValue}
+                        {renderCell
+                          ? renderCell(row, cellValue, index, rowIndex)
+                          : (customRenderer != null || actionsConfig != null)
+                            ? (
+                              <TableCellRendererComponent
+                                row={row}
+                                value={cellValue}
+                                columnIndex={index}
+                                rowIndex={rowIndex}
+                                rowsLength={rows.length}
+                                customRenderer={customRenderer}
+                                actionsConfig={actionsConfig}
+                              />
+                            )
+                            : cellValue}
                       </td>
                     )
                   })}

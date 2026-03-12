@@ -14,9 +14,10 @@ import { rolesService } from '@/services'
 import type { RolesStore } from '@/types'
 import { formatRoleLabel } from '@/utils'
 
-let latestRoleDetailRequestId = 0
+export const useStoreRoles = create<RolesStore>()((set, get) => {
+  let latestRoleDetailRequestId = 0
 
-export const useStoreRoles = create<RolesStore>()((set, get) => ({
+  return {
   rolesRaw: [],
   roleDetail: null,
   rolesRows: [...initialRolesRows],
@@ -358,4 +359,5 @@ export const useStoreRoles = create<RolesStore>()((set, get) => ({
       updateRoleSuccessMessage: null,
     })
   },
-}))
+  }
+})

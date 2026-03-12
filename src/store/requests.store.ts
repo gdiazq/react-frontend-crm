@@ -12,9 +12,10 @@ import {
 import messages from '@/messages/messages'
 import type { RequestsSortBy, RequestsSortDir, RequestsStore } from '@/types'
 
-let latestRequestDetailRequestId = 0
+export const useStoreRequests = create<RequestsStore>()((set, get) => {
+  let latestRequestDetailRequestId = 0
 
-export const useStoreRequests = create<RequestsStore>()((set, get) => ({
+  return {
   requestsRows: [...initialRequestsRows],
   requestDetail: null,
   pagination: { ...initialRequestsPagination },
@@ -232,4 +233,5 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => ({
   clearStatus: () => {
     set({ errorMessage: null })
   },
-}))
+  }
+})

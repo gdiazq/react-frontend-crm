@@ -12,9 +12,10 @@ import {
 import messages from '@/messages/messages'
 import type { EmployeesSortBy, EmployeesSortDir, EmployeesStore } from '@/types'
 
-let latestEmployeeDetailRequestId = 0
+export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
+  let latestEmployeeDetailRequestId = 0
 
-export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
+  return {
   employeesRows: [...initialEmployeesRows],
   employeeDetail: null,
   pagination: { ...initialEmployeesPagination },
@@ -266,4 +267,5 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => ({
   clearStatus: () => {
     set({ errorMessage: null })
   },
-}))
+  }
+})

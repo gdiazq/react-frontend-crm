@@ -12,9 +12,10 @@ import {
 import messages from '@/messages/messages'
 import type { ContractsSortBy, ContractsSortDir, ContractsStore } from '@/types'
 
-let latestContractDetailRequestId = 0
+export const useStoreContracts = create<ContractsStore>()((set, get) => {
+  let latestContractDetailRequestId = 0
 
-export const useStoreContracts = create<ContractsStore>()((set, get) => ({
+  return {
   contractsRows: [...initialContractsRows],
   contractDetail: null,
   pagination: { ...initialContractsPagination },
@@ -235,4 +236,5 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => ({
   clearStatus: () => {
     set({ errorMessage: null })
   },
-}))
+  }
+})
