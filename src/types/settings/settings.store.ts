@@ -4,8 +4,8 @@ import type {
   SettingMfaState,
   SettingTabKey,
   SettingTabOption,
-} from './setting.interface'
-import type { SettingUpdateAvatarPayload, SettingUpdateProfilePayload } from './setting.payload.interface'
+} from './setting'
+import type { SettingUpdateAvatarPayload, SettingUpdateProfilePayload } from './setting.payload'
 
 export interface SettingsStore {
   // State

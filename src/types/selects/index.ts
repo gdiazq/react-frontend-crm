@@ -4,5 +4,5 @@ export type {
   SelectUserEmailOption,
   SelectStatusOption,
   SelectPermissionOption,
-} from './selects.interface'
-export type { SelectsStore } from './selects.store.interface'
+} from './selects'
+export type { SelectsStore } from './selects.store'

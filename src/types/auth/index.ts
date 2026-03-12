@@ -1,6 +1,6 @@
-export type { AuthUser, LoginResponse, PasswordRequirement } from './auth.interface'
-export type { AuthStore, PermissionType } from './auth.store.interface'
-export type { AuthFlowStore } from './auth-flow.store.interface'
+export type { AuthUser, LoginResponse, PasswordRequirement } from './auth'
+export type { AuthStore, PermissionType } from './auth.store'
+export type { AuthFlowStore } from './auth-flow.store'
 export type {
   AuthLoginPayload,
   AuthLoginErrorResponse,
@@ -12,7 +12,7 @@ export type {
   AuthCheckEmailResponse,
   AuthResendVerificationPayload,
   AuthGithubOAuthUrlResponse,
-} from './auth.payload.interface'
+} from './auth.payload'
 export type {
   AuthLoginForm,
   AuthRegisterForm,
@@ -20,15 +20,15 @@ export type {
   AuthCreatePasswordForm,
   AuthForgotPasswordForm,
   AuthResendVerificationForm,
-} from './auth.form.interface'
+} from './auth.form'
 export type {
   AuthPreLoginForm,
   AuthPreLoginPayload,
   AuthPreLoginResponse,
-} from './pre-login.interface'
-export type { PreLoginStore } from './pre-login.store.interface'
+} from './pre-login'
+export type { PreLoginStore } from './pre-login.store'
 export type {
   AuthLoginCredentialsForm,
   AuthLoginCredentialsPayload,
-} from './login-credentials.interface'
-export type { LoginCredentialsStore } from './login-credentials.store.interface'
+} from './login-credentials'
+export type { LoginCredentialsStore } from './login-credentials.store'

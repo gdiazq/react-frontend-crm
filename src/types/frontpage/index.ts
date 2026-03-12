@@ -1,1 +1,1 @@
-export type { CrmStat, CrmStage, CrmFeature, CrmPricingPlan } from './crm.interface'
+export type { CrmStat, CrmStage, CrmFeature, CrmPricingPlan } from './crm'

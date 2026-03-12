@@ -1,6 +1,6 @@
-import type { AlertsCore, ModulePermission } from '../common/common.interface'
-import type { AuthUser } from './auth.interface'
-import type { AuthLoginPayload } from './auth.payload.interface'
+import type { AlertsCore, ModulePermission } from '../common/common'
+import type { AuthUser } from './auth'
+import type { AuthLoginPayload } from './auth.payload'
 
 export type PermissionType = 'canRead' | 'canCreate' | 'canUpdate' | 'canDelete'
 

@@ -12,9 +12,52 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import type { UsersSortBy, UsersSortDir, UsersStore } from '@/types'
+import type { OperationKey, OperationStatus } from '@/types'
+
+const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
+  list: { error: null, success: null, errorBack: null },
+  detail: { error: null, success: null, errorBack: null },
+  create: { error: null, success: null, errorBack: null },
+  update: { error: null, success: null, errorBack: null },
+  toggle: { error: null, success: null, errorBack: null },
+})
 
 export const useStoreUsers = create<UsersStore>()((set, get) => {
   let latestUserDetailRequestId = 0
+
+  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error, success: null, errorBack: errorBack ?? null },
+      },
+    }))
+  }
+
+  const setOpSuccess = (key: OperationKey, success: string) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success, errorBack: null },
+      },
+    }))
+  }
+
+  const clearOp = (key: OperationKey) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success: null, errorBack: null },
+      },
+    }))
+  }
+
+  const resolveErrorMessage = (error: unknown, fallback: string): string => {
+    if (usersService.isAxiosError(error)) {
+      return error.response?.data?.message || fallback
+    }
+    return fallback
+  }
 
   return {
   usersRows: [...initialUsersRows],
@@ -26,17 +69,12 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
   createUserSubmitting: false,
   updateUserSubmitting: false,
   loadingToggleStatus: false,
-  errorMessage: null,
-  detailErrorMessage: null,
-  createUserErrorMessage: null,
-  createUserSuccessMessage: null,
-  updateUserErrorMessage: null,
-  updateUserSuccessMessage: null,
-  errorBack: null,
+  operationStatus: initialOperationStatus(),
 
   getUsers: async () => {
     try {
-      set({ loadingUsers: true, errorMessage: null, errorBack: null })
+      set({ loadingUsers: true })
+      clearOp('list')
       const data = await usersService.getUsers(get().queryParams)
       const pagination = mapperUsersPagination(data)
       set({
@@ -45,12 +83,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
       })
     } catch (error) {
-      set({ errorBack: error })
-      if (usersService.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.users.status.errors.loadError })
-      } else {
-        set({ errorMessage: messages.users.status.errors.loadError })
-      }
+      setOpError('list', resolveErrorMessage(error, messages.users.status.errors.loadError), error)
     } finally {
       set({ loadingUsers: false })
     }
@@ -59,38 +92,22 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
   getUserDetail: async (userId: string) => {
     const parsedUserId = Number(userId)
     if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
-      set({
-        detailErrorMessage: messages.users.status.errors.detailInvalidUserId,
-        userDetail: null,
-      })
+      setOpError('detail', messages.users.status.errors.detailInvalidUserId)
+      set({ userDetail: null })
       return null
     }
     const requestId = ++latestUserDetailRequestId
 
     try {
-      set({
-        loadingUserDetail: true,
-        detailErrorMessage: null,
-        userDetail: null,
-        errorBack: null,
-      })
+      set({ loadingUserDetail: true, userDetail: null })
+      clearOp('detail')
       const data = await usersService.getUserDetail(parsedUserId)
       if (requestId !== latestUserDetailRequestId) return null
       set({ userDetail: data })
       return data
     } catch (error) {
       if (requestId !== latestUserDetailRequestId) return null
-      if (usersService.isAxiosError(error)) {
-        set({
-          detailErrorMessage: error.response?.data?.message || messages.users.status.errors.detailLoadError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          detailErrorMessage: messages.users.status.errors.detailLoadError,
-          errorBack: error,
-        })
-      }
+      setOpError('detail', resolveErrorMessage(error, messages.users.status.errors.detailLoadError), error)
       return null
     } finally {
       if (requestId === latestUserDetailRequestId) {
@@ -166,58 +183,25 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
 
   clearUserDetail: () => {
     latestUserDetailRequestId += 1
-    set({ userDetail: null, detailErrorMessage: null, loadingUserDetail: false })
-  },
-
-  clearDetailError: () => {
-    set({ detailErrorMessage: null })
-  },
-
-  clearCreateUserStatus: () => {
-    set({
-      createUserErrorMessage: null,
-      createUserSuccessMessage: null,
-    })
-  },
-
-  clearUpdateUserStatus: () => {
-    set({
-      updateUserErrorMessage: null,
-      updateUserSuccessMessage: null,
-    })
+    set({ userDetail: null, loadingUserDetail: false })
+    clearOp('detail')
   },
 
   createUser: async (payload) => {
     if (!Number.isInteger(payload.roleId) || payload.roleId <= 0) {
-      set({ createUserErrorMessage: messages.users.status.errors.createUserRoleRequired })
+      setOpError('create', messages.users.status.errors.createUserRoleRequired)
       return false
     }
 
     try {
-      set({
-        createUserSubmitting: true,
-        createUserErrorMessage: null,
-        createUserSuccessMessage: null,
-        errorBack: null,
-      })
+      set({ createUserSubmitting: true })
+      clearOp('create')
 
       const data = await usersService.createUser(payload)
-      set({
-        createUserSuccessMessage: `${messages.users.status.success.createUserSuccess} (${data.username})`,
-      })
+      setOpSuccess('create', `${messages.users.status.success.createUserSuccess} (${data.username})`)
       return true
     } catch (error) {
-      if (usersService.isAxiosError(error)) {
-        set({
-          createUserErrorMessage: error.response?.data?.message || messages.users.status.errors.createUserError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          createUserErrorMessage: messages.users.status.errors.createUserError,
-          errorBack: error,
-        })
-      }
+      setOpError('create', resolveErrorMessage(error, messages.users.status.errors.createUserError), error)
       return false
     } finally {
       set({ createUserSubmitting: false })
@@ -226,38 +210,24 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
 
   updateUser: async (payload) => {
     if (!Number.isInteger(payload.id) || payload.id <= 0) {
-      set({ updateUserErrorMessage: messages.users.status.errors.invalidStatusUserId })
+      setOpError('update', messages.users.status.errors.invalidStatusUserId)
       return false
     }
 
     if (!Number.isInteger(payload.roleId) || payload.roleId <= 0) {
-      set({ updateUserErrorMessage: messages.users.status.errors.updateUserRoleRequired })
+      setOpError('update', messages.users.status.errors.updateUserRoleRequired)
       return false
     }
 
     try {
-      set({
-        updateUserSubmitting: true,
-        updateUserErrorMessage: null,
-        updateUserSuccessMessage: null,
-        errorBack: null,
-      })
+      set({ updateUserSubmitting: true })
+      clearOp('update')
 
       await usersService.updateUser(payload)
-      set({ updateUserSuccessMessage: messages.users.status.success.updateUserSuccess })
+      setOpSuccess('update', messages.users.status.success.updateUserSuccess)
       return true
     } catch (error) {
-      if (usersService.isAxiosError(error)) {
-        set({
-          updateUserErrorMessage: error.response?.data?.message || messages.users.status.errors.updateUserError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          updateUserErrorMessage: messages.users.status.errors.updateUserError,
-          errorBack: error,
-        })
-      }
+      setOpError('update', resolveErrorMessage(error, messages.users.status.errors.updateUserError), error)
       return false
     } finally {
       set({ updateUserSubmitting: false })
@@ -267,18 +237,19 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
   toggleUserStatus: async (userId: string, nextStatus: boolean) => {
     const parsedUserId = Number(userId)
     if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
-      set({ errorMessage: messages.users.status.errors.invalidStatusUserId })
+      setOpError('toggle', messages.users.status.errors.invalidStatusUserId)
       return false
     }
 
     const previousRow = get().usersRows.find((row) => row.id === userId)
     if (!previousRow) {
-      set({ errorMessage: messages.users.status.errors.invalidStatusUserId })
+      setOpError('toggle', messages.users.status.errors.invalidStatusUserId)
       return false
     }
 
     try {
-      set({ loadingToggleStatus: true, errorMessage: null, errorBack: null })
+      set({ loadingToggleStatus: true })
+      clearOp('toggle')
       set((state) => ({
         usersRows: state.usersRows.map((row) => {
           if (row.id !== userId) return row
@@ -299,19 +270,19 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
       set((state) => ({
         usersRows: state.usersRows.map((row) => (row.id === userId ? previousRow : row)),
       }))
-      if (usersService.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.users.status.errors.toggleStatusError })
-      } else {
-        set({ errorMessage: messages.users.status.errors.toggleStatusError })
-      }
+      setOpError('toggle', resolveErrorMessage(error, messages.users.status.errors.toggleStatusError), error)
       return false
     } finally {
       set({ loadingToggleStatus: false })
     }
   },
 
-  clearStatus: () => {
-    set({ errorMessage: null })
+  clearOperationStatus: (key) => {
+    clearOp(key)
+  },
+
+  clearAllOperationStatus: () => {
+    set({ operationStatus: initialOperationStatus() })
   },
   }
 })

@@ -34,12 +34,13 @@ export default function ContractsDashboardPage() {
   const queryParams = useStoreContracts((s) => s.queryParams)
   const loadingContracts = useStoreContracts((s) => s.loadingContracts)
   const loadingToggleStatus = useStoreContracts((s) => s.loadingToggleStatus)
-  const errorMessage = useStoreContracts((s) => s.errorMessage)
+  const listError = useStoreContracts((s) => s.operationStatus.list.error)
+  const toggleError = useStoreContracts((s) => s.operationStatus.toggle.error)
+  const clearOperationStatus = useStoreContracts((s) => s.clearOperationStatus)
   const getContracts = useStoreContracts((s) => s.getContracts)
   const sortContracts = useStoreContracts((s) => s.sortContracts)
   const toggleContractStatus = useStoreContracts((s) => s.toggleContractStatus)
   const goToPage = useStoreContracts((s) => s.goToPage)
-  const clearStatus = useStoreContracts((s) => s.clearStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
   const canToggleContractStatus = hasPermission('CONTRACT', 'canUpdate')
 
@@ -181,11 +182,14 @@ export default function ContractsDashboardPage() {
         active={pagination.active}
       />
 
-      {errorMessage && (
+      {(listError || toggleError) && (
         <AlertMessageComponent
-          message={errorMessage}
+          message={(listError || toggleError)!}
           tone="error"
-          onClose={clearStatus}
+          onClose={() => {
+            if (listError) clearOperationStatus('list')
+            if (toggleError) clearOperationStatus('toggle')
+          }}
         />
       )}
 

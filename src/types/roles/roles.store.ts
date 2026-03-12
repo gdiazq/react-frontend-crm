@@ -8,7 +8,8 @@ import type {
   RolesQueryParams,
   RolesSortBy,
   RolesSortDir,
-} from './roles.interface'
+} from './roles'
+import type { OperationKey, OperationStatus } from '../common'
 
 export interface RolesStore {
   rolesRaw: RoleRaw[]
@@ -21,13 +22,7 @@ export interface RolesStore {
   createRoleSubmitting: boolean
   updateRoleSubmitting: boolean
   loadingToggleStatus: boolean
-  errorMessage: string | null
-  detailErrorMessage: string | null
-  createRoleErrorMessage: string | null
-  createRoleSuccessMessage: string | null
-  updateRoleErrorMessage: string | null
-  updateRoleSuccessMessage: string | null
-  errorBack: unknown | null
+  operationStatus: Record<OperationKey, OperationStatus>
   getRoles: () => Promise<void>
   getRoleDetail: (roleId: string) => Promise<RoleDetail | null>
   goToPage: (page: number) => Promise<void>
@@ -42,8 +37,6 @@ export interface RolesStore {
   updateRole: (payload: RoleUpdatePayload, permissionIds: number[]) => Promise<boolean>
   toggleRoleStatus: (roleId: string, nextStatus: boolean) => Promise<boolean>
   clearRoleDetail: () => void
-  clearDetailError: () => void
-  clearCreateRoleStatus: () => void
-  clearUpdateRoleStatus: () => void
-  clearStatus: () => void
+  clearOperationStatus: (key: OperationKey) => void
+  clearAllOperationStatus: () => void
 }

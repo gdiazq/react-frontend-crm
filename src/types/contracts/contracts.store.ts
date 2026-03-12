@@ -7,7 +7,8 @@ import type {
   ContractTableRow,
   ContractsPagination,
   ContractsQueryParams,
-} from './contracts.interface'
+} from './contracts'
+import type { OperationKey, OperationStatus } from '../common'
 
 export interface ContractsStore {
   contractsRows: ContractTableRow[]
@@ -19,17 +20,10 @@ export interface ContractsStore {
   loadingToggleStatus: boolean
   createContractSubmitting: boolean
   updateContractSubmitting: boolean
-  errorMessage: string | null
-  detailErrorMessage: string | null
-  createContractErrorMessage: string | null
-  createContractSuccessMessage: string | null
-  updateContractErrorMessage: string | null
-  updateContractSuccessMessage: string | null
-  errorBack: unknown | null
+  operationStatus: Record<OperationKey, OperationStatus>
   getContracts: () => Promise<void>
   getContractDetail: (contractId: string) => Promise<ContractDetail | null>
   clearContractDetail: () => void
-  clearDetailError: () => void
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
@@ -37,7 +31,6 @@ export interface ContractsStore {
   toggleContractStatus: (contractId: string, nextStatus: boolean) => Promise<boolean>
   createContract: (payload: ContractCreatePayload, files?: File[]) => Promise<boolean>
   updateContract: (payload: ContractUpdatePayload, files?: File[]) => Promise<boolean>
-  clearCreateContractStatus: () => void
-  clearUpdateContractStatus: () => void
-  clearStatus: () => void
+  clearOperationStatus: (key: OperationKey) => void
+  clearAllOperationStatus: () => void
 }

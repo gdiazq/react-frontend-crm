@@ -12,5 +12,5 @@ export type {
   EmployeesQueryParams,
   EmployeesSortBy,
   EmployeesSortDir,
-} from './employees.interface'
-export type { EmployeesStore } from './employees.store.interface'
+} from './employees'
+export type { EmployeesStore } from './employees.store'

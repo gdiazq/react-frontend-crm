@@ -38,8 +38,9 @@ export default function RequestsDashboardPage() {
   const loadingRequestDetail = useStoreRequests((s) => s.loadingRequestDetail)
   const loadingApproveRequest = useStoreRequests((s) => s.loadingApproveRequest)
   const loadingRejectRequest = useStoreRequests((s) => s.loadingRejectRequest)
-  const errorMessage = useStoreRequests((s) => s.errorMessage)
-  const detailErrorMessage = useStoreRequests((s) => s.detailErrorMessage)
+  const listError = useStoreRequests((s) => s.operationStatus.list.error)
+  const detailError = useStoreRequests((s) => s.operationStatus.detail.error)
+  const clearOperationStatus = useStoreRequests((s) => s.clearOperationStatus)
   const getRequests = useStoreRequests((s) => s.getRequests)
   const getRequestDetail = useStoreRequests((s) => s.getRequestDetail)
   const clearRequestDetail = useStoreRequests((s) => s.clearRequestDetail)
@@ -57,7 +58,6 @@ export default function RequestsDashboardPage() {
   const sortRequests = useStoreRequests((s) => s.sortRequests)
   const approveRequest = useStoreRequests((s) => s.approveRequest)
   const rejectRequest = useStoreRequests((s) => s.rejectRequest)
-  const clearStatus = useStoreRequests((s) => s.clearStatus)
 
   const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
   const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
@@ -328,11 +328,11 @@ export default function RequestsDashboardPage() {
         showRatios={false}
       />
 
-      {errorMessage && (
+      {listError && (
         <AlertMessageComponent
-          message={errorMessage}
+          message={listError}
           tone="error"
-          onClose={clearStatus}
+          onClose={() => clearOperationStatus('list')}
         />
       )}
 
@@ -521,7 +521,7 @@ export default function RequestsDashboardPage() {
         <RequestDetailComponent
           detail={requestDetailView}
           loading={loadingRequestDetail}
-          errorMessage={detailErrorMessage}
+          errorMessage={detailError}
           onRetry={handleRetryDetail}
         />
       </DetailSidebarComponent>

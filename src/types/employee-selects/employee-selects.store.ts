@@ -1,4 +1,4 @@
-import type { EmployeeSelectOption } from './employee-selects.interface'
+import type { EmployeeSelectOption } from './employee-selects'
 
 export interface EmployeeSelectsStore {
   identificationTypeOptions: EmployeeSelectOption[]

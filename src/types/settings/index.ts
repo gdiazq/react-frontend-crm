@@ -7,13 +7,13 @@ export type {
   SettingMfaSetupData,
   SettingTabKey,
   SettingTabOption,
-} from './setting.interface'
-export type { SettingsStore } from './settings.store.interface'
+} from './setting'
+export type { SettingsStore } from './settings.store'
 export type {
   SettingMfaSetupPayload,
   SettingMfaVerifyPayload,
   SettingMfaDisablePayload,
   SettingUpdateProfilePayload,
   SettingUpdateAvatarPayload,
-} from './setting.payload.interface'
-export type { SettingUpdateProfileForm, SettingUpdateAvatarForm } from './setting.form.interface'
+} from './setting.payload'
+export type { SettingUpdateProfileForm, SettingUpdateAvatarForm } from './setting.form'

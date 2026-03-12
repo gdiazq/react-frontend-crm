@@ -11,9 +11,52 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import type { ContractsSortBy, ContractsSortDir, ContractsStore } from '@/types'
+import type { OperationKey, OperationStatus } from '@/types'
+
+const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
+  list: { error: null, success: null, errorBack: null },
+  detail: { error: null, success: null, errorBack: null },
+  create: { error: null, success: null, errorBack: null },
+  update: { error: null, success: null, errorBack: null },
+  toggle: { error: null, success: null, errorBack: null },
+})
 
 export const useStoreContracts = create<ContractsStore>()((set, get) => {
   let latestContractDetailRequestId = 0
+
+  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error, success: null, errorBack: errorBack ?? null },
+      },
+    }))
+  }
+
+  const setOpSuccess = (key: OperationKey, success: string) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success, errorBack: null },
+      },
+    }))
+  }
+
+  const clearOp = (key: OperationKey) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success: null, errorBack: null },
+      },
+    }))
+  }
+
+  const resolveErrorMessage = (error: unknown, fallback: string): string => {
+    if (contractsService.isAxiosError(error)) {
+      return error.response?.data?.message || fallback
+    }
+    return fallback
+  }
 
   return {
   contractsRows: [...initialContractsRows],
@@ -25,17 +68,12 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
   loadingToggleStatus: false,
   createContractSubmitting: false,
   updateContractSubmitting: false,
-  errorMessage: null,
-  detailErrorMessage: null,
-  createContractErrorMessage: null,
-  createContractSuccessMessage: null,
-  updateContractErrorMessage: null,
-  updateContractSuccessMessage: null,
-  errorBack: null,
+  operationStatus: initialOperationStatus(),
 
   getContracts: async () => {
     try {
-      set({ loadingContracts: true, errorMessage: null, errorBack: null })
+      set({ loadingContracts: true })
+      clearOp('list')
       const data = await contractsService.getContracts(get().queryParams)
       const pagination = mapperContractsPagination(data)
       set({
@@ -44,12 +82,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
       })
     } catch (error) {
-      set({ errorBack: error })
-      if (contractsService.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.contracts.status.errors.loadError })
-      } else {
-        set({ errorMessage: messages.contracts.status.errors.loadError })
-      }
+      setOpError('list', resolveErrorMessage(error, messages.contracts.status.errors.loadError), error)
     } finally {
       set({ loadingContracts: false })
     }
@@ -58,38 +91,22 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
   getContractDetail: async (contractId: string) => {
     const parsedContractId = Number(contractId)
     if (!Number.isInteger(parsedContractId) || parsedContractId <= 0) {
-      set({
-        detailErrorMessage: messages.contracts.status.errors.detailInvalidContractId,
-        contractDetail: null,
-      })
+      setOpError('detail', messages.contracts.status.errors.detailInvalidContractId)
+      set({ contractDetail: null })
       return null
     }
     const requestId = ++latestContractDetailRequestId
 
     try {
-      set({
-        loadingContractDetail: true,
-        detailErrorMessage: null,
-        contractDetail: null,
-        errorBack: null,
-      })
+      set({ loadingContractDetail: true, contractDetail: null })
+      clearOp('detail')
       const data = await contractsService.getContractDetail(parsedContractId)
       if (requestId !== latestContractDetailRequestId) return null
       set({ contractDetail: data })
       return data
     } catch (error) {
       if (requestId !== latestContractDetailRequestId) return null
-      if (contractsService.isAxiosError(error)) {
-        set({
-          detailErrorMessage: error.response?.data?.message || messages.contracts.status.errors.detailLoadError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          detailErrorMessage: messages.contracts.status.errors.detailLoadError,
-          errorBack: error,
-        })
-      }
+      setOpError('detail', resolveErrorMessage(error, messages.contracts.status.errors.detailLoadError), error)
       return null
     } finally {
       if (requestId === latestContractDetailRequestId) {
@@ -100,11 +117,8 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
 
   clearContractDetail: () => {
     latestContractDetailRequestId += 1
-    set({ contractDetail: null, detailErrorMessage: null, loadingContractDetail: false })
-  },
-
-  clearDetailError: () => {
-    set({ detailErrorMessage: null })
+    set({ contractDetail: null, loadingContractDetail: false })
+    clearOp('detail')
   },
 
   goToPage: async (page: number) => {
@@ -140,20 +154,17 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
   toggleContractStatus: async (contractId, nextStatus) => {
     const parsedContractId = Number(contractId)
     if (!Number.isInteger(parsedContractId) || parsedContractId <= 0) {
-      set({ errorMessage: messages.contracts.status.errors.invalidStatusContractId })
+      setOpError('toggle', messages.contracts.status.errors.invalidStatusContractId)
       return false
     }
 
     try {
-      set({ loadingToggleStatus: true, errorMessage: null, errorBack: null })
+      set({ loadingToggleStatus: true })
+      clearOp('toggle')
       await contractsService.toggleContractStatus(parsedContractId, nextStatus)
       return true
     } catch (error) {
-      if (contractsService.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.contracts.status.errors.toggleStatusError })
-      } else {
-        set({ errorMessage: messages.contracts.status.errors.toggleStatusError })
-      }
+      setOpError('toggle', resolveErrorMessage(error, messages.contracts.status.errors.toggleStatusError), error)
       return false
     } finally {
       set({ loadingToggleStatus: false })
@@ -162,29 +173,13 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
 
   createContract: async (payload, files = []) => {
     try {
-      set({
-        createContractSubmitting: true,
-        createContractErrorMessage: null,
-        createContractSuccessMessage: null,
-        errorBack: null,
-      })
+      set({ createContractSubmitting: true })
+      clearOp('create')
       const data = await contractsService.createContract(payload, files)
-      set({
-        createContractSuccessMessage: `${messages.contracts.status.success.createContractSuccess} (${data.name})`,
-      })
+      setOpSuccess('create', `${messages.contracts.status.success.createContractSuccess} (${data.name})`)
       return true
     } catch (error) {
-      if (contractsService.isAxiosError(error)) {
-        set({
-          createContractErrorMessage: error.response?.data?.message || messages.contracts.status.errors.createContractError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          createContractErrorMessage: messages.contracts.status.errors.createContractError,
-          errorBack: error,
-        })
-      }
+      setOpError('create', resolveErrorMessage(error, messages.contracts.status.errors.createContractError), error)
       return false
     } finally {
       set({ createContractSubmitting: false })
@@ -193,48 +188,30 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
 
   updateContract: async (payload, files = []) => {
     if (!Number.isInteger(payload.id) || payload.id <= 0) {
-      set({ updateContractErrorMessage: messages.contracts.status.errors.detailInvalidContractId })
+      setOpError('update', messages.contracts.status.errors.detailInvalidContractId)
       return false
     }
 
     try {
-      set({
-        updateContractSubmitting: true,
-        updateContractErrorMessage: null,
-        updateContractSuccessMessage: null,
-        errorBack: null,
-      })
+      set({ updateContractSubmitting: true })
+      clearOp('update')
       await contractsService.updateContract(payload, files)
-      set({ updateContractSuccessMessage: messages.contracts.status.success.updateContractSuccess })
+      setOpSuccess('update', messages.contracts.status.success.updateContractSuccess)
       return true
     } catch (error) {
-      if (contractsService.isAxiosError(error)) {
-        set({
-          updateContractErrorMessage: error.response?.data?.message || messages.contracts.status.errors.updateContractError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          updateContractErrorMessage: messages.contracts.status.errors.updateContractError,
-          errorBack: error,
-        })
-      }
+      setOpError('update', resolveErrorMessage(error, messages.contracts.status.errors.updateContractError), error)
       return false
     } finally {
       set({ updateContractSubmitting: false })
     }
   },
 
-  clearCreateContractStatus: () => {
-    set({ createContractErrorMessage: null, createContractSuccessMessage: null })
+  clearOperationStatus: (key) => {
+    clearOp(key)
   },
 
-  clearUpdateContractStatus: () => {
-    set({ updateContractErrorMessage: null, updateContractSuccessMessage: null })
-  },
-
-  clearStatus: () => {
-    set({ errorMessage: null })
+  clearAllOperationStatus: () => {
+    set({ operationStatus: initialOperationStatus() })
   },
   }
 })

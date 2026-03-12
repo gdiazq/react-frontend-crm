@@ -8,5 +8,5 @@ export type {
   RequestsQueryParams,
   RequestsSortBy,
   RequestsSortDir,
-} from './requests.interface'
-export type { RequestsStore } from './requests.store.interface'
+} from './requests'
+export type { RequestsStore } from './requests.store'

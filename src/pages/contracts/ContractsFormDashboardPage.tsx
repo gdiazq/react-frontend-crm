@@ -53,20 +53,16 @@ export default function ContractsFormDashboardPage() {
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const loadingContractDetail = useStoreContracts((s) => s.loadingContractDetail)
-  const detailErrorMessage = useStoreContracts((s) => s.detailErrorMessage)
+  const detailError = useStoreContracts((s) => s.operationStatus.detail.error)
   const createContractSubmitting = useStoreContracts((s) => s.createContractSubmitting)
   const updateContractSubmitting = useStoreContracts((s) => s.updateContractSubmitting)
-  const createContractErrorMessage = useStoreContracts((s) => s.createContractErrorMessage)
-  const createContractSuccessMessage = useStoreContracts((s) => s.createContractSuccessMessage)
-  const updateContractErrorMessage = useStoreContracts((s) => s.updateContractErrorMessage)
-  const updateContractSuccessMessage = useStoreContracts((s) => s.updateContractSuccessMessage)
+  const createStatus = useStoreContracts((s) => s.operationStatus.create)
+  const updateStatus = useStoreContracts((s) => s.operationStatus.update)
   const getContractDetail = useStoreContracts((s) => s.getContractDetail)
   const clearContractDetail = useStoreContracts((s) => s.clearContractDetail)
-  const clearDetailError = useStoreContracts((s) => s.clearDetailError)
+  const clearOperationStatus = useStoreContracts((s) => s.clearOperationStatus)
   const createContract = useStoreContracts((s) => s.createContract)
   const updateContract = useStoreContracts((s) => s.updateContract)
-  const clearCreateContractStatus = useStoreContracts((s) => s.clearCreateContractStatus)
-  const clearUpdateContractStatus = useStoreContracts((s) => s.clearUpdateContractStatus)
 
   const employeeWithoutContractOptions = useStoreContractSelects((s) => s.employeeWithoutContractOptions)
   const contractTypeOptions = useStoreContractSelects((s) => s.contractTypeOptions)
@@ -92,8 +88,9 @@ export default function ContractsFormDashboardPage() {
   const headerDescription = isEditMode
     ? 'Actualiza los datos del contrato seleccionado.'
     : 'Completa los datos para registrar un nuevo contrato.'
-  const submitErrorMessage = isEditMode ? updateContractErrorMessage : createContractErrorMessage
-  const submitSuccessMessage = isEditMode ? updateContractSuccessMessage : createContractSuccessMessage
+  const activeStatus = isEditMode ? updateStatus : createStatus
+  const submitErrorMessage = activeStatus.error
+  const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingFormOptions
 
   const selectEmployeesWithoutContract = toSelectOptions(employeeWithoutContractOptions)
@@ -120,17 +117,15 @@ export default function ContractsFormDashboardPage() {
 
     return () => {
       clearFormOptionsStatus()
-      clearCreateContractStatus()
-      clearUpdateContractStatus()
-      clearDetailError()
+      clearOperationStatus('create')
+      clearOperationStatus('update')
+      clearOperationStatus('detail')
       clearContractDetail()
     }
   }, [
-    clearCreateContractStatus,
+    clearOperationStatus,
     clearContractDetail,
-    clearDetailError,
     clearFormOptionsStatus,
-    clearUpdateContractStatus,
     getFormOptions,
   ])
 
@@ -157,8 +152,8 @@ export default function ContractsFormDashboardPage() {
   }, [editContractId, getContractDetail, isEditMode])
 
   const clearSubmitStatus = () => {
-    clearCreateContractStatus()
-    clearUpdateContractStatus()
+    clearOperationStatus('create')
+    clearOperationStatus('update')
   }
 
   const handleChangeField = (field: keyof typeof initialCreateContractForm, value: string) => {
@@ -303,11 +298,11 @@ export default function ContractsFormDashboardPage() {
         />
       )}
 
-      {isEditMode && detailErrorMessage && (
+      {isEditMode && detailError && (
         <AlertMessageComponent
-          message={detailErrorMessage}
+          message={detailError}
           tone="error"
-          onClose={clearDetailError}
+          onClose={() => clearOperationStatus('detail')}
         />
       )}
 

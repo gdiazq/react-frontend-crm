@@ -50,20 +50,16 @@ export default function EmployeesFormDashboardPage() {
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const loadingEmployeeDetail = useStoreEmployees((s) => s.loadingEmployeeDetail)
-  const detailErrorMessage = useStoreEmployees((s) => s.detailErrorMessage)
+  const detailError = useStoreEmployees((s) => s.operationStatus.detail.error)
   const createEmployeeSubmitting = useStoreEmployees((s) => s.createEmployeeSubmitting)
   const updateEmployeeSubmitting = useStoreEmployees((s) => s.updateEmployeeSubmitting)
-  const createEmployeeErrorMessage = useStoreEmployees((s) => s.createEmployeeErrorMessage)
-  const createEmployeeSuccessMessage = useStoreEmployees((s) => s.createEmployeeSuccessMessage)
-  const updateEmployeeErrorMessage = useStoreEmployees((s) => s.updateEmployeeErrorMessage)
-  const updateEmployeeSuccessMessage = useStoreEmployees((s) => s.updateEmployeeSuccessMessage)
+  const createStatus = useStoreEmployees((s) => s.operationStatus.create)
+  const updateStatus = useStoreEmployees((s) => s.operationStatus.update)
   const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
   const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
-  const clearDetailError = useStoreEmployees((s) => s.clearDetailError)
+  const clearOperationStatus = useStoreEmployees((s) => s.clearOperationStatus)
   const createEmployee = useStoreEmployees((s) => s.createEmployee)
   const updateEmployee = useStoreEmployees((s) => s.updateEmployee)
-  const clearCreateEmployeeStatus = useStoreEmployees((s) => s.clearCreateEmployeeStatus)
-  const clearUpdateEmployeeStatus = useStoreEmployees((s) => s.clearUpdateEmployeeStatus)
 
   const identificationTypeOptions = useStoreEmployeeSelects((s) => s.identificationTypeOptions)
   const genderOptions = useStoreEmployeeSelects((s) => s.genderOptions)
@@ -107,8 +103,9 @@ export default function EmployeesFormDashboardPage() {
   const headerDescription = isEditMode ? messages.employees.ui.editEmployeeDescription : messages.employees.ui.createEmployeeDescription
   const submitLabel = isEditMode ? messages.employees.ui.updateEmployeeSubmit : messages.employees.ui.createEmployeeSubmit
   const submitLoadingLabel = isEditMode ? messages.employees.ui.updateEmployeeSubmitting : messages.employees.ui.createEmployeeSubmitting
-  const submitErrorMessage = isEditMode ? updateEmployeeErrorMessage : createEmployeeErrorMessage
-  const submitSuccessMessage = isEditMode ? updateEmployeeSuccessMessage : createEmployeeSuccessMessage
+  const activeStatus = isEditMode ? updateStatus : createStatus
+  const submitErrorMessage = activeStatus.error
+  const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingFormOptions
 
   const selectIdentificationTypes = toSelectOptions(identificationTypeOptions)
@@ -140,9 +137,9 @@ export default function EmployeesFormDashboardPage() {
     void getFormOptions()
 
     return () => {
-      clearCreateEmployeeStatus()
-      clearUpdateEmployeeStatus()
-      clearDetailError()
+      clearOperationStatus('create')
+      clearOperationStatus('update')
+      clearOperationStatus('detail')
       clearEmployeeDetail()
       clearFormOptionsStatus()
       clearCommuneOptionsStatus()
@@ -152,11 +149,9 @@ export default function EmployeesFormDashboardPage() {
   }, [
     clearCityOptionsStatus,
     clearCommuneOptionsStatus,
-    clearCreateEmployeeStatus,
-    clearDetailError,
+    clearOperationStatus,
     clearEmployeeDetail,
     clearFormOptionsStatus,
-    clearUpdateEmployeeStatus,
     getFormOptions,
     resetLocationOptions,
   ])
@@ -203,8 +198,8 @@ export default function EmployeesFormDashboardPage() {
   }, [form.communeId, getCityOptions])
 
   const clearSubmitStatus = () => {
-    clearCreateEmployeeStatus()
-    clearUpdateEmployeeStatus()
+    clearOperationStatus('create')
+    clearOperationStatus('update')
   }
 
   const handleChangeField = (field: keyof typeof initialCreateEmployeeForm, value: string) => {
@@ -303,11 +298,11 @@ export default function EmployeesFormDashboardPage() {
         />
       )}
 
-      {isEditMode && detailErrorMessage && (
+      {isEditMode && detailError && (
         <AlertMessageComponent
-          message={detailErrorMessage}
+          message={detailError}
           tone="error"
-          onClose={clearDetailError}
+          onClose={() => clearOperationStatus('detail')}
         />
       )}
 

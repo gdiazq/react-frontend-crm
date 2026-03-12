@@ -4,7 +4,7 @@ import type {
   AuthRegisterPayload,
   AuthResendVerificationPayload,
   AuthVerifyEmailPayload,
-} from './auth.payload.interface'
+} from './auth.payload'
 
 export interface AuthFlowStore {
   // Loading

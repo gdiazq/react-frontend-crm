@@ -40,8 +40,10 @@ export default function RolesDashboardPage() {
   const loadingRoles = useStoreRoles((s) => s.loadingRoles)
   const loadingRoleDetail = useStoreRoles((s) => s.loadingRoleDetail)
   const loadingToggleStatus = useStoreRoles((s) => s.loadingToggleStatus)
-  const errorMessage = useStoreRoles((s) => s.errorMessage)
-  const detailErrorMessage = useStoreRoles((s) => s.detailErrorMessage)
+  const listError = useStoreRoles((s) => s.operationStatus.list.error)
+  const detailError = useStoreRoles((s) => s.operationStatus.detail.error)
+  const toggleError = useStoreRoles((s) => s.operationStatus.toggle.error)
+  const clearOperationStatus = useStoreRoles((s) => s.clearOperationStatus)
   const getRoles = useStoreRoles((s) => s.getRoles)
   const getRoleDetail = useStoreRoles((s) => s.getRoleDetail)
   const goToPage = useStoreRoles((s) => s.goToPage)
@@ -51,7 +53,6 @@ export default function RolesDashboardPage() {
   const setStatusFilter = useStoreRoles((s) => s.setStatusFilter)
   const clearStatusFilter = useStoreRoles((s) => s.clearStatusFilter)
   const toggleRoleStatus = useStoreRoles((s) => s.toggleRoleStatus)
-  const clearStatus = useStoreRoles((s) => s.clearStatus)
   const clearRoleDetail = useStoreRoles((s) => s.clearRoleDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
   const canToggleRoleStatus = hasPermission('ROLE', 'canUpdate')
@@ -281,11 +282,14 @@ export default function RolesDashboardPage() {
         active={pagination.active}
       />
 
-      {errorMessage && (
+      {(listError || toggleError) && (
         <AlertMessageComponent
-          message={errorMessage}
+          message={(listError || toggleError)!}
           tone="error"
-          onClose={clearStatus}
+          onClose={() => {
+            if (listError) clearOperationStatus('list')
+            if (toggleError) clearOperationStatus('toggle')
+          }}
         />
       )}
 
@@ -432,7 +436,7 @@ export default function RolesDashboardPage() {
         <RoleDetailComponent
           detail={roleDetailView}
           loading={loadingRoleDetail}
-          errorMessage={detailErrorMessage}
+          errorMessage={detailError}
           onRetry={handleRetryDetail}
         />
       </DetailSidebarComponent>

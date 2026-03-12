@@ -1,4 +1,4 @@
-import type { ModulePermission } from '../common/common.interface'
+import type { ModulePermission } from '../common/common'
 
 export interface LoginResponse {
   user: AuthUser

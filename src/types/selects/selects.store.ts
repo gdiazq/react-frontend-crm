@@ -4,7 +4,7 @@ import type {
   SelectStatusOption,
   SelectUserEmailOption,
   SelectUserNameOption,
-} from './selects.interface'
+} from './selects'
 
 export interface SelectsStore {
   roleOptions: SelectRoleOption[]

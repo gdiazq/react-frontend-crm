@@ -13,5 +13,5 @@ export type {
   ContractsPagination,
   ContractsQueryParams,
   ContractTableRow,
-} from './contracts.interface'
-export type { ContractsStore } from './contracts.store.interface'
+} from './contracts'
+export type { ContractsStore } from './contracts.store'

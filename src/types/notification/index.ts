@@ -7,5 +7,5 @@ export type {
   IncomingNotificationPayload,
   NotificationPagedFilters,
   NotificationItem,
-} from './notification.interface'
-export type { NotificationStore } from './notification.store.interface'
+} from './notification'
+export type { NotificationStore } from './notification.store'

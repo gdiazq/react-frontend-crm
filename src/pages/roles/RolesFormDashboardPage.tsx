@@ -36,21 +36,17 @@ export default function RolesFormDashboardPage() {
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const loadingRoleDetail = useStoreRoles((s) => s.loadingRoleDetail)
-  const detailErrorMessage = useStoreRoles((s) => s.detailErrorMessage)
+  const detailError = useStoreRoles((s) => s.operationStatus.detail.error)
   const createRoleSubmitting = useStoreRoles((s) => s.createRoleSubmitting)
   const updateRoleSubmitting = useStoreRoles((s) => s.updateRoleSubmitting)
-  const createRoleErrorMessage = useStoreRoles((s) => s.createRoleErrorMessage)
-  const createRoleSuccessMessage = useStoreRoles((s) => s.createRoleSuccessMessage)
-  const updateRoleErrorMessage = useStoreRoles((s) => s.updateRoleErrorMessage)
-  const updateRoleSuccessMessage = useStoreRoles((s) => s.updateRoleSuccessMessage)
+  const createStatus = useStoreRoles((s) => s.operationStatus.create)
+  const updateStatus = useStoreRoles((s) => s.operationStatus.update)
   const getRoleDetail = useStoreRoles((s) => s.getRoleDetail)
   const clearRoleDetail = useStoreRoles((s) => s.clearRoleDetail)
-  const clearDetailError = useStoreRoles((s) => s.clearDetailError)
+  const clearOperationStatus = useStoreRoles((s) => s.clearOperationStatus)
   const createRole = useStoreRoles((s) => s.createRole)
   const updateRole = useStoreRoles((s) => s.updateRole)
   const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
-  const clearCreateRoleStatus = useStoreRoles((s) => s.clearCreateRoleStatus)
-  const clearUpdateRoleStatus = useStoreRoles((s) => s.clearUpdateRoleStatus)
   const permissionOptions = useStoreSelects((s) => s.permissionOptions)
   const loadingPermissionOptions = useStoreSelects((s) => s.loadingPermissionOptions)
   const permissionOptionsErrorMessage = useStoreSelects((s) => s.permissionOptionsErrorMessage)
@@ -67,8 +63,9 @@ export default function RolesFormDashboardPage() {
     : 'Completa los datos para registrar un nuevo rol en el sistema.'
   const submitLabel = isEditMode ? 'Guardar cambios' : 'Crear rol'
   const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : 'Creando rol...'
-  const submitErrorMessage = isEditMode ? updateRoleErrorMessage : createRoleErrorMessage
-  const submitSuccessMessage = isEditMode ? updateRoleSuccessMessage : createRoleSuccessMessage
+  const activeStatus = isEditMode ? updateStatus : createStatus
+  const submitErrorMessage = activeStatus.error
+  const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingPermissionOptions && selectedPermissionValues.length > 0
   const permissionSelectOptions = permissionOptions.map((permission) => ({
     value: String(permission.id),
@@ -79,18 +76,16 @@ export default function RolesFormDashboardPage() {
     void getPermissionOptions()
 
     return () => {
-      clearCreateRoleStatus()
-      clearUpdateRoleStatus()
+      clearOperationStatus('create')
+      clearOperationStatus('update')
+      clearOperationStatus('detail')
       clearPermissionOptionsStatus()
-      clearDetailError()
       clearRoleDetail()
     }
   }, [
-    clearCreateRoleStatus,
-    clearDetailError,
+    clearOperationStatus,
     clearPermissionOptionsStatus,
     clearRoleDetail,
-    clearUpdateRoleStatus,
     getPermissionOptions,
   ])
 
@@ -116,8 +111,8 @@ export default function RolesFormDashboardPage() {
   }, [editRoleId, getRoleDetail, isEditMode])
 
   const clearSubmitStatus = () => {
-    clearCreateRoleStatus()
-    clearUpdateRoleStatus()
+    clearOperationStatus('create')
+    clearOperationStatus('update')
   }
 
   const handleChangeField = (field: keyof typeof initialCreateRoleForm, value: string) => {
@@ -201,11 +196,11 @@ export default function RolesFormDashboardPage() {
         />
       )}
 
-      {isEditMode && detailErrorMessage && (
+      {isEditMode && detailError && (
         <AlertMessageComponent
-          message={detailErrorMessage}
+          message={detailError}
           tone="error"
-          onClose={clearDetailError}
+          onClose={() => clearOperationStatus('detail')}
         />
       )}
 

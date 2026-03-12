@@ -14,5 +14,5 @@ export type {
   UserPagedResponse,
   UsersPagination,
   UsersQueryParams,
-} from './users.interface'
-export type { UsersStore } from './users.store.interface'
+} from './users'
+export type { UsersStore } from './users.store'

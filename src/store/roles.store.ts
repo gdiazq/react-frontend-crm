@@ -12,10 +12,53 @@ import {
 import messages from '@/messages/messages'
 import { rolesService } from '@/services'
 import type { RolesStore } from '@/types'
+import type { OperationKey, OperationStatus } from '@/types'
 import { formatRoleLabel } from '@/utils'
+
+const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
+  list: { error: null, success: null, errorBack: null },
+  detail: { error: null, success: null, errorBack: null },
+  create: { error: null, success: null, errorBack: null },
+  update: { error: null, success: null, errorBack: null },
+  toggle: { error: null, success: null, errorBack: null },
+})
 
 export const useStoreRoles = create<RolesStore>()((set, get) => {
   let latestRoleDetailRequestId = 0
+
+  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error, success: null, errorBack: errorBack ?? null },
+      },
+    }))
+  }
+
+  const setOpSuccess = (key: OperationKey, success: string) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success, errorBack: null },
+      },
+    }))
+  }
+
+  const clearOp = (key: OperationKey) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success: null, errorBack: null },
+      },
+    }))
+  }
+
+  const resolveErrorMessage = (error: unknown, fallback: string): string => {
+    if (rolesService.isAxiosError(error)) {
+      return error.response?.data?.message || fallback
+    }
+    return fallback
+  }
 
   return {
   rolesRaw: [],
@@ -28,17 +71,12 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   createRoleSubmitting: false,
   updateRoleSubmitting: false,
   loadingToggleStatus: false,
-  errorMessage: null,
-  detailErrorMessage: null,
-  createRoleErrorMessage: null,
-  createRoleSuccessMessage: null,
-  updateRoleErrorMessage: null,
-  updateRoleSuccessMessage: null,
-  errorBack: null,
+  operationStatus: initialOperationStatus(),
 
   getRoles: async () => {
     try {
-      set({ loadingRoles: true, errorMessage: null, errorBack: null })
+      set({ loadingRoles: true })
+      clearOp('list')
       const data = await rolesService.getRoles(get().queryParams)
       const pagination = mapperRolesPagination(data)
 
@@ -49,17 +87,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
       })
     } catch (error) {
-      if (rolesService.isAxiosError(error)) {
-        set({
-          errorMessage: error.response?.data?.message || messages.roles.status.errors.loadError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          errorMessage: messages.roles.status.errors.loadError,
-          errorBack: error,
-        })
-      }
+      setOpError('list', resolveErrorMessage(error, messages.roles.status.errors.loadError), error)
     } finally {
       set({ loadingRoles: false })
     }
@@ -68,38 +96,22 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   getRoleDetail: async (roleId: string) => {
     const parsedRoleId = Number(roleId)
     if (!Number.isInteger(parsedRoleId) || parsedRoleId <= 0) {
-      set({
-        detailErrorMessage: messages.roles.status.errors.detailInvalidRoleId,
-        roleDetail: null,
-      })
+      setOpError('detail', messages.roles.status.errors.detailInvalidRoleId)
+      set({ roleDetail: null })
       return null
     }
     const requestId = ++latestRoleDetailRequestId
 
     try {
-      set({
-        loadingRoleDetail: true,
-        detailErrorMessage: null,
-        roleDetail: null,
-        errorBack: null,
-      })
+      set({ loadingRoleDetail: true, roleDetail: null })
+      clearOp('detail')
       const data = await rolesService.getRoleDetail(parsedRoleId)
       if (requestId !== latestRoleDetailRequestId) return null
       set({ roleDetail: data })
       return data
     } catch (error) {
       if (requestId !== latestRoleDetailRequestId) return null
-      if (rolesService.isAxiosError(error)) {
-        set({
-          detailErrorMessage: error.response?.data?.message || messages.roles.status.errors.detailLoadError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          detailErrorMessage: messages.roles.status.errors.detailLoadError,
-          errorBack: error,
-        })
-      }
+      setOpError('detail', resolveErrorMessage(error, messages.roles.status.errors.detailLoadError), error)
       return null
     } finally {
       if (requestId === latestRoleDetailRequestId) {
@@ -161,62 +173,36 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   createRole: async (payload, permissionIds) => {
     const roleName = payload.name.trim()
     if (roleName.length < 3) {
-      set({ createRoleErrorMessage: messages.roles.status.errors.createRoleNameRequired })
+      setOpError('create', messages.roles.status.errors.createRoleNameRequired)
       return false
     }
     if (permissionIds.length === 0) {
-      set({ createRoleErrorMessage: messages.roles.status.errors.createRolePermissionsRequired })
+      setOpError('create', messages.roles.status.errors.createRolePermissionsRequired)
       return false
     }
 
     try {
-      set({
-        createRoleSubmitting: true,
-        createRoleErrorMessage: null,
-        createRoleSuccessMessage: null,
-        errorBack: null,
-      })
+      set({ createRoleSubmitting: true })
+      clearOp('create')
 
       const data = await rolesService.createRole(payload)
       if (!Number.isInteger(data.id) || data.id <= 0) {
-        set({ createRoleErrorMessage: messages.roles.status.errors.createRolePermissionsAssignError })
+        setOpError('create', messages.roles.status.errors.createRolePermissionsAssignError)
         return false
       }
 
       try {
         await rolesService.replaceRolePermissions(data.id, permissionIds)
       } catch (error) {
-        if (rolesService.isAxiosError(error)) {
-          set({
-            createRoleErrorMessage: error.response?.data?.message || messages.roles.status.errors.createRolePermissionsAssignError,
-            errorBack: error,
-          })
-        } else {
-          set({
-            createRoleErrorMessage: messages.roles.status.errors.createRolePermissionsAssignError,
-            errorBack: error,
-          })
-        }
+        setOpError('create', resolveErrorMessage(error, messages.roles.status.errors.createRolePermissionsAssignError), error)
         return false
       }
 
       const displayName = formatRoleLabel(data.name)
-      set({
-        createRoleSuccessMessage: `${messages.roles.status.success.createRoleSuccess} (${displayName})`,
-      })
+      setOpSuccess('create', `${messages.roles.status.success.createRoleSuccess} (${displayName})`)
       return true
     } catch (error) {
-      if (rolesService.isAxiosError(error)) {
-        set({
-          createRoleErrorMessage: error.response?.data?.message || messages.roles.status.errors.createRoleError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          createRoleErrorMessage: messages.roles.status.errors.createRoleError,
-          errorBack: error,
-        })
-      }
+      setOpError('create', resolveErrorMessage(error, messages.roles.status.errors.createRoleError), error)
       return false
     } finally {
       set({ createRoleSubmitting: false })
@@ -225,59 +211,35 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
 
   updateRole: async (payload, permissionIds) => {
     if (!Number.isInteger(payload.id) || payload.id <= 0) {
-      set({ updateRoleErrorMessage: messages.roles.status.errors.updateRoleInvalidRoleId })
+      setOpError('update', messages.roles.status.errors.updateRoleInvalidRoleId)
       return false
     }
 
     const roleName = payload.name.trim()
     if (roleName.length < 3) {
-      set({ updateRoleErrorMessage: messages.roles.status.errors.createRoleNameRequired })
+      setOpError('update', messages.roles.status.errors.createRoleNameRequired)
       return false
     }
     if (permissionIds.length === 0) {
-      set({ updateRoleErrorMessage: messages.roles.status.errors.updateRolePermissionsRequired })
+      setOpError('update', messages.roles.status.errors.updateRolePermissionsRequired)
       return false
     }
 
     try {
-      set({
-        updateRoleSubmitting: true,
-        updateRoleErrorMessage: null,
-        updateRoleSuccessMessage: null,
-        errorBack: null,
-      })
+      set({ updateRoleSubmitting: true })
+      clearOp('update')
 
       await rolesService.updateRole(payload)
       try {
         await rolesService.replaceRolePermissions(payload.id, permissionIds)
       } catch (error) {
-        if (rolesService.isAxiosError(error)) {
-          set({
-            updateRoleErrorMessage: error.response?.data?.message || messages.roles.status.errors.updateRolePermissionsAssignError,
-            errorBack: error,
-          })
-        } else {
-          set({
-            updateRoleErrorMessage: messages.roles.status.errors.updateRolePermissionsAssignError,
-            errorBack: error,
-          })
-        }
+        setOpError('update', resolveErrorMessage(error, messages.roles.status.errors.updateRolePermissionsAssignError), error)
         return false
       }
-      set({ updateRoleSuccessMessage: messages.roles.status.success.updateRoleSuccess })
+      setOpSuccess('update', messages.roles.status.success.updateRoleSuccess)
       return true
     } catch (error) {
-      if (rolesService.isAxiosError(error)) {
-        set({
-          updateRoleErrorMessage: error.response?.data?.message || messages.roles.status.errors.updateRoleError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          updateRoleErrorMessage: messages.roles.status.errors.updateRoleError,
-          errorBack: error,
-        })
-      }
+      setOpError('update', resolveErrorMessage(error, messages.roles.status.errors.updateRoleError), error)
       return false
     } finally {
       set({ updateRoleSubmitting: false })
@@ -287,19 +249,20 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   toggleRoleStatus: async (roleId: string, nextStatus: boolean) => {
     const parsedRoleId = Number(roleId)
     if (!Number.isInteger(parsedRoleId) || parsedRoleId <= 0) {
-      set({ errorMessage: messages.roles.status.errors.invalidStatusRoleId })
+      setOpError('toggle', messages.roles.status.errors.invalidStatusRoleId)
       return false
     }
 
     const previousRow = get().rolesRows.find((row) => row.id === roleId)
     const previousRaw = get().rolesRaw.find((role) => role.id === parsedRoleId)
     if (!previousRow || !previousRaw) {
-      set({ errorMessage: messages.roles.status.errors.invalidStatusRoleId })
+      setOpError('toggle', messages.roles.status.errors.invalidStatusRoleId)
       return false
     }
 
     try {
-      set({ loadingToggleStatus: true, errorMessage: null, errorBack: null })
+      set({ loadingToggleStatus: true })
+      clearOp('toggle')
       set((state) => ({
         rolesRaw: state.rolesRaw.map((role) => (role.id === parsedRoleId ? { ...role, enabled: nextStatus } : role)),
         rolesRows: state.rolesRows.map((row) => {
@@ -322,42 +285,25 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
         rolesRaw: state.rolesRaw.map((role) => (role.id === parsedRoleId ? previousRaw : role)),
         rolesRows: state.rolesRows.map((row) => (row.id === roleId ? previousRow : row)),
       }))
-      if (rolesService.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.roles.status.errors.toggleStatusError })
-      } else {
-        set({ errorMessage: messages.roles.status.errors.toggleStatusError })
-      }
+      setOpError('toggle', resolveErrorMessage(error, messages.roles.status.errors.toggleStatusError), error)
       return false
     } finally {
       set({ loadingToggleStatus: false })
     }
   },
 
-  clearStatus: () => {
-    set({ errorMessage: null })
-  },
-
   clearRoleDetail: () => {
     latestRoleDetailRequestId += 1
-    set({ roleDetail: null, detailErrorMessage: null, loadingRoleDetail: false })
+    set({ roleDetail: null, loadingRoleDetail: false })
+    clearOp('detail')
   },
 
-  clearDetailError: () => {
-    set({ detailErrorMessage: null })
+  clearOperationStatus: (key) => {
+    clearOp(key)
   },
 
-  clearCreateRoleStatus: () => {
-    set({
-      createRoleErrorMessage: null,
-      createRoleSuccessMessage: null,
-    })
-  },
-
-  clearUpdateRoleStatus: () => {
-    set({
-      updateRoleErrorMessage: null,
-      updateRoleSuccessMessage: null,
-    })
+  clearAllOperationStatus: () => {
+    set({ operationStatus: initialOperationStatus() })
   },
   }
 })

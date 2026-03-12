@@ -7,7 +7,8 @@ import type {
   EmployeesSortBy,
   EmployeesSortDir,
   EmployeeTableRow,
-} from './employees.interface'
+} from './employees'
+import type { OperationKey, OperationStatus } from '../common'
 
 export interface EmployeesStore {
   employeesRows: EmployeeTableRow[]
@@ -19,17 +20,10 @@ export interface EmployeesStore {
   loadingToggleStatus: boolean
   createEmployeeSubmitting: boolean
   updateEmployeeSubmitting: boolean
-  errorMessage: string | null
-  detailErrorMessage: string | null
-  createEmployeeErrorMessage: string | null
-  createEmployeeSuccessMessage: string | null
-  updateEmployeeErrorMessage: string | null
-  updateEmployeeSuccessMessage: string | null
-  errorBack: unknown | null
+  operationStatus: Record<OperationKey, OperationStatus>
   getEmployees: () => Promise<void>
   getEmployeeDetail: (employeeId: string) => Promise<EmployeeDetail | null>
   clearEmployeeDetail: () => void
-  clearDetailError: () => void
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
@@ -45,7 +39,6 @@ export interface EmployeesStore {
   toggleEmployeeStatus: (employeeId: string, nextStatus: boolean) => Promise<boolean>
   createEmployee: (payload: EmployeeCreatePayload) => Promise<boolean>
   updateEmployee: (payload: EmployeeUpdatePayload) => Promise<boolean>
-  clearCreateEmployeeStatus: () => void
-  clearUpdateEmployeeStatus: () => void
-  clearStatus: () => void
+  clearOperationStatus: (key: OperationKey) => void
+  clearAllOperationStatus: () => void
 }

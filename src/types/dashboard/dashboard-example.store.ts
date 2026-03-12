@@ -1,4 +1,4 @@
-import type { DashboardExample } from './dashboard-example.interface'
+import type { DashboardExample } from './dashboard-example'
 
 export interface DashboardExampleStore {
   dashboard: DashboardExample

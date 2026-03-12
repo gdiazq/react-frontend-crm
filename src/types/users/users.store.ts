@@ -7,7 +7,8 @@ import type {
   UsersQueryParams,
   UsersSortBy,
   UsersSortDir,
-} from './users.interface'
+} from './users'
+import type { OperationKey, OperationStatus } from '../common'
 
 export interface UsersStore {
   // State
@@ -22,13 +23,7 @@ export interface UsersStore {
   updateUserSubmitting: boolean
   loadingToggleStatus: boolean
   // Messages
-  errorMessage: string | null
-  detailErrorMessage: string | null
-  createUserErrorMessage: string | null
-  createUserSuccessMessage: string | null
-  updateUserErrorMessage: string | null
-  updateUserSuccessMessage: string | null
-  errorBack: unknown | null
+  operationStatus: Record<OperationKey, OperationStatus>
   // Actions
   getUsers: () => Promise<void>
   getUserDetail: (userId: string) => Promise<UserDetail | null>
@@ -41,10 +36,8 @@ export interface UsersStore {
   searchUsers: () => Promise<void>
   sortUsers: (sortBy: UsersSortBy, sortDir: UsersSortDir) => Promise<void>
   clearUserDetail: () => void
-  clearCreateUserStatus: () => void
-  clearUpdateUserStatus: () => void
-  clearDetailError: () => void
-  clearStatus: () => void
+  clearOperationStatus: (key: OperationKey) => void
+  clearAllOperationStatus: () => void
   createUser: (payload: UserCreatePayload) => Promise<boolean>
   updateUser: (payload: UserUpdatePayload) => Promise<boolean>
   toggleUserStatus: (userId: string, nextStatus: boolean) => Promise<boolean>

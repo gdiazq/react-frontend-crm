@@ -39,20 +39,16 @@ export default function UsersFormDashboardPage() {
   const clearRoleOptionsStatus = useStoreSelects((s) => s.clearRoleOptionsStatus)
 
   const loadingUserDetail = useStoreUsers((s) => s.loadingUserDetail)
-  const detailErrorMessage = useStoreUsers((s) => s.detailErrorMessage)
+  const detailError = useStoreUsers((s) => s.operationStatus.detail.error)
   const createUserSubmitting = useStoreUsers((s) => s.createUserSubmitting)
   const updateUserSubmitting = useStoreUsers((s) => s.updateUserSubmitting)
-  const createUserErrorMessage = useStoreUsers((s) => s.createUserErrorMessage)
-  const createUserSuccessMessage = useStoreUsers((s) => s.createUserSuccessMessage)
-  const updateUserErrorMessage = useStoreUsers((s) => s.updateUserErrorMessage)
-  const updateUserSuccessMessage = useStoreUsers((s) => s.updateUserSuccessMessage)
+  const createStatus = useStoreUsers((s) => s.operationStatus.create)
+  const updateStatus = useStoreUsers((s) => s.operationStatus.update)
   const getUserDetail = useStoreUsers((s) => s.getUserDetail)
   const clearUserDetail = useStoreUsers((s) => s.clearUserDetail)
   const createUser = useStoreUsers((s) => s.createUser)
   const updateUser = useStoreUsers((s) => s.updateUser)
-  const clearDetailError = useStoreUsers((s) => s.clearDetailError)
-  const clearCreateUserStatus = useStoreUsers((s) => s.clearCreateUserStatus)
-  const clearUpdateUserStatus = useStoreUsers((s) => s.clearUpdateUserStatus)
+  const clearOperationStatus = useStoreUsers((s) => s.clearOperationStatus)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, usersCreateValidationRules)
 
@@ -64,8 +60,9 @@ export default function UsersFormDashboardPage() {
   const headerDescription = isEditMode ? messages.users.ui.editUserDescription : messages.users.ui.createUserDescription
   const submitLabel = isEditMode ? messages.users.ui.updateUserSubmit : messages.users.ui.createUserSubmit
   const submitLoadingLabel = isEditMode ? messages.users.ui.updateUserSubmitting : messages.users.ui.createUserSubmitting
-  const submitErrorMessage = isEditMode ? updateUserErrorMessage : createUserErrorMessage
-  const submitSuccessMessage = isEditMode ? updateUserSuccessMessage : createUserSuccessMessage
+  const activeStatus = isEditMode ? updateStatus : createStatus
+  const submitErrorMessage = activeStatus.error
+  const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingRoleOptions && form.roleId.trim().length > 0
 
   const selectOptions = roleOptions.map((role) => ({ label: role.name, value: String(role.id) }))
@@ -74,12 +71,12 @@ export default function UsersFormDashboardPage() {
     void getRoleOptions()
 
     return () => {
-      clearCreateUserStatus()
-      clearUpdateUserStatus()
+      clearOperationStatus('create')
+      clearOperationStatus('update')
       clearRoleOptionsStatus()
       clearUserDetail()
     }
-  }, [clearCreateUserStatus, clearRoleOptionsStatus, clearUpdateUserStatus, clearUserDetail, getRoleOptions])
+  }, [clearOperationStatus, clearRoleOptionsStatus, clearUserDetail, getRoleOptions])
 
   useEffect(() => {
     if (!isEditMode) return
@@ -108,8 +105,8 @@ export default function UsersFormDashboardPage() {
   }, [editUserId, getUserDetail, isEditMode])
 
   const clearSubmitStatus = () => {
-    clearCreateUserStatus()
-    clearUpdateUserStatus()
+    clearOperationStatus('create')
+    clearOperationStatus('update')
   }
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
@@ -188,11 +185,11 @@ export default function UsersFormDashboardPage() {
         />
       )}
 
-      {isEditMode && detailErrorMessage && (
+      {isEditMode && detailError && (
         <AlertMessageComponent
-          message={detailErrorMessage}
+          message={detailError}
           tone="error"
-          onClose={clearDetailError}
+          onClose={() => clearOperationStatus('detail')}
         />
       )}
 

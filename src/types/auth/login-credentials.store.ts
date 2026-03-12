@@ -1,4 +1,4 @@
-import type { AuthLoginCredentialsForm } from './login-credentials.interface'
+import type { AuthLoginCredentialsForm } from './login-credentials'
 
 export interface LoginCredentialsStore {
   email: string

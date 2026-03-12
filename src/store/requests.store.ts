@@ -11,9 +11,43 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import type { RequestsSortBy, RequestsSortDir, RequestsStore } from '@/types'
+import type { OperationKey, OperationStatus } from '@/types'
+
+const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
+  list: { error: null, success: null, errorBack: null },
+  detail: { error: null, success: null, errorBack: null },
+  create: { error: null, success: null, errorBack: null },
+  update: { error: null, success: null, errorBack: null },
+  toggle: { error: null, success: null, errorBack: null },
+})
 
 export const useStoreRequests = create<RequestsStore>()((set, get) => {
   let latestRequestDetailRequestId = 0
+
+  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error, success: null, errorBack: errorBack ?? null },
+      },
+    }))
+  }
+
+  const clearOp = (key: OperationKey) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success: null, errorBack: null },
+      },
+    }))
+  }
+
+  const resolveErrorMessage = (error: unknown, fallback: string): string => {
+    if (requestsService.isAxiosError(error)) {
+      return error.response?.data?.message || fallback
+    }
+    return fallback
+  }
 
   return {
   requestsRows: [...initialRequestsRows],
@@ -24,13 +58,12 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
   loadingRequestDetail: false,
   loadingApproveRequest: false,
   loadingRejectRequest: false,
-  errorMessage: null,
-  detailErrorMessage: null,
-  errorBack: null,
+  operationStatus: initialOperationStatus(),
 
   getRequests: async () => {
     try {
-      set({ loadingRequests: true, errorMessage: null, errorBack: null })
+      set({ loadingRequests: true })
+      clearOp('list')
       const data = await requestsService.getRequests(get().queryParams)
       const pagination = mapperRequestsPagination(data)
       set({
@@ -39,12 +72,7 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
       })
     } catch (error) {
-      set({ errorBack: error })
-      if (requestsService.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.requests.status.errors.loadError })
-      } else {
-        set({ errorMessage: messages.requests.status.errors.loadError })
-      }
+      setOpError('list', resolveErrorMessage(error, messages.requests.status.errors.loadError), error)
     } finally {
       set({ loadingRequests: false })
     }
@@ -53,38 +81,22 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
   getRequestDetail: async (requestId: string) => {
     const parsedRequestId = Number(requestId)
     if (!Number.isInteger(parsedRequestId) || parsedRequestId <= 0) {
-      set({
-        detailErrorMessage: messages.requests.status.errors.invalidRequestId,
-        requestDetail: null,
-      })
+      setOpError('detail', messages.requests.status.errors.invalidRequestId)
+      set({ requestDetail: null })
       return null
     }
     const currentRequestId = ++latestRequestDetailRequestId
 
     try {
-      set({
-        loadingRequestDetail: true,
-        detailErrorMessage: null,
-        requestDetail: null,
-        errorBack: null,
-      })
+      set({ loadingRequestDetail: true, requestDetail: null })
+      clearOp('detail')
       const data = await requestsService.getRequestDetail(parsedRequestId)
       if (currentRequestId !== latestRequestDetailRequestId) return null
       set({ requestDetail: data })
       return data
     } catch (error) {
       if (currentRequestId !== latestRequestDetailRequestId) return null
-      if (requestsService.isAxiosError(error)) {
-        set({
-          detailErrorMessage: error.response?.data?.message || messages.requests.status.errors.loadError,
-          errorBack: error,
-        })
-      } else {
-        set({
-          detailErrorMessage: messages.requests.status.errors.loadError,
-          errorBack: error,
-        })
-      }
+      setOpError('detail', resolveErrorMessage(error, messages.requests.status.errors.loadError), error)
       return null
     } finally {
       if (currentRequestId === latestRequestDetailRequestId) {
@@ -95,11 +107,8 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
 
   clearRequestDetail: () => {
     latestRequestDetailRequestId += 1
-    set({ requestDetail: null, detailErrorMessage: null, loadingRequestDetail: false })
-  },
-
-  clearDetailError: () => {
-    set({ detailErrorMessage: null })
+    set({ requestDetail: null, loadingRequestDetail: false })
+    clearOp('detail')
   },
 
   goToPage: async (page: number) => {
@@ -179,21 +188,17 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
   approveRequest: async (requestId: string) => {
     const parsedRequestId = Number(requestId)
     if (!Number.isInteger(parsedRequestId) || parsedRequestId <= 0) {
-      set({ errorMessage: messages.requests.status.errors.invalidRequestId })
+      setOpError('list', messages.requests.status.errors.invalidRequestId)
       return false
     }
 
     try {
-      set({ loadingApproveRequest: true, errorMessage: null, errorBack: null })
+      set({ loadingApproveRequest: true })
+      clearOp('list')
       await requestsService.approveRequest(parsedRequestId)
       return true
     } catch (error) {
-      set({ errorBack: error })
-      if (requestsService.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.requests.status.errors.approveError })
-      } else {
-        set({ errorMessage: messages.requests.status.errors.approveError })
-      }
+      setOpError('list', resolveErrorMessage(error, messages.requests.status.errors.approveError), error)
       return false
     } finally {
       set({ loadingApproveRequest: false })
@@ -203,35 +208,35 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
   rejectRequest: async (requestId: string, rejectionDetail: string) => {
     const parsedRequestId = Number(requestId)
     if (!Number.isInteger(parsedRequestId) || parsedRequestId <= 0) {
-      set({ errorMessage: messages.requests.status.errors.invalidRequestId })
+      setOpError('list', messages.requests.status.errors.invalidRequestId)
       return false
     }
 
     const normalizedRejectionDetail = rejectionDetail.trim()
     if (normalizedRejectionDetail.length === 0) {
-      set({ errorMessage: messages.requests.status.errors.rejectDetailRequired })
+      setOpError('list', messages.requests.status.errors.rejectDetailRequired)
       return false
     }
 
     try {
-      set({ loadingRejectRequest: true, errorMessage: null, errorBack: null })
+      set({ loadingRejectRequest: true })
+      clearOp('list')
       await requestsService.rejectRequest(parsedRequestId, normalizedRejectionDetail)
       return true
     } catch (error) {
-      set({ errorBack: error })
-      if (requestsService.isAxiosError(error)) {
-        set({ errorMessage: error.response?.data?.message || messages.requests.status.errors.rejectError })
-      } else {
-        set({ errorMessage: messages.requests.status.errors.rejectError })
-      }
+      setOpError('list', resolveErrorMessage(error, messages.requests.status.errors.rejectError), error)
       return false
     } finally {
       set({ loadingRejectRequest: false })
     }
   },
 
-  clearStatus: () => {
-    set({ errorMessage: null })
+  clearOperationStatus: (key) => {
+    clearOp(key)
+  },
+
+  clearAllOperationStatus: () => {
+    set({ operationStatus: initialOperationStatus() })
   },
   }
 })

@@ -1,4 +1,4 @@
-import type { ContractSelectOption } from './contract-selects.interface'
+import type { ContractSelectOption } from './contract-selects'
 
 export interface ContractSelectsStore {
   employeeWithoutContractOptions: ContractSelectOption[]

@@ -23,3 +23,11 @@ export interface CsvImportResponse {
   failed: number
   errors: CsvImportError[]
 }
+
+export type OperationKey = 'list' | 'detail' | 'create' | 'update' | 'toggle'
+
+export interface OperationStatus {
+  error: string | null
+  success: string | null
+  errorBack: unknown | null
+}

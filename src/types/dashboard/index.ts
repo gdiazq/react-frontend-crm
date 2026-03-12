@@ -11,5 +11,5 @@ export type {
   DashboardExampleClient,
   DashboardExampleActivity,
   DashboardExample,
-} from './dashboard-example.interface'
-export type { DashboardExampleStore } from './dashboard-example.store.interface'
+} from './dashboard-example'
+export type { DashboardExampleStore } from './dashboard-example.store'

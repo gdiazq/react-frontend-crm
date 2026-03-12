@@ -5,7 +5,8 @@ import type {
   RequestsQueryParams,
   RequestsSortBy,
   RequestsSortDir,
-} from './requests.interface'
+} from './requests'
+import type { OperationKey, OperationStatus } from '../common'
 
 export interface RequestsStore {
   requestsRows: RequestTableRow[]
@@ -16,13 +17,10 @@ export interface RequestsStore {
   loadingRequestDetail: boolean
   loadingApproveRequest: boolean
   loadingRejectRequest: boolean
-  errorMessage: string | null
-  detailErrorMessage: string | null
-  errorBack: unknown | null
+  operationStatus: Record<OperationKey, OperationStatus>
   getRequests: () => Promise<void>
   getRequestDetail: (requestId: string) => Promise<HrRequestDetailRaw | null>
   clearRequestDetail: () => void
-  clearDetailError: () => void
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
@@ -39,5 +37,6 @@ export interface RequestsStore {
   sortRequests: (sortBy: RequestsSortBy, sortDir: RequestsSortDir) => Promise<void>
   approveRequest: (requestId: string) => Promise<boolean>
   rejectRequest: (requestId: string, rejectionDetail: string) => Promise<boolean>
-  clearStatus: () => void
+  clearOperationStatus: (key: OperationKey) => void
+  clearAllOperationStatus: () => void
 }

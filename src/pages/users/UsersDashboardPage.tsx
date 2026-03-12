@@ -40,8 +40,10 @@ export default function UsersDashboardPage() {
   const loadingUsers = useStoreUsers((s) => s.loadingUsers)
   const loadingUserDetail = useStoreUsers((s) => s.loadingUserDetail)
   const loadingToggleStatus = useStoreUsers((s) => s.loadingToggleStatus)
-  const errorMessage = useStoreUsers((s) => s.errorMessage)
-  const detailErrorMessage = useStoreUsers((s) => s.detailErrorMessage)
+  const listError = useStoreUsers((s) => s.operationStatus.list.error)
+  const detailError = useStoreUsers((s) => s.operationStatus.detail.error)
+  const toggleError = useStoreUsers((s) => s.operationStatus.toggle.error)
+  const clearOperationStatus = useStoreUsers((s) => s.clearOperationStatus)
   const getUsers = useStoreUsers((s) => s.getUsers)
   const getUserDetail = useStoreUsers((s) => s.getUserDetail)
   const setSearch = useStoreUsers((s) => s.setSearch)
@@ -52,7 +54,6 @@ export default function UsersDashboardPage() {
   const clearUserDetail = useStoreUsers((s) => s.clearUserDetail)
   const toggleUserStatus = useStoreUsers((s) => s.toggleUserStatus)
   const goToPage = useStoreUsers((s) => s.goToPage)
-  const clearStatus = useStoreUsers((s) => s.clearStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
   const canToggleUserStatus = hasPermission('USER', 'canUpdate')
 
@@ -309,11 +310,14 @@ export default function UsersDashboardPage() {
         active={pagination.active}
       />
 
-      {errorMessage && (
+      {(listError || toggleError) && (
         <AlertMessageComponent
-          message={errorMessage}
+          message={(listError || toggleError)!}
           tone="error"
-          onClose={clearStatus}
+          onClose={() => {
+            if (listError) clearOperationStatus('list')
+            if (toggleError) clearOperationStatus('toggle')
+          }}
         />
       )}
 
@@ -477,7 +481,7 @@ export default function UsersDashboardPage() {
         <UserDetailComponent
           detail={userDetailView}
           loading={loadingUserDetail}
-          errorMessage={detailErrorMessage}
+          errorMessage={detailError}
           onRetry={handleRetryDetail}
         />
       </DetailSidebarComponent>

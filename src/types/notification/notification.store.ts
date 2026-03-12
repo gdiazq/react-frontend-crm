@@ -2,7 +2,7 @@ import type {
   NotificationConnectionStatus,
   NotificationCountResponse,
   NotificationItem,
-} from './notification.interface'
+} from './notification'
 
 export interface NotificationStore {
   counter: NotificationCountResponse

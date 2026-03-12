@@ -41,9 +41,11 @@ export default function EmployeesDashboardPage() {
   const loadingEmployees = useStoreEmployees((s) => s.loadingEmployees)
   const employeeDetail = useStoreEmployees((s) => s.employeeDetail)
   const loadingEmployeeDetail = useStoreEmployees((s) => s.loadingEmployeeDetail)
-  const detailErrorMessage = useStoreEmployees((s) => s.detailErrorMessage)
+  const detailError = useStoreEmployees((s) => s.operationStatus.detail.error)
   const loadingToggleStatus = useStoreEmployees((s) => s.loadingToggleStatus)
-  const errorMessage = useStoreEmployees((s) => s.errorMessage)
+  const listError = useStoreEmployees((s) => s.operationStatus.list.error)
+  const toggleError = useStoreEmployees((s) => s.operationStatus.toggle.error)
+  const clearOperationStatus = useStoreEmployees((s) => s.clearOperationStatus)
   const getEmployees = useStoreEmployees((s) => s.getEmployees)
   const goToPage = useStoreEmployees((s) => s.goToPage)
   const setSearch = useStoreEmployees((s) => s.setSearch)
@@ -58,7 +60,6 @@ export default function EmployeesDashboardPage() {
   const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
   const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
   const toggleEmployeeStatus = useStoreEmployees((s) => s.toggleEmployeeStatus)
-  const clearStatus = useStoreEmployees((s) => s.clearStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
   const canToggleEmployeeStatus = hasPermission('EMPLOYEE', 'canUpdate')
 
@@ -320,11 +321,14 @@ export default function EmployeesDashboardPage() {
         active={pagination.active}
       />
 
-      {errorMessage && (
+      {(listError || toggleError) && (
         <AlertMessageComponent
-          message={errorMessage}
+          message={(listError || toggleError)!}
           tone="error"
-          onClose={clearStatus}
+          onClose={() => {
+            if (listError) clearOperationStatus('list')
+            if (toggleError) clearOperationStatus('toggle')
+          }}
         />
       )}
 
@@ -503,7 +507,7 @@ export default function EmployeesDashboardPage() {
           key={selectedDetailRowId ?? 'empty-employee-detail'}
           detail={employeeDetailView}
           loading={loadingEmployeeDetail}
-          errorMessage={detailErrorMessage}
+          errorMessage={detailError}
           onRetry={handleRetryDetail}
         />
       </DetailSidebarComponent>
