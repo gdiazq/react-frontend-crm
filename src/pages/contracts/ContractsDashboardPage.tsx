@@ -13,21 +13,21 @@ import {
 } from '@/components'
 import { AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
+import messages from '@/messages/messages'
 import { useStoreAuth, useStoreContracts } from '@/store'
 import type { ContractTableRow, TableRow, TableSortState } from '@/types'
 import { createContractsActions, createContractsTableCustomRenderer } from '@/utils'
 import type { DropdownAction } from '@/utils'
-import messages from '@/messages/messages'
 
 const CONTRACT_ACTIVE_COLUMN_INDEX = contractsTableColumnIndex.active
 const CONTRACT_TYPE_COLUMN_INDEX = contractsTableColumnIndex.contractType
 const CONTRACT_STATUS_COLUMN_INDEX = contractsTableColumnIndex.contractStatus
 const CONTRACT_NAME_COLUMN_INDEX = contractsTableColumnIndex.name
 const ACTIONS_COLUMN_INDEX = contractsTableColumns.length - 1
-
 const CONTRACTS_SORTABLE_COLUMNS = Object.keys(contractsTableSortByColumn).map((index) => Number(index))
 
 export default function ContractsDashboardPage() {
+  // --- Store ---
   const navigate = useNavigate()
   const contractsRows = useStoreContracts((s) => s.contractsRows)
   const pagination = useStoreContracts((s) => s.pagination)
@@ -42,15 +42,18 @@ export default function ContractsDashboardPage() {
   const clearStatus = useStoreContracts((s) => s.clearStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
   const canToggleContractStatus = hasPermission('CONTRACT', 'canUpdate')
+
+  const { actionViewDetail, actionUpdateContract, actionToggleStatus } = createContractsActions()
+
+  // --- State ---
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
-  const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<ContractTableRow | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
-  const { actionViewDetail, actionUpdateContract, actionToggleStatus } = createContractsActions()
 
+  // --- Derived ---
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
@@ -61,32 +64,28 @@ export default function ContractsDashboardPage() {
     direction: queryParams.sortDir,
   }
 
+  // --- Effects ---
   useEffect(() => {
     void getContracts()
   }, [getContracts])
 
-  useEffect(() => {
-    const closeActions = () => setOpenActionsRowId(null)
-    window.addEventListener('click', closeActions)
-    return () => window.removeEventListener('click', closeActions)
-  }, [])
-
+  // --- Handlers: Detail ---
   const handleViewDetail = (row: ContractTableRow) => {
     setActionsMessage(`${row.values[CONTRACT_NAME_COLUMN_INDEX]}: ${messages.contracts.ui.viewDetailComingSoon}`)
-    setOpenActionsRowId(null)
   }
 
+  // --- Handlers: Navigate ---
   const handleUpdateContract = (row: ContractTableRow) => {
     navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${row.id}`)
-    setOpenActionsRowId(null)
   }
 
+  // --- Handlers: Toggle status ---
   const handleToggleStatus = (row: ContractTableRow) => {
     setPendingToggleRow(row)
     setConfirmOpen(true)
-    setOpenActionsRowId(null)
   }
 
+  // --- Row actions & table helpers ---
   const resolveRowActions = (row: ContractTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [
       actionViewDetail(() => handleViewDetail(row)),
@@ -100,6 +99,38 @@ export default function ContractsDashboardPage() {
     return actions
   }
 
+  const getContractIsActive = (rowId: string) => Boolean(contractsRows.find((row) => row.id === rowId)?.active)
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const contractRow = contractsRows.find((row) => row.id === tableRow.id)
+    if (!contractRow) return []
+    return resolveRowActions(contractRow)
+  }
+
+  const renderCustomCell = createContractsTableCustomRenderer({
+    contractTypeColumnIndex: CONTRACT_TYPE_COLUMN_INDEX,
+    contractStatusColumnIndex: CONTRACT_STATUS_COLUMN_INDEX,
+    contractActiveColumnIndex: CONTRACT_ACTIVE_COLUMN_INDEX,
+    getIsActive: getContractIsActive,
+  })
+
+  // --- Handlers: Sort ---
+  const handleSortChange = async (columnIndex: number) => {
+    const sortBy = contractsTableSortByColumn[columnIndex]
+    if (!sortBy) return
+
+    const currentSortBy = queryParams.sortBy
+    const currentSortDir = queryParams.sortDir
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+
+    await sortContracts(sortBy, nextSortDir)
+  }
+
+  // --- Handlers: Search ---
+  const handleSearchSubmit = async () => {
+    await getContracts()
+  }
+
+  // --- Handlers: Confirm ---
   const handleCloseConfirm = () => {
     if (loadingToggleStatus) return
     setConfirmOpen(false)
@@ -125,21 +156,7 @@ export default function ContractsDashboardPage() {
     }
   }
 
-  const handleSearchSubmit = async () => {
-    await getContracts()
-  }
-
-  const handleSortChange = async (columnIndex: number) => {
-    const sortBy = contractsTableSortByColumn[columnIndex]
-    if (!sortBy) return
-
-    const currentSortBy = queryParams.sortBy
-    const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
-
-    await sortContracts(sortBy, nextSortDir)
-  }
-
+  // --- Handlers: Download & Upload ---
   const handleDownloadReport = () => {
     if (downloadingReport) return
     setDownloadingReport(true)
@@ -150,24 +167,6 @@ export default function ContractsDashboardPage() {
   const handleBulkUpload = () => {
     setActionsMessage('Carga masiva de contratos disponible proximamente.')
   }
-
-  const handleToggleActionsRow = (rowId: string) => {
-    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
-  }
-
-  const getContractIsActive = (rowId: string) => Boolean(contractsRows.find((row) => row.id === rowId)?.active)
-  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const contractRow = contractsRows.find((row) => row.id === tableRow.id)
-    if (!contractRow) return []
-    return resolveRowActions(contractRow)
-  }
-
-  const renderCustomCell = createContractsTableCustomRenderer({
-    contractTypeColumnIndex: CONTRACT_TYPE_COLUMN_INDEX,
-    contractStatusColumnIndex: CONTRACT_STATUS_COLUMN_INDEX,
-    contractActiveColumnIndex: CONTRACT_ACTIVE_COLUMN_INDEX,
-    getIsActive: getContractIsActive,
-  })
 
   return (
     <section className="min-w-0 space-y-4">
@@ -246,9 +245,7 @@ export default function ContractsDashboardPage() {
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
           resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
         }}
         sortableColumnIndexes={CONTRACTS_SORTABLE_COLUMNS}
         sortState={sortState}

@@ -15,22 +15,23 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_ROLES, AUTH_ROUTE_ROLES_CREATE, AUTH_ROUTE_ROLES_EDIT } from '@/constant'
-import { createRolesActions, createRolesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
-import type { DropdownAction } from '@/utils'
-import type { RoleTableRow } from '@/types'
-import type { TableRow, TableSortState } from '@/components'
 import { rolesTableColumns, rolesTableColumnIndex, rolesTableSortByColumn } from '@/factories'
 import { mapperRoleDetailView } from '@/mappers'
+import messages from '@/messages/messages'
 import { rolesService } from '@/services'
 import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
-import messages from '@/messages/messages'
+import type { RoleTableRow } from '@/types'
+import type { TableRow, TableSortState } from '@/components'
+import { createRolesActions, createRolesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import type { DropdownAction } from '@/utils'
 
-const ROLES_SORTABLE_COLUMNS = Object.keys(rolesTableSortByColumn).map((index) => Number(index))
 const ROLE_NAME_COLUMN_INDEX = rolesTableColumnIndex.name
 const STATUS_COLUMN_INDEX = rolesTableColumnIndex.status
 const ACTIONS_COLUMN_INDEX = rolesTableColumns.length - 1
+const ROLES_SORTABLE_COLUMNS = Object.keys(rolesTableSortByColumn).map((index) => Number(index))
 
 export default function RolesDashboardPage() {
+  // --- Store ---
   const navigate = useNavigate()
   const rolesRows = useStoreRoles((s) => s.rolesRows)
   const roleDetail = useStoreRoles((s) => s.roleDetail)
@@ -52,79 +53,78 @@ export default function RolesDashboardPage() {
   const mutationToggleRoleStatus = useStoreRoles((s) => s.mutationToggleRoleStatus)
   const clearStatus = useStoreRoles((s) => s.clearStatus)
   const clearRoleDetail = useStoreRoles((s) => s.clearRoleDetail)
+  const hasPermission = useStoreAuth((s) => s.hasPermission)
+  const canToggleRoleStatus = hasPermission('ROLE', 'canUpdate')
+
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
   const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
   const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
   const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleRoleStatus = hasPermission('ROLE', 'canUpdate')
+
   const { actionViewDetail, actionUpdateRole, actionToggleStatus } = createRolesActions()
 
-  const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
-  const [actionsMessage, setActionsMessage] = useState('')
+  // --- State ---
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({ statusId: queryParams.status }))
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<RoleTableRow | null>(null)
+  const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [uploadingBulk, setUploadingBulk] = useState(false)
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
 
+  // --- Derived ---
+  const roleDetailView = mapperRoleDetailView(roleDetail)
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
-  const activeSortColumn = ROLES_SORTABLE_COLUMNS.find((index) => rolesTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const roleDetailView = mapperRoleDetailView(roleDetail)
   const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const activeSortColumn = ROLES_SORTABLE_COLUMNS.find((index) => rolesTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
   }
 
+  // --- Effects ---
   useEffect(() => {
     void getRoles()
     void getStatusOptions()
   }, [getRoles, getStatusOptions])
 
-  useEffect(() => {
-    const closeActions = () => setOpenActionsRowId(null)
-    window.addEventListener('click', closeActions)
-    return () => window.removeEventListener('click', closeActions)
-  }, [])
-
-  const handleSortChange = async (columnIndex: number) => {
-    const sortBy = rolesTableSortByColumn[columnIndex]
-    if (!sortBy) return
-
-    const currentSortBy = queryParams.sortBy
-    const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
-
-    await sortRoles(sortBy, nextSortDir)
-  }
-
+  // --- Handlers: Detail ---
   const handleViewDetail = (row: RoleTableRow) => {
     setSelectedDetailRowId(row.id)
     setDetailOpen(true)
-    setOpenActionsRowId(null)
     void getRoleDetail(row.id)
   }
 
-  const handleUpdateRole = (row: RoleTableRow) => {
-    navigate(`${AUTH_ROUTE_ROLES_EDIT}=${row.id}`)
-    setOpenActionsRowId(null)
+  const handleCloseDetail = () => {
+    setDetailOpen(false)
+    setSelectedDetailRowId(null)
+    clearRoleDetail()
   }
 
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getRoleDetail(selectedDetailRowId)
+  }
+
+  // --- Handlers: Navigate ---
+  const handleUpdateRole = (row: RoleTableRow) => {
+    navigate(`${AUTH_ROUTE_ROLES_EDIT}=${row.id}`)
+  }
+
+  // --- Handlers: Toggle status ---
   const handleToggleStatus = (row: RoleTableRow) => {
     setPendingToggleRow(row)
     setConfirmOpen(true)
-    setOpenActionsRowId(null)
   }
 
+  // --- Row actions & table helpers ---
   const resolveRowActions = (row: RoleTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [
       actionViewDetail(() => handleViewDetail(row)),
@@ -136,10 +136,6 @@ export default function RolesDashboardPage() {
     }
 
     return actions
-  }
-
-  const handleToggleActionsRow = (rowId: string) => {
-    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
   }
 
   const findRoleRowById = (rowId: string) => rolesRows.find((row) => row.id === rowId) ?? null
@@ -162,17 +158,19 @@ export default function RolesDashboardPage() {
     getStatusEnabled: getRoleStatusEnabled,
   })
 
-  const handleCloseDetail = () => {
-    setDetailOpen(false)
-    setSelectedDetailRowId(null)
-    clearRoleDetail()
+  // --- Handlers: Sort ---
+  const handleSortChange = async (columnIndex: number) => {
+    const sortBy = rolesTableSortByColumn[columnIndex]
+    if (!sortBy) return
+
+    const currentSortBy = queryParams.sortBy
+    const currentSortDir = queryParams.sortDir
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+
+    await sortRoles(sortBy, nextSortDir)
   }
 
-  const handleRetryDetail = () => {
-    if (!selectedDetailRowId) return
-    void getRoleDetail(selectedDetailRowId)
-  }
-
+  // --- Handlers: Filters ---
   const handleChangeFilter = (value: string) => {
     setFilters({ statusId: value })
   }
@@ -189,6 +187,13 @@ export default function RolesDashboardPage() {
     clearStatusFilter()
     await searchRoles()
     setFiltersOpen(false)
+  }
+
+  // --- Handlers: Confirm ---
+  const handleCloseConfirm = () => {
+    if (loadingToggleStatus) return
+    setConfirmOpen(false)
+    setPendingToggleRow(null)
   }
 
   const handleConfirmToggleStatus = async () => {
@@ -211,12 +216,7 @@ export default function RolesDashboardPage() {
     }
   }
 
-  const handleCloseConfirm = () => {
-    if (loadingToggleStatus) return
-    setConfirmOpen(false)
-    setPendingToggleRow(null)
-  }
-
+  // --- Handlers: Download & Upload ---
   const handleDownloadReport = async () => {
     if (downloadingReport) return
 
@@ -262,6 +262,7 @@ export default function RolesDashboardPage() {
     }
   }
 
+  // --- Computed messages ---
   const confirmMessage = pendingToggleRow
     ? `¿Seguro que deseas ${pendingToggleRow.status === true ? 'deshabilitar' : 'habilitar'} al rol ${pendingToggleRow.values[0]}?`
     : ''
@@ -362,9 +363,7 @@ export default function RolesDashboardPage() {
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
           resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
           resolveOpenDirection: (activeRowIndex, rowsLength) => (
             activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
           ),
@@ -392,6 +391,7 @@ export default function RolesDashboardPage() {
           onPageChange={(page) => goToPage(page - 1)}
         />
       </div>
+
       <RightSidebarComponent
         open={filtersOpen}
         title="Filtros"
@@ -423,6 +423,7 @@ export default function RolesDashboardPage() {
           </div>
         </div>
       </RightSidebarComponent>
+
       <DetailSidebarComponent
         open={detailOpen}
         title={detailTitle}
@@ -435,6 +436,7 @@ export default function RolesDashboardPage() {
           onRetry={handleRetryDetail}
         />
       </DetailSidebarComponent>
+
       <SaveConfirmComponent
         open={confirmOpen}
         title="Confirmar cambio de estado"

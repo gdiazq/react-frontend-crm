@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AUTH_ROUTE_EMPLOYEES, AUTH_ROUTE_EMPLOYEES_CREATE, AUTH_ROUTE_EMPLOYEES_EDIT } from '@/constant'
 import {
   AlertMessageComponent,
   ButtonComponent,
@@ -15,13 +14,14 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import type { TableRow, TableSortState } from '@/components'
+import { AUTH_ROUTE_EMPLOYEES, AUTH_ROUTE_EMPLOYEES_CREATE, AUTH_ROUTE_EMPLOYEES_EDIT } from '@/constant'
 import { employeesTableColumns, employeesTableColumnIndex, employeesTableSortByColumn } from '@/factories'
 import { mapperEmployeeDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { employeesService } from '@/services'
 import { useStoreAuth, useStoreEmployeeSelects, useStoreEmployees, useStoreSelects } from '@/store'
 import type { EmployeeTableRow } from '@/types'
+import type { TableRow, TableSortState } from '@/components'
 import { createEmployeesActions, createEmployeesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -30,10 +30,10 @@ const EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX = employeesTableColumnIndex.approval
 const EMPLOYEE_CONTRACT_COLUMN_INDEX = employeesTableColumnIndex.contract
 const EMPLOYEE_NAME_COLUMN_INDEX = employeesTableColumnIndex.name
 const ACTIONS_COLUMN_INDEX = employeesTableColumns.length - 1
-
 const EMPLOYEES_SORTABLE_COLUMNS = Object.keys(employeesTableSortByColumn).map((index) => Number(index))
 
 export default function EmployeesDashboardPage() {
+  // --- Store ---
   const navigate = useNavigate()
   const employeesRows = useStoreEmployees((s) => s.employeesRows)
   const pagination = useStoreEmployees((s) => s.pagination)
@@ -73,6 +73,9 @@ export default function EmployeesDashboardPage() {
   const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
   const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
 
+  const { actionViewDetail, actionUpdateEmployee, actionToggleStatus } = createEmployeesActions()
+
+  // --- State ---
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
     activeId: queryParams.active,
@@ -80,20 +83,18 @@ export default function EmployeesDashboardPage() {
     createdFrom: queryParams.createdFrom,
     createdTo: queryParams.createdTo,
   }))
-  const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<EmployeeTableRow | null>(null)
+  const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [uploadingBulk, setUploadingBulk] = useState(false)
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
-  const [actionsMessage, setActionsMessage] = useState('')
-  const { actionViewDetail, actionUpdateEmployee, actionToggleStatus } = createEmployeesActions()
 
+  // --- Derived ---
   const employeeDetailView = employeeDetail ? mapperEmployeeDetailView(employeeDetail) : null
-
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
@@ -106,23 +107,18 @@ export default function EmployeesDashboardPage() {
     direction: queryParams.sortDir,
   }
 
+  // --- Effects ---
   useEffect(() => {
     void getEmployees()
     void getStatusOptions()
     void getApprovalEmployeeStatusOptions()
   }, [getEmployees, getStatusOptions, getApprovalEmployeeStatusOptions])
 
-  useEffect(() => {
-    const closeActions = () => setOpenActionsRowId(null)
-    window.addEventListener('click', closeActions)
-    return () => window.removeEventListener('click', closeActions)
-  }, [])
-
+  // --- Handlers: Detail ---
   const handleViewDetail = (row: EmployeeTableRow) => {
     setSelectedDetailRowId(row.id)
     setSelectedDetailName(String(row.values[EMPLOYEE_NAME_COLUMN_INDEX] ?? 'Trabajador'))
     setDetailOpen(true)
-    setOpenActionsRowId(null)
     void getEmployeeDetail(row.id)
   }
 
@@ -138,17 +134,18 @@ export default function EmployeesDashboardPage() {
     void getEmployeeDetail(selectedDetailRowId)
   }
 
+  // --- Handlers: Navigate ---
   const handleUpdateEmployee = (row: EmployeeTableRow) => {
     navigate(`${AUTH_ROUTE_EMPLOYEES_EDIT}=${row.id}`)
-    setOpenActionsRowId(null)
   }
 
+  // --- Handlers: Toggle status ---
   const handleToggleStatus = (row: EmployeeTableRow) => {
     setPendingToggleRow(row)
     setConfirmOpen(true)
-    setOpenActionsRowId(null)
   }
 
+  // --- Row actions & table helpers ---
   const resolveRowActions = (row: EmployeeTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [
       actionViewDetail(() => handleViewDetail(row)),
@@ -160,10 +157,6 @@ export default function EmployeesDashboardPage() {
     }
 
     return actions
-  }
-
-  const handleToggleActionsRow = (rowId: string) => {
-    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
   }
 
   const findEmployeeRowById = (rowId: string) => employeesRows.find((row) => row.id === rowId) ?? null
@@ -190,6 +183,7 @@ export default function EmployeesDashboardPage() {
     getIsActive: getEmployeeIsActive,
   })
 
+  // --- Handlers: Sort ---
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = employeesTableSortByColumn[columnIndex]
     if (!sortBy) return
@@ -201,6 +195,7 @@ export default function EmployeesDashboardPage() {
     await sortEmployees(sortBy, nextSortDir)
   }
 
+  // --- Handlers: Filters ---
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
@@ -236,6 +231,13 @@ export default function EmployeesDashboardPage() {
     setFiltersOpen(false)
   }
 
+  // --- Handlers: Confirm ---
+  const handleCloseConfirm = () => {
+    if (loadingToggleStatus) return
+    setConfirmOpen(false)
+    setPendingToggleRow(null)
+  }
+
   const handleConfirmToggleStatus = async () => {
     if (!pendingToggleRow || loadingToggleStatus) return
 
@@ -254,12 +256,7 @@ export default function EmployeesDashboardPage() {
     }
   }
 
-  const handleCloseConfirm = () => {
-    if (loadingToggleStatus) return
-    setConfirmOpen(false)
-    setPendingToggleRow(null)
-  }
-
+  // --- Handlers: Download & Upload ---
   const handleDownloadReport = async () => {
     if (downloadingReport) return
 
@@ -305,6 +302,7 @@ export default function EmployeesDashboardPage() {
     }
   }
 
+  // --- Computed messages ---
   const confirmMessage = pendingToggleRow
     ? `¿Seguro que deseas ${pendingToggleRow.active === true ? 'deshabilitar' : 'habilitar'} al trabajador ${pendingToggleRow.values[EMPLOYEE_NAME_COLUMN_INDEX]}?`
     : ''
@@ -411,9 +409,7 @@ export default function EmployeesDashboardPage() {
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
           resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
         }}
         sortableColumnIndexes={EMPLOYEES_SORTABLE_COLUMNS}
         sortState={sortState}

@@ -18,19 +18,18 @@ import { mapperRequestDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { requestsService } from '@/services'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
-import { createRequestsActions, createRequestsTableCustomRenderer, downloadBlobFile } from '@/utils'
 import type { RequestTableRow, TableRow, TableSortState } from '@/types'
+import { createRequestsActions, createRequestsTableCustomRenderer, downloadBlobFile } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const REQUEST_STATUS_COLUMN_INDEX = requestsTableColumnIndex.status
 const REQUEST_NAME_COLUMN_INDEX = requestsTableColumnIndex.name
 const ACTIONS_COLUMN_INDEX = requestsTableColumns.length - 1
-
 const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
-
 const REQUESTS_SORTABLE_COLUMNS = Object.keys(requestsTableSortByColumn).map((index) => Number(index))
 
 export default function RequestsDashboardPage() {
+  // --- Store ---
   const requestsRows = useStoreRequests((s) => s.requestsRows)
   const requestDetail = useStoreRequests((s) => s.requestDetail)
   const pagination = useStoreRequests((s) => s.pagination)
@@ -59,6 +58,7 @@ export default function RequestsDashboardPage() {
   const mutationApproveRequest = useStoreRequests((s) => s.mutationApproveRequest)
   const mutationRejectRequest = useStoreRequests((s) => s.mutationRejectRequest)
   const clearStatus = useStoreRequests((s) => s.clearStatus)
+
   const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
   const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
   const approvalEmployeeStatusOptionsErrorMessage = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
@@ -69,6 +69,10 @@ export default function RequestsDashboardPage() {
   const hrRequestTypeOptionsErrorMessage = useStoreEmployeeSelects((s) => s.hrRequestTypeOptionsErrorMessage)
   const getHrRequestTypeOptions = useStoreEmployeeSelects((s) => s.getHrRequestTypeOptions)
   const clearHrRequestTypeOptionsStatus = useStoreEmployeeSelects((s) => s.clearHrRequestTypeOptionsStatus)
+
+  const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
+
+  // --- State ---
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
     statusId: queryParams.statusId,
@@ -81,17 +85,16 @@ export default function RequestsDashboardPage() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
-  const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
   const [confirmApproveOpen, setConfirmApproveOpen] = useState(false)
   const [pendingApproveRow, setPendingApproveRow] = useState<RequestTableRow | null>(null)
   const [confirmRejectOpen, setConfirmRejectOpen] = useState(false)
   const [pendingRejectRow, setPendingRejectRow] = useState<RequestTableRow | null>(null)
   const [rejectDetail, setRejectDetail] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')
-  const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
-  const requestDetailView = mapperRequestDetailView(requestDetail)
+  const [downloadingReport, setDownloadingReport] = useState(false)
 
+  // --- Derived ---
+  const requestDetailView = mapperRequestDetailView(requestDetail)
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
@@ -104,23 +107,18 @@ export default function RequestsDashboardPage() {
   const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const moduleSelectOptions = hrRequestTypeOptions.map((option) => ({ label: option.name, value: String(option.id) }))
 
+  // --- Effects ---
   useEffect(() => {
     void getRequests()
     void getApprovalEmployeeStatusOptions()
     void getHrRequestTypeOptions()
   }, [getRequests, getApprovalEmployeeStatusOptions, getHrRequestTypeOptions])
 
-  useEffect(() => {
-    const closeActions = () => setOpenActionsRowId(null)
-    window.addEventListener('click', closeActions)
-    return () => window.removeEventListener('click', closeActions)
-  }, [])
-
+  // --- Handlers: Detail ---
   const handleViewDetail = (row: RequestTableRow) => {
     setSelectedDetailRowId(row.id)
     setSelectedDetailName(String(row.values[REQUEST_NAME_COLUMN_INDEX] ?? 'Solicitud'))
     setDetailOpen(true)
-    setOpenActionsRowId(null)
     void getRequestDetail(row.id)
   }
 
@@ -136,19 +134,19 @@ export default function RequestsDashboardPage() {
     void getRequestDetail(selectedDetailRowId)
   }
 
+  // --- Handlers: Approve & Reject ---
   const handleApproveRequest = (row: RequestTableRow) => {
     setPendingApproveRow(row)
     setConfirmApproveOpen(true)
-    setOpenActionsRowId(null)
   }
 
   const handleRejectRequest = (row: RequestTableRow) => {
     setPendingRejectRow(row)
     setRejectDetail('')
     setConfirmRejectOpen(true)
-    setOpenActionsRowId(null)
   }
 
+  // --- Row actions & table helpers ---
   const resolveRowActions = (row: RequestTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [actionViewDetail(() => handleViewDetail(row))]
     if (!FINAL_REQUEST_STATUS_IDS.has(row.statusId)) {
@@ -158,69 +156,42 @@ export default function RequestsDashboardPage() {
     return actions
   }
 
-  const handleConfirmApproveRequest = async () => {
-    if (!pendingApproveRow || loadingApproveRequest) return
-
-    const success = await mutationApproveRequest(pendingApproveRow.id)
-    if (success) {
-      const requestName = pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]
-      setConfirmApproveOpen(false)
-      setPendingApproveRow(null)
-      await getRequests()
-      setActionsMessage(`${requestName}: ${messages.requests.status.success.approveSuccess}`)
-    }
+  const findRequestRowById = (rowId: string) => requestsRows.find((row) => row.id === rowId) ?? null
+  const handleViewDetailById = (rowId: string) => {
+    const requestRow = findRequestRowById(rowId)
+    if (!requestRow) return
+    handleViewDetail(requestRow)
+  }
+  const getRequestStatusName = (rowId: string, fallbackStatusName: string) => {
+    const requestRow = findRequestRowById(rowId)
+    return requestRow?.statusName || fallbackStatusName
+  }
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const requestRow = findRequestRowById(tableRow.id)
+    if (!requestRow) return []
+    return resolveRowActions(requestRow)
   }
 
-  const handleCloseConfirmApprove = () => {
-    if (loadingApproveRequest) return
-    setConfirmApproveOpen(false)
-    setPendingApproveRow(null)
+  const renderCustomCell = createRequestsTableCustomRenderer({
+    requestNameColumnIndex: REQUEST_NAME_COLUMN_INDEX,
+    statusColumnIndex: REQUEST_STATUS_COLUMN_INDEX,
+    onViewDetail: handleViewDetailById,
+    getStatusName: getRequestStatusName,
+  })
+
+  // --- Handlers: Sort ---
+  const handleSortChange = async (columnIndex: number) => {
+    const sortBy = requestsTableSortByColumn[columnIndex]
+    if (!sortBy) return
+
+    const currentSortBy = queryParams.sortBy
+    const currentSortDir = queryParams.sortDir
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+
+    await sortRequests(sortBy, nextSortDir)
   }
 
-  const handleConfirmRejectRequest = async () => {
-    if (!pendingRejectRow || loadingRejectRequest) return
-
-    const success = await mutationRejectRequest(pendingRejectRow.id, rejectDetail.trim())
-    if (success) {
-      const requestName = pendingRejectRow.values[REQUEST_NAME_COLUMN_INDEX]
-      setConfirmRejectOpen(false)
-      setPendingRejectRow(null)
-      setRejectDetail('')
-      await getRequests()
-      setActionsMessage(`${requestName}: ${messages.requests.status.success.rejectSuccess}`)
-    }
-  }
-
-  const handleCloseConfirmReject = () => {
-    if (loadingRejectRequest) return
-    setConfirmRejectOpen(false)
-    setPendingRejectRow(null)
-    setRejectDetail('')
-  }
-
-  const handleDownloadReport = async () => {
-    if (downloadingReport) return
-
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await requestsService.exportRequestsCsv()
-      downloadBlobFile(csvBlob, 'hr-requests.csv')
-      setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (requestsService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
-    }
-  }
-
-  const handleBulkUpload = () => {
-    setActionsMessage('Carga masiva disponible proximamente.')
-  }
-
+  // --- Handlers: Filters ---
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
@@ -266,6 +237,72 @@ export default function RequestsDashboardPage() {
     setFiltersOpen(false)
   }
 
+  // --- Handlers: Confirm ---
+  const handleCloseConfirmApprove = () => {
+    if (loadingApproveRequest) return
+    setConfirmApproveOpen(false)
+    setPendingApproveRow(null)
+  }
+
+  const handleConfirmApproveRequest = async () => {
+    if (!pendingApproveRow || loadingApproveRequest) return
+
+    const success = await mutationApproveRequest(pendingApproveRow.id)
+    if (success) {
+      const requestName = pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]
+      setConfirmApproveOpen(false)
+      setPendingApproveRow(null)
+      await getRequests()
+      setActionsMessage(`${requestName}: ${messages.requests.status.success.approveSuccess}`)
+    }
+  }
+
+  const handleCloseConfirmReject = () => {
+    if (loadingRejectRequest) return
+    setConfirmRejectOpen(false)
+    setPendingRejectRow(null)
+    setRejectDetail('')
+  }
+
+  const handleConfirmRejectRequest = async () => {
+    if (!pendingRejectRow || loadingRejectRequest) return
+
+    const success = await mutationRejectRequest(pendingRejectRow.id, rejectDetail.trim())
+    if (success) {
+      const requestName = pendingRejectRow.values[REQUEST_NAME_COLUMN_INDEX]
+      setConfirmRejectOpen(false)
+      setPendingRejectRow(null)
+      setRejectDetail('')
+      await getRequests()
+      setActionsMessage(`${requestName}: ${messages.requests.status.success.rejectSuccess}`)
+    }
+  }
+
+  // --- Handlers: Download & Upload ---
+  const handleDownloadReport = async () => {
+    if (downloadingReport) return
+
+    try {
+      setDownloadingReport(true)
+      const csvBlob = await requestsService.exportRequestsCsv()
+      downloadBlobFile(csvBlob, 'hr-requests.csv')
+      setActionsMessage('Reporte descargado correctamente.')
+    } catch (error) {
+      if (requestsService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
+      } else {
+        setActionsMessage('No se pudo descargar el reporte.')
+      }
+    } finally {
+      setDownloadingReport(false)
+    }
+  }
+
+  const handleBulkUpload = () => {
+    setActionsMessage('Carga masiva disponible proximamente.')
+  }
+
+  // --- Computed messages ---
   const confirmApproveMessage = pendingApproveRow
     ? `¿Seguro que deseas aprobar la solicitud de ${pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]}?`
     : ''
@@ -274,44 +311,6 @@ export default function RequestsDashboardPage() {
     : selectedDetailName
       ? `Detalle de ${selectedDetailName}`
       : 'Detalle de solicitud'
-
-  const handleToggleActionsRow = (rowId: string) => {
-    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
-  }
-
-  const findRequestRowById = (rowId: string) => requestsRows.find((row) => row.id === rowId) ?? null
-  const handleViewDetailById = (rowId: string) => {
-    const requestRow = findRequestRowById(rowId)
-    if (!requestRow) return
-    handleViewDetail(requestRow)
-  }
-  const getRequestStatusName = (rowId: string, fallbackStatusName: string) => {
-    const requestRow = findRequestRowById(rowId)
-    return requestRow?.statusName || fallbackStatusName
-  }
-  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const requestRow = findRequestRowById(tableRow.id)
-    if (!requestRow) return []
-    return resolveRowActions(requestRow)
-  }
-
-  const renderCustomCell = createRequestsTableCustomRenderer({
-    requestNameColumnIndex: REQUEST_NAME_COLUMN_INDEX,
-    statusColumnIndex: REQUEST_STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusName: getRequestStatusName,
-  })
-
-  const handleSortChange = async (columnIndex: number) => {
-    const sortBy = requestsTableSortByColumn[columnIndex]
-    if (!sortBy) return
-
-    const currentSortBy = queryParams.sortBy
-    const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
-
-    await sortRequests(sortBy, nextSortDir)
-  }
 
   return (
     <section className="min-w-0 space-y-4">
@@ -402,9 +401,7 @@ export default function RequestsDashboardPage() {
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
           resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
         }}
         sortableColumnIndexes={REQUESTS_SORTABLE_COLUMNS}
         sortState={sortState}

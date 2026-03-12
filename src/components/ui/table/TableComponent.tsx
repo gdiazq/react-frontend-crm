@@ -1,12 +1,11 @@
+import { useEffect, useState } from 'react'
 import type { TableComponentProps, TableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
 import TableCellRendererComponent, { type TableCellCustomRenderer } from './TableCellRendererComponent'
 
 export interface TableActionsConfig {
   columnIndex: number
-  openRowId: string | null
   resolveRowActions: (row: TableRow) => DropdownAction[]
-  onToggleRow: (rowId: string) => void
   resolveOpenDirection?: (rowIndex: number, rowsLength: number) => 'up' | 'down'
 }
 
@@ -28,8 +27,35 @@ export default function TableComponent({
   sortState = { columnIndex: null, direction: 'desc' },
   onSortChange,
 }: FullTableComponentProps) {
+  const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const closeActions = () => setOpenActionsRowId(null)
+    window.addEventListener('click', closeActions)
+    return () => window.removeEventListener('click', closeActions)
+  }, [])
+
   const isSortableColumn = (columnIndex: number) =>
     sortableColumnIndexes.includes(columnIndex) && typeof onSortChange === 'function'
+
+  const internalActionsConfig = actionsConfig
+    ? {
+        columnIndex: actionsConfig.columnIndex,
+        openRowId: openActionsRowId,
+        onToggleRow: (rowId: string) => {
+          setOpenActionsRowId((id) => (id === rowId ? null : rowId))
+        },
+        resolveRowActions: (row: TableRow) =>
+          actionsConfig.resolveRowActions(row).map((action) => ({
+            ...action,
+            handler: () => {
+              setOpenActionsRowId(null)
+              action.handler()
+            },
+          })),
+        resolveOpenDirection: actionsConfig.resolveOpenDirection,
+      }
+    : undefined
 
   return (
     <section className="overflow-visible min-w-0 rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
@@ -110,7 +136,7 @@ export default function TableComponent({
                       >
                         {renderCell
                           ? renderCell(row, cellValue, index, rowIndex)
-                          : (customRenderer != null || actionsConfig != null)
+                          : (customRenderer != null || internalActionsConfig != null)
                             ? (
                               <TableCellRendererComponent
                                 row={row}
@@ -119,7 +145,7 @@ export default function TableComponent({
                                 rowIndex={rowIndex}
                                 rowsLength={rows.length}
                                 customRenderer={customRenderer}
-                                actionsConfig={actionsConfig}
+                                actionsConfig={internalActionsConfig}
                               />
                             )
                             : cellValue}

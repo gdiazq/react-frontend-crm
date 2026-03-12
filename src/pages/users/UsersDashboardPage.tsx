@@ -15,23 +15,23 @@ import {
   UserDetailComponent,
 } from '@/components'
 import { AUTH_ROUTE_USERS, AUTH_ROUTE_USERS_CREATE, AUTH_ROUTE_USERS_EDIT } from '@/constant'
-import type { TableRow, TableSortState } from '@/components'
 import { usersTableColumns, usersTableColumnIndex, usersTableSortByColumn } from '@/factories'
 import { mapperUserDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { usersService } from '@/services'
 import { useStoreAuth, useStoreSelects, useStoreUsers } from '@/store'
-import { createUsersActions, createUsersTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { UserTableRow } from '@/types'
+import type { TableRow, TableSortState } from '@/components'
+import { createUsersActions, createUsersTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const STATUS_COLUMN_INDEX = usersTableColumnIndex.status
 const EMAIL_COLUMN_INDEX = usersTableColumnIndex.email
 const ACTIONS_COLUMN_INDEX = usersTableColumns.length - 1
-
 const USERS_SORTABLE_COLUMNS = Object.keys(usersTableSortByColumn).map((index) => Number(index))
 
 export default function UsersDashboardPage() {
+  // --- Store ---
   const navigate = useNavigate()
   const usersRows = useStoreUsers((s) => s.usersRows)
   const userDetail = useStoreUsers((s) => s.userDetail)
@@ -53,6 +53,9 @@ export default function UsersDashboardPage() {
   const mutationToggleUserStatus = useStoreUsers((s) => s.mutationToggleUserStatus)
   const goToPage = useStoreUsers((s) => s.goToPage)
   const clearStatus = useStoreUsers((s) => s.clearStatus)
+  const hasPermission = useStoreAuth((s) => s.hasPermission)
+  const canToggleUserStatus = hasPermission('USER', 'canUpdate')
+
   const roleOptions = useStoreSelects((s) => s.roleOptions)
   const userNameOptions = useStoreSelects((s) => s.userNameOptions)
   const userEmailOptions = useStoreSelects((s) => s.userEmailOptions)
@@ -61,72 +64,78 @@ export default function UsersDashboardPage() {
   const usersFilterOptionsErrorMessage = useStoreSelects((s) => s.usersFilterOptionsErrorMessage)
   const getUsersFilterOptions = useStoreSelects((s) => s.getUsersFilterOptions)
   const clearUsersFilterOptionsStatus = useStoreSelects((s) => s.clearUsersFilterOptionsStatus)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleUserStatus = hasPermission('USER', 'canUpdate')
 
   const { actionViewDetail, actionUpdateUser, actionToggleStatus } = createUsersActions()
 
-  const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
-  const [actionsMessage, setActionsMessage] = useState('')
+  // --- State ---
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [detailOpen, setDetailOpen] = useState(false)
-  const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingToggleRow, setPendingToggleRow] = useState<UserTableRow | null>(null)
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const [uploadingBulk, setUploadingBulk] = useState(false)
-  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
   const [filters, setFilters] = useState({
     userNameId: '',
     userEmailId: '',
     statusId: '',
     roleId: '',
   })
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingToggleRow, setPendingToggleRow] = useState<UserTableRow | null>(null)
+  const [actionsMessage, setActionsMessage] = useState('')
+  const [downloadingReport, setDownloadingReport] = useState(false)
+  const [uploadingBulk, setUploadingBulk] = useState(false)
+  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
 
+  // --- Derived ---
+  const userDetailView = mapperUserDetailView(userDetail)
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
-  const userDetailView = mapperUserDetailView(userDetail)
+  const nameSelectOptions = userNameOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const emailSelectOptions = userEmailOptions.map((option) => ({ label: option.email, value: String(option.id) }))
+  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const roleSelectOptions = roleOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const activeSortColumn = USERS_SORTABLE_COLUMNS.find((index) => usersTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
   }
-  const nameSelectOptions = userNameOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const emailSelectOptions = userEmailOptions.map((option) => ({ label: option.email, value: String(option.id) }))
-  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const roleSelectOptions = roleOptions.map((option) => ({ label: option.name, value: String(option.id) }))
 
+  // --- Effects ---
   useEffect(() => {
     getUsers()
     void getUsersFilterOptions()
   }, [getUsers, getUsersFilterOptions])
 
-  useEffect(() => {
-    const closeActions = () => setOpenActionsRowId(null)
-    window.addEventListener('click', closeActions)
-    return () => window.removeEventListener('click', closeActions)
-  }, [])
-
+  // --- Handlers: Detail ---
   const handleViewDetail = (row: UserTableRow) => {
     setSelectedDetailRowId(row.id)
     setDetailOpen(true)
-    setOpenActionsRowId(null)
     void getUserDetail(row.id)
   }
 
-  const handleUpdateUser = (row: UserTableRow) => {
-    navigate(`${AUTH_ROUTE_USERS_EDIT}=${row.id}`)
-    setOpenActionsRowId(null)
+  const handleCloseDetail = () => {
+    setDetailOpen(false)
+    setSelectedDetailRowId(null)
+    clearUserDetail()
   }
 
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getUserDetail(selectedDetailRowId)
+  }
+
+  // --- Handlers: Navigate ---
+  const handleUpdateUser = (row: UserTableRow) => {
+    navigate(`${AUTH_ROUTE_USERS_EDIT}=${row.id}`)
+  }
+
+  // --- Handlers: Toggle status ---
   const handleToggleStatus = async (row: UserTableRow) => {
     setPendingToggleRow(row)
     setConfirmOpen(true)
-    setOpenActionsRowId(null)
   }
 
+  // --- Row actions & table helpers ---
   const resolveRowActions = (row: UserTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [
       actionViewDetail(() => handleViewDetail(row)),
@@ -138,10 +147,6 @@ export default function UsersDashboardPage() {
     }
 
     return actions
-  }
-
-  const handleToggleActionsRow = (rowId: string) => {
-    setOpenActionsRowId((id) => (id === rowId ? null : rowId))
   }
 
   const findUserRowById = (rowId: string) => usersRows.find((row) => row.id === rowId) ?? null
@@ -164,6 +169,7 @@ export default function UsersDashboardPage() {
     getStatusEnabled: getUserStatusEnabled,
   })
 
+  // --- Handlers: Sort ---
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = usersTableSortByColumn[columnIndex]
     if (!sortBy) return
@@ -175,17 +181,7 @@ export default function UsersDashboardPage() {
     await sortUsers(sortBy, nextSortDir)
   }
 
-  const handleCloseDetail = () => {
-    setDetailOpen(false)
-    setSelectedDetailRowId(null)
-    clearUserDetail()
-  }
-
-  const handleRetryDetail = () => {
-    if (!selectedDetailRowId) return
-    void getUserDetail(selectedDetailRowId)
-  }
-
+  // --- Handlers: Filters ---
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
@@ -223,6 +219,13 @@ export default function UsersDashboardPage() {
     setFiltersOpen(false)
   }
 
+  // --- Handlers: Confirm ---
+  const handleCloseConfirm = () => {
+    if (loadingToggleStatus) return
+    setConfirmOpen(false)
+    setPendingToggleRow(null)
+  }
+
   const handleConfirmToggleStatus = async () => {
     if (!pendingToggleRow || loadingToggleStatus) return
 
@@ -241,12 +244,7 @@ export default function UsersDashboardPage() {
     }
   }
 
-  const handleCloseConfirm = () => {
-    if (loadingToggleStatus) return
-    setConfirmOpen(false)
-    setPendingToggleRow(null)
-  }
-
+  // --- Handlers: Download & Upload ---
   const handleDownloadReport = async () => {
     if (downloadingReport) return
 
@@ -292,6 +290,7 @@ export default function UsersDashboardPage() {
     }
   }
 
+  // --- Computed messages ---
   const confirmMessage = pendingToggleRow
     ? `¿Seguro que deseas ${pendingToggleRow.status === true ? 'deshabilitar' : 'habilitar'} al usuario ${pendingToggleRow.values[0]}?`
     : ''
@@ -391,9 +390,7 @@ export default function UsersDashboardPage() {
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,
-          openRowId: openActionsRowId,
           resolveRowActions: resolveRowActionsFromTableRow,
-          onToggleRow: handleToggleActionsRow,
           resolveOpenDirection: (activeRowIndex, rowsLength) => (
             activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
           ),
@@ -421,6 +418,7 @@ export default function UsersDashboardPage() {
           onPageChange={(page) => goToPage(page - 1)}
         />
       </div>
+
       <RightSidebarComponent
         open={filtersOpen}
         title="Filtros"
@@ -470,6 +468,7 @@ export default function UsersDashboardPage() {
           </div>
         </div>
       </RightSidebarComponent>
+
       <DetailSidebarComponent
         open={detailOpen}
         title={detailTitle}
@@ -482,6 +481,7 @@ export default function UsersDashboardPage() {
           onRetry={handleRetryDetail}
         />
       </DetailSidebarComponent>
+
       <SaveConfirmComponent
         open={confirmOpen}
         title="Confirmar cambio de estado"
