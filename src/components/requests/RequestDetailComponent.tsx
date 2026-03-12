@@ -1,8 +1,7 @@
 import { type ReactNode, useState } from 'react'
 import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
 import DetailFieldCardComponent from '@/components/ui/detail/DetailFieldCardComponent'
-import DetailTabContentComponent from '@/components/ui/detail/DetailTabContentComponent'
+import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
 import DetailSectionDropdownComponent from '@/components/ui/dropdown/DetailSectionDropdownComponent'
 import EmployeeApprovalStatusBadgeComponent from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
 import type { RequestDetailView } from '@/types'
@@ -16,6 +15,12 @@ interface RequestDetailComponentProps {
 
 type RequestDetailTabKey = 'general' | 'approval' | 'rejection' | 'dates'
 
+interface RequestDetailContentProps {
+  detail: RequestDetailView
+  activeTab: RequestDetailTabKey
+  onTabChange: (tab: RequestDetailTabKey) => void
+}
+
 export default function RequestDetailComponent({
   detail,
   loading,
@@ -24,45 +29,50 @@ export default function RequestDetailComponent({
 }: RequestDetailComponentProps) {
   const [activeTab, setActiveTab] = useState<RequestDetailTabKey>('general')
 
-  if (loading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-300">Cargando detalle de la solicitud...</p>
-  }
+  return (
+    <DetailStateWrapperComponent
+      loading={loading}
+      errorMessage={errorMessage}
+      hasData={detail !== null}
+      loadingText="Cargando detalle de la solicitud..."
+      emptyText="Selecciona una solicitud para ver su detalle."
+      onRetry={onRetry}
+    >
+      {detail && (
+        <RequestDetailContent
+          detail={detail}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      )}
+    </DetailStateWrapperComponent>
+  )
+}
 
-  if (errorMessage) {
-    return (
-      <div className="space-y-3">
-        <p className="text-sm text-rose-600 dark:text-rose-300">{errorMessage}</p>
-        {onRetry && (
-          <ButtonComponent
-            type="button"
-            variant="outline"
-            label="Reintentar"
-            onClick={onRetry}
-          />
-        )}
-      </div>
-    )
-  }
-
-  if (!detail) {
-    return <p className="text-sm text-slate-600 dark:text-slate-300">Selecciona una solicitud para ver su detalle.</p>
-  }
-
+function RequestDetailContent({ detail, activeTab, onTabChange }: RequestDetailContentProps) {
   const tabOptions = [
     { value: 'general', label: 'Informacion general' },
     { value: 'approval', label: 'Aprobacion' },
     { value: 'rejection', label: 'Rechazo' },
     { value: 'dates', label: 'Fechas' },
   ]
-  const handleTabChange = (value: string) => setActiveTab(value as RequestDetailTabKey)
 
   const renderTabContent = (): ReactNode => {
     if (activeTab === 'general') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Tipo solicitud" value={detail.requestTypeName} />
-          <DetailFieldCardComponent title="Operacion" value={detail.actionDisplay} />
-          <DetailFieldCardComponent title="Requiere aprobacion" value={detail.requireApprovalLabel} />
+          <DetailFieldCardComponent 
+            title="Tipo solicitud" 
+            value={detail.requestTypeName} 
+          />
+          <DetailFieldCardComponent 
+            title="Operacion" 
+            value={detail.actionDisplay} 
+          />
+          <DetailFieldCardComponent 
+            title="Requiere aprobacion" 
+            value={detail.requireApprovalLabel} 
+          />
         </div>
       )
     }
@@ -70,10 +80,22 @@ export default function RequestDetailComponent({
     if (activeTab === 'approval') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Aprobador" value={detail.approverName} />
-          <DetailFieldCardComponent title="Fecha aprobacion" value={detail.approvalDateDisplay} />
-          <DetailFieldCardComponent title="Aprobador RRHH" value={detail.hhrrApproverName} />
-          <DetailFieldCardComponent title="Fecha aprobacion RRHH" value={detail.hhrrApprovalDateDisplay} />
+          <DetailFieldCardComponent 
+            title="Aprobador" 
+            value={detail.approverName} 
+          />
+          <DetailFieldCardComponent 
+            title="Fecha aprobacion" 
+            value={detail.approvalDateDisplay} 
+          />
+          <DetailFieldCardComponent 
+            title="Aprobador RRHH" 
+            value={detail.hhrrApproverName} 
+          />
+          <DetailFieldCardComponent 
+            title="Fecha aprobacion RRHH" 
+            value={detail.hhrrApprovalDateDisplay} 
+          />
         </div>
       )
     }
@@ -81,15 +103,24 @@ export default function RequestDetailComponent({
     if (activeTab === 'rejection') {
       return (
         <div className="grid gap-3">
-          <DetailFieldCardComponent title="Detalle rechazo" value={detail.rejectionDetailDisplay} />
+          <DetailFieldCardComponent 
+            title="Detalle rechazo" 
+            value={detail.rejectionDetailDisplay} 
+          />
         </div>
       )
     }
 
     return (
       <div className="grid gap-3 md:grid-cols-2">
-        <DetailFieldCardComponent title="Creado" value={detail.createdAtDisplay} />
-        <DetailFieldCardComponent title="Actualizado" value={detail.updatedAtDisplay} />
+        <DetailFieldCardComponent 
+          title="Creado" 
+          value={detail.createdAtDisplay} 
+        />
+        <DetailFieldCardComponent 
+          title="Actualizado" 
+          value={detail.updatedAtDisplay} 
+        />
       </div>
     )
   }
@@ -98,11 +129,11 @@ export default function RequestDetailComponent({
     <section className="space-y-5">
       <article className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 dark:border-white/10 dark:from-slate-900/60 dark:to-slate-900/30">
         <div className="flex items-start gap-4">
-        <AvatarInitialsComponent
-          fullName={detail.fullName}
-          fallbackInitials="SR"
-          className="bg-cyan-100 font-bold text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-200"
-        />
+          <AvatarInitialsComponent
+            fullName={detail.fullName}
+            fallbackInitials="SR"
+            className="bg-cyan-100 font-bold text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-200"
+          />
 
           <div className="min-w-0 flex-1 space-y-1">
             <p className="truncate text-base font-semibold">{detail.fullName}</p>
@@ -120,11 +151,13 @@ export default function RequestDetailComponent({
           value={activeTab}
           label="Seccion"
           options={tabOptions}
-          onValueChange={handleTabChange}
+          onValueChange={(value) => onTabChange(value as RequestDetailTabKey)}
         />
       </article>
 
-      <DetailTabContentComponent renderTabContent={renderTabContent} />
+      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+        {renderTabContent()}
+      </article>
     </section>
   )
 }

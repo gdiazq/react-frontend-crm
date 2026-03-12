@@ -1,5 +1,5 @@
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
 import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
+import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
 import type { UserDetailView } from '@/types'
 
 interface UserDetailComponentProps {
@@ -15,30 +15,21 @@ export default function UserDetailComponent({
   errorMessage,
   onRetry,
 }: UserDetailComponentProps) {
-  if (loading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-300">Cargando detalle del usuario...</p>
-  }
+  return (
+    <DetailStateWrapperComponent
+      loading={loading}
+      errorMessage={errorMessage}
+      hasData={detail !== null}
+      loadingText="Cargando detalle del usuario..."
+      emptyText="Selecciona un usuario para ver su detalle."
+      onRetry={onRetry}
+    >
+      {detail && <UserDetailContent detail={detail} />}
+    </DetailStateWrapperComponent>
+  )
+}
 
-  if (errorMessage) {
-    return (
-      <div className="space-y-3">
-        <p className="text-sm text-rose-600 dark:text-rose-300">{errorMessage}</p>
-        {onRetry && (
-          <ButtonComponent
-            type="button"
-            variant="outline"
-            label="Reintentar"
-            onClick={onRetry}
-          />
-        )}
-      </div>
-    )
-  }
-
-  if (!detail) {
-    return <p className="text-sm text-slate-600 dark:text-slate-300">Selecciona un usuario para ver su detalle.</p>
-  }
-
+function UserDetailContent({ detail }: { detail: UserDetailView }) {
   return (
     <section className="space-y-5">
       <article className="flex items-center gap-4 rounded-xl border border-slate-200 p-4 dark:border-white/10">

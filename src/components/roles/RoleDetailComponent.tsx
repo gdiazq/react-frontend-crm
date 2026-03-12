@@ -1,7 +1,7 @@
 import messages from '@/messages/messages'
 import type { RoleDetailView } from '@/types'
 import StatusBadgeComponent from '@/components/ui/status/StatusBadgeComponent'
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
+import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
 
 interface RoleDetailComponentProps {
   detail: RoleDetailView | null
@@ -10,43 +10,34 @@ interface RoleDetailComponentProps {
   onRetry?: () => void
 }
 
+function parsePermissionName(permissionName: string) {
+  const [resourceRaw, actionRaw] = permissionName.split(':')
+  const resource = resourceRaw?.trim() ?? 'GENERAL'
+  const action = actionRaw?.trim() ?? 'ACCESS'
+  return { resource, action }
+}
+
 export default function RoleDetailComponent({
   detail,
   loading,
   errorMessage,
   onRetry,
 }: RoleDetailComponentProps) {
-  const parsePermissionName = (permissionName: string) => {
-    const [resourceRaw, actionRaw] = permissionName.split(':')
-    const resource = resourceRaw?.trim() ?? 'GENERAL'
-    const action = actionRaw?.trim() ?? 'ACCESS'
-    return { resource, action }
-  }
+  return (
+    <DetailStateWrapperComponent
+      loading={loading}
+      errorMessage={errorMessage}
+      hasData={detail !== null}
+      loadingText="Cargando detalle del rol..."
+      emptyText="Selecciona un rol para ver su detalle."
+      onRetry={onRetry}
+    >
+      {detail && <RoleDetailContent detail={detail} />}
+    </DetailStateWrapperComponent>
+  )
+}
 
-  if (loading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-300">Cargando detalle del rol...</p>
-  }
-
-  if (errorMessage) {
-    return (
-      <div className="space-y-3">
-        <p className="text-sm text-rose-600 dark:text-rose-300">{errorMessage}</p>
-        {onRetry && (
-          <ButtonComponent
-            type="button"
-            variant="outline"
-            label="Reintentar"
-            onClick={onRetry}
-          />
-        )}
-      </div>
-    )
-  }
-
-  if (!detail) {
-    return <p className="text-sm text-slate-600 dark:text-slate-300">Selecciona un rol para ver su detalle.</p>
-  }
-
+function RoleDetailContent({ detail }: { detail: RoleDetailView }) {
   return (
     <section className="space-y-5">
       <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">

@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
 import DetailFieldCardComponent from '@/components/ui/detail/DetailFieldCardComponent'
-import DetailTabContentComponent from '@/components/ui/detail/DetailTabContentComponent'
+import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
 import DetailSectionDropdownComponent from '@/components/ui/dropdown/DetailSectionDropdownComponent'
 import EmployeeApprovalStatusBadgeComponent from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
 import StatusBadgeComponent from '@/components/ui/status/StatusBadgeComponent'
@@ -25,6 +24,12 @@ type EmployeeDetailTabKey =
   | 'linkedUser'
   | 'dates'
 
+interface EmployeeDetailContentProps {
+  detail: EmployeeDetailView
+  activeTab: EmployeeDetailTabKey
+  onTabChange: (tab: EmployeeDetailTabKey) => void
+}
+
 export default function EmployeeDetailComponent({
   detail,
   loading,
@@ -33,30 +38,27 @@ export default function EmployeeDetailComponent({
 }: EmployeeDetailComponentProps) {
   const [activeTab, setActiveTab] = useState<EmployeeDetailTabKey>('personal')
 
-  if (loading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-300">Cargando detalle del trabajador...</p>
-  }
+  return (
+    <DetailStateWrapperComponent
+      loading={loading}
+      errorMessage={errorMessage}
+      hasData={detail !== null}
+      loadingText="Cargando detalle del trabajador..."
+      emptyText="Selecciona un trabajador para ver su detalle."
+      onRetry={onRetry}
+    >
+      {detail && (
+        <EmployeeDetailContent
+          detail={detail}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      )}
+    </DetailStateWrapperComponent>
+  )
+}
 
-  if (errorMessage) {
-    return (
-      <div className="space-y-3">
-        <p className="text-sm text-rose-600 dark:text-rose-300">{errorMessage}</p>
-        {onRetry && (
-          <ButtonComponent
-            type="button"
-            variant="outline"
-            label="Reintentar"
-            onClick={onRetry}
-          />
-        )}
-      </div>
-    )
-  }
-
-  if (!detail) {
-    return <p className="text-sm text-slate-600 dark:text-slate-300">Selecciona un trabajador para ver su detalle.</p>
-  }
-
+function EmployeeDetailContent({ detail, activeTab, onTabChange }: EmployeeDetailContentProps) {
   const userEnabled = detail.userEnabled === 'Si'
   const tabSelectOptions = [
     { value: 'personal', label: 'Datos personales' },
@@ -73,15 +75,42 @@ export default function EmployeeDetailComponent({
     if (activeTab === 'personal') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Tipo identificacion" value={detail.identificationType} />
-          <DetailFieldCardComponent title="Fecha nacimiento" value={detail.birthDate} />
-          <DetailFieldCardComponent title="Genero" value={detail.gender} />
-          <DetailFieldCardComponent title="Estado civil" value={detail.maritalStatus} />
-          <DetailFieldCardComponent title="Educacion" value={detail.educationLevel} />
-          <DetailFieldCardComponent title="Licencia" value={detail.driverLicense} />
-          <DetailFieldCardComponent title="Profesion" value={detail.profession} />
-          <DetailFieldCardComponent title="Nacionalidad" value={detail.nationality} />
-          <DetailFieldCardComponent title="Extranjero" value={detail.expat} />
+          <DetailFieldCardComponent 
+            title="Tipo identificacion" 
+            value={detail.identificationType} 
+          />
+          <DetailFieldCardComponent 
+            title="Fecha nacimiento" 
+            value={detail.birthDate} 
+          />
+          <DetailFieldCardComponent 
+            title="Genero" 
+            value={detail.gender} 
+          />
+          <DetailFieldCardComponent 
+            title="Estado civil" 
+            value={detail.maritalStatus} 
+          />
+          <DetailFieldCardComponent 
+            title="Educacion" 
+            value={detail.educationLevel} 
+          />
+          <DetailFieldCardComponent 
+            title="Licencia" 
+            value={detail.driverLicense} 
+          />
+          <DetailFieldCardComponent 
+            title="Profesion" 
+            value={detail.profession} 
+          />
+          <DetailFieldCardComponent 
+            title="Nacionalidad" 
+            value={detail.nationality} 
+          />
+          <DetailFieldCardComponent 
+            title="Extranjero" 
+            value={detail.expat} 
+          />
         </div>
       )
     }
@@ -89,10 +118,23 @@ export default function EmployeeDetailComponent({
     if (activeTab === 'contact') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Correo personal" value={detail.personalEmail} />
-          <DetailFieldCardComponent title="Correo corporativo" value={detail.corporateEmail} valueClassName="break-all" />
-          <DetailFieldCardComponent title="Telefono" value={detail.phone} />
-          <DetailFieldCardComponent title="Telefono 2" value={detail.phone2} />
+          <DetailFieldCardComponent 
+            title="Correo personal" 
+            value={detail.personalEmail} 
+          />
+          <DetailFieldCardComponent 
+            title="Correo corporativo" 
+            value={detail.corporateEmail} 
+            valueClassName="break-all" 
+          />
+          <DetailFieldCardComponent 
+            title="Telefono" 
+            value={detail.phone} 
+          />
+          <DetailFieldCardComponent 
+            title="Telefono 2" 
+            value={detail.phone2} 
+          />
         </div>
       )
     }
@@ -100,10 +142,22 @@ export default function EmployeeDetailComponent({
     if (activeTab === 'emergency') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Parentesco" value={detail.emergencyContactRelationship} />
-          <DetailFieldCardComponent title="Nombre contacto" value={detail.emergencyContactName} />
-          <DetailFieldCardComponent title="Telefono" value={detail.emergencyContactPhone} />
-          <DetailFieldCardComponent title="Telefono 2" value={detail.emergencyContactPhone2} />
+          <DetailFieldCardComponent 
+            title="Parentesco" 
+            value={detail.emergencyContactRelationship} 
+          />
+          <DetailFieldCardComponent 
+            title="Nombre contacto" 
+            value={detail.emergencyContactName} 
+          />
+          <DetailFieldCardComponent 
+            title="Telefono" 
+            value={detail.emergencyContactPhone} 
+          />
+          <DetailFieldCardComponent 
+            title="Telefono 2" 
+            value={detail.emergencyContactPhone2} 
+          />
         </div>
       )
     }
@@ -111,15 +165,42 @@ export default function EmployeeDetailComponent({
     if (activeTab === 'address') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Calle" value={detail.streetName} />
-          <DetailFieldCardComponent title="Numero" value={detail.streetNumber} />
-          <DetailFieldCardComponent title="Cod. postal" value={detail.postalCode} />
-          <DetailFieldCardComponent title="Departamento" value={detail.department} />
-          <DetailFieldCardComponent title="Villa" value={detail.village} />
-          <DetailFieldCardComponent title="Manzana" value={detail.block} />
-          <DetailFieldCardComponent title="Region" value={detail.region} />
-          <DetailFieldCardComponent title="Comuna" value={detail.commune} />
-          <DetailFieldCardComponent title="Ciudad" value={detail.city} />
+          <DetailFieldCardComponent 
+            title="Calle" 
+            value={detail.streetName} 
+          />
+          <DetailFieldCardComponent 
+            title="Numero" 
+            value={detail.streetNumber} 
+          />
+          <DetailFieldCardComponent 
+            title="Cod. postal" 
+            value={detail.postalCode} 
+          />
+          <DetailFieldCardComponent 
+            title="Departamento" 
+            value={detail.department} 
+          />
+          <DetailFieldCardComponent 
+            title="Villa" 
+            value={detail.village} 
+          />
+          <DetailFieldCardComponent 
+            title="Manzana" 
+            value={detail.block} 
+          />
+          <DetailFieldCardComponent 
+            title="Region" 
+            value={detail.region} 
+          />
+          <DetailFieldCardComponent 
+            title="Comuna" 
+            value={detail.commune} 
+          />
+          <DetailFieldCardComponent 
+            title="Ciudad" 
+            value={detail.city} 
+          />
         </div>
       )
     }
@@ -127,15 +208,42 @@ export default function EmployeeDetailComponent({
     if (activeTab === 'health') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Asig. familiar" value={detail.familyAllowanceTier} />
-          <DetailFieldCardComponent title="Jubilacion" value={detail.retirementStatus} />
-          <DetailFieldCardComponent title="Estado pension" value={detail.pensionStatus} />
-          <DetailFieldCardComponent title="AFP" value={detail.afp} />
-          <DetailFieldCardComponent title="ISAPRE/FUN" value={detail.isapreFun} />
-          <DetailFieldCardComponent title="Seguro salud" value={detail.healthInsurance} />
-          <DetailFieldCardComponent title="Plan salud" value={detail.healthInsuranceTariff} />
-          <DetailFieldCardComponent title="Salud UF" value={detail.healthInsuranceUF} />
-          <DetailFieldCardComponent title="Salud pesos" value={detail.healthInsurancePesos} />
+          <DetailFieldCardComponent 
+            title="Asig. familiar" 
+            value={detail.familyAllowanceTier} 
+          />
+          <DetailFieldCardComponent 
+            title="Jubilacion" 
+            value={detail.retirementStatus} 
+          />
+          <DetailFieldCardComponent 
+            title="Estado pension" 
+            value={detail.pensionStatus} 
+          />
+          <DetailFieldCardComponent 
+            title="AFP" 
+            value={detail.afp} 
+          />
+          <DetailFieldCardComponent 
+            title="ISAPRE/FUN" 
+            value={detail.isapreFun} 
+          />
+          <DetailFieldCardComponent 
+            title="Seguro salud" 
+            value={detail.healthInsurance} 
+          />
+          <DetailFieldCardComponent 
+            title="Plan salud" 
+            value={detail.healthInsuranceTariff} 
+          />
+          <DetailFieldCardComponent 
+            title="Salud UF" 
+            value={detail.healthInsuranceUF} 
+          />
+          <DetailFieldCardComponent 
+            title="Salud pesos" 
+            value={detail.healthInsurancePesos} 
+          />
         </div>
       )
     }
@@ -143,12 +251,30 @@ export default function EmployeeDetailComponent({
     if (activeTab === 'payment') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Metodo de pago" value={detail.paymentMethod} />
-          <DetailFieldCardComponent title="Banco" value={detail.bank} />
-          <DetailFieldCardComponent title="Cuenta" value={detail.bankAccount} />
-          <DetailFieldCardComponent title="Talla ropa" value={detail.clothingSize} />
-          <DetailFieldCardComponent title="Talla zapato" value={detail.shoeSize} />
-          <DetailFieldCardComponent title="Talla pantalon" value={detail.pantSize} />
+          <DetailFieldCardComponent 
+            title="Metodo de pago" 
+            value={detail.paymentMethod} 
+          />
+          <DetailFieldCardComponent 
+            title="Banco" 
+            value={detail.bank} 
+          />
+          <DetailFieldCardComponent 
+            title="Cuenta" 
+            value={detail.bankAccount} 
+          />
+          <DetailFieldCardComponent 
+            title="Talla ropa" 
+            value={detail.clothingSize} 
+          />
+          <DetailFieldCardComponent 
+            title="Talla zapato" 
+            value={detail.shoeSize} 
+          />
+          <DetailFieldCardComponent 
+            title="Talla pantalon" 
+            value={detail.pantSize} 
+          />
         </div>
       )
     }
@@ -156,17 +282,34 @@ export default function EmployeeDetailComponent({
     if (activeTab === 'linkedUser') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Usuario" value={detail.username} />
-          <DetailFieldCardComponent title="Email" value={detail.userEmail} valueClassName="break-all" />
-          <DetailFieldCardComponent title="Habilitado" value={<StatusBadgeComponent enabled={userEnabled} />} className="md:col-span-2" />
+          <DetailFieldCardComponent 
+            title="Usuario" 
+            value={detail.username} 
+          />
+          <DetailFieldCardComponent 
+            title="Email" 
+            value={detail.userEmail} 
+            valueClassName="break-all" 
+          />
+          <DetailFieldCardComponent 
+            title="Habilitado" 
+            value={<StatusBadgeComponent enabled={userEnabled} />} 
+            className="md:col-span-2" 
+          />
         </div>
       )
     }
 
     return (
       <div className="grid gap-3 md:grid-cols-2">
-        <DetailFieldCardComponent title="Creado" value={detail.createdAtDisplay} />
-        <DetailFieldCardComponent title="Actualizado" value={detail.updatedAtDisplay} />
+        <DetailFieldCardComponent 
+          title="Creado" 
+          value={detail.createdAtDisplay} 
+        />
+        <DetailFieldCardComponent 
+          title="Actualizado" 
+          value={detail.updatedAtDisplay} 
+        />
       </div>
     )
   }
@@ -206,11 +349,13 @@ export default function EmployeeDetailComponent({
           value={activeTab}
           label="Seccion"
           options={tabSelectOptions}
-          onValueChange={(value) => setActiveTab(value as EmployeeDetailTabKey)}
+          onValueChange={(value) => onTabChange(value as EmployeeDetailTabKey)}
         />
       </article>
 
-      <DetailTabContentComponent renderTabContent={renderTabContent} />
+      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+        {renderTabContent()}
+      </article>
     </section>
   )
 }
