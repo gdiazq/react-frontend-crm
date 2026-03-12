@@ -158,7 +158,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
     await get().getRoles()
   },
 
-  mutationCreateRole: async (payload, permissionIds) => {
+  createRole: async (payload, permissionIds) => {
     const roleName = payload.name.trim()
     if (roleName.length < 3) {
       set({ createRoleErrorMessage: messages.roles.status.errors.createRoleNameRequired })
@@ -223,7 +223,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
     }
   },
 
-  mutationUpdateRole: async (payload, permissionIds) => {
+  updateRole: async (payload, permissionIds) => {
     if (!Number.isInteger(payload.id) || payload.id <= 0) {
       set({ updateRoleErrorMessage: messages.roles.status.errors.updateRoleInvalidRoleId })
       return false
@@ -284,7 +284,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
     }
   },
 
-  mutationToggleRoleStatus: async (roleId: string, nextStatus: boolean) => {
+  toggleRoleStatus: async (roleId: string, nextStatus: boolean) => {
     const parsedRoleId = Number(roleId)
     if (!Number.isInteger(parsedRoleId) || parsedRoleId <= 0) {
       set({ errorMessage: messages.roles.status.errors.invalidStatusRoleId })

@@ -57,7 +57,7 @@ export default function EmployeesDashboardPage() {
   const sortEmployees = useStoreEmployees((s) => s.sortEmployees)
   const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
   const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
-  const mutationToggleEmployeeStatus = useStoreEmployees((s) => s.mutationToggleEmployeeStatus)
+  const toggleEmployeeStatus = useStoreEmployees((s) => s.toggleEmployeeStatus)
   const clearStatus = useStoreEmployees((s) => s.clearStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
   const canToggleEmployeeStatus = hasPermission('EMPLOYEE', 'canUpdate')
@@ -243,7 +243,7 @@ export default function EmployeesDashboardPage() {
 
     const nextStatus = pendingToggleRow.active !== true
     const employeeName = pendingToggleRow.values[EMPLOYEE_NAME_COLUMN_INDEX]
-    const success = await mutationToggleEmployeeStatus(pendingToggleRow.id, nextStatus)
+    const success = await toggleEmployeeStatus(pendingToggleRow.id, nextStatus)
     if (success) {
       setConfirmOpen(false)
       setPendingToggleRow(null)

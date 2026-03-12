@@ -159,7 +159,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     await get().getEmployees()
   },
 
-  mutationToggleEmployeeStatus: async (employeeId: string, nextStatus: boolean) => {
+  toggleEmployeeStatus: async (employeeId: string, nextStatus: boolean) => {
     const parsedEmployeeId = Number(employeeId)
     if (!Number.isInteger(parsedEmployeeId) || parsedEmployeeId <= 0) {
       set({ errorMessage: messages.employees.status.errors.invalidStatusEmployeeId })
@@ -182,7 +182,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     }
   },
 
-  mutationCreateEmployee: async (payload) => {
+  createEmployee: async (payload) => {
     try {
       set({
         createEmployeeSubmitting: true,
@@ -215,7 +215,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     }
   },
 
-  mutationUpdateEmployee: async (payload) => {
+  updateEmployee: async (payload) => {
     if (!Number.isInteger(payload.id) || payload.id <= 0) {
       set({ updateEmployeeErrorMessage: messages.employees.status.errors.detailInvalidEmployeeId })
       return false

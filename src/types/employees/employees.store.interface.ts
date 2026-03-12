@@ -42,9 +42,9 @@ export interface EmployeesStore {
   clearCreatedDateRange: () => void
   searchEmployees: () => Promise<void>
   sortEmployees: (sortBy: EmployeesSortBy, sortDir: EmployeesSortDir) => Promise<void>
-  mutationToggleEmployeeStatus: (employeeId: string, nextStatus: boolean) => Promise<boolean>
-  mutationCreateEmployee: (payload: EmployeeCreatePayload) => Promise<boolean>
-  mutationUpdateEmployee: (payload: EmployeeUpdatePayload) => Promise<boolean>
+  toggleEmployeeStatus: (employeeId: string, nextStatus: boolean) => Promise<boolean>
+  createEmployee: (payload: EmployeeCreatePayload) => Promise<boolean>
+  updateEmployee: (payload: EmployeeUpdatePayload) => Promise<boolean>
   clearCreateEmployeeStatus: () => void
   clearUpdateEmployeeStatus: () => void
   clearStatus: () => void

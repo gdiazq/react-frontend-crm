@@ -60,8 +60,8 @@ export default function EmployeesFormDashboardPage() {
   const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
   const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
   const clearDetailError = useStoreEmployees((s) => s.clearDetailError)
-  const mutationCreateEmployee = useStoreEmployees((s) => s.mutationCreateEmployee)
-  const mutationUpdateEmployee = useStoreEmployees((s) => s.mutationUpdateEmployee)
+  const createEmployee = useStoreEmployees((s) => s.createEmployee)
+  const updateEmployee = useStoreEmployees((s) => s.updateEmployee)
   const clearCreateEmployeeStatus = useStoreEmployees((s) => s.clearCreateEmployeeStatus)
   const clearUpdateEmployeeStatus = useStoreEmployees((s) => s.clearUpdateEmployeeStatus)
 
@@ -259,8 +259,8 @@ export default function EmployeesFormDashboardPage() {
   const handleConfirmSave = async () => {
     if (!pendingAction || saving) return
     const success = pendingAction.mode === 'create'
-      ? await mutationCreateEmployee(pendingAction.payload)
-      : await mutationUpdateEmployee(pendingAction.payload)
+      ? await createEmployee(pendingAction.payload)
+      : await updateEmployee(pendingAction.payload)
     if (success) {
       navigate(AUTH_ROUTE_EMPLOYEES)
     }

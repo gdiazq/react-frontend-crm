@@ -50,7 +50,7 @@ export default function UsersDashboardPage() {
   const setAdvancedFilters = useStoreUsers((s) => s.setAdvancedFilters)
   const clearAdvancedFilters = useStoreUsers((s) => s.clearAdvancedFilters)
   const clearUserDetail = useStoreUsers((s) => s.clearUserDetail)
-  const mutationToggleUserStatus = useStoreUsers((s) => s.mutationToggleUserStatus)
+  const toggleUserStatus = useStoreUsers((s) => s.toggleUserStatus)
   const goToPage = useStoreUsers((s) => s.goToPage)
   const clearStatus = useStoreUsers((s) => s.clearStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
@@ -231,7 +231,7 @@ export default function UsersDashboardPage() {
 
     const nextStatus = pendingToggleRow.status !== true
     const username = pendingToggleRow.values[0]
-    const success = await mutationToggleUserStatus(pendingToggleRow.id, nextStatus)
+    const success = await toggleUserStatus(pendingToggleRow.id, nextStatus)
     if (success) {
       setConfirmOpen(false)
       setPendingToggleRow(null)

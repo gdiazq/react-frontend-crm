@@ -37,7 +37,7 @@ export interface RequestsStore {
   clearApprovalDateRange: () => void
   searchRequests: () => Promise<void>
   sortRequests: (sortBy: RequestsSortBy, sortDir: RequestsSortDir) => Promise<void>
-  mutationApproveRequest: (requestId: string) => Promise<boolean>
-  mutationRejectRequest: (requestId: string, rejectionDetail: string) => Promise<boolean>
+  approveRequest: (requestId: string) => Promise<boolean>
+  rejectRequest: (requestId: string, rejectionDetail: string) => Promise<boolean>
   clearStatus: () => void
 }

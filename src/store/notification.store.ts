@@ -137,7 +137,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
   },
 
-  mutationMarkAllAsRead: async () => {
+  markAllAsRead: async () => {
     try {
       await notificationService.markAllAsRead()
       set((state) => ({
@@ -157,7 +157,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
   },
 
-  mutationArchiveNotification: async (payload: NotificationItem) => {
+  archiveNotification: async (payload: NotificationItem) => {
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {
       set({ errorMessage: messages.notification.status.errors.invalidIdArchive })
@@ -178,7 +178,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
   },
 
-  mutationMarkAsRead: async (payload: NotificationItem) => {
+  markAsRead: async (payload: NotificationItem) => {
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {
       set({ errorMessage: messages.notification.status.errors.invalidIdRead })
@@ -199,7 +199,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     }
   },
 
-  mutationMarkAsNotRead: (payload: NotificationItem) => {
+  markAsNotRead: (payload: NotificationItem) => {
     set((state) => ({
       notifications: findNotificationById(state.notifications, payload.id, mapperMarkAsNotRead),
     }))

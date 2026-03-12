@@ -34,9 +34,9 @@ export interface ContractsStore {
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
   sortContracts: (sortBy: ContractsSortBy, sortDir: ContractsSortDir) => Promise<void>
-  mutationToggleContractStatus: (contractId: string, nextStatus: boolean) => Promise<boolean>
-  mutationCreateContract: (payload: ContractCreatePayload, files?: File[]) => Promise<boolean>
-  mutationUpdateContract: (payload: ContractUpdatePayload, files?: File[]) => Promise<boolean>
+  toggleContractStatus: (contractId: string, nextStatus: boolean) => Promise<boolean>
+  createContract: (payload: ContractCreatePayload, files?: File[]) => Promise<boolean>
+  updateContract: (payload: ContractUpdatePayload, files?: File[]) => Promise<boolean>
   clearCreateContractStatus: () => void
   clearUpdateContractStatus: () => void
   clearStatus: () => void

@@ -48,8 +48,8 @@ export default function UsersFormDashboardPage() {
   const updateUserSuccessMessage = useStoreUsers((s) => s.updateUserSuccessMessage)
   const getUserDetail = useStoreUsers((s) => s.getUserDetail)
   const clearUserDetail = useStoreUsers((s) => s.clearUserDetail)
-  const mutationCreateUser = useStoreUsers((s) => s.mutationCreateUser)
-  const mutationUpdateUser = useStoreUsers((s) => s.mutationUpdateUser)
+  const createUser = useStoreUsers((s) => s.createUser)
+  const updateUser = useStoreUsers((s) => s.updateUser)
   const clearDetailError = useStoreUsers((s) => s.clearDetailError)
   const clearCreateUserStatus = useStoreUsers((s) => s.clearCreateUserStatus)
   const clearUpdateUserStatus = useStoreUsers((s) => s.clearUpdateUserStatus)
@@ -143,8 +143,8 @@ export default function UsersFormDashboardPage() {
     if (!pendingAction || saving) return
 
     const success = pendingAction.mode === 'create'
-      ? await mutationCreateUser(pendingAction.payload)
-      : await mutationUpdateUser(pendingAction.payload)
+      ? await createUser(pendingAction.payload)
+      : await updateUser(pendingAction.payload)
 
     if (success) {
       if (pendingAction.mode === 'create') {

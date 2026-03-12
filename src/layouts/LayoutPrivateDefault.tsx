@@ -24,9 +24,9 @@ export default function LayoutPrivateDefault() {
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
   const notifications = useStoreNotification(selectFilterNotifications)
   const unreadCount = useStoreNotification(selectUnreadCount)
-  const mutationMarkAllAsRead = useStoreNotification((s) => s.mutationMarkAllAsRead)
-  const mutationMarkAsRead = useStoreNotification((s) => s.mutationMarkAsRead)
-  const mutationArchiveNotification = useStoreNotification((s) => s.mutationArchiveNotification)
+  const markAllAsRead = useStoreNotification((s) => s.markAllAsRead)
+  const markAsRead = useStoreNotification((s) => s.markAsRead)
+  const archiveNotification = useStoreNotification((s) => s.archiveNotification)
   const getNotifications = useStoreNotification((s) => s.getNotifications)
   const getCounter = useStoreNotification((s) => s.getCounter)
   const connect = useStoreNotification((s) => s.connect)
@@ -151,19 +151,19 @@ export default function LayoutPrivateDefault() {
   }
 
   const handleMarkAllRead = () => {
-    mutationMarkAllAsRead()
+    markAllAsRead()
   }
 
   const handleMarkRead = (id: string) => {
     const notification = useStoreNotification.getState().notifications.find((item) => item.id === id)
     if (!notification) return
-    mutationMarkAsRead(notification)
+    markAsRead(notification)
   }
 
   const handleArchive = (id: string) => {
     const notification = useStoreNotification.getState().notifications.find((item) => item.id === id)
     if (!notification) return
-    mutationArchiveNotification(notification)
+    archiveNotification(notification)
   }
 
   const formatNotificationTimestamp = (value: string) => {

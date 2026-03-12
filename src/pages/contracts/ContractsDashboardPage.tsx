@@ -37,7 +37,7 @@ export default function ContractsDashboardPage() {
   const errorMessage = useStoreContracts((s) => s.errorMessage)
   const getContracts = useStoreContracts((s) => s.getContracts)
   const sortContracts = useStoreContracts((s) => s.sortContracts)
-  const mutationToggleContractStatus = useStoreContracts((s) => s.mutationToggleContractStatus)
+  const toggleContractStatus = useStoreContracts((s) => s.toggleContractStatus)
   const goToPage = useStoreContracts((s) => s.goToPage)
   const clearStatus = useStoreContracts((s) => s.clearStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
@@ -140,7 +140,7 @@ export default function ContractsDashboardPage() {
   const handleConfirmToggleStatus = async () => {
     if (!pendingToggleRow || loadingToggleStatus) return
     const nextStatus = !pendingToggleRow.active
-    const success = await mutationToggleContractStatus(pendingToggleRow.id, nextStatus)
+    const success = await toggleContractStatus(pendingToggleRow.id, nextStatus)
     if (success) {
       const contractName = pendingToggleRow.values[CONTRACT_NAME_COLUMN_INDEX]
       await getContracts()

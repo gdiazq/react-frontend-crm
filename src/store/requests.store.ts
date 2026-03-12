@@ -176,7 +176,7 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
     await get().getRequests()
   },
 
-  mutationApproveRequest: async (requestId: string) => {
+  approveRequest: async (requestId: string) => {
     const parsedRequestId = Number(requestId)
     if (!Number.isInteger(parsedRequestId) || parsedRequestId <= 0) {
       set({ errorMessage: messages.requests.status.errors.invalidRequestId })
@@ -200,7 +200,7 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
     }
   },
 
-  mutationRejectRequest: async (requestId: string, rejectionDetail: string) => {
+  rejectRequest: async (requestId: string, rejectionDetail: string) => {
     const parsedRequestId = Number(requestId)
     if (!Number.isInteger(parsedRequestId) || parsedRequestId <= 0) {
       set({ errorMessage: messages.requests.status.errors.invalidRequestId })

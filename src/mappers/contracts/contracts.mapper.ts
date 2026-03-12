@@ -34,7 +34,7 @@ export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
 
 export function mapperContractsPagination(result: ContractPagedResponse): ContractsPagination {
   const page = result.page ?? result.number ?? 0
-  const size = result.size ?? 10
+  const size = result.size ?? 8
   const totalElements = result.totalElements ?? result.total ?? 0
   const totalPages = result.totalPages ?? 0
   const total = result.total ?? totalElements

@@ -63,8 +63,8 @@ export default function ContractsFormDashboardPage() {
   const getContractDetail = useStoreContracts((s) => s.getContractDetail)
   const clearContractDetail = useStoreContracts((s) => s.clearContractDetail)
   const clearDetailError = useStoreContracts((s) => s.clearDetailError)
-  const mutationCreateContract = useStoreContracts((s) => s.mutationCreateContract)
-  const mutationUpdateContract = useStoreContracts((s) => s.mutationUpdateContract)
+  const createContract = useStoreContracts((s) => s.createContract)
+  const updateContract = useStoreContracts((s) => s.updateContract)
   const clearCreateContractStatus = useStoreContracts((s) => s.clearCreateContractStatus)
   const clearUpdateContractStatus = useStoreContracts((s) => s.clearUpdateContractStatus)
 
@@ -203,8 +203,8 @@ export default function ContractsFormDashboardPage() {
   const handleConfirmSave = async () => {
     if (!pendingAction || saving) return
     const success = pendingAction.mode === 'create'
-      ? await mutationCreateContract(pendingAction.payload, pendingAction.files)
-      : await mutationUpdateContract(pendingAction.payload, pendingAction.files)
+      ? await createContract(pendingAction.payload, pendingAction.files)
+      : await updateContract(pendingAction.payload, pendingAction.files)
     if (success) {
       navigate(AUTH_ROUTE_CONTRACTS)
       return

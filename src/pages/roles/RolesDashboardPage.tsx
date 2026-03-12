@@ -50,7 +50,7 @@ export default function RolesDashboardPage() {
   const sortRoles = useStoreRoles((s) => s.sortRoles)
   const setStatusFilter = useStoreRoles((s) => s.setStatusFilter)
   const clearStatusFilter = useStoreRoles((s) => s.clearStatusFilter)
-  const mutationToggleRoleStatus = useStoreRoles((s) => s.mutationToggleRoleStatus)
+  const toggleRoleStatus = useStoreRoles((s) => s.toggleRoleStatus)
   const clearStatus = useStoreRoles((s) => s.clearStatus)
   const clearRoleDetail = useStoreRoles((s) => s.clearRoleDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
@@ -201,7 +201,7 @@ export default function RolesDashboardPage() {
 
     const nextStatus = pendingToggleRow.status !== true
     const roleName = pendingToggleRow.values[0]
-    const success = await mutationToggleRoleStatus(pendingToggleRow.id, nextStatus)
+    const success = await toggleRoleStatus(pendingToggleRow.id, nextStatus)
     if (success) {
       setConfirmOpen(false)
       setPendingToggleRow(null)

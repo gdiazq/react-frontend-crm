@@ -17,8 +17,8 @@ export default function SettingsPage() {
 
   const updateProfileSubmitting = useStoreSettings((s) => s.updateProfileSubmitting)
   const updateAvatarSubmitting = useStoreSettings((s) => s.updateAvatarSubmitting)
-  const mutationUpdateProfile = useStoreSettings((s) => s.mutationUpdateProfile)
-  const mutationUpdateAvatar = useStoreSettings((s) => s.mutationUpdateAvatar)
+  const updateProfile = useStoreSettings((s) => s.updateProfile)
+  const updateAvatar = useStoreSettings((s) => s.updateAvatar)
 
   const mfaState = useStoreSettings((s) => s.mfaState)
   const mfaSetupData = useStoreSettings((s) => s.mfaSetupData)
@@ -29,9 +29,9 @@ export default function SettingsPage() {
   const activeTab = useStoreSettings((s) => s.activeTab)
   const loadingMfaAction = useStoreSettings((s) => s.loadingMfaAction)
   const loadingLogoutDevice = useStoreSettings((s) => s.loadingLogoutDevice)
-  const mutationMfaSetup = useStoreSettings((s) => s.mutationMfaSetup)
-  const mutationMfaDisable = useStoreSettings((s) => s.mutationMfaDisable)
-  const mutationMfaVerify = useStoreSettings((s) => s.mutationMfaVerify)
+  const setupMfa = useStoreSettings((s) => s.setupMfa)
+  const disableMfa = useStoreSettings((s) => s.disableMfa)
+  const verifyMfa = useStoreSettings((s) => s.verifyMfa)
   const loadMfaAndSessions = useStoreSettings((s) => s.loadMfaAndSessions)
   const logoutDevice = useStoreSettings((s) => s.logoutDevice)
   const setActiveTab = useStoreSettings((s) => s.setActiveTab)
@@ -68,7 +68,7 @@ export default function SettingsPage() {
   })()
 
   const handleEnableMfa = async () => {
-    const success = await mutationMfaSetup(currentUsername)
+    const success = await setupMfa(currentUsername)
     if (success) await buildMfaQrImage()
   }
 
@@ -83,7 +83,7 @@ export default function SettingsPage() {
     if (!user?.id) { setStatusMessage(messages.settings.status.errors.profileUserNotFound); return }
 
     const payload = mapperUpdateProfilePayload(user.id, profile)
-    const success = await mutationUpdateProfile(payload)
+    const success = await updateProfile(payload)
     if (success) setStatusMessage(messages.settings.status.success.profileUpdateSuccess)
   }
 
@@ -105,7 +105,7 @@ export default function SettingsPage() {
     if (!user?.id) { setStatusMessage(messages.settings.status.errors.avatarUserNotFound); return }
     if (!avatarForm.file) { setAvatarError(messages.settings.status.errors.avatarSelectImage); return }
 
-    const success = await mutationUpdateAvatar(user.id, { file: avatarForm.file })
+    const success = await updateAvatar(user.id, { file: avatarForm.file })
     if (success) {
       setAvatarError(null)
       if (avatarForm.previewUrl) URL.revokeObjectURL(avatarForm.previewUrl)
@@ -208,7 +208,7 @@ export default function SettingsPage() {
                 <ButtonComponent variant="primary" disabled={loadingMfaAction} label={loadingMfaAction ? 'Procesando...' : 'Activar MFA'} onClick={handleEnableMfa} />
               )}
               {mfaState.enabled && (
-                <ButtonComponent variant="danger" disabled={loadingMfaAction} label="Desactivar MFA" onClick={() => mutationMfaDisable(currentUsername)} />
+                <ButtonComponent variant="danger" disabled={loadingMfaAction} label="Desactivar MFA" onClick={() => disableMfa(currentUsername)} />
               )}
             </div>
 
@@ -218,7 +218,7 @@ export default function SettingsPage() {
                   <InputComponent value={mfaVerificationCode} label="Codigo de verificacion" type="text" placeholder="000000" onValueChange={setMfaVerificationCode} />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <ButtonComponent variant="outline" disabled={loadingMfaAction} label="Verificar codigo" onClick={() => mutationMfaVerify(currentUsername)} />
+                  <ButtonComponent variant="outline" disabled={loadingMfaAction} label="Verificar codigo" onClick={() => verifyMfa(currentUsername)} />
                 </div>
               </>
             )}

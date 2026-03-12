@@ -38,12 +38,12 @@ export interface SettingsStore {
   getSessions: () => Promise<void>
   loadMfaAndSessions: (email: string) => Promise<void>
   // Mutations
-  mutationMfaSetup: (username: string) => Promise<boolean>
-  mutationMfaVerify: (username: string) => Promise<boolean>
-  mutationMfaDisable: (username: string) => Promise<boolean>
-  mutationLogoutDevice: (sessionId: number) => Promise<boolean>
-  mutationUpdateProfile: (payload: SettingUpdateProfilePayload) => Promise<boolean>
-  mutationUpdateAvatar: (userId: number, payload: SettingUpdateAvatarPayload) => Promise<boolean>
+  setupMfa: (username: string) => Promise<boolean>
+  verifyMfa: (username: string) => Promise<boolean>
+  disableMfa: (username: string) => Promise<boolean>
+  logoutDeviceById: (sessionId: number) => Promise<boolean>
+  updateProfile: (payload: SettingUpdateProfilePayload) => Promise<boolean>
+  updateAvatar: (userId: number, payload: SettingUpdateAvatarPayload) => Promise<boolean>
   // Handlers
   logoutDevice: (id: string) => Promise<void>
   logoutAllOtherDevices: () => Promise<void>

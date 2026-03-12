@@ -69,7 +69,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     }
   },
 
-  mutationMfaSetup: async (username: string) => {
+  setupMfa: async (username: string) => {
     if (!username) return false
     try {
       set({ loadingMfaAction: true, errorBack: null })
@@ -92,7 +92,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     }
   },
 
-  mutationMfaVerify: async (username: string) => {
+  verifyMfa: async (username: string) => {
     if (!username) return false
     if (get().mfaVerificationCode.trim().length !== 6) {
       set({ statusMessage: messages.settings.status.errors.mfaInvalidCode })
@@ -119,7 +119,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     }
   },
 
-  mutationMfaDisable: async (username: string) => {
+  disableMfa: async (username: string) => {
     if (!username) return false
     try {
       set({ loadingMfaAction: true, errorBack: null })
@@ -153,7 +153,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     }
   },
 
-  mutationLogoutDevice: async (sessionId: number) => {
+  logoutDeviceById: async (sessionId: number) => {
     if (!Number.isInteger(sessionId) || sessionId <= 0) return false
     try {
       set({ loadingLogoutDevice: true, errorBack: null })
@@ -192,7 +192,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       set({ statusMessage: messages.settings.status.errors.logoutDeviceError })
       return
     }
-    await get().mutationLogoutDevice(sessionId)
+    await get().logoutDeviceById(sessionId)
   },
 
   logoutAllOtherDevices: async () => {
@@ -201,11 +201,11 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
       set({ statusMessage: messages.settings.status.success.noOtherDevices })
       return
     }
-    await Promise.all(otherSessions.map((item) => get().mutationLogoutDevice(Number(item.id))))
+    await Promise.all(otherSessions.map((item) => get().logoutDeviceById(Number(item.id))))
     set({ statusMessage: messages.settings.status.success.logoutAllOtherSuccess })
   },
 
-  mutationUpdateProfile: async (payload: SettingUpdateProfilePayload) => {
+  updateProfile: async (payload: SettingUpdateProfilePayload) => {
     try {
       set({ updateProfileSubmitting: true, errorBack: null })
       await authService.updateProfile(payload)
@@ -225,7 +225,7 @@ export const useStoreSettings = create<SettingsStore>()((set, get) => ({
     }
   },
 
-  mutationUpdateAvatar: async (userId: number, payload: SettingUpdateAvatarPayload) => {
+  updateAvatar: async (userId: number, payload: SettingUpdateAvatarPayload) => {
     try {
       set({ updateAvatarSubmitting: true, errorBack: null })
       await authService.updateAvatar(userId, payload)

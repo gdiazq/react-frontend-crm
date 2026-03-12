@@ -187,7 +187,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
     })
   },
 
-  mutationCreateUser: async (payload) => {
+  createUser: async (payload) => {
     if (!Number.isInteger(payload.roleId) || payload.roleId <= 0) {
       set({ createUserErrorMessage: messages.users.status.errors.createUserRoleRequired })
       return false
@@ -224,7 +224,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
     }
   },
 
-  mutationUpdateUser: async (payload) => {
+  updateUser: async (payload) => {
     if (!Number.isInteger(payload.id) || payload.id <= 0) {
       set({ updateUserErrorMessage: messages.users.status.errors.invalidStatusUserId })
       return false
@@ -264,7 +264,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
     }
   },
 
-  mutationToggleUserStatus: async (userId: string, nextStatus: boolean) => {
+  toggleUserStatus: async (userId: string, nextStatus: boolean) => {
     const parsedUserId = Number(userId)
     if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
       set({ errorMessage: messages.users.status.errors.invalidStatusUserId })

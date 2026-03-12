@@ -46,8 +46,8 @@ export default function RolesFormDashboardPage() {
   const getRoleDetail = useStoreRoles((s) => s.getRoleDetail)
   const clearRoleDetail = useStoreRoles((s) => s.clearRoleDetail)
   const clearDetailError = useStoreRoles((s) => s.clearDetailError)
-  const mutationCreateRole = useStoreRoles((s) => s.mutationCreateRole)
-  const mutationUpdateRole = useStoreRoles((s) => s.mutationUpdateRole)
+  const createRole = useStoreRoles((s) => s.createRole)
+  const updateRole = useStoreRoles((s) => s.updateRole)
   const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
   const clearCreateRoleStatus = useStoreRoles((s) => s.clearCreateRoleStatus)
   const clearUpdateRoleStatus = useStoreRoles((s) => s.clearUpdateRoleStatus)
@@ -165,8 +165,8 @@ export default function RolesFormDashboardPage() {
     if (!pendingAction || saving) return
 
     const success = pendingAction.mode === 'create'
-      ? await mutationCreateRole(pendingAction.payload, pendingAction.permissionIds)
-      : await mutationUpdateRole(pendingAction.payload, pendingAction.permissionIds)
+      ? await createRole(pendingAction.payload, pendingAction.permissionIds)
+      : await updateRole(pendingAction.payload, pendingAction.permissionIds)
 
     if (success) {
       try {

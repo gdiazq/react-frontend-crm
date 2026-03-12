@@ -38,7 +38,7 @@ export const initialContractsRows: ContractTableRow[] = []
 
 export const initialContractsPagination: ContractsPagination = {
   page: 0,
-  size: 10,
+  size: 8,
   totalElements: 0,
   totalPages: 0,
   total: 0,
@@ -49,7 +49,7 @@ export const initialContractsPagination: ContractsPagination = {
 
 export const initialContractsQueryParams: ContractsQueryParams = {
   page: 0,
-  size: 10,
+  size: 8,
   employeeId: '',
   createdFrom: '',
   createdTo: '',

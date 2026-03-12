@@ -137,7 +137,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
     await get().getContracts()
   },
 
-  mutationToggleContractStatus: async (contractId, nextStatus) => {
+  toggleContractStatus: async (contractId, nextStatus) => {
     const parsedContractId = Number(contractId)
     if (!Number.isInteger(parsedContractId) || parsedContractId <= 0) {
       set({ errorMessage: messages.contracts.status.errors.invalidStatusContractId })
@@ -160,7 +160,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
     }
   },
 
-  mutationCreateContract: async (payload, files = []) => {
+  createContract: async (payload, files = []) => {
     try {
       set({
         createContractSubmitting: true,
@@ -191,7 +191,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
     }
   },
 
-  mutationUpdateContract: async (payload, files = []) => {
+  updateContract: async (payload, files = []) => {
     if (!Number.isInteger(payload.id) || payload.id <= 0) {
       set({ updateContractErrorMessage: messages.contracts.status.errors.detailInvalidContractId })
       return false

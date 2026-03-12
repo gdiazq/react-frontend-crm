@@ -55,8 +55,8 @@ export default function RequestsDashboardPage() {
   const clearApprovalDateRange = useStoreRequests((s) => s.clearApprovalDateRange)
   const searchRequests = useStoreRequests((s) => s.searchRequests)
   const sortRequests = useStoreRequests((s) => s.sortRequests)
-  const mutationApproveRequest = useStoreRequests((s) => s.mutationApproveRequest)
-  const mutationRejectRequest = useStoreRequests((s) => s.mutationRejectRequest)
+  const approveRequest = useStoreRequests((s) => s.approveRequest)
+  const rejectRequest = useStoreRequests((s) => s.rejectRequest)
   const clearStatus = useStoreRequests((s) => s.clearStatus)
 
   const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
@@ -247,7 +247,7 @@ export default function RequestsDashboardPage() {
   const handleConfirmApproveRequest = async () => {
     if (!pendingApproveRow || loadingApproveRequest) return
 
-    const success = await mutationApproveRequest(pendingApproveRow.id)
+    const success = await approveRequest(pendingApproveRow.id)
     if (success) {
       const requestName = pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]
       setConfirmApproveOpen(false)
@@ -267,7 +267,7 @@ export default function RequestsDashboardPage() {
   const handleConfirmRejectRequest = async () => {
     if (!pendingRejectRow || loadingRejectRequest) return
 
-    const success = await mutationRejectRequest(pendingRejectRow.id, rejectDetail.trim())
+    const success = await rejectRequest(pendingRejectRow.id, rejectDetail.trim())
     if (success) {
       const requestName = pendingRejectRow.values[REQUEST_NAME_COLUMN_INDEX]
       setConfirmRejectOpen(false)

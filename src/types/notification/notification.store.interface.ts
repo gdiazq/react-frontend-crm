@@ -15,10 +15,10 @@ export interface NotificationStore {
   pushNotification: (item: NotificationItem) => void
   getNotifications: (type?: '' | 'unread' | 'archived', page?: number, size?: number) => Promise<void>
   getCounter: () => Promise<void>
-  mutationMarkAllAsRead: () => Promise<void>
-  mutationArchiveNotification: (payload: NotificationItem) => Promise<void>
-  mutationMarkAsRead: (payload: NotificationItem) => Promise<void>
-  mutationMarkAsNotRead: (payload: NotificationItem) => void
+  markAllAsRead: () => Promise<void>
+  archiveNotification: (payload: NotificationItem) => Promise<void>
+  markAsRead: (payload: NotificationItem) => Promise<void>
+  markAsNotRead: (payload: NotificationItem) => void
   clearNotifications: () => void
   disconnect: () => void
   connect: (userId: number) => Promise<void>
