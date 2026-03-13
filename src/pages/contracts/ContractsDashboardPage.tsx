@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
@@ -16,9 +16,10 @@ import {
 import { AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
 import { mapperContractDetailView } from '@/mappers'
+import { contractsService } from '@/services'
 import { useStoreContractSelects, useStoreContracts, useStoreEmployeeSelects } from '@/store'
 import type { ContractTableRow, TableRow, TableSortState } from '@/types'
-import { createContractsActions, createContractsTableCustomRenderer } from '@/utils'
+import { createContractsActions, createContractsTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const CONTRACT_EMPLOYEE_NAME_COLUMN_INDEX = contractsTableColumnIndex.employeeName
@@ -97,6 +98,8 @@ export default function ContractsDashboardPage() {
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
+  const [uploadingBulk, setUploadingBulk] = useState(false)
+  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
 
   // --- Derived ---
   const contractDetailView = mapperContractDetailView(contractDetail)
@@ -292,15 +295,49 @@ export default function ContractsDashboardPage() {
   }
 
   // --- Handlers: Download & Upload ---
-  const handleDownloadReport = () => {
+  const handleDownloadReport = async () => {
     if (downloadingReport) return
-    setDownloadingReport(true)
-    setActionsMessage('Descarga de reporte de contratos disponible proximamente.')
-    setDownloadingReport(false)
+
+    try {
+      setDownloadingReport(true)
+      const csvBlob = await contractsService.exportContractsCsv()
+      downloadBlobFile(csvBlob, 'contracts.csv')
+      setActionsMessage('Reporte descargado correctamente.')
+    } catch (error) {
+      if (contractsService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
+      } else {
+        setActionsMessage('No se pudo descargar el reporte.')
+      }
+    } finally {
+      setDownloadingReport(false)
+    }
   }
 
   const handleBulkUpload = () => {
-    setActionsMessage('Carga masiva de contratos disponible proximamente.')
+    if (uploadingBulk) return
+    bulkUploadInputRef.current?.click()
+  }
+
+  const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file || uploadingBulk) return
+
+    try {
+      setUploadingBulk(true)
+      const result = await contractsService.importContractsCsv(file)
+      setActionsMessage(formatCsvImportSummary(result))
+      await getContracts()
+    } catch (error) {
+      if (contractsService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
+      } else {
+        setActionsMessage('No se pudo realizar la carga masiva.')
+      }
+    } finally {
+      setUploadingBulk(false)
+    }
   }
 
   return (
@@ -381,12 +418,20 @@ export default function ContractsDashboardPage() {
             onClick={() => navigate(AUTH_ROUTE_CONTRACTS_CREATE)}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingContracts || downloadingReport}
-            onDownloadReport={handleDownloadReport}
+            disabled={loadingContracts || downloadingReport || uploadingBulk}
+            onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
           />
         </div>
       </form>
+
+      <input
+        ref={bulkUploadInputRef}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={(event) => { void handleBulkUploadFileChange(event) }}
+      />
 
       <TableComponent
         columns={contractsTableColumns}

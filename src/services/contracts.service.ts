@@ -2,6 +2,7 @@ import axios from 'axios'
 import { axiosInstance } from '@/config'
 import { mapperContractsQueryParams, mapperCreateContractFormData, mapperUpdateContractFormData } from '@/mappers'
 import type {
+  CsvImportResponse,
   ContractCreatePayload,
   ContractCreateResponse,
   ContractDetail,
@@ -40,6 +41,22 @@ export const contractsService = {
 
   toggleContractStatus: async (contractId: number, active: boolean) => {
     await axiosInstance.put(`/rrhh/contract/${contractId}/status`, { active })
+  },
+
+  exportContractsCsv: async () => {
+    const { data } = await axiosInstance.get<Blob>('/rrhh/contract/export/csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
+
+  importContractsCsv: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await axiosInstance.post<CsvImportResponse>('/rrhh/contract/import/csv', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
   },
 
   isAxiosError: axios.isAxiosError,
