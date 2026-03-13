@@ -6,6 +6,7 @@ import {
   AUTH_ROUTE_EMPLOYEES,
   AUTH_ROUTE_LOGIN,
   AUTH_ROUTE_LOGOUT,
+  AUTH_ROUTE_PROJECT_TYPES,
   AUTH_ROUTE_REQUESTS,
   AUTH_ROUTE_ROLES,
   AUTH_ROUTE_SETTINGS,
@@ -43,6 +44,7 @@ export default function LayoutPrivateDefault() {
   const canReadRequests = hasPermission('HR_REQUEST', 'canRead')
   const canReadEmployees = hasPermission('EMPLOYEE', 'canRead')
   const canReadContracts = hasPermission('CONTRACT', 'canRead')
+  const canReadProjects = hasPermission('PROJECT_TYPE', 'canRead')
   const canReadRoles = hasPermission('ROLE', 'canRead')
 
   useEffect(() => {
@@ -128,6 +130,16 @@ export default function LayoutPrivateDefault() {
     navigate(AUTH_ROUTE_CONTRACTS)
   }
 
+  const handleGoProjects = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    if (!canReadProjects) {
+      navigate('/unauthorized')
+      return
+    }
+    navigate(AUTH_ROUTE_PROJECT_TYPES)
+  }
+
   const handleGoSettings = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
@@ -186,6 +198,7 @@ export default function LayoutPrivateDefault() {
         showRequests={canReadRequests}
         showEmployees={canReadEmployees}
         showContracts={canReadContracts}
+        showProjects={canReadProjects}
         showRoles={canReadRoles}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         onToggleDesktopCollapse={() => setSidebarCollapsed((v) => !v)}
@@ -194,6 +207,7 @@ export default function LayoutPrivateDefault() {
         onGoRequests={handleGoRequests}
         onGoEmployees={handleGoEmployees}
         onGoContracts={handleGoContracts}
+        onGoProjects={handleGoProjects}
         onGoRoles={handleGoRoles}
         onGoLogout={handleGoLogout}
       />

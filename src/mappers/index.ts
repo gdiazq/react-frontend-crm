@@ -37,6 +37,15 @@ export {
   mapperUpdateEmployeePayload,
 } from './employees/employees.mapper'
 export {
+  mapperCreateProjectTypePayload,
+  mapperUpdateProjectTypePayload,
+  mapperProjectTypeDetailView,
+  mapperProjectTypeToForm,
+  mapperProjectTypesRows,
+  mapperProjectTypesPagination,
+  mapperProjectTypesQueryParams,
+} from './project-types/project-types.mapper'
+export {
   mapperCreateUserPayload,
   mapperUpdateUserPayload,
   mapperUsersRows,

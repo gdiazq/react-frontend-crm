@@ -316,6 +316,36 @@ export default {
       },
     },
   },
+  projectTypes: {
+    ui: {
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      actionViewDetail: 'Ver detalle',
+      updateProjectType: 'Editar tipo',
+      actionEnableProjectType: 'Habilitar tipo',
+      actionDisableProjectType: 'Deshabilitar tipo',
+      detailTitleFallback: 'Detalle de tipo de proyecto',
+    },
+    status: {
+      success: {
+        createProjectTypeSuccess: 'Tipo de proyecto creado correctamente.',
+        updateProjectTypeSuccess: 'Tipo de proyecto actualizado correctamente.',
+        toggleEnabledSuccess: 'habilitado correctamente.',
+        toggleDisabledSuccess: 'deshabilitado correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de tipos de proyecto.',
+        createProjectTypeError: 'No se pudo crear el tipo de proyecto.',
+        createProjectTypeNameRequired: 'Ingresa un nombre valido para el tipo de proyecto.',
+        updateProjectTypeError: 'No se pudo actualizar el tipo de proyecto.',
+        updateProjectTypeInvalidId: 'Id de tipo de proyecto invalido para actualizar.',
+        detailLoadError: 'No se pudo cargar el detalle del tipo de proyecto.',
+        detailInvalidProjectTypeId: 'Id de tipo de proyecto invalido para ver detalle.',
+        toggleStatusError: 'No se pudo actualizar el estado del tipo de proyecto.',
+        invalidStatusProjectTypeId: 'Id de tipo de proyecto invalido para actualizar estado.',
+      },
+    },
+  },
   selects: {
     status: {
       success: {},

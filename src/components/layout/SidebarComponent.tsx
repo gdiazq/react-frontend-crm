@@ -9,6 +9,7 @@ interface SidebarComponentProps {
   showRequests?: boolean
   showEmployees?: boolean
   showContracts?: boolean
+  showProjects?: boolean
   showRoles?: boolean
   onCloseMobile?: () => void
   onToggleDesktopCollapse?: () => void
@@ -17,6 +18,7 @@ interface SidebarComponentProps {
   onGoRequests: () => void
   onGoEmployees: () => void
   onGoContracts: () => void
+  onGoProjects: () => void
   onGoRoles: () => void
   onGoLogout: () => void
 }
@@ -28,6 +30,7 @@ export default function SidebarComponent({
   showRequests = true,
   showEmployees = true,
   showContracts = true,
+  showProjects = true,
   showRoles = true,
   onCloseMobile,
   onToggleDesktopCollapse,
@@ -36,6 +39,7 @@ export default function SidebarComponent({
   onGoRequests,
   onGoEmployees,
   onGoContracts,
+  onGoProjects,
   onGoRoles,
   onGoLogout,
 }: SidebarComponentProps) {
@@ -45,8 +49,10 @@ export default function SidebarComponent({
   const isRequestsActive = useMemo(() => location.pathname.startsWith('/requests'), [location.pathname])
   const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
   const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
+  const isProjectsActive = useMemo(() => location.pathname.startsWith('/projects/types'), [location.pathname])
   const isRolesActive = useMemo(() => location.pathname.startsWith('/roles'), [location.pathname])
   const hasRrhhItems = showRequests || showEmployees || showContracts
+  const hasProjectsItems = showProjects
   const hasAdministrationItems = showUsers || showRoles
 
   const getItemClasses = (active: boolean) => {
@@ -182,7 +188,34 @@ export default function SidebarComponent({
             </section>
           )}
 
-          {hasRrhhItems && hasAdministrationItems && (
+          {hasRrhhItems && (hasProjectsItems || hasAdministrationItems) && (
+            <hr className={`border-0 bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-700 ${collapsed ? 'my-1 h-px lg:mx-2' : 'my-2 h-px'}`} />
+          )}
+
+          {hasProjectsItems && (
+            <section className={`rounded-xl border border-slate-200/80 bg-slate-50/60 p-2 dark:border-white/10 dark:bg-slate-800/30 ${collapsed ? 'lg:border-transparent lg:bg-transparent lg:p-0' : ''}`}>
+              <p className={`px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 ${collapsed ? 'lg:hidden' : ''}`}>
+                Proyectos
+              </p>
+
+              {showProjects && (
+                <SidebarTooltipComponent enabled={collapsed} active={isProjectsActive} label="Tipos">
+                  <button
+                    type="button"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectsActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    onClick={onGoProjects}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+                    </svg>
+                    <span className={collapsed ? 'lg:hidden' : ''}>Tipos</span>
+                  </button>
+                </SidebarTooltipComponent>
+              )}
+            </section>
+          )}
+
+          {hasProjectsItems && hasAdministrationItems && (
             <hr className={`border-0 bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-700 ${collapsed ? 'my-1 h-px lg:mx-2' : 'my-2 h-px'}`} />
           )}
 

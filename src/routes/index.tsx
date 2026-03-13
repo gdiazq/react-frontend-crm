@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { Navigate, createBrowserRouter } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { ProtectedRoute, PublicRoute } from '@/middlewares/auth.middleware'
 import { LayoutPrivateDefault } from '@/layouts'
@@ -19,6 +19,8 @@ const UsersDashboardPage = lazy(() => import('@/pages/users/UsersDashboardPage')
 const RequestsDashboardPage = lazy(() => import('@/pages/requests/RequestsDashboardPage'))
 const EmployeesDashboardPage = lazy(() => import('@/pages/employees/EmployeesDashboardPage'))
 const ContractsDashboardPage = lazy(() => import('@/pages/contracts/ContractsDashboardPage'))
+const ProjectTypesDashboardPage = lazy(() => import('@/pages/projects/ProjectTypesDashboardPage'))
+const ProjectTypesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectTypesFormDashboardPage'))
 const ContractsFormDashboardPage = lazy(() => import('@/pages/contracts/ContractsFormDashboardPage'))
 const EmployeesFormDashboardPage = lazy(() => import('@/pages/employees/EmployeesFormDashboardPage'))
 const UsersFormDashboardPage = lazy(() => import('@/pages/users/UsersFormDashboardPage'))
@@ -146,6 +148,34 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canRead">
             <ContractsDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/projects',
+        element: <Navigate to="/projects/types" replace />,
+      },
+      {
+        path: '/projects/types',
+        element: (
+          <ProtectedRoute requiresPermissions module="PROJECT_TYPE" permissionType="canRead">
+            <ProjectTypesDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/projects/types/new',
+        element: (
+          <ProtectedRoute requiresPermissions module="PROJECT_TYPE" permissionType="canCreate">
+            <ProjectTypesFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/projects/types/:editId',
+        element: (
+          <ProtectedRoute requiresPermissions module="PROJECT_TYPE" permissionType="canUpdate">
+            <ProjectTypesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
