@@ -14,6 +14,7 @@ export interface ContractRaw {
   endDate?: string | null
   active: boolean
   createdAt: string
+  updatedAt?: string | null
 }
 
 export interface ContractCreateForm {
@@ -199,6 +200,7 @@ export type ContractsSortBy =
   | 'endDate'
   | 'active'
   | 'createdAt'
+  | 'updatedAt'
 
 export type ContractsSortDir = 'asc' | 'desc'
 
@@ -216,9 +218,19 @@ export interface ContractsPagination {
 export interface ContractsQueryParams {
   page: number
   size: number
+  search: string
   employeeId: string
+  statusId: string
+  contractStatusId: string
+  contractTypeId: string
   createdFrom: string
   createdTo: string
+  startDateFrom: string
+  startDateTo: string
+  endDateFrom: string
+  endDateTo: string
+  updatedFrom: string
+  updatedTo: string
   sortBy: ContractsSortBy
   sortDir: ContractsSortDir
 }

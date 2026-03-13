@@ -41,7 +41,9 @@ export default function RightSidebarComponent({
           </button>
         </div>
 
-        {children}
+        <div className="sidebar-scrollbar h-[calc(100vh-96px)] overflow-y-auto pr-2">
+          {children}
+        </div>
       </aside>
     </>
   )

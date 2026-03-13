@@ -10,7 +10,8 @@ export const contractsTableColumns: string[] = [
   'Fin',             // 6
   'Estado contrato', // 7
   'Creado',          // 8
-  'Acciones',        // 9
+  'Actualizado',     // 9
+  'Acciones',        // 10
 ]
 
 export const contractsTableColumnIndex = {
@@ -30,6 +31,7 @@ export const contractsTableSortByColumn: Partial<Record<number, ContractsSortBy>
   6: 'endDate',
   7: 'contractStatusId',
   8: 'createdAt',
+  9: 'updatedAt',
 }
 
 export const initialContractsRows: ContractTableRow[] = []
@@ -48,9 +50,19 @@ export const initialContractsPagination: ContractsPagination = {
 export const initialContractsQueryParams: ContractsQueryParams = {
   page: 0,
   size: 8,
+  search: '',
   employeeId: '',
+  statusId: '',
+  contractStatusId: '',
+  contractTypeId: '',
   createdFrom: '',
   createdTo: '',
+  startDateFrom: '',
+  startDateTo: '',
+  endDateFrom: '',
+  endDateTo: '',
+  updatedFrom: '',
+  updatedTo: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
 }

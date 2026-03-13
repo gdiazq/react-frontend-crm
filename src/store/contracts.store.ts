@@ -143,6 +143,82 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
     await get().goToPage(get().pagination.page - 1)
   },
 
+  setSearch: (value: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, search: value } }))
+  },
+
+  setEmployeeFilter: (employeeId: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, employeeId } }))
+  },
+
+  setStatusFilter: (statusId: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, statusId } }))
+  },
+
+  setContractStatusFilter: (contractStatusId: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, contractStatusId } }))
+  },
+
+  setContractTypeFilter: (contractTypeId: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, contractTypeId } }))
+  },
+
+  setCreatedDateRange: ({ createdFrom, createdTo }) => {
+    set((state) => ({ queryParams: { ...state.queryParams, createdFrom, createdTo } }))
+  },
+
+  setStartDateRange: ({ startDateFrom, startDateTo }) => {
+    set((state) => ({ queryParams: { ...state.queryParams, startDateFrom, startDateTo } }))
+  },
+
+  setEndDateRange: ({ endDateFrom, endDateTo }) => {
+    set((state) => ({ queryParams: { ...state.queryParams, endDateFrom, endDateTo } }))
+  },
+
+  setUpdatedDateRange: ({ updatedFrom, updatedTo }) => {
+    set((state) => ({ queryParams: { ...state.queryParams, updatedFrom, updatedTo } }))
+  },
+
+  clearEmployeeFilter: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, employeeId: '' } }))
+  },
+
+  clearStatusFilter: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, statusId: '' } }))
+  },
+
+  clearContractStatusFilter: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, contractStatusId: '' } }))
+  },
+
+  clearContractTypeFilter: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, contractTypeId: '' } }))
+  },
+
+  clearCreatedDateRange: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, createdFrom: '', createdTo: '' } }))
+  },
+
+  clearStartDateRange: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, startDateFrom: '', startDateTo: '' } }))
+  },
+
+  clearEndDateRange: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, endDateFrom: '', endDateTo: '' } }))
+  },
+
+  clearUpdatedDateRange: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, updatedFrom: '', updatedTo: '' } }))
+  },
+
+  searchContracts: async () => {
+    set((state) => ({
+      pagination: { ...state.pagination, page: 0 },
+      queryParams: { ...state.queryParams, page: 0 },
+    }))
+    await get().getContracts()
+  },
+
   sortContracts: async (sortBy: ContractsSortBy, sortDir: ContractsSortDir) => {
     set((state) => ({
       pagination: { ...state.pagination, page: 0 },

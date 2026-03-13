@@ -15,6 +15,11 @@ export const contractSelectsService = {
     return data
   },
 
+  getContractStatusOptions: async () => {
+    const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/contract-statuses`)
+    return data
+  },
+
   getSafetyGroupOptions: async () => {
     const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/safety-groups`)
     return data

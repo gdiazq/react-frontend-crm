@@ -6,6 +6,8 @@ import type { ContractSelectsStore } from '@/types'
 
 export const useStoreContractSelects = create<ContractSelectsStore>()((set) => ({
   employeeWithoutContractOptions: [],
+  contractTypeFilterOptions: [],
+  contractStatusFilterOptions: [],
   contractTypeOptions: [],
   safetyGroupOptions: [],
   companyOptions: [],
@@ -15,9 +17,45 @@ export const useStoreContractSelects = create<ContractSelectsStore>()((set) => (
   laborUnionOptions: [],
   mealTypeOptions: [],
   transportTypeOptions: [],
+  loadingContractFilterOptions: false,
   loadingFormOptions: false,
+  contractFilterOptionsErrorMessage: null,
   formOptionsErrorMessage: null,
   errorBack: null,
+
+  getContractFilterOptions: async () => {
+    try {
+      set({
+        loadingContractFilterOptions: true,
+        contractFilterOptionsErrorMessage: null,
+        errorBack: null,
+      })
+
+      const [contractTypes, contractStatuses] = await Promise.all([
+        contractSelectsService.getContractTypeOptions(),
+        contractSelectsService.getContractStatusOptions(),
+      ])
+
+      set({
+        contractTypeFilterOptions: mapperContractSelectOptions(contractTypes),
+        contractStatusFilterOptions: mapperContractSelectOptions(contractStatuses),
+      })
+    } catch (error) {
+      if (contractSelectsService.isAxiosError(error)) {
+        set({
+          contractFilterOptionsErrorMessage: error.response?.data?.message || messages.contracts.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          contractFilterOptionsErrorMessage: messages.contracts.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingContractFilterOptions: false })
+    }
+  },
 
   getFormOptions: async () => {
     try {
@@ -82,5 +120,9 @@ export const useStoreContractSelects = create<ContractSelectsStore>()((set) => (
 
   clearFormOptionsStatus: () => {
     set({ formOptionsErrorMessage: null })
+  },
+
+  clearContractFilterOptionsStatus: () => {
+    set({ contractFilterOptionsErrorMessage: null })
   },
 }))

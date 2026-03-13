@@ -27,6 +27,7 @@ export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
       formatDate(item.endDate || '', '-'),
       item.contractStatus,
       formatDate(item.createdAt),
+      formatDate(item.updatedAt || '', 'Sin registro'),
       '',
     ],
   }))
@@ -55,9 +56,19 @@ export function mapperContractsPagination(result: ContractPagedResponse): Contra
 }
 
 export function mapperContractsQueryParams(result: ContractsQueryParams): Record<string, number | string> {
+  const search = result.search.trim()
   const employeeId = result.employeeId.trim()
+  const statusId = result.statusId.trim()
+  const contractStatusId = result.contractStatusId.trim()
+  const contractTypeId = result.contractTypeId.trim()
   const createdFrom = result.createdFrom.trim()
   const createdTo = result.createdTo.trim()
+  const startDateFrom = result.startDateFrom.trim()
+  const startDateTo = result.startDateTo.trim()
+  const endDateFrom = result.endDateFrom.trim()
+  const endDateTo = result.endDateTo.trim()
+  const updatedFrom = result.updatedFrom.trim()
+  const updatedTo = result.updatedTo.trim()
   const queryParams: Record<string, number | string> = {
     page: result.page,
     size: result.size,
@@ -65,13 +76,36 @@ export function mapperContractsQueryParams(result: ContractsQueryParams): Record
     sortDir: result.sortDir,
   }
 
+  if (search.length > 0) queryParams.search = search
+
   if (employeeId.length > 0) {
     const parsedEmployeeId = Number(employeeId)
     if (Number.isInteger(parsedEmployeeId) && parsedEmployeeId > 0) queryParams.employeeId = parsedEmployeeId
   }
 
+  if (statusId.length > 0) {
+    const parsedStatusId = Number(statusId)
+    if (Number.isInteger(parsedStatusId) && parsedStatusId > 0) queryParams.statusId = parsedStatusId
+  }
+
+  if (contractStatusId.length > 0) {
+    const parsedContractStatusId = Number(contractStatusId)
+    if (Number.isInteger(parsedContractStatusId) && parsedContractStatusId > 0) queryParams.contractStatusId = parsedContractStatusId
+  }
+
+  if (contractTypeId.length > 0) {
+    const parsedContractTypeId = Number(contractTypeId)
+    if (Number.isInteger(parsedContractTypeId) && parsedContractTypeId > 0) queryParams.contractTypeId = parsedContractTypeId
+  }
+
   if (createdFrom.length > 0) queryParams.createdFrom = createdFrom
   if (createdTo.length > 0) queryParams.createdTo = createdTo
+  if (startDateFrom.length > 0) queryParams.startDateFrom = startDateFrom
+  if (startDateTo.length > 0) queryParams.startDateTo = startDateTo
+  if (endDateFrom.length > 0) queryParams.endDateFrom = endDateFrom
+  if (endDateTo.length > 0) queryParams.endDateTo = endDateTo
+  if (updatedFrom.length > 0) queryParams.updatedFrom = updatedFrom
+  if (updatedTo.length > 0) queryParams.updatedTo = updatedTo
 
   return queryParams
 }

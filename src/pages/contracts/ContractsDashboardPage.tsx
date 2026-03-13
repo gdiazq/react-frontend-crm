@@ -8,6 +8,7 @@ import {
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
+  SelectComponent,
   StatsOverviewCardsComponent,
   TableComponent,
   ToolbarActionsDropdownComponent,
@@ -15,8 +16,7 @@ import {
 import { AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
 import { mapperContractDetailView } from '@/mappers'
-import messages from '@/messages/messages'
-import { useStoreContracts } from '@/store'
+import { useStoreContractSelects, useStoreContracts, useStoreEmployeeSelects } from '@/store'
 import type { ContractTableRow, TableRow, TableSortState } from '@/types'
 import { createContractsActions, createContractsTableCustomRenderer } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -45,12 +45,53 @@ export default function ContractsDashboardPage() {
   const clearContractDetail = useStoreContracts((s) => s.clearContractDetail)
   const sortContracts = useStoreContracts((s) => s.sortContracts)
   const goToPage = useStoreContracts((s) => s.goToPage)
+  const setSearch = useStoreContracts((s) => s.setSearch)
+  const setStatusFilter = useStoreContracts((s) => s.setStatusFilter)
+  const setContractStatusFilter = useStoreContracts((s) => s.setContractStatusFilter)
+  const setContractTypeFilter = useStoreContracts((s) => s.setContractTypeFilter)
+  const setCreatedDateRange = useStoreContracts((s) => s.setCreatedDateRange)
+  const setStartDateRange = useStoreContracts((s) => s.setStartDateRange)
+  const setEndDateRange = useStoreContracts((s) => s.setEndDateRange)
+  const setUpdatedDateRange = useStoreContracts((s) => s.setUpdatedDateRange)
+  const clearStatusFilter = useStoreContracts((s) => s.clearStatusFilter)
+  const clearContractStatusFilter = useStoreContracts((s) => s.clearContractStatusFilter)
+  const clearContractTypeFilter = useStoreContracts((s) => s.clearContractTypeFilter)
+  const clearCreatedDateRange = useStoreContracts((s) => s.clearCreatedDateRange)
+  const clearStartDateRange = useStoreContracts((s) => s.clearStartDateRange)
+  const clearEndDateRange = useStoreContracts((s) => s.clearEndDateRange)
+  const clearUpdatedDateRange = useStoreContracts((s) => s.clearUpdatedDateRange)
+  const searchContracts = useStoreContracts((s) => s.searchContracts)
+
+  const contractTypeFilterOptions = useStoreContractSelects((s) => s.contractTypeFilterOptions)
+  const contractStatusFilterOptions = useStoreContractSelects((s) => s.contractStatusFilterOptions)
+  const loadingContractFilterOptions = useStoreContractSelects((s) => s.loadingContractFilterOptions)
+  const contractFilterOptionsErrorMessage = useStoreContractSelects((s) => s.contractFilterOptionsErrorMessage)
+  const getContractFilterOptions = useStoreContractSelects((s) => s.getContractFilterOptions)
+  const clearContractFilterOptionsStatus = useStoreContractSelects((s) => s.clearContractFilterOptionsStatus)
+
+  const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
+  const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
+  const approvalEmployeeStatusOptionsErrorMessage = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
+  const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
+  const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
 
   const { actionViewDetail, actionUpdateContract } = createContractsActions()
 
   // --- State ---
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [searchValue, setSearchValue] = useState('')
+  const [filters, setFilters] = useState(() => ({
+    statusId: queryParams.statusId,
+    contractStatusId: queryParams.contractStatusId,
+    contractTypeId: queryParams.contractTypeId,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    startDateFrom: queryParams.startDateFrom,
+    startDateTo: queryParams.startDateTo,
+    endDateFrom: queryParams.endDateFrom,
+    endDateTo: queryParams.endDateTo,
+    updatedFrom: queryParams.updatedFrom,
+    updatedTo: queryParams.updatedTo,
+  }))
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
@@ -68,6 +109,9 @@ export default function ContractsDashboardPage() {
     columnIndex: activeSortColumn,
     direction: queryParams.sortDir,
   }
+  const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const contractStatusSelectOptions = contractStatusFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const contractTypeSelectOptions = contractTypeFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const detailTitle = contractDetailView
     ? `Detalle de ${contractDetailView.contractName}`
     : selectedDetailName
@@ -77,7 +121,37 @@ export default function ContractsDashboardPage() {
   // --- Effects ---
   useEffect(() => {
     void getContracts()
-  }, [getContracts])
+    void getContractFilterOptions()
+    void getApprovalEmployeeStatusOptions()
+  }, [getContracts, getContractFilterOptions, getApprovalEmployeeStatusOptions])
+
+  useEffect(() => {
+    setFilters({
+      statusId: queryParams.statusId,
+      contractStatusId: queryParams.contractStatusId,
+      contractTypeId: queryParams.contractTypeId,
+      createdFrom: queryParams.createdFrom,
+      createdTo: queryParams.createdTo,
+      startDateFrom: queryParams.startDateFrom,
+      startDateTo: queryParams.startDateTo,
+      endDateFrom: queryParams.endDateFrom,
+      endDateTo: queryParams.endDateTo,
+      updatedFrom: queryParams.updatedFrom,
+      updatedTo: queryParams.updatedTo,
+    })
+  }, [
+    queryParams.statusId,
+    queryParams.contractStatusId,
+    queryParams.contractTypeId,
+    queryParams.createdFrom,
+    queryParams.createdTo,
+    queryParams.startDateFrom,
+    queryParams.startDateTo,
+    queryParams.endDateFrom,
+    queryParams.endDateTo,
+    queryParams.updatedFrom,
+    queryParams.updatedTo,
+  ])
 
   // --- Handlers: Detail ---
   const handleViewDetail = (row: ContractTableRow) => {
@@ -145,7 +219,76 @@ export default function ContractsDashboardPage() {
 
   // --- Handlers: Search ---
   const handleSearchSubmit = async () => {
-    await getContracts()
+    await searchContracts()
+  }
+
+  // --- Handlers: Filters ---
+  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+    setFilters((prev) => ({ ...prev, [field]: value }))
+  }
+  const handleStatusFilterChange = (value: string) => handleChangeFilter('statusId', value)
+  const handleContractStatusFilterChange = (value: string) => handleChangeFilter('contractStatusId', value)
+  const handleContractTypeFilterChange = (value: string) => handleChangeFilter('contractTypeId', value)
+  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
+  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
+  const handleStartDateFromFilterChange = (value: string) => handleChangeFilter('startDateFrom', value)
+  const handleStartDateToFilterChange = (value: string) => handleChangeFilter('startDateTo', value)
+  const handleEndDateFromFilterChange = (value: string) => handleChangeFilter('endDateFrom', value)
+  const handleEndDateToFilterChange = (value: string) => handleChangeFilter('endDateTo', value)
+  const handleUpdatedFromFilterChange = (value: string) => handleChangeFilter('updatedFrom', value)
+  const handleUpdatedToFilterChange = (value: string) => handleChangeFilter('updatedTo', value)
+
+  const handleApplyFilters = async () => {
+    const selectedStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.statusId)
+    const selectedContractStatus = contractStatusFilterOptions.find((option) => String(option.id) === filters.contractStatusId)
+    const selectedContractType = contractTypeFilterOptions.find((option) => String(option.id) === filters.contractTypeId)
+
+    setStatusFilter(selectedStatus ? String(selectedStatus.id) : '')
+    setContractStatusFilter(selectedContractStatus ? String(selectedContractStatus.id) : '')
+    setContractTypeFilter(selectedContractType ? String(selectedContractType.id) : '')
+    setCreatedDateRange({
+      createdFrom: filters.createdFrom.trim(),
+      createdTo: filters.createdTo.trim(),
+    })
+    setStartDateRange({
+      startDateFrom: filters.startDateFrom.trim(),
+      startDateTo: filters.startDateTo.trim(),
+    })
+    setEndDateRange({
+      endDateFrom: filters.endDateFrom.trim(),
+      endDateTo: filters.endDateTo.trim(),
+    })
+    setUpdatedDateRange({
+      updatedFrom: filters.updatedFrom.trim(),
+      updatedTo: filters.updatedTo.trim(),
+    })
+    await searchContracts()
+    setFiltersOpen(false)
+  }
+
+  const handleClearFilters = async () => {
+    setFilters({
+      statusId: '',
+      contractStatusId: '',
+      contractTypeId: '',
+      createdFrom: '',
+      createdTo: '',
+      startDateFrom: '',
+      startDateTo: '',
+      endDateFrom: '',
+      endDateTo: '',
+      updatedFrom: '',
+      updatedTo: '',
+    })
+    clearStatusFilter()
+    clearContractStatusFilter()
+    clearContractTypeFilter()
+    clearCreatedDateRange()
+    clearStartDateRange()
+    clearEndDateRange()
+    clearUpdatedDateRange()
+    await searchContracts()
+    setFiltersOpen(false)
   }
 
   // --- Handlers: Download & Upload ---
@@ -181,6 +324,22 @@ export default function ContractsDashboardPage() {
         />
       )}
 
+      {contractFilterOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={contractFilterOptionsErrorMessage}
+          tone="error"
+          onClose={clearContractFilterOptionsStatus}
+        />
+      )}
+
+      {approvalEmployeeStatusOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={approvalEmployeeStatusOptionsErrorMessage}
+          tone="error"
+          onClose={clearApprovalEmployeeStatusOptionsStatus}
+        />
+      )}
+
       <form
         className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
         onSubmit={(event) => {
@@ -198,10 +357,10 @@ export default function ContractsDashboardPage() {
           />
           <div className="min-w-0 flex-1">
             <InputComponent
-              value={searchValue}
+              value={queryParams.search}
               type="text"
-              placeholder="Buscar contrato"
-              onValueChange={setSearchValue}
+              placeholder="Buscar por nombre trabajador"
+              onValueChange={setSearch}
             />
           </div>
         </div>
@@ -269,15 +428,134 @@ export default function ContractsDashboardPage() {
         onClose={() => setFiltersOpen(false)}
       >
         <div className="space-y-4">
-          <p className="text-sm text-slate-600 dark:text-slate-300">
-            {messages.contracts.ui.filtersComingSoon}
-          </p>
-          <div className="flex justify-end">
+          <SelectComponent
+            value={filters.statusId}
+            label="Estado de aprobacion"
+            options={statusSelectOptions}
+            loading={loadingApprovalEmployeeStatusOptions}
+            onValueChange={handleStatusFilterChange}
+          />
+          <SelectComponent
+            value={filters.contractStatusId}
+            label="Estado contrato"
+            options={contractStatusSelectOptions}
+            loading={loadingContractFilterOptions}
+            onValueChange={handleContractStatusFilterChange}
+          />
+          <SelectComponent
+            value={filters.contractTypeId}
+            label="Tipo contrato"
+            options={contractTypeSelectOptions}
+            loading={loadingContractFilterOptions}
+            onValueChange={handleContractTypeFilterChange}
+          />
+          <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/20 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">
+              Fecha inicio contrato
+            </p>
+            <div className="grid gap-2">
+              <InputComponent
+                id="contracts-start-date-from"
+                value={filters.startDateFrom}
+                label="Desde"
+                type="date"
+                aria-label="Fecha inicio contrato desde"
+                onValueChange={handleStartDateFromFilterChange}
+              />
+              <InputComponent
+                id="contracts-start-date-to"
+                value={filters.startDateTo}
+                label="Hasta"
+                type="date"
+                aria-label="Fecha inicio contrato hasta"
+                onValueChange={handleStartDateToFilterChange}
+              />
+            </div>
+          </div>
+          <div className="space-y-3 rounded-xl border border-fuchsia-500/35 bg-fuchsia-50/15 p-3 dark:border-fuchsia-400/25 dark:bg-fuchsia-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-fuchsia-700 dark:text-fuchsia-300">
+              Fecha fin contrato
+            </p>
+            <div className="grid gap-2">
+              <InputComponent
+                id="contracts-end-date-from"
+                value={filters.endDateFrom}
+                label="Desde"
+                type="date"
+                aria-label="Fecha fin contrato desde"
+                onValueChange={handleEndDateFromFilterChange}
+              />
+              <InputComponent
+                id="contracts-end-date-to"
+                value={filters.endDateTo}
+                label="Hasta"
+                type="date"
+                aria-label="Fecha fin contrato hasta"
+                onValueChange={handleEndDateToFilterChange}
+              />
+            </div>
+          </div>
+          <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              Fecha creacion
+            </p>
+            <div className="grid gap-2">
+              <InputComponent
+                id="contracts-created-from"
+                value={filters.createdFrom}
+                label="Desde"
+                type="date"
+                aria-label="Fecha creacion desde"
+                onValueChange={handleCreatedFromFilterChange}
+              />
+              <InputComponent
+                id="contracts-created-to"
+                value={filters.createdTo}
+                label="Hasta"
+                type="date"
+                aria-label="Fecha creacion hasta"
+                onValueChange={handleCreatedToFilterChange}
+              />
+            </div>
+          </div>
+          <div className="space-y-3 rounded-xl border border-amber-500/35 bg-amber-50/15 p-3 dark:border-amber-400/25 dark:bg-amber-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+              Fecha actualizacion
+            </p>
+            <div className="grid gap-2">
+              <InputComponent
+                id="contracts-updated-from"
+                value={filters.updatedFrom}
+                label="Desde"
+                type="date"
+                aria-label="Fecha actualizacion desde"
+                onValueChange={handleUpdatedFromFilterChange}
+              />
+              <InputComponent
+                id="contracts-updated-to"
+                value={filters.updatedTo}
+                label="Hasta"
+                type="date"
+                aria-label="Fecha actualizacion hasta"
+                onValueChange={handleUpdatedToFilterChange}
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent
               type="button"
               variant="outline"
-              label="Cerrar"
-              onClick={() => setFiltersOpen(false)}
+              disabled={loadingContracts || loadingContractFilterOptions || loadingApprovalEmployeeStatusOptions}
+              label="Limpiar"
+              onClick={() => { void handleClearFilters() }}
+            />
+            <ButtonComponent
+              type="button"
+              variant="primary"
+              disabled={loadingContracts || loadingContractFilterOptions || loadingApprovalEmployeeStatusOptions}
+              className="text-white dark:text-white"
+              label={loadingContractFilterOptions || loadingApprovalEmployeeStatusOptions ? 'Aplicando...' : 'Aplicar'}
+              onClick={() => { void handleApplyFilters() }}
             />
           </div>
         </div>
