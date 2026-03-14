@@ -22,3 +22,8 @@ export interface SelectPermissionOption {
   id: number
   name: string
 }
+
+export interface SelectProjectSpecialtyOption {
+  id: number
+  name: string
+}

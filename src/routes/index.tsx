@@ -19,6 +19,8 @@ const UsersDashboardPage = lazy(() => import('@/pages/users/UsersDashboardPage')
 const RequestsDashboardPage = lazy(() => import('@/pages/requests/RequestsDashboardPage'))
 const EmployeesDashboardPage = lazy(() => import('@/pages/employees/EmployeesDashboardPage'))
 const ContractsDashboardPage = lazy(() => import('@/pages/contracts/ContractsDashboardPage'))
+const ProjectSpecialtiesDashboardPage = lazy(() => import('@/pages/projects/ProjectSpecialtiesDashboardPage'))
+const ProjectSpecialtiesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectSpecialtiesFormDashboardPage'))
 const ProjectTypesDashboardPage = lazy(() => import('@/pages/projects/ProjectTypesDashboardPage'))
 const ProjectTypesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectTypesFormDashboardPage'))
 const ContractsFormDashboardPage = lazy(() => import('@/pages/contracts/ContractsFormDashboardPage'))
@@ -176,6 +178,30 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="PROJECT_TYPE" permissionType="canUpdate">
             <ProjectTypesFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/projects/specialties',
+        element: (
+          <ProtectedRoute requiresPermissions module="PROJECT_SPECIALTY" permissionType="canRead">
+            <ProjectSpecialtiesDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/projects/specialties/new',
+        element: (
+          <ProtectedRoute requiresPermissions module="PROJECT_SPECIALTY" permissionType="canCreate">
+            <ProjectSpecialtiesFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/projects/specialties/:editId',
+        element: (
+          <ProtectedRoute requiresPermissions module="PROJECT_SPECIALTY" permissionType="canUpdate">
+            <ProjectSpecialtiesFormDashboardPage />
           </ProtectedRoute>
         ),
       },

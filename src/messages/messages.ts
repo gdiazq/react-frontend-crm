@@ -346,6 +346,36 @@ export default {
       },
     },
   },
+  projectSpecialties: {
+    ui: {
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      actionViewDetail: 'Ver detalle',
+      updateProjectSpecialty: 'Editar especialidad',
+      actionEnableProjectSpecialty: 'Habilitar especialidad',
+      actionDisableProjectSpecialty: 'Deshabilitar especialidad',
+      detailTitleFallback: 'Detalle de especialidad de proyecto',
+    },
+    status: {
+      success: {
+        createProjectSpecialtySuccess: 'Especialidad de proyecto creada correctamente.',
+        updateProjectSpecialtySuccess: 'Especialidad de proyecto actualizada correctamente.',
+        toggleEnabledSuccess: 'habilitada correctamente.',
+        toggleDisabledSuccess: 'deshabilitada correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de especialidades de proyecto.',
+        createProjectSpecialtyError: 'No se pudo crear la especialidad de proyecto.',
+        createProjectSpecialtyNameRequired: 'Ingresa un nombre valido para la especialidad de proyecto.',
+        updateProjectSpecialtyError: 'No se pudo actualizar la especialidad de proyecto.',
+        updateProjectSpecialtyInvalidId: 'Id de especialidad de proyecto invalido para actualizar.',
+        detailLoadError: 'No se pudo cargar el detalle de la especialidad de proyecto.',
+        detailInvalidProjectSpecialtyId: 'Id de especialidad de proyecto invalido para ver detalle.',
+        toggleStatusError: 'No se pudo actualizar el estado de la especialidad de proyecto.',
+        invalidStatusProjectSpecialtyId: 'Id de especialidad de proyecto invalido para actualizar estado.',
+      },
+    },
+  },
   selects: {
     status: {
       success: {},
@@ -354,6 +384,7 @@ export default {
         loadPermissionsError: 'No se pudieron cargar los permisos.',
         loadUsersFiltersError: 'No se pudieron cargar los filtros de usuarios.',
         loadStatusError: 'No se pudieron cargar los estados.',
+        loadProjectSpecialtiesError: 'No se pudieron cargar las especialidades de proyecto.',
         loadApprovalEmployeeStatusesError: 'No se pudieron cargar los estados de aprobacion.',
         loadHrRequestTypesError: 'No se pudieron cargar los tipos de solicitud.',
       },

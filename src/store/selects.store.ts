@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import {
   mapperSelectPermissionOptions,
+  mapperSelectProjectSpecialtyOptions,
   mapperSelectRoleOptions,
   mapperSelectStatusOptions,
   mapperSelectUserEmailOptions,
@@ -13,6 +14,7 @@ import type { SelectsStore } from '@/types'
 export const useStoreSelects = create<SelectsStore>()((set) => ({
   roleOptions: [],
   permissionOptions: [],
+  projectSpecialtyOptions: [],
   userNameOptions: [],
   userEmailOptions: [],
   statusOptions: [],
@@ -20,10 +22,12 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   loadingPermissionOptions: false,
   loadingStatusOptions: false,
   loadingUsersFilterOptions: false,
+  loadingProjectSpecialtyOptions: false,
   roleOptionsErrorMessage: null,
   permissionOptionsErrorMessage: null,
   statusOptionsErrorMessage: null,
   usersFilterOptionsErrorMessage: null,
+  projectSpecialtyOptionsErrorMessage: null,
   errorBack: null,
 
   getRoleOptions: async () => {
@@ -156,5 +160,35 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
 
   clearUsersFilterOptionsStatus: () => {
     set({ usersFilterOptionsErrorMessage: null })
+  },
+
+  getProjectSpecialtyOptions: async () => {
+    try {
+      set({
+        loadingProjectSpecialtyOptions: true,
+        projectSpecialtyOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await selectsService.getProjectSpecialtyOptions()
+      set({ projectSpecialtyOptions: mapperSelectProjectSpecialtyOptions(data) })
+    } catch (error) {
+      if (selectsService.isAxiosError(error)) {
+        set({
+          projectSpecialtyOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadProjectSpecialtiesError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          projectSpecialtyOptionsErrorMessage: messages.selects.status.errors.loadProjectSpecialtiesError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingProjectSpecialtyOptions: false })
+    }
+  },
+
+  clearProjectSpecialtyOptionsStatus: () => {
+    set({ projectSpecialtyOptionsErrorMessage: null })
   },
 }))

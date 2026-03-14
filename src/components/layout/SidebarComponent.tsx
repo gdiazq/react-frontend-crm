@@ -10,6 +10,7 @@ interface SidebarComponentProps {
   showEmployees?: boolean
   showContracts?: boolean
   showProjects?: boolean
+  showProjectSpecialties?: boolean
   showRoles?: boolean
   onCloseMobile?: () => void
   onToggleDesktopCollapse?: () => void
@@ -19,6 +20,7 @@ interface SidebarComponentProps {
   onGoEmployees: () => void
   onGoContracts: () => void
   onGoProjects: () => void
+  onGoProjectSpecialties: () => void
   onGoRoles: () => void
   onGoLogout: () => void
 }
@@ -31,6 +33,7 @@ export default function SidebarComponent({
   showEmployees = true,
   showContracts = true,
   showProjects = true,
+  showProjectSpecialties = true,
   showRoles = true,
   onCloseMobile,
   onToggleDesktopCollapse,
@@ -40,6 +43,7 @@ export default function SidebarComponent({
   onGoEmployees,
   onGoContracts,
   onGoProjects,
+  onGoProjectSpecialties,
   onGoRoles,
   onGoLogout,
 }: SidebarComponentProps) {
@@ -49,10 +53,11 @@ export default function SidebarComponent({
   const isRequestsActive = useMemo(() => location.pathname.startsWith('/requests'), [location.pathname])
   const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
   const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
-  const isProjectsActive = useMemo(() => location.pathname.startsWith('/projects/types'), [location.pathname])
+  const isProjectTypesActive = useMemo(() => location.pathname.startsWith('/projects/types'), [location.pathname])
+  const isProjectSpecialtiesActive = useMemo(() => location.pathname.startsWith('/projects/specialties'), [location.pathname])
   const isRolesActive = useMemo(() => location.pathname.startsWith('/roles'), [location.pathname])
   const hasRrhhItems = showRequests || showEmployees || showContracts
-  const hasProjectsItems = showProjects
+  const hasProjectsItems = showProjects || showProjectSpecialties
   const hasAdministrationItems = showUsers || showRoles
 
   const getItemClasses = (active: boolean) => {
@@ -199,16 +204,32 @@ export default function SidebarComponent({
               </p>
 
               {showProjects && (
-                <SidebarTooltipComponent enabled={collapsed} active={isProjectsActive} label="Tipos">
+                <SidebarTooltipComponent enabled={collapsed} active={isProjectTypesActive} label="Tipos">
                   <button
                     type="button"
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectsActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectTypesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
                     onClick={onGoProjects}
                   >
                     <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
                     </svg>
                     <span className={collapsed ? 'lg:hidden' : ''}>Tipos</span>
+                  </button>
+                </SidebarTooltipComponent>
+              )}
+
+              {showProjectSpecialties && (
+                <SidebarTooltipComponent enabled={collapsed} active={isProjectSpecialtiesActive} label="Especialidades">
+                  <button
+                    type="button"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectSpecialtiesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    onClick={onGoProjectSpecialties}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 6h16M4 12h16M4 18h16" />
+                      <path d="M9 3v18" />
+                    </svg>
+                    <span className={collapsed ? 'lg:hidden' : ''}>Especialidades</span>
                   </button>
                 </SidebarTooltipComponent>
               )}

@@ -6,6 +6,7 @@ import {
   AUTH_ROUTE_EMPLOYEES,
   AUTH_ROUTE_LOGIN,
   AUTH_ROUTE_LOGOUT,
+  AUTH_ROUTE_PROJECT_SPECIALTIES,
   AUTH_ROUTE_PROJECT_TYPES,
   AUTH_ROUTE_REQUESTS,
   AUTH_ROUTE_ROLES,
@@ -45,6 +46,7 @@ export default function LayoutPrivateDefault() {
   const canReadEmployees = hasPermission('EMPLOYEE', 'canRead')
   const canReadContracts = hasPermission('CONTRACT', 'canRead')
   const canReadProjects = hasPermission('PROJECT_TYPE', 'canRead')
+  const canReadProjectSpecialties = hasPermission('PROJECT_SPECIALTY', 'canRead')
   const canReadRoles = hasPermission('ROLE', 'canRead')
 
   useEffect(() => {
@@ -140,6 +142,16 @@ export default function LayoutPrivateDefault() {
     navigate(AUTH_ROUTE_PROJECT_TYPES)
   }
 
+  const handleGoProjectSpecialties = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    if (!canReadProjectSpecialties) {
+      navigate('/unauthorized')
+      return
+    }
+    navigate(AUTH_ROUTE_PROJECT_SPECIALTIES)
+  }
+
   const handleGoSettings = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
@@ -199,6 +211,7 @@ export default function LayoutPrivateDefault() {
         showEmployees={canReadEmployees}
         showContracts={canReadContracts}
         showProjects={canReadProjects}
+        showProjectSpecialties={canReadProjectSpecialties}
         showRoles={canReadRoles}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         onToggleDesktopCollapse={() => setSidebarCollapsed((v) => !v)}
@@ -208,6 +221,7 @@ export default function LayoutPrivateDefault() {
         onGoEmployees={handleGoEmployees}
         onGoContracts={handleGoContracts}
         onGoProjects={handleGoProjects}
+        onGoProjectSpecialties={handleGoProjectSpecialties}
         onGoRoles={handleGoRoles}
         onGoLogout={handleGoLogout}
       />
