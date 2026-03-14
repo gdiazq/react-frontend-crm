@@ -1,3 +1,4 @@
+import DetailFieldCardComponent from '@/components/ui/detail/DetailFieldCardComponent'
 import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
 import StatusBadgeComponent from '@/components/ui/status/StatusBadgeComponent'
 import type { ProjectTypeDetailView } from '@/types'
@@ -19,7 +20,7 @@ export default function ProjectTypeDetailComponent({
     <DetailStateWrapperComponent
       loading={loading}
       errorMessage={errorMessage}
-      hasData={detail != null}
+      hasData={detail !== null}
       loadingText="Cargando detalle del tipo de proyecto..."
       emptyText="Selecciona un tipo para ver su detalle."
       onRetry={onRetry}
@@ -29,7 +30,11 @@ export default function ProjectTypeDetailComponent({
   )
 }
 
-function ProjectTypeDetailContent({ detail }: { detail: ProjectTypeDetailView }) {
+function ProjectTypeDetailContent({
+  detail,
+}: {
+  detail: ProjectTypeDetailView
+}) {
   return (
     <section className="space-y-5">
       <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
@@ -37,16 +42,9 @@ function ProjectTypeDetailContent({ detail }: { detail: ProjectTypeDetailView })
           Informacion general
         </h3>
         <div className="grid gap-3 md:grid-cols-2">
-          <p className="text-sm">
-            <span className="font-semibold">Nombre:</span> {detail.nameDisplay}
-          </p>
-          <div className="text-sm">
-            <span className="font-semibold">Estado:</span>{' '}
-            <StatusBadgeComponent enabled={detail.active} />
-          </div>
-          <p className="text-sm md:col-span-2">
-            <span className="font-semibold">Descripcion:</span> {detail.descriptionDisplay}
-          </p>
+          <DetailFieldCardComponent title="Nombre" value={detail.nameDisplay} />
+          <DetailFieldCardComponent title="Estado" value={<StatusBadgeComponent enabled={detail.active} />} />
+          <DetailFieldCardComponent title="Descripcion" value={detail.descriptionDisplay} className="md:col-span-2" />
         </div>
       </article>
 
@@ -54,13 +52,9 @@ function ProjectTypeDetailContent({ detail }: { detail: ProjectTypeDetailView })
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
           Fechas
         </h3>
-        <div className="grid gap-3">
-          <p className="text-sm">
-            <span className="font-semibold">Creado:</span> {detail.createdAtDisplay}
-          </p>
-          <p className="text-sm">
-            <span className="font-semibold">Actualizado:</span> {detail.updatedAtDisplay}
-          </p>
+        <div className="grid gap-3 md:grid-cols-2">
+          <DetailFieldCardComponent title="Creado" value={detail.createdAtDisplay} />
+          <DetailFieldCardComponent title="Actualizado" value={detail.updatedAtDisplay} />
         </div>
       </article>
     </section>

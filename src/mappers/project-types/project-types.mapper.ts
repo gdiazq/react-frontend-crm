@@ -43,6 +43,10 @@ export function mapperProjectTypesPagination(result: ProjectTypePagedResponse): 
 export function mapperProjectTypesQueryParams(result: ProjectTypesQueryParams): Record<string, number | string> {
   const search = result.search.trim()
   const active = result.active.trim()
+  const createdFrom = result.createdFrom.trim()
+  const createdTo = result.createdTo.trim()
+  const updatedFrom = result.updatedFrom.trim()
+  const updatedTo = result.updatedTo.trim()
   const queryParams: Record<string, number | string> = {
     page: result.page,
     size: result.size,
@@ -52,6 +56,10 @@ export function mapperProjectTypesQueryParams(result: ProjectTypesQueryParams): 
 
   if (search.length > 0) queryParams.search = search
   if (active == 'true' || active == 'false') queryParams.active = active
+  if (createdFrom.length > 0) queryParams.createdFrom = createdFrom
+  if (createdTo.length > 0) queryParams.createdTo = createdTo
+  if (updatedFrom.length > 0) queryParams.updatedFrom = updatedFrom
+  if (updatedTo.length > 0) queryParams.updatedTo = updatedTo
 
   return queryParams
 }

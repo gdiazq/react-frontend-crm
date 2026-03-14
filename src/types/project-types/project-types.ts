@@ -78,6 +78,10 @@ export interface ProjectTypesQueryParams {
   size: number
   search: string
   active: string
+  createdFrom: string
+  createdTo: string
+  updatedFrom: string
+  updatedTo: string
   sortBy: ProjectTypesSortBy
   sortDir: ProjectTypesSortDir
 }

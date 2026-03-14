@@ -49,7 +49,11 @@ export default function ProjectTypesDashboardPage() {
   const searchProjectTypes = useStoreProjectTypes((s) => s.searchProjectTypes)
   const sortProjectTypes = useStoreProjectTypes((s) => s.sortProjectTypes)
   const setActiveFilter = useStoreProjectTypes((s) => s.setActiveFilter)
+  const setCreatedDateRange = useStoreProjectTypes((s) => s.setCreatedDateRange)
+  const setUpdatedDateRange = useStoreProjectTypes((s) => s.setUpdatedDateRange)
   const clearActiveFilter = useStoreProjectTypes((s) => s.clearActiveFilter)
+  const clearCreatedDateRange = useStoreProjectTypes((s) => s.clearCreatedDateRange)
+  const clearUpdatedDateRange = useStoreProjectTypes((s) => s.clearUpdatedDateRange)
   const toggleProjectTypeStatus = useStoreProjectTypes((s) => s.toggleProjectTypeStatus)
   const clearProjectTypeDetail = useStoreProjectTypes((s) => s.clearProjectTypeDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
@@ -64,7 +68,13 @@ export default function ProjectTypesDashboardPage() {
   const { actionViewDetail, actionUpdateProjectType, actionToggleStatus } = createProjectTypesActions()
 
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [filters, setFilters] = useState(() => ({ activeId: queryParams.active }))
+  const [filters, setFilters] = useState(() => ({
+    activeId: queryParams.active,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    updatedFrom: queryParams.updatedFrom,
+    updatedTo: queryParams.updatedTo,
+  }))
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -161,20 +171,41 @@ export default function ProjectTypesDashboardPage() {
     await sortProjectTypes(sortBy, nextSortDir)
   }
 
-  const handleChangeFilter = (value: string) => {
-    setFilters({ activeId: value })
+  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+    setFilters((prev) => ({ ...prev, [field]: value }))
   }
+  const handleActiveFilterChange = (value: string) => handleChangeFilter('activeId', value)
+  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
+  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
+  const handleUpdatedFromFilterChange = (value: string) => handleChangeFilter('updatedFrom', value)
+  const handleUpdatedToFilterChange = (value: string) => handleChangeFilter('updatedTo', value)
 
   const handleApplyFilters = async () => {
     const selectedStatus = statusOptions.find((option) => String(option.id) === filters.activeId)
     setActiveFilter(selectedStatus ? String(selectedStatus.id) : '')
+    setCreatedDateRange({
+      createdFrom: filters.createdFrom.trim(),
+      createdTo: filters.createdTo.trim(),
+    })
+    setUpdatedDateRange({
+      updatedFrom: filters.updatedFrom.trim(),
+      updatedTo: filters.updatedTo.trim(),
+    })
     await searchProjectTypes()
     setFiltersOpen(false)
   }
 
   const handleClearFilters = async () => {
-    setFilters({ activeId: '' })
+    setFilters({
+      activeId: '',
+      createdFrom: '',
+      createdTo: '',
+      updatedFrom: '',
+      updatedTo: '',
+    })
     clearActiveFilter()
+    clearCreatedDateRange()
+    clearUpdatedDateRange()
     await searchProjectTypes()
     setFiltersOpen(false)
   }
@@ -393,8 +424,54 @@ export default function ProjectTypesDashboardPage() {
             value={filters.activeId}
             label="Estado"
             options={statusSelectOptions}
-            onValueChange={handleChangeFilter}
+            onValueChange={handleActiveFilterChange}
           />
+          <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              Fecha creacion
+            </p>
+            <div className="grid gap-2">
+              <InputComponent
+                id="project-types-created-from"
+                value={filters.createdFrom}
+                label="Desde"
+                type="date"
+                aria-label="Fecha creacion desde"
+                onValueChange={handleCreatedFromFilterChange}
+              />
+              <InputComponent
+                id="project-types-created-to"
+                value={filters.createdTo}
+                label="Hasta"
+                type="date"
+                aria-label="Fecha creacion hasta"
+                onValueChange={handleCreatedToFilterChange}
+              />
+            </div>
+          </div>
+          <div className="space-y-3 rounded-xl border border-amber-500/35 bg-amber-50/15 p-3 dark:border-amber-400/25 dark:bg-amber-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+              Fecha actualizacion
+            </p>
+            <div className="grid gap-2">
+              <InputComponent
+                id="project-types-updated-from"
+                value={filters.updatedFrom}
+                label="Desde"
+                type="date"
+                aria-label="Fecha actualizacion desde"
+                onValueChange={handleUpdatedFromFilterChange}
+              />
+              <InputComponent
+                id="project-types-updated-to"
+                value={filters.updatedTo}
+                label="Hasta"
+                type="date"
+                aria-label="Fecha actualizacion hasta"
+                onValueChange={handleUpdatedToFilterChange}
+              />
+            </div>
+          </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent
               type="button"

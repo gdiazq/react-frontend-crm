@@ -148,8 +148,48 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
       set((state) => ({ queryParams: { ...state.queryParams, active } }))
     },
 
+    setCreatedDateRange: ({ createdFrom, createdTo }) => {
+      set((state) => ({
+        queryParams: {
+          ...state.queryParams,
+          createdFrom,
+          createdTo,
+        },
+      }))
+    },
+
+    setUpdatedDateRange: ({ updatedFrom, updatedTo }) => {
+      set((state) => ({
+        queryParams: {
+          ...state.queryParams,
+          updatedFrom,
+          updatedTo,
+        },
+      }))
+    },
+
     clearActiveFilter: () => {
       set((state) => ({ queryParams: { ...state.queryParams, active: '' } }))
+    },
+
+    clearCreatedDateRange: () => {
+      set((state) => ({
+        queryParams: {
+          ...state.queryParams,
+          createdFrom: '',
+          createdTo: '',
+        },
+      }))
+    },
+
+    clearUpdatedDateRange: () => {
+      set((state) => ({
+        queryParams: {
+          ...state.queryParams,
+          updatedFrom: '',
+          updatedTo: '',
+        },
+      }))
     },
 
     searchProjectTypes: async () => {

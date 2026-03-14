@@ -44,6 +44,10 @@ export const initialProjectTypesQueryParams: ProjectTypesQueryParams = {
   size: 8,
   search: '',
   active: '',
+  createdFrom: '',
+  createdTo: '',
+  updatedFrom: '',
+  updatedTo: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
 }

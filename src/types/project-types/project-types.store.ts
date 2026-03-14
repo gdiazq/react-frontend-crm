@@ -30,7 +30,11 @@ export interface ProjectTypesStore {
   previousPage: () => Promise<void>
   setSearch: (value: string) => void
   setActiveFilter: (active: string) => void
+  setCreatedDateRange: (value: { createdFrom: string, createdTo: string }) => void
+  setUpdatedDateRange: (value: { updatedFrom: string, updatedTo: string }) => void
   clearActiveFilter: () => void
+  clearCreatedDateRange: () => void
+  clearUpdatedDateRange: () => void
   searchProjectTypes: () => Promise<void>
   sortProjectTypes: (sortBy: ProjectTypesSortBy, sortDir: ProjectTypesSortDir) => Promise<void>
   createProjectType: (payload: ProjectTypeCreatePayload) => Promise<boolean>
