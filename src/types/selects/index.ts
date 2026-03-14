@@ -5,5 +5,6 @@ export type {
   SelectStatusOption,
   SelectPermissionOption,
   SelectProjectSpecialtyOption,
+  SelectProjectStatusOption,
 } from './selects'
 export type { SelectsStore } from './selects.store'

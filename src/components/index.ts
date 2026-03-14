@@ -66,5 +66,6 @@ export { default as UserDetailComponent } from './users/UserDetailComponent'
 export { default as RoleDetailComponent } from './roles/RoleDetailComponent'
 
 // Project Types Components
+export { default as ProjectStatusDetailComponent } from './project-statuses/ProjectStatusDetailComponent'
 export { default as ProjectTypeDetailComponent } from './project-types/ProjectTypeDetailComponent'
 export { default as ProjectSpecialtyDetailComponent } from './project-specialties/ProjectSpecialtyDetailComponent'

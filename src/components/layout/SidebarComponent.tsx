@@ -11,6 +11,7 @@ interface SidebarComponentProps {
   showContracts?: boolean
   showProjects?: boolean
   showProjectSpecialties?: boolean
+  showProjectStatuses?: boolean
   showRoles?: boolean
   onCloseMobile?: () => void
   onToggleDesktopCollapse?: () => void
@@ -21,6 +22,7 @@ interface SidebarComponentProps {
   onGoContracts: () => void
   onGoProjects: () => void
   onGoProjectSpecialties: () => void
+  onGoProjectStatuses: () => void
   onGoRoles: () => void
   onGoLogout: () => void
 }
@@ -34,6 +36,7 @@ export default function SidebarComponent({
   showContracts = true,
   showProjects = true,
   showProjectSpecialties = true,
+  showProjectStatuses = true,
   showRoles = true,
   onCloseMobile,
   onToggleDesktopCollapse,
@@ -44,6 +47,7 @@ export default function SidebarComponent({
   onGoContracts,
   onGoProjects,
   onGoProjectSpecialties,
+  onGoProjectStatuses,
   onGoRoles,
   onGoLogout,
 }: SidebarComponentProps) {
@@ -55,9 +59,10 @@ export default function SidebarComponent({
   const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
   const isProjectTypesActive = useMemo(() => location.pathname.startsWith('/projects/types'), [location.pathname])
   const isProjectSpecialtiesActive = useMemo(() => location.pathname.startsWith('/projects/specialties'), [location.pathname])
+  const isProjectStatusesActive = useMemo(() => location.pathname.startsWith('/projects/statuses'), [location.pathname])
   const isRolesActive = useMemo(() => location.pathname.startsWith('/roles'), [location.pathname])
   const hasRrhhItems = showRequests || showEmployees || showContracts
-  const hasProjectsItems = showProjects || showProjectSpecialties
+  const hasProjectsItems = showProjects || showProjectSpecialties || showProjectStatuses
   const hasAdministrationItems = showUsers || showRoles
 
   const getItemClasses = (active: boolean) => {
@@ -230,6 +235,28 @@ export default function SidebarComponent({
                       <path d="M9 3v18" />
                     </svg>
                     <span className={collapsed ? 'lg:hidden' : ''}>Especialidades</span>
+                  </button>
+                </SidebarTooltipComponent>
+              )}
+
+              {showProjectStatuses && (
+                <SidebarTooltipComponent enabled={collapsed} active={isProjectStatusesActive} label="Vigencia">
+                  <button
+                    type="button"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectStatusesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    onClick={onGoProjectStatuses}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2v6" />
+                      <path d="M12 16v6" />
+                      <path d="M4.93 4.93l4.24 4.24" />
+                      <path d="M14.83 14.83l4.24 4.24" />
+                      <path d="M2 12h6" />
+                      <path d="M16 12h6" />
+                      <path d="M4.93 19.07l4.24-4.24" />
+                      <path d="M14.83 9.17l4.24-4.24" />
+                    </svg>
+                    <span className={collapsed ? 'lg:hidden' : ''}>Vigencia</span>
                   </button>
                 </SidebarTooltipComponent>
               )}

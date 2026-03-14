@@ -37,6 +37,15 @@ export {
   mapperUpdateEmployeePayload,
 } from './employees/employees.mapper'
 export {
+  mapperCreateProjectStatusPayload,
+  mapperUpdateProjectStatusPayload,
+  mapperProjectStatusDetailView,
+  mapperProjectStatusToForm,
+  mapperProjectStatusesRows,
+  mapperProjectStatusesPagination,
+  mapperProjectStatusesQueryParams,
+} from './project-statuses/project-statuses.mapper'
+export {
   mapperCreateProjectSpecialtyPayload,
   mapperUpdateProjectSpecialtyPayload,
   mapperProjectSpecialtyDetailView,
@@ -65,6 +74,7 @@ export {
 export {
   mapperSelectPermissionOptions,
   mapperSelectProjectSpecialtyOptions,
+  mapperSelectProjectStatusOptions,
   mapperSelectRoleOptions,
   mapperSelectStatusOptions,
   mapperSelectUserEmailOptions,

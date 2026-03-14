@@ -376,6 +376,36 @@ export default {
       },
     },
   },
+  projectStatuses: {
+    ui: {
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      actionViewDetail: 'Ver detalle',
+      updateProjectStatus: 'Editar vigencia',
+      actionEnableProjectStatus: 'Habilitar vigencia',
+      actionDisableProjectStatus: 'Deshabilitar vigencia',
+      detailTitleFallback: 'Detalle de vigencia de proyecto',
+    },
+    status: {
+      success: {
+        createProjectStatusSuccess: 'Vigencia de proyecto creada correctamente.',
+        updateProjectStatusSuccess: 'Vigencia de proyecto actualizada correctamente.',
+        toggleEnabledSuccess: 'habilitada correctamente.',
+        toggleDisabledSuccess: 'deshabilitada correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de vigencias de proyecto.',
+        createProjectStatusError: 'No se pudo crear la vigencia de proyecto.',
+        createProjectStatusNameRequired: 'Ingresa un nombre valido para la vigencia de proyecto.',
+        updateProjectStatusError: 'No se pudo actualizar la vigencia de proyecto.',
+        updateProjectStatusInvalidId: 'Id de vigencia de proyecto invalido para actualizar.',
+        detailLoadError: 'No se pudo cargar el detalle de la vigencia de proyecto.',
+        detailInvalidProjectStatusId: 'Id de vigencia de proyecto invalido para ver detalle.',
+        toggleStatusError: 'No se pudo actualizar el estado de la vigencia de proyecto.',
+        invalidStatusProjectStatusId: 'Id de vigencia de proyecto invalido para actualizar estado.',
+      },
+    },
+  },
   selects: {
     status: {
       success: {},
@@ -385,6 +415,7 @@ export default {
         loadUsersFiltersError: 'No se pudieron cargar los filtros de usuarios.',
         loadStatusError: 'No se pudieron cargar los estados.',
         loadProjectSpecialtiesError: 'No se pudieron cargar las especialidades de proyecto.',
+        loadProjectStatusesError: 'No se pudieron cargar las vigencias de proyecto.',
         loadApprovalEmployeeStatusesError: 'No se pudieron cargar los estados de aprobacion.',
         loadHrRequestTypesError: 'No se pudieron cargar los tipos de solicitud.',
       },

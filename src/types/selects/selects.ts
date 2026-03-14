@@ -27,3 +27,8 @@ export interface SelectProjectSpecialtyOption {
   id: number
   name: string
 }
+
+export interface SelectProjectStatusOption {
+  id: number
+  name: string
+}

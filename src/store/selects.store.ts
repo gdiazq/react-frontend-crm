@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import {
   mapperSelectPermissionOptions,
   mapperSelectProjectSpecialtyOptions,
+  mapperSelectProjectStatusOptions,
   mapperSelectRoleOptions,
   mapperSelectStatusOptions,
   mapperSelectUserEmailOptions,
@@ -15,6 +16,7 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   roleOptions: [],
   permissionOptions: [],
   projectSpecialtyOptions: [],
+  projectStatusOptions: [],
   userNameOptions: [],
   userEmailOptions: [],
   statusOptions: [],
@@ -23,11 +25,13 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   loadingStatusOptions: false,
   loadingUsersFilterOptions: false,
   loadingProjectSpecialtyOptions: false,
+  loadingProjectStatusOptions: false,
   roleOptionsErrorMessage: null,
   permissionOptionsErrorMessage: null,
   statusOptionsErrorMessage: null,
   usersFilterOptionsErrorMessage: null,
   projectSpecialtyOptionsErrorMessage: null,
+  projectStatusOptionsErrorMessage: null,
   errorBack: null,
 
   getRoleOptions: async () => {
@@ -190,5 +194,35 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
 
   clearProjectSpecialtyOptionsStatus: () => {
     set({ projectSpecialtyOptionsErrorMessage: null })
+  },
+
+  getProjectStatusOptions: async () => {
+    try {
+      set({
+        loadingProjectStatusOptions: true,
+        projectStatusOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await selectsService.getProjectStatusOptions()
+      set({ projectStatusOptions: mapperSelectProjectStatusOptions(data) })
+    } catch (error) {
+      if (selectsService.isAxiosError(error)) {
+        set({
+          projectStatusOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadProjectStatusesError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          projectStatusOptionsErrorMessage: messages.selects.status.errors.loadProjectStatusesError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingProjectStatusOptions: false })
+    }
+  },
+
+  clearProjectStatusOptionsStatus: () => {
+    set({ projectStatusOptionsErrorMessage: null })
   },
 }))
