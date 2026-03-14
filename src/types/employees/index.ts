@@ -6,6 +6,7 @@ export type {
   EmployeeDetailView,
   EmployeeUpdatePayload,
   EmployeePagedResponse,
+  EmployeeAvailableUserOption,
   EmployeeRaw,
   EmployeeTableRow,
   EmployeesPagination,
@@ -13,4 +14,4 @@ export type {
   EmployeesSortBy,
   EmployeesSortDir,
 } from './employees'
-export type { EmployeesStore } from './employees.store'
+export type { EmployeeOperationKey, EmployeesStore } from './employees.store'

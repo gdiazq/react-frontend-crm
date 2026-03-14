@@ -6,6 +6,9 @@ export interface EmployeeRaw {
   maternalLastName: string
   corporateEmail: string
   phone?: string | null
+  userId?: number | null
+  username?: string | null
+  userEmail?: string | null
   statusName: string
   active: boolean
   hasContract: boolean
@@ -288,7 +291,7 @@ export interface EmployeeDetailView {
   pantSize: string
   username: string
   userEmail: string
-  userEnabled: string
+  userEnabled: boolean | null
   requestId: string
   createdAtDisplay: string
   updatedAtDisplay: string
@@ -299,6 +302,14 @@ export interface EmployeeTableRow {
   values: string[]
   active?: boolean
   hasContract?: boolean
+  linkedUserId?: number | null
+  linkedUserName?: string | null
+  linkedUserEmail?: string | null
+}
+
+export interface EmployeeAvailableUserOption {
+  id: number
+  name: string
 }
 
 export type EmployeesSortBy =

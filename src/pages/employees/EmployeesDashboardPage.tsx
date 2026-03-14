@@ -43,8 +43,12 @@ export default function EmployeesDashboardPage() {
   const loadingEmployeeDetail = useStoreEmployees((s) => s.loadingEmployeeDetail)
   const detailError = useStoreEmployees((s) => s.operationStatus.detail.error)
   const loadingToggleStatus = useStoreEmployees((s) => s.loadingToggleStatus)
+  const loadingLinkUser = useStoreEmployees((s) => s.loadingLinkUser)
+  const availableUsers = useStoreEmployees((s) => s.availableUsers)
+  const loadingAvailableUsers = useStoreEmployees((s) => s.loadingAvailableUsers)
   const listError = useStoreEmployees((s) => s.operationStatus.list.error)
   const toggleError = useStoreEmployees((s) => s.operationStatus.toggle.error)
+  const linkError = useStoreEmployees((s) => s.operationStatus.link.error)
   const clearOperationStatus = useStoreEmployees((s) => s.clearOperationStatus)
   const getEmployees = useStoreEmployees((s) => s.getEmployees)
   const goToPage = useStoreEmployees((s) => s.goToPage)
@@ -60,8 +64,13 @@ export default function EmployeesDashboardPage() {
   const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
   const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
   const toggleEmployeeStatus = useStoreEmployees((s) => s.toggleEmployeeStatus)
+  const getAvailableUsers = useStoreEmployees((s) => s.getAvailableUsers)
+  const linkEmployeeUser = useStoreEmployees((s) => s.linkEmployeeUser)
+  const unlinkEmployeeUser = useStoreEmployees((s) => s.unlinkEmployeeUser)
+  const clearAvailableUsers = useStoreEmployees((s) => s.clearAvailableUsers)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleEmployeeStatus = hasPermission('EMPLOYEE', 'canUpdate')
+  const canUpdateEmployee = hasPermission('EMPLOYEE', 'canUpdate')
+  const canToggleEmployeeStatus = canUpdateEmployee
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -74,7 +83,7 @@ export default function EmployeesDashboardPage() {
   const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
   const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
 
-  const { actionViewDetail, actionUpdateEmployee, actionToggleStatus } = createEmployeesActions()
+  const { actionViewDetail, actionUpdateEmployee, actionToggleStatus, actionLinkUser, actionUnlinkUser } = createEmployeesActions()
 
   // --- State ---
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -89,6 +98,13 @@ export default function EmployeesDashboardPage() {
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<EmployeeTableRow | null>(null)
+  const [linkConfirmOpen, setLinkConfirmOpen] = useState(false)
+  const [pendingLinkRow, setPendingLinkRow] = useState<EmployeeTableRow | null>(null)
+  const [unlinkConfirmOpen, setUnlinkConfirmOpen] = useState(false)
+  const [pendingUnlinkRow, setPendingUnlinkRow] = useState<EmployeeTableRow | null>(null)
+  const [availableUsersSearch, setAvailableUsersSearch] = useState('')
+  const [selectedAvailableUserId, setSelectedAvailableUserId] = useState('')
+  const [linkValidationErrorMessage, setLinkValidationErrorMessage] = useState('')
   const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [uploadingBulk, setUploadingBulk] = useState(false)
@@ -102,6 +118,7 @@ export default function EmployeesDashboardPage() {
   const pageSize = pagination.size
   const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const approvalStatusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const availableUsersSelectOptions = availableUsers.map((user) => ({ label: user.name, value: String(user.id) }))
   const activeSortColumn = EMPLOYEES_SORTABLE_COLUMNS.find((index) => employeesTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
@@ -140,6 +157,24 @@ export default function EmployeesDashboardPage() {
     navigate(`${AUTH_ROUTE_EMPLOYEES_EDIT}=${row.id}`)
   }
 
+  const handleOpenLinkUser = (row: EmployeeTableRow) => {
+    setPendingLinkRow(row)
+    setLinkConfirmOpen(true)
+    setSelectedAvailableUserId('')
+    setLinkValidationErrorMessage('')
+    clearOperationStatus('link')
+    setAvailableUsersSearch('')
+    clearAvailableUsers()
+    void getAvailableUsers('')
+  }
+
+  const handleOpenUnlinkUser = (row: EmployeeTableRow) => {
+    setPendingUnlinkRow(row)
+    setUnlinkConfirmOpen(true)
+    setLinkValidationErrorMessage('')
+    clearOperationStatus('link')
+  }
+
   // --- Handlers: Toggle status ---
   const handleToggleStatus = (row: EmployeeTableRow) => {
     setPendingToggleRow(row)
@@ -152,6 +187,15 @@ export default function EmployeesDashboardPage() {
       actionViewDetail(() => handleViewDetail(row)),
       actionUpdateEmployee(() => handleUpdateEmployee(row)),
     ]
+
+    if (canUpdateEmployee) {
+      const hasLinkedUser = (row.linkedUserId ?? 0) > 0 || (row.linkedUserEmail ?? '').trim().length > 0
+      if (hasLinkedUser) {
+        actions.push(actionUnlinkUser(() => handleOpenUnlinkUser(row)))
+      } else {
+        actions.push(actionLinkUser(() => handleOpenLinkUser(row)))
+      }
+    }
 
     if (canToggleEmployeeStatus) {
       actions.push(actionToggleStatus(row.active === true, () => handleToggleStatus(row)))
@@ -257,6 +301,70 @@ export default function EmployeesDashboardPage() {
     }
   }
 
+  const handleAvailableUsersSearch = (query: string) => {
+    setAvailableUsersSearch(query)
+    void getAvailableUsers(query)
+  }
+
+  const handleCloseLinkConfirm = () => {
+    if (loadingLinkUser) return
+    setLinkConfirmOpen(false)
+    setPendingLinkRow(null)
+    setSelectedAvailableUserId('')
+    setAvailableUsersSearch('')
+    clearAvailableUsers()
+    setLinkValidationErrorMessage('')
+  }
+
+  const handleCloseUnlinkConfirm = () => {
+    if (loadingLinkUser) return
+    setUnlinkConfirmOpen(false)
+    setPendingUnlinkRow(null)
+    setLinkValidationErrorMessage('')
+  }
+
+  const handleConfirmLinkUser = async () => {
+    if (!pendingLinkRow || loadingLinkUser) return
+
+    const parsedUserId = Number(selectedAvailableUserId)
+    if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+      setLinkValidationErrorMessage(messages.employees.status.errors.linkUserRequired)
+      return
+    }
+
+    const success = await linkEmployeeUser(pendingLinkRow.id, parsedUserId)
+    if (success) {
+      const employeeName = pendingLinkRow.values[EMPLOYEE_NAME_COLUMN_INDEX] || 'Trabajador'
+      setLinkConfirmOpen(false)
+      setPendingLinkRow(null)
+      setSelectedAvailableUserId('')
+      setAvailableUsersSearch('')
+      clearAvailableUsers()
+      setLinkValidationErrorMessage('')
+      await getEmployees()
+      if (selectedDetailRowId === pendingLinkRow.id && detailOpen) {
+        void getEmployeeDetail(pendingLinkRow.id)
+      }
+      setActionsMessage(`${employeeName} ${messages.employees.status.success.linkUserSuccess}`)
+    }
+  }
+
+  const handleConfirmUnlinkUser = async () => {
+    if (!pendingUnlinkRow || loadingLinkUser) return
+
+    const success = await unlinkEmployeeUser(pendingUnlinkRow.id)
+    if (success) {
+      const employeeName = pendingUnlinkRow.values[EMPLOYEE_NAME_COLUMN_INDEX] || 'Trabajador'
+      setUnlinkConfirmOpen(false)
+      setPendingUnlinkRow(null)
+      await getEmployees()
+      if (selectedDetailRowId === pendingUnlinkRow.id && detailOpen) {
+        void getEmployeeDetail(pendingUnlinkRow.id)
+      }
+      setActionsMessage(`${employeeName} ${messages.employees.status.success.unlinkUserSuccess}`)
+    }
+  }
+
   // --- Handlers: Download & Upload ---
   const handleDownloadReport = async () => {
     if (downloadingReport) return
@@ -332,6 +440,14 @@ export default function EmployeesDashboardPage() {
         />
       )}
 
+      {linkError && (
+        <AlertMessageComponent
+          message={linkError}
+          tone="error"
+          onClose={() => clearOperationStatus('link')}
+        />
+      )}
+
       {statusOptionsErrorMessage && (
         <AlertMessageComponent
           message={statusOptionsErrorMessage}
@@ -359,7 +475,7 @@ export default function EmployeesDashboardPage() {
           <ButtonComponent
             type="button"
             variant="outline"
-            disabled={loadingEmployees || loadingToggleStatus}
+            disabled={loadingEmployees || loadingToggleStatus || loadingLinkUser}
             label="Filtro"
             onClick={() => setFiltersOpen(true)}
           />
@@ -377,20 +493,20 @@ export default function EmployeesDashboardPage() {
           <ButtonComponent
             type="submit"
             variant="primary"
-            disabled={loadingEmployees || loadingToggleStatus}
+            disabled={loadingEmployees || loadingToggleStatus || loadingLinkUser}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loadingEmployees ? 'Buscando...' : 'Buscar'}
           />
           <ButtonComponent
             type="button"
             variant="primary"
-            disabled={loadingEmployees || loadingToggleStatus}
+            disabled={loadingEmployees || loadingToggleStatus || loadingLinkUser}
             className="flex-1 text-white md:flex-none dark:text-white"
             label="Nuevo trabajador"
             onClick={() => navigate(AUTH_ROUTE_EMPLOYEES_CREATE)}
           />
           <ToolbarActionsDropdownComponent
-            disabled={loadingEmployees || loadingToggleStatus || downloadingReport || uploadingBulk}
+            disabled={loadingEmployees || loadingToggleStatus || loadingLinkUser || downloadingReport || uploadingBulk}
             onDownloadReport={() => { void handleDownloadReport() }}
             onBulkUpload={handleBulkUpload}
           />
@@ -434,7 +550,7 @@ export default function EmployeesDashboardPage() {
           totalPages={totalPages}
           totalItems={totalItems}
           pageSize={pageSize}
-          loading={loadingEmployees || loadingToggleStatus}
+          loading={loadingEmployees || loadingToggleStatus || loadingLinkUser}
           onPageChange={(page) => goToPage(page - 1)}
         />
       </div>
@@ -482,14 +598,14 @@ export default function EmployeesDashboardPage() {
             <ButtonComponent
               type="button"
               variant="outline"
-              disabled={loadingEmployees || loadingToggleStatus || loadingStatusOptions || loadingApprovalEmployeeStatusOptions}
+              disabled={loadingEmployees || loadingToggleStatus || loadingLinkUser || loadingStatusOptions || loadingApprovalEmployeeStatusOptions}
               label="Limpiar"
               onClick={() => { void handleClearFilters() }}
             />
             <ButtonComponent
               type="button"
               variant="primary"
-              disabled={loadingEmployees || loadingToggleStatus || loadingStatusOptions || loadingApprovalEmployeeStatusOptions}
+              disabled={loadingEmployees || loadingToggleStatus || loadingLinkUser || loadingStatusOptions || loadingApprovalEmployeeStatusOptions}
               className="text-white dark:text-white"
               label={loadingEmployees || loadingStatusOptions || loadingApprovalEmployeeStatusOptions ? 'Aplicando...' : 'Aplicar'}
               onClick={() => { void handleApplyFilters() }}
@@ -521,6 +637,44 @@ export default function EmployeesDashboardPage() {
         loading={loadingToggleStatus}
         onClose={handleCloseConfirm}
         onConfirm={() => { void handleConfirmToggleStatus() }}
+      />
+
+      <SaveConfirmComponent
+        open={linkConfirmOpen}
+        title="Confirmar vinculacion de usuario"
+        message={pendingLinkRow ? `Selecciona el usuario a vincular con ${pendingLinkRow.values[EMPLOYEE_NAME_COLUMN_INDEX]}.` : ''}
+        confirmLabel="Vincular"
+        cancelLabel="Cancelar"
+        loading={loadingLinkUser}
+        confirmDisabled={selectedAvailableUserId.trim().length === 0}
+        onClose={handleCloseLinkConfirm}
+        onConfirm={() => { void handleConfirmLinkUser() }}
+      >
+        <SelectComponent
+          value={selectedAvailableUserId}
+          label={messages.employees.ui.linkUserSelectLabel}
+          placeholder={messages.employees.ui.linkUserSelectPlaceholder}
+          options={availableUsersSelectOptions}
+          error={linkValidationErrorMessage}
+          loading={loadingAvailableUsers}
+          onSearch={handleAvailableUsersSearch}
+          onValueChange={(value) => {
+            setSelectedAvailableUserId(value)
+            setLinkValidationErrorMessage('')
+          }}
+          helperText={availableUsersSearch.trim().length > 0 ? `Buscando: ${availableUsersSearch}` : undefined}
+        />
+      </SaveConfirmComponent>
+
+      <SaveConfirmComponent
+        open={unlinkConfirmOpen}
+        title="Confirmar desvinculacion de usuario"
+        message={pendingUnlinkRow ? `¿Seguro que deseas desvincular el usuario del trabajador ${pendingUnlinkRow.values[EMPLOYEE_NAME_COLUMN_INDEX]}?` : ''}
+        confirmLabel="Desvincular"
+        cancelLabel="Cancelar"
+        loading={loadingLinkUser}
+        onClose={handleCloseUnlinkConfirm}
+        onConfirm={() => { void handleConfirmUnlinkUser() }}
       />
     </section>
   )

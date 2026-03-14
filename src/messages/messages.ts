@@ -178,6 +178,8 @@ export default {
       updateEmployee: 'Editar trabajador',
       actionEnableEmployee: 'Habilitar trabajador',
       actionDisableEmployee: 'Deshabilitar trabajador',
+      actionLinkUser: 'Vincular usuario',
+      actionUnlinkUser: 'Desvincular usuario',
       viewDetailComingSoon: 'Detalle de trabajador disponible proximamente.',
       updateEmployeeComingSoon: 'Edicion de trabajador disponible proximamente.',
       toggleStatusComingSoon: 'Cambio de estado de trabajador disponible proximamente.',
@@ -189,6 +191,8 @@ export default {
       createEmployeeSubmitting: 'Creando trabajador...',
       updateEmployeeSubmit: 'Guardar cambios',
       updateEmployeeSubmitting: 'Guardando cambios...',
+      linkUserSelectLabel: 'Usuario disponible',
+      linkUserSelectPlaceholder: 'Selecciona un usuario',
     },
     status: {
       success: {
@@ -196,6 +200,8 @@ export default {
         updateEmployeeSuccess: 'Trabajador actualizado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
+        linkUserSuccess: 'usuario vinculado correctamente.',
+        unlinkUserSuccess: 'usuario desvinculado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de trabajadores.',
@@ -208,6 +214,11 @@ export default {
         detailInvalidEmployeeId: 'Id de trabajador invalido para ver detalle.',
         toggleStatusError: 'No se pudo actualizar el estado del trabajador.',
         invalidStatusEmployeeId: 'Id de trabajador invalido para actualizar estado.',
+        loadAvailableUsersError: 'No se pudo cargar la lista de usuarios disponibles.',
+        linkUserError: 'No se pudo vincular el usuario al trabajador.',
+        unlinkUserError: 'No se pudo desvincular el usuario del trabajador.',
+        invalidLinkEmployeeId: 'Id de trabajador invalido para vincular usuario.',
+        linkUserRequired: 'Selecciona un usuario para continuar.',
       },
     },
   },

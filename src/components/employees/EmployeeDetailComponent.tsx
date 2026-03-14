@@ -59,7 +59,6 @@ export default function EmployeeDetailComponent({
 }
 
 function EmployeeDetailContent({ detail, activeTab, onTabChange }: EmployeeDetailContentProps) {
-  const userEnabled = detail.userEnabled === 'Si'
   const tabSelectOptions = [
     { value: 'personal', label: 'Datos personales' },
     { value: 'contact', label: 'Contacto' },
@@ -291,10 +290,10 @@ function EmployeeDetailContent({ detail, activeTab, onTabChange }: EmployeeDetai
             value={detail.userEmail} 
             valueClassName="break-all" 
           />
-          <DetailFieldCardComponent 
-            title="Habilitado" 
-            value={<StatusBadgeComponent enabled={userEnabled} />} 
-            className="md:col-span-2" 
+          <DetailFieldCardComponent
+            title="Estado"
+            value={<StatusBadgeComponent enabled={detail.userEnabled ?? false} />}
+            className="md:col-span-2"
           />
         </div>
       )

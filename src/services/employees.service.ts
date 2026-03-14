@@ -3,6 +3,7 @@ import { axiosInstance } from '@/config'
 import { mapperEmployeesQueryParams } from '@/mappers'
 import type {
   CsvImportResponse,
+  EmployeeAvailableUserOption,
   EmployeeCreatePayload,
   EmployeeCreateResponse,
   EmployeeDetail,
@@ -35,6 +36,22 @@ export const employeesService = {
 
   toggleEmployeeStatus: async (employeeId: number, active: boolean) => {
     await axiosInstance.put(`/rrhh/employee/${employeeId}/status`, { active })
+  },
+
+  getAvailableUsers: async (search: string) => {
+    const query = search.trim()
+    const { data } = await axiosInstance.get<EmployeeAvailableUserOption[]>('/rrhh/employee/select/available-users', {
+      params: query.length > 0 ? { search: query } : {},
+    })
+    return data
+  },
+
+  linkEmployeeUser: async (employeeId: number, userId: number) => {
+    await axiosInstance.put(`/rrhh/employee/${employeeId}/link-user`, { userId })
+  },
+
+  unlinkEmployeeUser: async (employeeId: number) => {
+    await axiosInstance.put(`/rrhh/employee/${employeeId}/link-user`, { userId: null })
   },
 
   exportEmployeesCsv: async () => {

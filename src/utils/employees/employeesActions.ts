@@ -19,5 +19,13 @@ export function createEmployeesActions() {
     }
   }
 
-  return { actionViewDetail, actionUpdateEmployee, actionToggleStatus }
+  function actionLinkUser(handler: () => void): DropdownAction {
+    return { id: 'link-user', label: messages.employees.ui.actionLinkUser, handler }
+  }
+
+  function actionUnlinkUser(handler: () => void): DropdownAction {
+    return { id: 'unlink-user', label: messages.employees.ui.actionUnlinkUser, tone: 'danger', handler }
+  }
+
+  return { actionViewDetail, actionUpdateEmployee, actionToggleStatus, actionLinkUser, actionUnlinkUser }
 }

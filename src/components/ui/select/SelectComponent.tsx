@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface SelectOption {
   label: string
@@ -47,6 +47,13 @@ export default function SelectComponent({
   const wasOpenRef = useRef(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const closeDropdown = useCallback(() => {
+    setOpen(false)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    setSearch('')
+    onSearch?.('')
+  }, [onSearch])
+
   // Dispara validación cada vez que el dropdown cierra (cuando el padre ya actualizó su estado)
   useEffect(() => {
     if (!open && wasOpenRef.current) {
@@ -58,35 +65,36 @@ export default function SelectComponent({
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (open && containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false)
+        closeDropdown()
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
+  }, [open, closeDropdown])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && open) {
-        setOpen(false)
+        closeDropdown()
       }
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [open])
+  }, [open, closeDropdown])
 
   useEffect(() => {
     if (open) {
       searchRef.current?.focus()
-    } else {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-      setSearch('')
-      onSearch?.('')
     }
   }, [open])
 
   const handleToggle = () => {
-    if (!disabled) setOpen((prev) => !prev)
+    if (disabled) return
+    if (open) {
+      closeDropdown()
+    } else {
+      setOpen(true)
+    }
   }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +113,7 @@ export default function SelectComponent({
       onValuesChange?.(nextValues)
     } else {
       onValueChange?.(option.value)
-      setOpen(false)
+      closeDropdown()
     }
   }
 

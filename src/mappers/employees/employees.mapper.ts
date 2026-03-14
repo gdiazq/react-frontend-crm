@@ -18,6 +18,9 @@ export function mapperEmployeesRows(response: EmployeeRaw[]): EmployeeTableRow[]
     id: String(item.id),
     active: item.active,
     hasContract: item.hasContract,
+    linkedUserId: item.userId ?? null,
+    linkedUserName: item.username ?? null,
+    linkedUserEmail: item.userEmail ?? null,
     values: [
       item.identification,
       `${item.firstName} ${item.paternalLastName} ${item.maternalLastName}`.trim(),
@@ -137,7 +140,7 @@ export function mapperEmployeeDetailView(result: EmployeeDetail): EmployeeDetail
     pantSize: resolveText(result.pantSize),
     username: resolveText(result.username),
     userEmail: resolveText(result.userEmail),
-    userEnabled: result.userEnabled != null ? (result.userEnabled ? 'Si' : 'No') : 'Sin registro',
+    userEnabled: result.userEnabled ?? null,
     requestId: result.requestId != null ? String(result.requestId) : 'Sin registro',
     createdAtDisplay: formatDate(result.createdAt, 'Sin registro'),
     updatedAtDisplay: formatDate(result.updatedAt, 'Sin registro'),

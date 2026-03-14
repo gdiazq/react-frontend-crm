@@ -10,21 +10,23 @@ import {
   mapperEmployeesRows,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import type { EmployeesSortBy, EmployeesSortDir, EmployeesStore } from '@/types'
-import type { OperationKey, OperationStatus } from '@/types'
+import type { EmployeeOperationKey, EmployeesSortBy, EmployeesSortDir, EmployeesStore } from '@/types'
+import type { OperationStatus } from '@/types'
 
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
+const initialOperationStatus: () => Record<EmployeeOperationKey, OperationStatus> = () => ({
   list: { error: null, success: null, errorBack: null },
   detail: { error: null, success: null, errorBack: null },
   create: { error: null, success: null, errorBack: null },
   update: { error: null, success: null, errorBack: null },
   toggle: { error: null, success: null, errorBack: null },
+  link: { error: null, success: null, errorBack: null },
 })
 
 export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
   let latestEmployeeDetailRequestId = 0
+  let latestAvailableUsersRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
+  const setOpError = (key: EmployeeOperationKey, error: string, errorBack?: unknown) => {
     set((state) => ({
       operationStatus: {
         ...state.operationStatus,
@@ -33,7 +35,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     }))
   }
 
-  const setOpSuccess = (key: OperationKey, success: string) => {
+  const setOpSuccess = (key: EmployeeOperationKey, success: string) => {
     set((state) => ({
       operationStatus: {
         ...state.operationStatus,
@@ -42,7 +44,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     }))
   }
 
-  const clearOp = (key: OperationKey) => {
+  const clearOp = (key: EmployeeOperationKey) => {
     set((state) => ({
       operationStatus: {
         ...state.operationStatus,
@@ -66,8 +68,11 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
   loadingEmployees: false,
   loadingEmployeeDetail: false,
   loadingToggleStatus: false,
+  loadingLinkUser: false,
   createEmployeeSubmitting: false,
   updateEmployeeSubmitting: false,
+  availableUsers: [],
+  loadingAvailableUsers: false,
   operationStatus: initialOperationStatus(),
 
   getEmployeeDetail: async (employeeId: string) => {
@@ -243,6 +248,70 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     } finally {
       set({ updateEmployeeSubmitting: false })
     }
+  },
+
+  getAvailableUsers: async (search: string) => {
+    const requestId = ++latestAvailableUsersRequestId
+    try {
+      set({ loadingAvailableUsers: true })
+      clearOp('link')
+      const data = await employeesService.getAvailableUsers(search)
+      if (requestId !== latestAvailableUsersRequestId) return
+      set({ availableUsers: data })
+    } catch (error) {
+      if (requestId !== latestAvailableUsersRequestId) return
+      set({ availableUsers: [] })
+      setOpError('link', resolveErrorMessage(error, messages.employees.status.errors.loadAvailableUsersError), error)
+    } finally {
+      if (requestId === latestAvailableUsersRequestId) {
+        set({ loadingAvailableUsers: false })
+      }
+    }
+  },
+
+  linkEmployeeUser: async (employeeId: string, userId: number) => {
+    const parsedEmployeeId = Number(employeeId)
+    if (!Number.isInteger(parsedEmployeeId) || parsedEmployeeId <= 0) {
+      setOpError('link', messages.employees.status.errors.invalidLinkEmployeeId)
+      return false
+    }
+
+    try {
+      set({ loadingLinkUser: true })
+      clearOp('link')
+      await employeesService.linkEmployeeUser(parsedEmployeeId, userId)
+      return true
+    } catch (error) {
+      setOpError('link', resolveErrorMessage(error, messages.employees.status.errors.linkUserError), error)
+      return false
+    } finally {
+      set({ loadingLinkUser: false })
+    }
+  },
+
+  unlinkEmployeeUser: async (employeeId: string) => {
+    const parsedEmployeeId = Number(employeeId)
+    if (!Number.isInteger(parsedEmployeeId) || parsedEmployeeId <= 0) {
+      setOpError('link', messages.employees.status.errors.invalidLinkEmployeeId)
+      return false
+    }
+
+    try {
+      set({ loadingLinkUser: true })
+      clearOp('link')
+      await employeesService.unlinkEmployeeUser(parsedEmployeeId)
+      return true
+    } catch (error) {
+      setOpError('link', resolveErrorMessage(error, messages.employees.status.errors.unlinkUserError), error)
+      return false
+    } finally {
+      set({ loadingLinkUser: false })
+    }
+  },
+
+  clearAvailableUsers: () => {
+    latestAvailableUsersRequestId += 1
+    set({ availableUsers: [], loadingAvailableUsers: false })
   },
 
   clearOperationStatus: (key) => {
