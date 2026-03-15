@@ -10,6 +10,7 @@ interface SidebarComponentProps {
   showEmployees?: boolean
   showContracts?: boolean
   showProjects?: boolean
+  showProjectTypes?: boolean
   showProjectSpecialties?: boolean
   showProjectStatuses?: boolean
   showRoles?: boolean
@@ -21,6 +22,7 @@ interface SidebarComponentProps {
   onGoEmployees: () => void
   onGoContracts: () => void
   onGoProjects: () => void
+  onGoProjectTypes: () => void
   onGoProjectSpecialties: () => void
   onGoProjectStatuses: () => void
   onGoRoles: () => void
@@ -35,6 +37,7 @@ export default function SidebarComponent({
   showEmployees = true,
   showContracts = true,
   showProjects = true,
+  showProjectTypes = true,
   showProjectSpecialties = true,
   showProjectStatuses = true,
   showRoles = true,
@@ -46,6 +49,7 @@ export default function SidebarComponent({
   onGoEmployees,
   onGoContracts,
   onGoProjects,
+  onGoProjectTypes,
   onGoProjectSpecialties,
   onGoProjectStatuses,
   onGoRoles,
@@ -57,12 +61,13 @@ export default function SidebarComponent({
   const isRequestsActive = useMemo(() => location.pathname.startsWith('/requests'), [location.pathname])
   const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
   const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
+  const isProjectsActive = useMemo(() => location.pathname === '/projects', [location.pathname])
   const isProjectTypesActive = useMemo(() => location.pathname.startsWith('/projects/types'), [location.pathname])
   const isProjectSpecialtiesActive = useMemo(() => location.pathname.startsWith('/projects/specialties'), [location.pathname])
   const isProjectStatusesActive = useMemo(() => location.pathname.startsWith('/projects/statuses'), [location.pathname])
   const isRolesActive = useMemo(() => location.pathname.startsWith('/roles'), [location.pathname])
   const hasRrhhItems = showRequests || showEmployees || showContracts
-  const hasProjectsItems = showProjects || showProjectSpecialties || showProjectStatuses
+  const hasProjectsItems = showProjects || showProjectTypes || showProjectSpecialties || showProjectStatuses
   const hasAdministrationItems = showUsers || showRoles
 
   const getItemClasses = (active: boolean) => {
@@ -209,11 +214,26 @@ export default function SidebarComponent({
               </p>
 
               {showProjects && (
+                <SidebarTooltipComponent enabled={collapsed} active={isProjectsActive} label="Proyectos">
+                  <button
+                    type="button"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectsActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    onClick={onGoProjects}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+                    </svg>
+                    <span className={collapsed ? 'lg:hidden' : ''}>Proyectos</span>
+                  </button>
+                </SidebarTooltipComponent>
+              )}
+
+              {showProjectTypes && (
                 <SidebarTooltipComponent enabled={collapsed} active={isProjectTypesActive} label="Tipos">
                   <button
                     type="button"
                     className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectTypesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-                    onClick={onGoProjects}
+                    onClick={onGoProjectTypes}
                   >
                     <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />

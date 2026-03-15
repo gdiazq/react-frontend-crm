@@ -1,5 +1,6 @@
 import type {
   SelectPermissionOption,
+  SelectProjectTypeOption,
   SelectProjectSpecialtyOption,
   SelectProjectStatusOption,
   SelectRoleOption,
@@ -11,6 +12,7 @@ import type {
 export interface SelectsStore {
   roleOptions: SelectRoleOption[]
   permissionOptions: SelectPermissionOption[]
+  projectTypeOptions: SelectProjectTypeOption[]
   projectSpecialtyOptions: SelectProjectSpecialtyOption[]
   projectStatusOptions: SelectProjectStatusOption[]
   userNameOptions: SelectUserNameOption[]
@@ -20,12 +22,14 @@ export interface SelectsStore {
   loadingPermissionOptions: boolean
   loadingStatusOptions: boolean
   loadingUsersFilterOptions: boolean
+  loadingProjectTypeOptions: boolean
   loadingProjectSpecialtyOptions: boolean
   loadingProjectStatusOptions: boolean
   roleOptionsErrorMessage: string | null
   permissionOptionsErrorMessage: string | null
   statusOptionsErrorMessage: string | null
   usersFilterOptionsErrorMessage: string | null
+  projectTypeOptionsErrorMessage: string | null
   projectSpecialtyOptionsErrorMessage: string | null
   projectStatusOptionsErrorMessage: string | null
   errorBack: unknown | null
@@ -33,12 +37,14 @@ export interface SelectsStore {
   getPermissionOptions: () => Promise<void>
   getStatusOptions: () => Promise<void>
   getUsersFilterOptions: () => Promise<void>
+  getProjectTypeOptions: () => Promise<void>
   getProjectSpecialtyOptions: () => Promise<void>
   getProjectStatusOptions: () => Promise<void>
   clearRoleOptionsStatus: () => void
   clearPermissionOptionsStatus: () => void
   clearStatusOptionsStatus: () => void
   clearUsersFilterOptionsStatus: () => void
+  clearProjectTypeOptionsStatus: () => void
   clearProjectSpecialtyOptionsStatus: () => void
   clearProjectStatusOptionsStatus: () => void
 }

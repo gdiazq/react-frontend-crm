@@ -23,6 +23,11 @@ export interface SelectPermissionOption {
   name: string
 }
 
+export interface SelectProjectTypeOption {
+  id: number
+  name: string
+}
+
 export interface SelectProjectSpecialtyOption {
   id: number
   name: string

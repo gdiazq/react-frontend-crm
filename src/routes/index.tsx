@@ -1,4 +1,4 @@
-import { Navigate, createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { ProtectedRoute, PublicRoute } from '@/middlewares/auth.middleware'
 import { LayoutPrivateDefault } from '@/layouts'
@@ -19,6 +19,7 @@ const UsersDashboardPage = lazy(() => import('@/pages/users/UsersDashboardPage')
 const RequestsDashboardPage = lazy(() => import('@/pages/requests/RequestsDashboardPage'))
 const EmployeesDashboardPage = lazy(() => import('@/pages/employees/EmployeesDashboardPage'))
 const ContractsDashboardPage = lazy(() => import('@/pages/contracts/ContractsDashboardPage'))
+const ProjectsDashboardPage = lazy(() => import('@/pages/projects/ProjectsDashboardPage'))
 const ProjectStatusesDashboardPage = lazy(() => import('@/pages/projects/ProjectStatusesDashboardPage'))
 const ProjectStatusesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectStatusesFormDashboardPage'))
 const ProjectSpecialtiesDashboardPage = lazy(() => import('@/pages/projects/ProjectSpecialtiesDashboardPage'))
@@ -157,7 +158,11 @@ export const router = createBrowserRouter([
       },
       {
         path: '/projects',
-        element: <Navigate to="/projects/types" replace />,
+        element: (
+          <ProtectedRoute requiresPermissions module="PROJECT" permissionType="canRead">
+            <ProjectsDashboardPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/projects/types',

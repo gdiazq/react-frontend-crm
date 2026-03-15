@@ -6,6 +6,7 @@ import {
   AUTH_ROUTE_EMPLOYEES,
   AUTH_ROUTE_LOGIN,
   AUTH_ROUTE_LOGOUT,
+  AUTH_ROUTE_PROJECTS,
   AUTH_ROUTE_PROJECT_STATUSES,
   AUTH_ROUTE_PROJECT_SPECIALTIES,
   AUTH_ROUTE_PROJECT_TYPES,
@@ -46,7 +47,8 @@ export default function LayoutPrivateDefault() {
   const canReadRequests = hasPermission('HR_REQUEST', 'canRead')
   const canReadEmployees = hasPermission('EMPLOYEE', 'canRead')
   const canReadContracts = hasPermission('CONTRACT', 'canRead')
-  const canReadProjects = hasPermission('PROJECT_TYPE', 'canRead')
+  const canReadProjects = hasPermission('PROJECT', 'canRead')
+  const canReadProjectTypes = hasPermission('PROJECT_TYPE', 'canRead')
   const canReadProjectSpecialties = hasPermission('PROJECT_SPECIALTY', 'canRead')
   const canReadProjectStatuses = hasPermission('PROJECT_STATUS', 'canRead')
   const canReadRoles = hasPermission('ROLE', 'canRead')
@@ -141,6 +143,16 @@ export default function LayoutPrivateDefault() {
       navigate('/unauthorized')
       return
     }
+    navigate(AUTH_ROUTE_PROJECTS)
+  }
+
+  const handleGoProjectTypes = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    if (!canReadProjectTypes) {
+      navigate('/unauthorized')
+      return
+    }
     navigate(AUTH_ROUTE_PROJECT_TYPES)
   }
 
@@ -223,6 +235,7 @@ export default function LayoutPrivateDefault() {
         showEmployees={canReadEmployees}
         showContracts={canReadContracts}
         showProjects={canReadProjects}
+        showProjectTypes={canReadProjectTypes}
         showProjectSpecialties={canReadProjectSpecialties}
         showProjectStatuses={canReadProjectStatuses}
         showRoles={canReadRoles}
@@ -234,6 +247,7 @@ export default function LayoutPrivateDefault() {
         onGoEmployees={handleGoEmployees}
         onGoContracts={handleGoContracts}
         onGoProjects={handleGoProjects}
+        onGoProjectTypes={handleGoProjectTypes}
         onGoProjectSpecialties={handleGoProjectSpecialties}
         onGoProjectStatuses={handleGoProjectStatuses}
         onGoRoles={handleGoRoles}

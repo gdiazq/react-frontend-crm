@@ -1,5 +1,6 @@
 import type {
   SelectPermissionOption,
+  SelectProjectTypeOption,
   SelectProjectSpecialtyOption,
   SelectProjectStatusOption,
   SelectRoleOption,
@@ -40,6 +41,12 @@ export function mapperSelectPermissionOptions(response: SelectPermissionOption[]
 export function mapperSelectProjectSpecialtyOptions(response: SelectProjectSpecialtyOption[]): SelectProjectSpecialtyOption[] {
   return response
     .map((specialty) => ({ id: specialty.id, name: specialty.name.trim() }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+}
+
+export function mapperSelectProjectTypeOptions(response: SelectProjectTypeOption[]): SelectProjectTypeOption[] {
+  return response
+    .map((type) => ({ id: type.id, name: type.name.trim() }))
     .sort((a, b) => a.name.localeCompare(b.name, 'es'))
 }
 

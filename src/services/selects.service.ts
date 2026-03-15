@@ -2,6 +2,7 @@ import axios from 'axios'
 import { axiosInstance } from '@/config'
 import type {
   SelectPermissionOption,
+  SelectProjectTypeOption,
   SelectProjectSpecialtyOption,
   SelectProjectStatusOption,
   SelectRoleOption,
@@ -33,6 +34,11 @@ export const selectsService = {
 
   getPermissionOptions: async () => {
     const { data } = await axiosInstance.get<SelectPermissionOption[]>('/role/permissions/select')
+    return data
+  },
+
+  getProjectTypeOptions: async () => {
+    const { data } = await axiosInstance.get<SelectProjectTypeOption[]>('/project/select/project-types')
     return data
   },
 

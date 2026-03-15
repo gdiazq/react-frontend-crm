@@ -64,6 +64,11 @@ export {
   mapperProjectTypesQueryParams,
 } from './project-types/project-types.mapper'
 export {
+  mapperProjectsRows,
+  mapperProjectsPagination,
+  mapperProjectsQueryParams,
+} from './projects/projects.mapper'
+export {
   mapperCreateUserPayload,
   mapperUpdateUserPayload,
   mapperUsersRows,
@@ -73,6 +78,7 @@ export {
 } from './users/users.mapper'
 export {
   mapperSelectPermissionOptions,
+  mapperSelectProjectTypeOptions,
   mapperSelectProjectSpecialtyOptions,
   mapperSelectProjectStatusOptions,
   mapperSelectRoleOptions,

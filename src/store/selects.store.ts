@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import {
   mapperSelectPermissionOptions,
+  mapperSelectProjectTypeOptions,
   mapperSelectProjectSpecialtyOptions,
   mapperSelectProjectStatusOptions,
   mapperSelectRoleOptions,
@@ -15,6 +16,7 @@ import type { SelectsStore } from '@/types'
 export const useStoreSelects = create<SelectsStore>()((set) => ({
   roleOptions: [],
   permissionOptions: [],
+  projectTypeOptions: [],
   projectSpecialtyOptions: [],
   projectStatusOptions: [],
   userNameOptions: [],
@@ -24,12 +26,14 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   loadingPermissionOptions: false,
   loadingStatusOptions: false,
   loadingUsersFilterOptions: false,
+  loadingProjectTypeOptions: false,
   loadingProjectSpecialtyOptions: false,
   loadingProjectStatusOptions: false,
   roleOptionsErrorMessage: null,
   permissionOptionsErrorMessage: null,
   statusOptionsErrorMessage: null,
   usersFilterOptionsErrorMessage: null,
+  projectTypeOptionsErrorMessage: null,
   projectSpecialtyOptionsErrorMessage: null,
   projectStatusOptionsErrorMessage: null,
   errorBack: null,
@@ -164,6 +168,36 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
 
   clearUsersFilterOptionsStatus: () => {
     set({ usersFilterOptionsErrorMessage: null })
+  },
+
+  getProjectTypeOptions: async () => {
+    try {
+      set({
+        loadingProjectTypeOptions: true,
+        projectTypeOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await selectsService.getProjectTypeOptions()
+      set({ projectTypeOptions: mapperSelectProjectTypeOptions(data) })
+    } catch (error) {
+      if (selectsService.isAxiosError(error)) {
+        set({
+          projectTypeOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadProjectTypesError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          projectTypeOptionsErrorMessage: messages.selects.status.errors.loadProjectTypesError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingProjectTypeOptions: false })
+    }
+  },
+
+  clearProjectTypeOptionsStatus: () => {
+    set({ projectTypeOptionsErrorMessage: null })
   },
 
   getProjectSpecialtyOptions: async () => {
