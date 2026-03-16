@@ -65,6 +65,8 @@ export {
 } from './project-types/project-types.mapper'
 export {
   mapperCreateProjectPayload,
+  mapperProjectToForm,
+  mapperUpdateProjectPayload,
   mapperProjectsRows,
   mapperProjectsPagination,
   mapperProjectsQueryParams,

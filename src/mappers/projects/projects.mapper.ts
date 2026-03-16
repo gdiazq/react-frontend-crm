@@ -2,8 +2,10 @@ import messages from '@/messages/messages'
 import type {
   ProjectCreateForm,
   ProjectCreatePayload,
+  ProjectDetail,
   ProjectPagedResponse,
   ProjectRaw,
+  ProjectUpdatePayload,
   ProjectsPagination,
   ProjectsQueryParams,
   ProjectTableRow,
@@ -30,6 +32,7 @@ export function mapperProjectsRows(result: ProjectRaw[]): ProjectTableRow[] {
       item.active ? messages.projects.ui.statusActive : messages.projects.ui.statusInactive,
       formatDate(item.createdAt, '-'),
       formatDate(item.updatedAt, '-'),
+      '',
     ],
   }))
 }
@@ -131,4 +134,60 @@ export function mapperCreateProjectPayload(form: ProjectCreateForm): ProjectCrea
     endDate: parseNullableString(form.endDate),
     realEndDate: parseNullableString(form.realEndDate),
   }
+}
+
+export function mapperProjectToForm(detail: ProjectDetail): ProjectCreateForm {
+  return {
+    costCenter: Number.isFinite(detail.costCenter) ? String(detail.costCenter) : '',
+    name: detail.name || '',
+    address: detail.address || '',
+    description: detail.description || '',
+    typeId: detail.typeId != null ? String(detail.typeId) : '',
+    statusId: detail.statusId != null ? String(detail.statusId) : '',
+    specialtyId: detail.specialtyId != null ? String(detail.specialtyId) : '',
+    visitorId: detail.visitorId != null ? String(detail.visitorId) : '',
+    supervisorId: detail.supervisorId != null ? String(detail.supervisorId) : '',
+    companyRepresentativeIds: Array.isArray(detail.companyRepresentativeIds)
+      ? detail.companyRepresentativeIds.map((value) => String(value))
+      : [],
+    startDate: detail.startDate || '',
+    realStartDate: detail.realStartDate || '',
+    endDate: detail.endDate || '',
+    realEndDate: detail.realEndDate || '',
+  }
+}
+
+export function mapperUpdateProjectPayload(projectId: number, form: ProjectCreateForm): ProjectUpdatePayload {
+  const payload: ProjectUpdatePayload = { id: projectId }
+  const parsedCostCenter = parseRequiredNumber(form.costCenter)
+  const name = form.name.trim()
+  const address = parseNullableString(form.address)
+  const description = parseNullableString(form.description)
+  const typeId = parseNullableId(form.typeId)
+  const statusId = parseNullableId(form.statusId)
+  const specialtyId = parseNullableId(form.specialtyId)
+  const visitorId = parseNullableId(form.visitorId)
+  const supervisorId = parseNullableId(form.supervisorId)
+  const companyRepresentativeIds = parseNullableNumberArray(form.companyRepresentativeIds)
+  const startDate = parseNullableString(form.startDate)
+  const realStartDate = parseNullableString(form.realStartDate)
+  const endDate = parseNullableString(form.endDate)
+  const realEndDate = parseNullableString(form.realEndDate)
+
+  if (parsedCostCenter > 0) payload.costCenter = parsedCostCenter
+  if (name.length > 0) payload.name = name
+  if (address !== null) payload.address = address
+  if (description !== null) payload.description = description
+  if (typeId !== null) payload.typeId = typeId
+  if (statusId !== null) payload.statusId = statusId
+  if (specialtyId !== null) payload.specialtyId = specialtyId
+  if (visitorId !== null) payload.visitorId = visitorId
+  if (supervisorId !== null) payload.supervisorId = supervisorId
+  if (companyRepresentativeIds !== null) payload.companyRepresentativeIds = companyRepresentativeIds
+  if (startDate !== null) payload.startDate = startDate
+  if (realStartDate !== null) payload.realStartDate = realStartDate
+  if (endDate !== null) payload.endDate = endDate
+  if (realEndDate !== null) payload.realEndDate = realEndDate
+
+  return payload
 }

@@ -21,6 +21,29 @@ export interface ProjectRaw {
   updatedAt: string
 }
 
+export interface ProjectDetail {
+  id: number
+  costCenter: number
+  name: string
+  address?: string | null
+  description?: string | null
+  typeId?: number | null
+  statusId?: number | null
+  specialtyId?: number | null
+  visitorId?: number | null
+  visitorName?: string | null
+  supervisorId?: number | null
+  supervisorName?: string | null
+  companyRepresentativeIds?: number[] | null
+  startDate?: string | null
+  realStartDate?: string | null
+  endDate?: string | null
+  realEndDate?: string | null
+  active: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export interface ProjectTableRow {
   id: string
   values: string[]
@@ -122,6 +145,30 @@ export interface ProjectCreatePayload {
 }
 
 export interface ProjectCreateResponse {
+  id: number
+  name: string
+  costCenter: number
+}
+
+export interface ProjectUpdatePayload {
+  id: number
+  costCenter?: number
+  name?: string
+  address?: string
+  description?: string
+  typeId?: number
+  statusId?: number
+  specialtyId?: number
+  visitorId?: number
+  supervisorId?: number
+  companyRepresentativeIds?: number[]
+  startDate?: string
+  realStartDate?: string
+  endDate?: string
+  realEndDate?: string
+}
+
+export interface ProjectUpdateResponse {
   id: number
   name: string
   costCenter: number

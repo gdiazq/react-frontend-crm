@@ -21,6 +21,8 @@ const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () =
 })
 
 export const useStoreProjects = create<ProjectsStore>()((set, get) => {
+  let latestProjectDetailRequestId = 0
+
   const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
     set((state) => ({
       operationStatus: {
@@ -57,12 +59,51 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
 
   return {
     projectsRaw: [],
+    projectDetail: null,
     projectsRows: [...initialProjectsRows],
     pagination: { ...initialProjectsPagination },
     queryParams: { ...initialProjectsQueryParams },
     loadingProjects: false,
+    loadingProjectDetail: false,
+    loadingToggleStatus: false,
     createProjectSubmitting: false,
+    updateProjectSubmitting: false,
     operationStatus: initialOperationStatus(),
+
+    getProjectDetail: async (projectId: string) => {
+      const parsedProjectId = Number(projectId)
+      if (!Number.isInteger(parsedProjectId) || parsedProjectId <= 0) {
+        setOpError('detail', messages.projects.status.errors.detailInvalidProjectId)
+        set({ projectDetail: null })
+        return null
+      }
+
+      const cachedProjectDetail = get().projectsRaw.find((item) => item.id == parsedProjectId)
+      if (cachedProjectDetail) {
+        set({ projectDetail: cachedProjectDetail })
+        clearOp('detail')
+        return cachedProjectDetail
+      }
+
+      const requestId = ++latestProjectDetailRequestId
+
+      try {
+        set({ loadingProjectDetail: true, projectDetail: null })
+        clearOp('detail')
+        const data = await projectsService.getProjectDetail(parsedProjectId)
+        if (requestId != latestProjectDetailRequestId) return null
+        set({ projectDetail: data })
+        return data
+      } catch (error) {
+        if (requestId != latestProjectDetailRequestId) return null
+        setOpError('detail', resolveErrorMessage(error, messages.projects.status.errors.detailLoadError), error)
+        return null
+      } finally {
+        if (requestId == latestProjectDetailRequestId) {
+          set({ loadingProjectDetail: false })
+        }
+      }
+    },
 
     getProjects: async () => {
       try {
@@ -82,6 +123,12 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
       } finally {
         set({ loadingProjects: false })
       }
+    },
+
+    clearProjectDetail: () => {
+      latestProjectDetailRequestId += 1
+      set({ projectDetail: null, loadingProjectDetail: false })
+      clearOp('detail')
     },
 
     goToPage: async (page: number) => {
@@ -187,6 +234,47 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
         return false
       } finally {
         set({ createProjectSubmitting: false })
+      }
+    },
+
+    updateProject: async (payload) => {
+      if (!Number.isInteger(payload.id) || payload.id <= 0) {
+        setOpError('update', messages.projects.status.errors.updateProjectInvalidId)
+        return false
+      }
+
+      try {
+        set({ updateProjectSubmitting: true })
+        clearOp('update')
+
+        const data = await projectsService.updateProject(payload)
+        setOpSuccess('update', `${messages.projects.status.success.updateProjectSuccess} (${data.name})`)
+        return true
+      } catch (error) {
+        setOpError('update', resolveErrorMessage(error, messages.projects.status.errors.updateProjectError), error)
+        return false
+      } finally {
+        set({ updateProjectSubmitting: false })
+      }
+    },
+
+    toggleProjectStatus: async (projectId: string, nextStatus: boolean) => {
+      const parsedProjectId = Number(projectId)
+      if (!Number.isInteger(parsedProjectId) || parsedProjectId <= 0) {
+        setOpError('toggle', messages.projects.status.errors.invalidStatusProjectId)
+        return false
+      }
+
+      try {
+        set({ loadingToggleStatus: true })
+        clearOp('toggle')
+        await projectsService.toggleProjectStatus(parsedProjectId, nextStatus)
+        return true
+      } catch (error) {
+        setOpError('toggle', resolveErrorMessage(error, messages.projects.status.errors.toggleStatusError), error)
+        return false
+      } finally {
+        set({ loadingToggleStatus: false })
       }
     },
 

@@ -6,20 +6,25 @@ import {
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
+  SaveConfirmComponent,
   SelectComponent,
   StatsOverviewCardsComponent,
   TableComponent,
 } from '@/components'
-import { AUTH_ROUTE_PROJECTS_CREATE } from '@/constant'
+import { AUTH_ROUTE_PROJECTS, AUTH_ROUTE_PROJECTS_CREATE, AUTH_ROUTE_PROJECTS_EDIT } from '@/constant'
 import { projectsTableColumns, projectsTableColumnIndex, projectsTableSortByColumn } from '@/factories'
-import { useStoreProjects, useStoreSelects } from '@/store'
-import type { ProjectTableRow, TableSortState } from '@/types'
-import { createProjectsTableCustomRenderer } from '@/utils'
+import messages from '@/messages/messages'
+import { useStoreAuth, useStoreProjects, useStoreSelects } from '@/store'
+import type { ProjectTableRow, TableRow, TableSortState } from '@/types'
+import { createProjectsActions, createProjectsTableCustomRenderer } from '@/utils'
+import type { DropdownAction } from '@/utils'
 
 const PROJECT_TYPE_COLUMN_INDEX = projectsTableColumnIndex.type
 const PROJECT_STATUS_COLUMN_INDEX = projectsTableColumnIndex.status
 const PROJECT_SPECIALTY_COLUMN_INDEX = projectsTableColumnIndex.specialty
 const PROJECT_ACTIVE_COLUMN_INDEX = projectsTableColumnIndex.active
+const PROJECT_NAME_COLUMN_INDEX = projectsTableColumnIndex.name
+const ACTIONS_COLUMN_INDEX = projectsTableColumns.length - 1
 const PROJECTS_SORTABLE_COLUMNS = Object.keys(projectsTableSortByColumn).map((index) => Number(index))
 
 export default function ProjectsDashboardPage() {
@@ -29,7 +34,9 @@ export default function ProjectsDashboardPage() {
   const pagination = useStoreProjects((s) => s.pagination)
   const queryParams = useStoreProjects((s) => s.queryParams)
   const loadingProjects = useStoreProjects((s) => s.loadingProjects)
+  const loadingToggleStatus = useStoreProjects((s) => s.loadingToggleStatus)
   const listError = useStoreProjects((s) => s.operationStatus.list.error)
+  const toggleError = useStoreProjects((s) => s.operationStatus.toggle.error)
   const clearOperationStatus = useStoreProjects((s) => s.clearOperationStatus)
   const getProjects = useStoreProjects((s) => s.getProjects)
   const goToPage = useStoreProjects((s) => s.goToPage)
@@ -48,6 +55,9 @@ export default function ProjectsDashboardPage() {
   const clearUpdatedDateRange = useStoreProjects((s) => s.clearUpdatedDateRange)
   const searchProjects = useStoreProjects((s) => s.searchProjects)
   const sortProjects = useStoreProjects((s) => s.sortProjects)
+  const toggleProjectStatus = useStoreProjects((s) => s.toggleProjectStatus)
+  const hasPermission = useStoreAuth((s) => s.hasPermission)
+  const canUpdateProject = hasPermission('PROJECT', 'canUpdate')
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -70,6 +80,8 @@ export default function ProjectsDashboardPage() {
   const getProjectSpecialtyOptions = useStoreSelects((s) => s.getProjectSpecialtyOptions)
   const clearProjectSpecialtyOptionsStatus = useStoreSelects((s) => s.clearProjectSpecialtyOptionsStatus)
 
+  const { actionUpdateProject, actionToggleStatus } = createProjectsActions()
+
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
     activeId: queryParams.active,
@@ -81,6 +93,9 @@ export default function ProjectsDashboardPage() {
     updatedFrom: queryParams.updatedFrom,
     updatedTo: queryParams.updatedTo,
   }))
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [pendingToggleRow, setPendingToggleRow] = useState<ProjectTableRow | null>(null)
+  const [actionsMessage, setActionsMessage] = useState('')
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -126,6 +141,30 @@ export default function ProjectsDashboardPage() {
 
   const getProjectActive = (rowId: string) => Boolean(findProjectRowById(rowId)?.active)
 
+  const handleUpdateProject = (row: ProjectTableRow) => {
+    navigate(`${AUTH_ROUTE_PROJECTS_EDIT}=${row.id}`)
+  }
+
+  const handleToggleStatus = (row: ProjectTableRow) => {
+    setPendingToggleRow(row)
+    setConfirmOpen(true)
+  }
+
+  const resolveRowActions = (row: ProjectTableRow): DropdownAction[] => {
+    if (!canUpdateProject) return []
+
+    return [
+      actionUpdateProject(() => handleUpdateProject(row)),
+      actionToggleStatus(row.active === true, () => handleToggleStatus(row)),
+    ]
+  }
+
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const projectRow = findProjectRowById(tableRow.id)
+    if (!projectRow) return []
+    return resolveRowActions(projectRow)
+  }
+
   const renderCustomCell = createProjectsTableCustomRenderer({
     typeColumnIndex: PROJECT_TYPE_COLUMN_INDEX,
     statusColumnIndex: PROJECT_STATUS_COLUMN_INDEX,
@@ -136,6 +175,30 @@ export default function ProjectsDashboardPage() {
     getSpecialtyName: getProjectSpecialtyName,
     getActive: getProjectActive,
   })
+
+  const handleCloseConfirm = () => {
+    if (loadingToggleStatus) return
+    setConfirmOpen(false)
+    setPendingToggleRow(null)
+  }
+
+  const handleConfirmToggleStatus = async () => {
+    if (!pendingToggleRow || loadingToggleStatus) return
+
+    const nextStatus = pendingToggleRow.active !== true
+    const projectName = pendingToggleRow.values[PROJECT_NAME_COLUMN_INDEX]
+    const success = await toggleProjectStatus(pendingToggleRow.id, nextStatus)
+    if (success) {
+      setConfirmOpen(false)
+      setPendingToggleRow(null)
+      await getProjects()
+      navigate(AUTH_ROUTE_PROJECTS)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      setActionsMessage(
+        `${projectName} ${nextStatus ? messages.projects.status.success.toggleEnabledSuccess : messages.projects.status.success.toggleDisabledSuccess}`,
+      )
+    }
+  }
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = projectsTableSortByColumn[columnIndex]
@@ -203,6 +266,10 @@ export default function ProjectsDashboardPage() {
     setFiltersOpen(false)
   }
 
+  const confirmMessage = pendingToggleRow
+    ? `¿Seguro que deseas ${pendingToggleRow.active === true ? 'deshabilitar' : 'habilitar'} al proyecto ${pendingToggleRow.values[PROJECT_NAME_COLUMN_INDEX]}?`
+    : ''
+
   return (
     <section className="min-w-0 space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
@@ -216,11 +283,14 @@ export default function ProjectsDashboardPage() {
         active={pagination.active}
       />
 
-      {listError && (
+      {(listError || toggleError) && (
         <AlertMessageComponent
-          message={listError}
+          message={(listError || toggleError)!}
           tone="error"
-          onClose={() => clearOperationStatus('list')}
+          onClose={() => {
+            if (listError) clearOperationStatus('list')
+            if (toggleError) clearOperationStatus('toggle')
+          }}
         />
       )}
 
@@ -267,7 +337,7 @@ export default function ProjectsDashboardPage() {
           <ButtonComponent
             type="button"
             variant="outline"
-            disabled={loadingProjects}
+            disabled={loadingProjects || loadingToggleStatus}
             label="Filtro"
             onClick={() => setFiltersOpen(true)}
           />
@@ -285,14 +355,14 @@ export default function ProjectsDashboardPage() {
           <ButtonComponent
             type="submit"
             variant="primary"
-            disabled={loadingProjects}
+            disabled={loadingProjects || loadingToggleStatus}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loadingProjects ? 'Buscando...' : 'Buscar'}
           />
           <ButtonComponent
             type="button"
             variant="primary"
-            disabled={loadingProjects}
+            disabled={loadingProjects || loadingToggleStatus}
             className="flex-1 text-white md:flex-none dark:text-white"
             label="Nuevo proyecto"
             onClick={() => navigate(AUTH_ROUTE_PROJECTS_CREATE)}
@@ -306,10 +376,27 @@ export default function ProjectsDashboardPage() {
         loading={loadingProjects}
         emptyMessage="No hay proyectos registrados."
         customRenderer={renderCustomCell}
+        actionsConfig={canUpdateProject
+          ? {
+              columnIndex: ACTIONS_COLUMN_INDEX,
+              resolveRowActions: resolveRowActionsFromTableRow,
+              resolveOpenDirection: (activeRowIndex, rowsLength) => (
+                activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
+              ),
+            }
+          : undefined}
         sortableColumnIndexes={PROJECTS_SORTABLE_COLUMNS}
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}
       />
+
+      {actionsMessage && (
+        <AlertMessageComponent
+          message={actionsMessage}
+          tone="info"
+          onClose={() => setActionsMessage('')}
+        />
+      )}
 
       <div className="flex justify-end">
         <PaginationComponent
@@ -317,7 +404,7 @@ export default function ProjectsDashboardPage() {
           totalPages={totalPages}
           totalItems={totalItems}
           pageSize={pageSize}
-          loading={loadingProjects}
+          loading={loadingProjects || loadingToggleStatus}
           onPageChange={(page) => goToPage(page - 1)}
         />
       </div>
@@ -405,17 +492,17 @@ export default function ProjectsDashboardPage() {
             <ButtonComponent
               type="button"
               variant="outline"
-              disabled={loadingProjects || loadingStatusOptions || loadingProjectTypeOptions || loadingProjectStatusOptions || loadingProjectSpecialtyOptions}
+              disabled={loadingProjects || loadingToggleStatus || loadingStatusOptions || loadingProjectTypeOptions || loadingProjectStatusOptions || loadingProjectSpecialtyOptions}
               label="Limpiar"
               onClick={() => { void handleClearFilters() }}
             />
             <ButtonComponent
               type="button"
               variant="primary"
-              disabled={loadingProjects || loadingStatusOptions || loadingProjectTypeOptions || loadingProjectStatusOptions || loadingProjectSpecialtyOptions}
+              disabled={loadingProjects || loadingToggleStatus || loadingStatusOptions || loadingProjectTypeOptions || loadingProjectStatusOptions || loadingProjectSpecialtyOptions}
               className="text-white dark:text-white"
               label={
-                loadingProjects || loadingStatusOptions || loadingProjectTypeOptions || loadingProjectStatusOptions || loadingProjectSpecialtyOptions
+                loadingProjects || loadingToggleStatus || loadingStatusOptions || loadingProjectTypeOptions || loadingProjectStatusOptions || loadingProjectSpecialtyOptions
                   ? 'Aplicando...'
                   : 'Aplicar'
               }
@@ -424,6 +511,17 @@ export default function ProjectsDashboardPage() {
           </div>
         </div>
       </RightSidebarComponent>
+
+      <SaveConfirmComponent
+        open={confirmOpen}
+        title="Confirmar cambio de estado"
+        message={confirmMessage}
+        confirmLabel="Confirmar"
+        cancelLabel="Cancelar"
+        loading={loadingToggleStatus}
+        onClose={handleCloseConfirm}
+        onConfirm={() => { void handleConfirmToggleStatus() }}
+      />
     </section>
   )
 }

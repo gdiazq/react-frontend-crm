@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
@@ -10,13 +10,16 @@ import {
 import { AUTH_ROUTE_PROJECTS } from '@/constant'
 import { initialCreateProjectForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateProjectPayload } from '@/mappers'
+import { mapperCreateProjectPayload, mapperProjectToForm, mapperUpdateProjectPayload } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreProjects, useStoreSelects } from '@/store'
-import type { ProjectCreatePayload } from '@/types'
+import type { ProjectCreatePayload, ProjectUpdatePayload } from '@/types'
 import { projectsCreateValidationRules } from '@/validators'
 
-type PendingAction = { payload: ProjectCreatePayload } | null
+type PendingAction =
+  | { mode: 'create', payload: ProjectCreatePayload }
+  | { mode: 'update', payload: ProjectUpdatePayload }
+  | null
 
 const toSelectOptions = (options: { id: number, name: string }[]) =>
   options.map((option) => ({ label: option.name, value: String(option.id) }))
@@ -27,14 +30,25 @@ function SectionTitle({ title }: { title: string }) {
 
 export default function ProjectsFormDashboardPage() {
   const navigate = useNavigate()
+  const params = useParams<{ editId: string }>()
+  const rawEditParam = params.editId || ''
+  const editProjectId = rawEditParam.startsWith('edit=') ? Number(rawEditParam.slice(5)) : Number.NaN
+  const isEditMode = Number.isInteger(editProjectId) && editProjectId > 0
 
   const [form, setForm] = useState({ ...initialCreateProjectForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
+  const loadingProjectDetail = useStoreProjects((s) => s.loadingProjectDetail)
+  const detailError = useStoreProjects((s) => s.operationStatus.detail.error)
   const createProjectSubmitting = useStoreProjects((s) => s.createProjectSubmitting)
+  const updateProjectSubmitting = useStoreProjects((s) => s.updateProjectSubmitting)
   const createStatus = useStoreProjects((s) => s.operationStatus.create)
+  const updateStatus = useStoreProjects((s) => s.operationStatus.update)
+  const getProjectDetail = useStoreProjects((s) => s.getProjectDetail)
+  const clearProjectDetail = useStoreProjects((s) => s.clearProjectDetail)
   const createProject = useStoreProjects((s) => s.createProject)
+  const updateProject = useStoreProjects((s) => s.updateProject)
   const clearOperationStatus = useStoreProjects((s) => s.clearOperationStatus)
 
   const projectTypeOptions = useStoreSelects((s) => s.projectTypeOptions)
@@ -69,12 +83,19 @@ export default function ProjectsFormDashboardPage() {
   const { companyRepresentativeIds: _ignore, ...validatableForm } = form
   const { errors, validateAll, onValidation } = useFormValidation(validatableForm, projectsCreateValidationRules)
 
-  const saving = createProjectSubmitting
-  const submitErrorMessage = createStatus.error
-  const submitSuccessMessage = createStatus.success
+  const saving = createProjectSubmitting || updateProjectSubmitting
+  const activeStatus = isEditMode ? updateStatus : createStatus
+  const submitErrorMessage = activeStatus.error
+  const submitSuccessMessage = activeStatus.success
   const loadingOptions = loadingProjectTypeOptions || loadingProjectStatusOptions || loadingProjectSpecialtyOptions
     || loadingVisitorOptions || loadingSupervisorOptions || loadingCompanyRepresentativeOptions
   const canSubmit = !saving && !loadingOptions
+  const headerTitle = isEditMode ? 'Editar proyecto' : messages.projects.ui.createProjectTitle
+  const headerDescription = isEditMode
+    ? 'Actualiza los datos del proyecto seleccionado.'
+    : messages.projects.ui.createProjectDescription
+  const submitLabel = isEditMode ? 'Guardar cambios' : messages.projects.ui.createProjectSubmit
+  const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : messages.projects.ui.createProjectSubmitting
 
   const selectTypes = toSelectOptions(projectTypeOptions)
   const selectStatuses = toSelectOptions(projectStatusOptions)
@@ -93,6 +114,9 @@ export default function ProjectsFormDashboardPage() {
 
     return () => {
       clearOperationStatus('create')
+      clearOperationStatus('update')
+      clearOperationStatus('detail')
+      clearProjectDetail()
       clearVisitorOptionsStatus()
       clearSupervisorOptionsStatus()
       clearCompanyRepresentativeOptionsStatus()
@@ -105,13 +129,33 @@ export default function ProjectsFormDashboardPage() {
     getSupervisorOptions,
     getCompanyRepresentativeOptions,
     clearOperationStatus,
+    clearProjectDetail,
     clearVisitorOptionsStatus,
     clearSupervisorOptionsStatus,
     clearCompanyRepresentativeOptionsStatus,
   ])
 
+  useEffect(() => {
+    if (!isEditMode) return
+
+    let cancelled = false
+
+    const load = async () => {
+      const detail = await getProjectDetail(String(editProjectId))
+      if (!detail || cancelled) return
+      setForm(mapperProjectToForm(detail))
+    }
+
+    void load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [editProjectId, getProjectDetail, isEditMode])
+
   const clearSubmitStatus = () => {
     clearOperationStatus('create')
+    clearOperationStatus('update')
   }
 
   const handleChangeField = (field: keyof typeof initialCreateProjectForm, value: string) => {
@@ -132,8 +176,11 @@ export default function ProjectsFormDashboardPage() {
     event.preventDefault()
     if (!validateAll()) return
 
-    const payload = mapperCreateProjectPayload(form)
-    setPendingAction({ payload })
+    if (isEditMode) {
+      setPendingAction({ mode: 'update', payload: mapperUpdateProjectPayload(editProjectId, form) })
+    } else {
+      setPendingAction({ mode: 'create', payload: mapperCreateProjectPayload(form) })
+    }
     setConfirmOpen(true)
   }
 
@@ -145,9 +192,12 @@ export default function ProjectsFormDashboardPage() {
 
   const handleConfirmSave = async () => {
     if (!pendingAction || saving) return
-    const success = await createProject(pendingAction.payload)
+    const success = pendingAction.mode === 'create'
+      ? await createProject(pendingAction.payload)
+      : await updateProject(pendingAction.payload)
     if (success) {
       navigate(AUTH_ROUTE_PROJECTS)
+      return
     }
     setConfirmOpen(false)
     setPendingAction(null)
@@ -156,9 +206,17 @@ export default function ProjectsFormDashboardPage() {
   return (
     <section className="space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">{messages.projects.ui.createProjectTitle}</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{messages.projects.ui.createProjectDescription}</p>
+        <h1 className="text-2xl font-bold">{headerTitle}</h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{headerDescription}</p>
       </header>
+
+      {isEditMode && detailError && (
+        <AlertMessageComponent
+          message={detailError}
+          tone="error"
+          onClose={() => clearOperationStatus('detail')}
+        />
+      )}
 
       {visitorOptionsErrorMessage && (
         <AlertMessageComponent
@@ -204,6 +262,10 @@ export default function ProjectsFormDashboardPage() {
         className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60"
         onSubmit={handleSubmit}
       >
+        {isEditMode && loadingProjectDetail && (
+          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando datos del proyecto...</p>
+        )}
+
         <SectionTitle title="Datos basicos" />
         <div className="grid gap-4 md:grid-cols-2">
           <InputComponent
@@ -333,16 +395,16 @@ export default function ProjectsFormDashboardPage() {
             type="submit"
             variant="primary"
             disabled={!canSubmit}
-            label={saving ? messages.projects.ui.createProjectSubmitting : messages.projects.ui.createProjectSubmit}
+            label={saving ? submitLoadingLabel : submitLabel}
           />
         </div>
       </form>
 
       <SaveConfirmComponent
         open={confirmOpen}
-        title="Confirmar creacion de proyecto"
-        message={`¿Deseas crear el proyecto ${form.name}?`}
-        confirmLabel={messages.projects.ui.createProjectSubmit}
+        title={isEditMode ? 'Confirmar actualizacion de proyecto' : 'Confirmar creacion de proyecto'}
+        message={pendingAction?.mode === 'update' ? `¿Deseas guardar los cambios del proyecto ${form.name}?` : `¿Deseas crear el proyecto ${form.name}?`}
+        confirmLabel={submitLabel}
         cancelLabel="Cancelar"
         loading={saving}
         onClose={handleCloseConfirm}

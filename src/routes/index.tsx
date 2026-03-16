@@ -174,6 +174,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: '/projects/:editId',
+        element: (
+          <ProtectedRoute requiresPermissions module="PROJECT" permissionType="canUpdate">
+            <ProjectsFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/projects/types',
         element: (
           <ProtectedRoute requiresPermissions module="PROJECT_TYPE" permissionType="canRead">

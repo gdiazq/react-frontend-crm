@@ -19,6 +19,7 @@ export const projectsTableColumns: string[] = [
   'Estado',
   'Creado',
   'Actualizado',
+  'Acciones',
 ]
 
 export const projectsTableColumnIndex = {

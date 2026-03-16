@@ -361,6 +361,9 @@ export default {
     ui: {
       statusActive: 'Activo',
       statusInactive: 'Inactivo',
+      actionUpdateProject: 'Editar proyecto',
+      actionEnableProject: 'Habilitar proyecto',
+      actionDisableProject: 'Deshabilitar proyecto',
       createProjectTitle: 'Crear proyecto',
       createProjectDescription: 'Completa la informacion para registrar un nuevo proyecto.',
       createProjectSubmit: 'Crear proyecto',
@@ -369,10 +372,19 @@ export default {
     status: {
       success: {
         createProjectSuccess: 'Proyecto creado correctamente.',
+        updateProjectSuccess: 'Proyecto actualizado correctamente.',
+        toggleEnabledSuccess: 'habilitado correctamente.',
+        toggleDisabledSuccess: 'deshabilitado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de proyectos.',
+        detailLoadError: 'No se pudo cargar el detalle del proyecto.',
+        detailInvalidProjectId: 'Id de proyecto invalido para ver detalle.',
         createProjectError: 'No se pudo crear el proyecto.',
+        updateProjectError: 'No se pudo actualizar el proyecto.',
+        updateProjectInvalidId: 'Id de proyecto invalido para actualizar.',
+        toggleStatusError: 'No se pudo actualizar el estado del proyecto.',
+        invalidStatusProjectId: 'Id de proyecto invalido para actualizar estado.',
       },
     },
   },

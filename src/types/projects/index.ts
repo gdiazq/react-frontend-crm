@@ -1,5 +1,6 @@
 export type {
   ProjectRaw,
+  ProjectDetail,
   ProjectTableRow,
   ProjectsSortBy,
   ProjectsSortDir,
@@ -9,6 +10,8 @@ export type {
   ProjectCreateForm,
   ProjectCreatePayload,
   ProjectCreateResponse,
+  ProjectUpdatePayload,
+  ProjectUpdateResponse,
   ProjectEmployeeSelectOption,
 } from './projects'
 export type { ProjectsStore } from './projects.store'
