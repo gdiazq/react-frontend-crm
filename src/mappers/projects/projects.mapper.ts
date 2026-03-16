@@ -1,5 +1,7 @@
 import messages from '@/messages/messages'
 import type {
+  ProjectCreateForm,
+  ProjectCreatePayload,
   ProjectPagedResponse,
   ProjectRaw,
   ProjectsPagination,
@@ -86,4 +88,47 @@ export function mapperProjectsQueryParams(result: ProjectsQueryParams): Record<s
   if (updatedTo.length > 0) queryParams.updatedTo = updatedTo
 
   return queryParams
+}
+
+function parseRequiredNumber(value: string): number {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 0
+}
+
+function parseNullableId(value: string): number | null {
+  const normalized = value.trim()
+  if (!normalized) return null
+  const parsed = Number(normalized)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
+}
+
+function parseNullableString(value: string): string | null {
+  const normalized = value.trim()
+  return normalized.length > 0 ? normalized : null
+}
+
+function parseNullableNumberArray(values: string[]): number[] | null {
+  const parsed = values
+    .map((v) => Number(v))
+    .filter((n) => Number.isInteger(n) && n > 0)
+  return parsed.length > 0 ? parsed : null
+}
+
+export function mapperCreateProjectPayload(form: ProjectCreateForm): ProjectCreatePayload {
+  return {
+    costCenter: parseRequiredNumber(form.costCenter),
+    name: form.name.trim(),
+    address: parseNullableString(form.address),
+    description: parseNullableString(form.description),
+    typeId: parseNullableId(form.typeId),
+    statusId: parseNullableId(form.statusId),
+    specialtyId: parseNullableId(form.specialtyId),
+    visitorId: parseNullableId(form.visitorId),
+    supervisorId: parseNullableId(form.supervisorId),
+    companyRepresentativeIds: parseNullableNumberArray(form.companyRepresentativeIds),
+    startDate: parseNullableString(form.startDate),
+    realStartDate: parseNullableString(form.realStartDate),
+    endDate: parseNullableString(form.endDate),
+    realEndDate: parseNullableString(form.realEndDate),
+  }
 }

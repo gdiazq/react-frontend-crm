@@ -46,12 +46,22 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
     return fallback
   }
 
+  const setOpSuccess = (key: OperationKey, success: string) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success, errorBack: null },
+      },
+    }))
+  }
+
   return {
     projectsRaw: [],
     projectsRows: [...initialProjectsRows],
     pagination: { ...initialProjectsPagination },
     queryParams: { ...initialProjectsQueryParams },
     loadingProjects: false,
+    createProjectSubmitting: false,
     operationStatus: initialOperationStatus(),
 
     getProjects: async () => {
@@ -162,6 +172,22 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
         queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
       }))
       await get().getProjects()
+    },
+
+    createProject: async (payload) => {
+      try {
+        set({ createProjectSubmitting: true })
+        clearOp('create')
+
+        const data = await projectsService.createProject(payload)
+        setOpSuccess('create', `${messages.projects.status.success.createProjectSuccess} (${data.name})`)
+        return true
+      } catch (error) {
+        setOpError('create', resolveErrorMessage(error, messages.projects.status.errors.createProjectError), error)
+        return false
+      } finally {
+        set({ createProjectSubmitting: false })
+      }
     },
 
     clearOperationStatus: (key) => {

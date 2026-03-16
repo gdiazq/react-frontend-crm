@@ -37,3 +37,18 @@ export interface SelectProjectStatusOption {
   id: number
   name: string
 }
+
+export interface SelectVisitorOption {
+  id: number
+  name: string
+}
+
+export interface SelectSupervisorOption {
+  id: number
+  name: string
+}
+
+export interface SelectCompanyRepresentativeOption {
+  id: number
+  name: string
+}

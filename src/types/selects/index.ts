@@ -7,5 +7,8 @@ export type {
   SelectProjectTypeOption,
   SelectProjectSpecialtyOption,
   SelectProjectStatusOption,
+  SelectVisitorOption,
+  SelectSupervisorOption,
+  SelectCompanyRepresentativeOption,
 } from './selects'
 export type { SelectsStore } from './selects.store'

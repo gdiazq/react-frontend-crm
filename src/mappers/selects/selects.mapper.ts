@@ -1,12 +1,15 @@
 import type {
+  SelectCompanyRepresentativeOption,
   SelectPermissionOption,
   SelectProjectTypeOption,
   SelectProjectSpecialtyOption,
   SelectProjectStatusOption,
   SelectRoleOption,
   SelectStatusOption,
+  SelectSupervisorOption,
   SelectUserEmailOption,
   SelectUserNameOption,
+  SelectVisitorOption,
 } from '@/types'
 import { formatPermissionName, formatRoleLabel } from '@/utils'
 
@@ -53,5 +56,23 @@ export function mapperSelectProjectTypeOptions(response: SelectProjectTypeOption
 export function mapperSelectProjectStatusOptions(response: SelectProjectStatusOption[]): SelectProjectStatusOption[] {
   return response
     .map((status) => ({ id: status.id, name: status.name.trim() }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+}
+
+export function mapperSelectVisitorOptions(response: SelectVisitorOption[]): SelectVisitorOption[] {
+  return response
+    .map((item) => ({ id: item.id, name: item.name.trim() }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+}
+
+export function mapperSelectSupervisorOptions(response: SelectSupervisorOption[]): SelectSupervisorOption[] {
+  return response
+    .map((item) => ({ id: item.id, name: item.name.trim() }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+}
+
+export function mapperSelectCompanyRepresentativeOptions(response: SelectCompanyRepresentativeOption[]): SelectCompanyRepresentativeOption[] {
+  return response
+    .map((item) => ({ id: item.id, name: item.name.trim() }))
     .sort((a, b) => a.name.localeCompare(b.name, 'es'))
 }

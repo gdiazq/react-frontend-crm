@@ -86,3 +86,48 @@ export interface ProjectPagedResponse {
   first?: boolean
   last?: boolean
 }
+
+export interface ProjectCreateForm {
+  costCenter: string
+  name: string
+  address: string
+  description: string
+  typeId: string
+  statusId: string
+  specialtyId: string
+  visitorId: string
+  supervisorId: string
+  companyRepresentativeIds: string[]
+  startDate: string
+  realStartDate: string
+  endDate: string
+  realEndDate: string
+}
+
+export interface ProjectCreatePayload {
+  costCenter: number
+  name: string
+  address: string | null
+  description: string | null
+  typeId: number | null
+  statusId: number | null
+  specialtyId: number | null
+  visitorId: number | null
+  supervisorId: number | null
+  companyRepresentativeIds: number[] | null
+  startDate: string | null
+  realStartDate: string | null
+  endDate: string | null
+  realEndDate: string | null
+}
+
+export interface ProjectCreateResponse {
+  id: number
+  name: string
+  costCenter: number
+}
+
+export interface ProjectEmployeeSelectOption {
+  id: number
+  name: string
+}

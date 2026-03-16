@@ -1,13 +1,16 @@
 import { create } from 'zustand'
 import {
+  mapperSelectCompanyRepresentativeOptions,
   mapperSelectPermissionOptions,
   mapperSelectProjectTypeOptions,
   mapperSelectProjectSpecialtyOptions,
   mapperSelectProjectStatusOptions,
   mapperSelectRoleOptions,
   mapperSelectStatusOptions,
+  mapperSelectSupervisorOptions,
   mapperSelectUserEmailOptions,
   mapperSelectUserNameOptions,
+  mapperSelectVisitorOptions,
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { selectsService } from '@/services'
@@ -29,6 +32,15 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   loadingProjectTypeOptions: false,
   loadingProjectSpecialtyOptions: false,
   loadingProjectStatusOptions: false,
+  visitorOptions: [],
+  supervisorOptions: [],
+  companyRepresentativeOptions: [],
+  loadingVisitorOptions: false,
+  loadingSupervisorOptions: false,
+  loadingCompanyRepresentativeOptions: false,
+  visitorOptionsErrorMessage: null,
+  supervisorOptionsErrorMessage: null,
+  companyRepresentativeOptionsErrorMessage: null,
   roleOptionsErrorMessage: null,
   permissionOptionsErrorMessage: null,
   statusOptionsErrorMessage: null,
@@ -258,5 +270,95 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
 
   clearProjectStatusOptionsStatus: () => {
     set({ projectStatusOptionsErrorMessage: null })
+  },
+
+  getVisitorOptions: async () => {
+    try {
+      set({
+        loadingVisitorOptions: true,
+        visitorOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await selectsService.getVisitorOptions()
+      set({ visitorOptions: mapperSelectVisitorOptions(data) })
+    } catch (error) {
+      if (selectsService.isAxiosError(error)) {
+        set({
+          visitorOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadVisitorsError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          visitorOptionsErrorMessage: messages.selects.status.errors.loadVisitorsError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingVisitorOptions: false })
+    }
+  },
+
+  clearVisitorOptionsStatus: () => {
+    set({ visitorOptionsErrorMessage: null })
+  },
+
+  getSupervisorOptions: async () => {
+    try {
+      set({
+        loadingSupervisorOptions: true,
+        supervisorOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await selectsService.getSupervisorOptions()
+      set({ supervisorOptions: mapperSelectSupervisorOptions(data) })
+    } catch (error) {
+      if (selectsService.isAxiosError(error)) {
+        set({
+          supervisorOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadSupervisorsError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          supervisorOptionsErrorMessage: messages.selects.status.errors.loadSupervisorsError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingSupervisorOptions: false })
+    }
+  },
+
+  clearSupervisorOptionsStatus: () => {
+    set({ supervisorOptionsErrorMessage: null })
+  },
+
+  getCompanyRepresentativeOptions: async () => {
+    try {
+      set({
+        loadingCompanyRepresentativeOptions: true,
+        companyRepresentativeOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await selectsService.getCompanyRepresentativeOptions()
+      set({ companyRepresentativeOptions: mapperSelectCompanyRepresentativeOptions(data) })
+    } catch (error) {
+      if (selectsService.isAxiosError(error)) {
+        set({
+          companyRepresentativeOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadCompanyRepresentativesError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          companyRepresentativeOptionsErrorMessage: messages.selects.status.errors.loadCompanyRepresentativesError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingCompanyRepresentativeOptions: false })
+    }
+  },
+
+  clearCompanyRepresentativeOptionsStatus: () => {
+    set({ companyRepresentativeOptionsErrorMessage: null })
   },
 }))

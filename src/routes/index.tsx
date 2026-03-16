@@ -24,6 +24,7 @@ const ProjectStatusesDashboardPage = lazy(() => import('@/pages/projects/Project
 const ProjectStatusesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectStatusesFormDashboardPage'))
 const ProjectSpecialtiesDashboardPage = lazy(() => import('@/pages/projects/ProjectSpecialtiesDashboardPage'))
 const ProjectSpecialtiesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectSpecialtiesFormDashboardPage'))
+const ProjectsFormDashboardPage = lazy(() => import('@/pages/projects/ProjectsFormDashboardPage'))
 const ProjectTypesDashboardPage = lazy(() => import('@/pages/projects/ProjectTypesDashboardPage'))
 const ProjectTypesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectTypesFormDashboardPage'))
 const ContractsFormDashboardPage = lazy(() => import('@/pages/contracts/ContractsFormDashboardPage'))
@@ -161,6 +162,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="PROJECT" permissionType="canRead">
             <ProjectsDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/projects/new',
+        element: (
+          <ProtectedRoute requiresPermissions module="PROJECT" permissionType="canCreate">
+            <ProjectsFormDashboardPage />
           </ProtectedRoute>
         ),
       },

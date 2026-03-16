@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
@@ -9,6 +10,7 @@ import {
   StatsOverviewCardsComponent,
   TableComponent,
 } from '@/components'
+import { AUTH_ROUTE_PROJECTS_CREATE } from '@/constant'
 import { projectsTableColumns, projectsTableColumnIndex, projectsTableSortByColumn } from '@/factories'
 import { useStoreProjects, useStoreSelects } from '@/store'
 import type { ProjectTableRow, TableSortState } from '@/types'
@@ -21,6 +23,8 @@ const PROJECT_ACTIVE_COLUMN_INDEX = projectsTableColumnIndex.active
 const PROJECTS_SORTABLE_COLUMNS = Object.keys(projectsTableSortByColumn).map((index) => Number(index))
 
 export default function ProjectsDashboardPage() {
+  const navigate = useNavigate()
+
   const projectsRows = useStoreProjects((s) => s.projectsRows)
   const pagination = useStoreProjects((s) => s.pagination)
   const queryParams = useStoreProjects((s) => s.queryParams)
@@ -284,6 +288,14 @@ export default function ProjectsDashboardPage() {
             disabled={loadingProjects}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loadingProjects ? 'Buscando...' : 'Buscar'}
+          />
+          <ButtonComponent
+            type="button"
+            variant="primary"
+            disabled={loadingProjects}
+            className="flex-1 text-white md:flex-none dark:text-white"
+            label="Nuevo proyecto"
+            onClick={() => navigate(AUTH_ROUTE_PROJECTS_CREATE)}
           />
         </div>
       </form>

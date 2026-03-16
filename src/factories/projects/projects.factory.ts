@@ -1,4 +1,5 @@
 import type {
+  ProjectCreateForm,
   ProjectsPagination,
   ProjectsQueryParams,
   ProjectsSortBy,
@@ -71,4 +72,21 @@ export const initialProjectsQueryParams: ProjectsQueryParams = {
   updatedTo: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
+}
+
+export const initialCreateProjectForm: ProjectCreateForm = {
+  costCenter: '',
+  name: '',
+  address: '',
+  description: '',
+  typeId: '',
+  statusId: '',
+  specialtyId: '',
+  visitorId: '',
+  supervisorId: '',
+  companyRepresentativeIds: [],
+  startDate: '',
+  realStartDate: '',
+  endDate: '',
+  realEndDate: '',
 }

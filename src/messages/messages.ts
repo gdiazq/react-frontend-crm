@@ -361,11 +361,18 @@ export default {
     ui: {
       statusActive: 'Activo',
       statusInactive: 'Inactivo',
+      createProjectTitle: 'Crear proyecto',
+      createProjectDescription: 'Completa la informacion para registrar un nuevo proyecto.',
+      createProjectSubmit: 'Crear proyecto',
+      createProjectSubmitting: 'Creando proyecto...',
     },
     status: {
-      success: {},
+      success: {
+        createProjectSuccess: 'Proyecto creado correctamente.',
+      },
       errors: {
         loadError: 'No se pudo cargar la lista de proyectos.',
+        createProjectError: 'No se pudo crear el proyecto.',
       },
     },
   },
@@ -442,6 +449,9 @@ export default {
         loadProjectStatusesError: 'No se pudieron cargar las vigencias de proyecto.',
         loadApprovalEmployeeStatusesError: 'No se pudieron cargar los estados de aprobacion.',
         loadHrRequestTypesError: 'No se pudieron cargar los tipos de solicitud.',
+        loadVisitorsError: 'No se pudieron cargar los visitadores.',
+        loadSupervisorsError: 'No se pudieron cargar los supervisores.',
+        loadCompanyRepresentativesError: 'No se pudieron cargar los representantes de empresa.',
       },
     },
   },

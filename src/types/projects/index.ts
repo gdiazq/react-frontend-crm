@@ -6,5 +6,9 @@ export type {
   ProjectsPagination,
   ProjectsQueryParams,
   ProjectPagedResponse,
+  ProjectCreateForm,
+  ProjectCreatePayload,
+  ProjectCreateResponse,
+  ProjectEmployeeSelectOption,
 } from './projects'
 export type { ProjectsStore } from './projects.store'

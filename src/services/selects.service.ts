@@ -1,14 +1,17 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
 import type {
+  SelectCompanyRepresentativeOption,
   SelectPermissionOption,
   SelectProjectTypeOption,
   SelectProjectSpecialtyOption,
   SelectProjectStatusOption,
   SelectRoleOption,
   SelectStatusOption,
+  SelectSupervisorOption,
   SelectUserEmailOption,
   SelectUserNameOption,
+  SelectVisitorOption,
 } from '@/types'
 
 export const selectsService = {
@@ -49,6 +52,21 @@ export const selectsService = {
 
   getProjectStatusOptions: async () => {
     const { data } = await axiosInstance.get<SelectProjectStatusOption[]>('/project/select/project-statuses')
+    return data
+  },
+
+  getVisitorOptions: async () => {
+    const { data } = await axiosInstance.get<SelectVisitorOption[]>('/rrhh/employee/select/visitors')
+    return data
+  },
+
+  getSupervisorOptions: async () => {
+    const { data } = await axiosInstance.get<SelectSupervisorOption[]>('/rrhh/employee/select/supervisors')
+    return data
+  },
+
+  getCompanyRepresentativeOptions: async () => {
+    const { data } = await axiosInstance.get<SelectCompanyRepresentativeOption[]>('/rrhh/employee/select/company-representatives')
     return data
   },
 

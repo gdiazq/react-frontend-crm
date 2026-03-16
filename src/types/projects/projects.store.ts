@@ -1,4 +1,5 @@
 import type {
+  ProjectCreatePayload,
   ProjectPagedResponse,
   ProjectsPagination,
   ProjectsQueryParams,
@@ -14,7 +15,9 @@ export interface ProjectsStore {
   pagination: ProjectsPagination
   queryParams: ProjectsQueryParams
   loadingProjects: boolean
+  createProjectSubmitting: boolean
   operationStatus: Record<OperationKey, OperationStatus>
+  createProject: (payload: ProjectCreatePayload) => Promise<boolean>
   getProjects: () => Promise<void>
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
