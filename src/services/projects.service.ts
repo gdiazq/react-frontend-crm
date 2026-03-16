@@ -2,6 +2,7 @@ import axios from 'axios'
 import { axiosInstance } from '@/config'
 import { mapperProjectsQueryParams } from '@/mappers'
 import type {
+  CsvImportResponse,
   ProjectCreatePayload,
   ProjectCreateResponse,
   ProjectDetail,
@@ -36,6 +37,22 @@ export const projectsService = {
 
   toggleProjectStatus: async (projectId: number, active: boolean) => {
     await axiosInstance.put(`/project/project/${projectId}/status`, { active })
+  },
+
+  exportProjectsCsv: async () => {
+    const { data } = await axiosInstance.get<Blob>('/project/project/export/csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
+
+  importProjectsCsv: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const { data } = await axiosInstance.post<CsvImportResponse>('/project/project/import/csv', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
   },
 
   isAxiosError: axios.isAxiosError,

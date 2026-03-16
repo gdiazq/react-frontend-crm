@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
@@ -10,13 +10,15 @@ import {
   SelectComponent,
   StatsOverviewCardsComponent,
   TableComponent,
+  ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_PROJECTS, AUTH_ROUTE_PROJECTS_CREATE, AUTH_ROUTE_PROJECTS_EDIT } from '@/constant'
 import { projectsTableColumns, projectsTableColumnIndex, projectsTableSortByColumn } from '@/factories'
 import messages from '@/messages/messages'
+import { projectsService } from '@/services'
 import { useStoreAuth, useStoreProjects, useStoreSelects } from '@/store'
 import type { ProjectTableRow, TableRow, TableSortState } from '@/types'
-import { createProjectsActions, createProjectsTableCustomRenderer } from '@/utils'
+import { createProjectsActions, createProjectsTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const PROJECT_TYPE_COLUMN_INDEX = projectsTableColumnIndex.type
@@ -96,6 +98,9 @@ export default function ProjectsDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<ProjectTableRow | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
+  const [downloadingReport, setDownloadingReport] = useState(false)
+  const [uploadingBulk, setUploadingBulk] = useState(false)
+  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -208,6 +213,51 @@ export default function ProjectsDashboardPage() {
     const currentSortDir = queryParams.sortDir
     const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
     await sortProjects(sortBy, nextSortDir)
+  }
+
+  const handleDownloadReport = async () => {
+    if (downloadingReport) return
+
+    try {
+      setDownloadingReport(true)
+      const csvBlob = await projectsService.exportProjectsCsv()
+      downloadBlobFile(csvBlob, 'projects.csv')
+      setActionsMessage('Reporte descargado correctamente.')
+    } catch (error) {
+      if (projectsService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
+      } else {
+        setActionsMessage('No se pudo descargar el reporte.')
+      }
+    } finally {
+      setDownloadingReport(false)
+    }
+  }
+
+  const handleBulkUpload = () => {
+    if (uploadingBulk) return
+    bulkUploadInputRef.current?.click()
+  }
+
+  const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file || uploadingBulk) return
+
+    try {
+      setUploadingBulk(true)
+      const result = await projectsService.importProjectsCsv(file)
+      setActionsMessage(formatCsvImportSummary(result))
+      await getProjects()
+    } catch (error) {
+      if (projectsService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
+      } else {
+        setActionsMessage('No se pudo realizar la carga masiva.')
+      }
+    } finally {
+      setUploadingBulk(false)
+    }
   }
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
@@ -337,7 +387,7 @@ export default function ProjectsDashboardPage() {
           <ButtonComponent
             type="button"
             variant="outline"
-            disabled={loadingProjects || loadingToggleStatus}
+            disabled={loadingProjects || loadingToggleStatus || downloadingReport || uploadingBulk}
             label="Filtro"
             onClick={() => setFiltersOpen(true)}
           />
@@ -355,20 +405,33 @@ export default function ProjectsDashboardPage() {
           <ButtonComponent
             type="submit"
             variant="primary"
-            disabled={loadingProjects || loadingToggleStatus}
+            disabled={loadingProjects || loadingToggleStatus || downloadingReport || uploadingBulk}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loadingProjects ? 'Buscando...' : 'Buscar'}
           />
           <ButtonComponent
             type="button"
             variant="primary"
-            disabled={loadingProjects || loadingToggleStatus}
+            disabled={loadingProjects || loadingToggleStatus || downloadingReport || uploadingBulk}
             className="flex-1 text-white md:flex-none dark:text-white"
             label="Nuevo proyecto"
             onClick={() => navigate(AUTH_ROUTE_PROJECTS_CREATE)}
           />
+          <ToolbarActionsDropdownComponent
+            disabled={loadingProjects || loadingToggleStatus || downloadingReport || uploadingBulk}
+            onDownloadReport={() => { void handleDownloadReport() }}
+            onBulkUpload={handleBulkUpload}
+          />
         </div>
       </form>
+
+      <input
+        ref={bulkUploadInputRef}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={(event) => { void handleBulkUploadFileChange(event) }}
+      />
 
       <TableComponent
         columns={projectsTableColumns}
