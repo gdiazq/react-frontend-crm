@@ -1,3 +1,5 @@
+import type { Pagination } from '../common'
+
 export interface EmployeeRaw {
   id: number
   identification: string
@@ -325,16 +327,7 @@ export type EmployeesSortBy =
 
 export type EmployeesSortDir = 'asc' | 'desc'
 
-export interface EmployeesPagination {
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  total: number
-  active: number
-  first: boolean
-  last: boolean
-}
+export type EmployeesPagination = Pagination
 
 export interface EmployeesQueryParams {
   page: number

@@ -1,3 +1,5 @@
+import type { Pagination } from '../common'
+
 export interface RoleRaw {
   id: number
   name: string
@@ -71,16 +73,7 @@ export type RolesSortBy = 'name' | 'description' | 'enabled' | 'createdAt' | 'up
 
 export type RolesSortDir = 'asc' | 'desc'
 
-export interface RolesPagination {
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  total: number
-  active: number
-  first: boolean
-  last: boolean
-}
+export type RolesPagination = Pagination
 
 export interface RolesQueryParams {
   page: number

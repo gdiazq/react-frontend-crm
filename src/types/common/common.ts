@@ -1,3 +1,14 @@
+export interface Pagination {
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  total: number
+  active: number
+  first: boolean
+  last: boolean
+}
+
 export interface AlertsCore {
   icon: string
   variant: 'success' | 'error' | 'warning' | 'info'

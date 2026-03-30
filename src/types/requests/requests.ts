@@ -1,3 +1,5 @@
+import type { Pagination } from '../common'
+
 export interface HrRequestRaw {
   id: number
   idModule: number
@@ -22,17 +24,9 @@ export interface HrRequestRaw {
   updatedAt: string
 }
 
-export interface RequestsPagination {
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  total: number
-  active: number
+export interface RequestsPagination extends Pagination {
   pending: number
   numberOfElements: number
-  first: boolean
-  last: boolean
 }
 
 export interface RequestsQueryParams {

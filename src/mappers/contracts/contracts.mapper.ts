@@ -11,6 +11,7 @@ import type {
   ContractsQueryParams,
   ContractTableRow,
 } from '@/types'
+import { mapperPagination } from '../shared/pagination.mapper'
 import { formatDate, formatDateTime } from '@/utils'
 
 export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
@@ -34,25 +35,7 @@ export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
 }
 
 export function mapperContractsPagination(result: ContractPagedResponse): ContractsPagination {
-  const page = result.page ?? result.number ?? 0
-  const size = result.size ?? 8
-  const totalElements = result.totalElements ?? result.total ?? 0
-  const totalPages = result.totalPages ?? 0
-  const total = result.total ?? totalElements
-  const active = result.active ?? 0
-  const first = result.first ?? page === 0
-  const last = result.last ?? page >= totalPages - 1
-
-  return {
-    page,
-    size,
-    totalElements,
-    totalPages,
-    total,
-    active,
-    first,
-    last,
-  }
+  return mapperPagination(result)
 }
 
 export function mapperContractsQueryParams(result: ContractsQueryParams): Record<string, number | string> {

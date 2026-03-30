@@ -1,3 +1,5 @@
+import type { Pagination } from '../common'
+
 export interface ProjectSpecialtyRaw {
   id: number
   name: string
@@ -59,16 +61,7 @@ export type ProjectSpecialtiesSortBy = 'name' | 'description' | 'active' | 'crea
 
 export type ProjectSpecialtiesSortDir = 'asc' | 'desc'
 
-export interface ProjectSpecialtiesPagination {
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  total: number
-  active: number
-  first: boolean
-  last: boolean
-}
+export type ProjectSpecialtiesPagination = Pagination
 
 export interface ProjectSpecialtiesQueryParams {
   page: number

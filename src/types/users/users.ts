@@ -1,3 +1,5 @@
+import type { Pagination } from '../common'
+
 export interface UserRoleRaw {
   id: number
   name: string
@@ -134,16 +136,7 @@ export interface UserPagedResponse {
   last?: boolean
 }
 
-export interface UsersPagination {
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  total: number
-  active: number
-  first: boolean
-  last: boolean
-}
+export type UsersPagination = Pagination
 
 export interface UsersQueryParams {
   page: number

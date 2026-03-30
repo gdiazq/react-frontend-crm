@@ -1,3 +1,5 @@
+import type { Pagination } from '../common'
+
 export interface ProjectStatusRaw {
   id: number
   name: string
@@ -59,16 +61,7 @@ export type ProjectStatusesSortBy = 'name' | 'description' | 'active' | 'created
 
 export type ProjectStatusesSortDir = 'asc' | 'desc'
 
-export interface ProjectStatusesPagination {
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  total: number
-  active: number
-  first: boolean
-  last: boolean
-}
+export type ProjectStatusesPagination = Pagination
 
 export interface ProjectStatusesQueryParams {
   page: number

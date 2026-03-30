@@ -1,3 +1,5 @@
+import type { Pagination } from '../common'
+
 export interface ContractRaw {
   id: number
   employeeId: number
@@ -204,16 +206,7 @@ export type ContractsSortBy =
 
 export type ContractsSortDir = 'asc' | 'desc'
 
-export interface ContractsPagination {
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  total: number
-  active: number
-  first: boolean
-  last: boolean
-}
+export type ContractsPagination = Pagination
 
 export interface ContractsQueryParams {
   page: number

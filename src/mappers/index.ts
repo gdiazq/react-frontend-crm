@@ -125,3 +125,4 @@ export {
   mapperValidateField,
   mapperIsFormValid,
 } from './validation/validation.mapper'
+export { mapperPagination } from './shared/pagination.mapper'

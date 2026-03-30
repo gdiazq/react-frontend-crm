@@ -11,6 +11,7 @@ import type {
   ProjectTypesQueryParams,
   ProjectTypeUpdatePayload,
 } from '@/types'
+import { mapperPagination } from '../shared/pagination.mapper'
 import { formatDate } from '@/utils'
 
 export function mapperProjectTypesRows(result: ProjectTypeRaw[]): ProjectTypeTableRow[] {
@@ -28,16 +29,7 @@ export function mapperProjectTypesRows(result: ProjectTypeRaw[]): ProjectTypeTab
 }
 
 export function mapperProjectTypesPagination(result: ProjectTypePagedResponse): ProjectTypesPagination {
-  const page = result.page ?? result.number ?? 0
-  const size = result.size ?? 10
-  const totalElements = result.totalElements ?? 0
-  const totalPages = result.totalPages ?? 0
-  const total = result.total ?? totalElements
-  const active = result.active ?? 0
-  const first = result.first ?? page == 0
-  const last = result.last ?? page >= totalPages - 1
-
-  return { page, size, totalElements, totalPages, total, active, first, last }
+  return mapperPagination(result)
 }
 
 export function mapperProjectTypesQueryParams(result: ProjectTypesQueryParams): Record<string, number | string> {

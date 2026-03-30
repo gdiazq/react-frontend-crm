@@ -11,6 +11,7 @@ import type {
   EmployeesPagination,
   EmployeesQueryParams,
 } from '@/types'
+import { mapperPagination } from '../shared/pagination.mapper'
 import { formatDate } from '@/utils'
 
 export function mapperEmployeesRows(response: EmployeeRaw[]): EmployeeTableRow[] {
@@ -37,25 +38,7 @@ export function mapperEmployeesRows(response: EmployeeRaw[]): EmployeeTableRow[]
 }
 
 export function mapperEmployeesPagination(response: EmployeePagedResponse): EmployeesPagination {
-  const page = response.page ?? response.number ?? 0
-  const size = response.size ?? 8
-  const totalElements = response.totalElements ?? response.total ?? 0
-  const totalPages = response.totalPages ?? 0
-  const total = response.total ?? totalElements
-  const active = response.active ?? 0
-  const first = response.first ?? page === 0
-  const last = response.last ?? page >= totalPages - 1
-
-  return {
-    page,
-    size,
-    totalElements,
-    totalPages,
-    total,
-    active,
-    first,
-    last,
-  }
+  return mapperPagination(response)
 }
 
 export function mapperEmployeesQueryParams(queryParams: EmployeesQueryParams): Record<string, string | number> {

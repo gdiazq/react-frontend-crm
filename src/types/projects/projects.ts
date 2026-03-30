@@ -1,3 +1,5 @@
+import type { Pagination } from '../common'
+
 export interface ProjectRaw {
   id: number
   costCenter: number
@@ -69,16 +71,7 @@ export type ProjectsSortBy =
 
 export type ProjectsSortDir = 'asc' | 'desc'
 
-export interface ProjectsPagination {
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  total: number
-  active: number
-  first: boolean
-  last: boolean
-}
+export type ProjectsPagination = Pagination
 
 export interface ProjectsQueryParams {
   page: number
