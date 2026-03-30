@@ -1,9 +1,5 @@
 import type { ValidationRule } from '@/types'
-
-const selectRequiredRule = (label: string): ValidationRule => ({
-  required: true,
-  custom: (value: string) => (Number.isInteger(Number(value)) && Number(value) > 0 ? null : `Selecciona ${label}`),
-})
+import { selectRequiredRule } from './shared.validators'
 
 export const contractsCreateValidationRules: Record<string, ValidationRule> = {
   employeeId: {

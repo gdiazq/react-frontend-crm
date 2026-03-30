@@ -1,5 +1,16 @@
 import type { CsvImportResponse } from '@/types'
 
+export function downloadBlobFile(blob: Blob, filename: string) {
+  const url = window.URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  window.URL.revokeObjectURL(url)
+}
+
 export function formatCsvImportSummary(result: CsvImportResponse) {
   const summary = `Carga masiva completada. Total: ${result.total}, Exitosas: ${result.success}, Fallidas: ${result.failed}.`
   if (result.errors.length === 0) return summary

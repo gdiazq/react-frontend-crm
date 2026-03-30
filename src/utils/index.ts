@@ -5,14 +5,9 @@ export {
   updateNotificationsByIds,
   getNotificationIds,
   convertIdToNumber,
+  normalizeVariant,
 } from './notifications/notificationUtils'
-export { normalizeVariant } from './notifications/notificationVariant'
-export { formatDate, formatDateTime } from './format/formatUtils'
-export {
-  formatCurrency,
-  formatNumber,
-  formatVariationLabel,
-} from './format/dashboardUtils'
+export { formatDate, formatDateTime, formatCurrency, formatNumber, formatVariationLabel } from './format/formatUtils'
 export {
   findDeviceById,
   removeDeviceById,
@@ -23,18 +18,19 @@ export {
   formatPermissionName,
   mapRoleToForm,
 } from './roles/rolesUtils'
-export { createEmployeesActions } from './employees/employeesActions'
-export { createContractsActions } from './contracts/contractsActions'
-export { createUsersActions } from './users/usersActions'
-export type { DropdownAction } from './users/usersActions'
-export { createRolesActions } from './roles/rolesActions'
-export { createRequestsActions } from './requests/requestsActions'
-export { createProjectStatusesActions } from './project-statuses/projectStatusesActions'
-export { createProjectSpecialtiesActions } from './project-specialties/projectSpecialtiesActions'
-export { createProjectTypesActions } from './project-types/projectTypesActions'
-export { createProjectsActions } from './projects/projectsActions'
-export { downloadBlobFile } from './file/fileDownload'
-export { formatCsvImportSummary } from './file/csvImport'
+export {
+  createUsersActions,
+  createEmployeesActions,
+  createContractsActions,
+  createRolesActions,
+  createRequestsActions,
+  createProjectStatusesActions,
+  createProjectSpecialtiesActions,
+  createProjectTypesActions,
+  createProjectsActions,
+} from './shared/actionsFactory'
+export type { DropdownAction } from './shared/actionsFactory'
+export { downloadBlobFile, formatCsvImportSummary } from './file/fileUtils'
 export { getInitials } from './avatar/avatarUtils'
 export { createUsersTableCustomRenderer } from './users/usersTableCellRules'
 export { createContractsTableCustomRenderer } from './contracts/contractsTableCellRules'

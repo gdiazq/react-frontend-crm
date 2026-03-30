@@ -1,4 +1,4 @@
-export { EMAIL_REGEX } from './shared.validators'
+export { EMAIL_REGEX, selectRequiredRule } from './shared.validators'
 export {
   loginValidationRules,
   registerValidationRules,
@@ -8,10 +8,12 @@ export {
 } from './auth.validators'
 export { settingsUpdateProfileValidationRules } from './settings.validators'
 export { usersCreateValidationRules } from './users.validators'
-export { rolesCreateValidationRules } from './roles.validators'
 export { employeesCreateValidationRules } from './employees.validators'
 export { contractsCreateValidationRules } from './contracts.validators'
-export { projectStatusesCreateValidationRules } from './project-statuses.validators'
-export { projectSpecialtiesCreateValidationRules } from './project-specialties.validators'
-export { projectTypesCreateValidationRules } from './project-types.validators'
 export { projectsCreateValidationRules } from './projects.validators'
+export {
+  rolesCreateValidationRules,
+  projectStatusesCreateValidationRules,
+  projectSpecialtiesCreateValidationRules,
+  projectTypesCreateValidationRules,
+} from './entity-name.validators'

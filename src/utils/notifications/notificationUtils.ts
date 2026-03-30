@@ -1,4 +1,4 @@
-import type { NotificationItem } from '@/types'
+import type { NotificationItem, NotificationVariant } from '@/types'
 
 export const findNotificationById = (
   items: NotificationItem[],
@@ -30,4 +30,10 @@ export const convertIdToNumber = (id: string): number | null => {
   const numericId = Number.parseInt(id, 10)
   if (!Number.isInteger(numericId) || numericId <= 0) return null
   return numericId
+}
+
+export function normalizeVariant(value: unknown): NotificationVariant {
+  const normalized = typeof value === 'string' ? value.toLowerCase() : 'info'
+  if (normalized === 'success' || normalized === 'warning' || normalized === 'error') return normalized
+  return 'info'
 }
