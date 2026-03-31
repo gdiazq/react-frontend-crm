@@ -11,6 +11,7 @@ import type {
   UsersQueryParams,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
+import { buildQueryParams, appendString, appendBooleanString, appendParsedId } from '../shared/queryParams.mapper'
 import messages from '@/messages/messages'
 import { formatDate, formatDateTime, formatRoleLabel } from '@/utils'
 
@@ -37,29 +38,13 @@ export function mapperUsersPagination(result: UserPagedResponse): UsersPaginatio
 }
 
 export function mapperUsersQueryParams(result: UsersQueryParams): Record<string, number | string> {
-  const search = result.search.trim()
-  const name = result.name.trim()
-  const email = result.email.trim()
-  const status = result.status.trim()
-  const roleId = result.roleId.trim()
-  const queryParams: Record<string, number | string> = {
-    page: result.page,
-    size: result.size,
-    sortBy: result.sortBy,
-    sortDir: result.sortDir,
-  }
-
-  if (search.length > 0) queryParams.search = search
-  if (name.length > 0) queryParams.name = name
-  if (email.length > 0) queryParams.email = email
-  if (status === 'true' || status === 'false') queryParams.status = status
-  if (roleId.length > 0) {
-    const parsedRoleId = Number(roleId)
-    if (Number.isInteger(parsedRoleId) && parsedRoleId > 0) {
-      queryParams.roleId = parsedRoleId
-    }
-  }
-  return queryParams
+  const params = buildQueryParams(result)
+  appendString(params, 'search', result.search)
+  appendString(params, 'name', result.name)
+  appendString(params, 'email', result.email)
+  appendBooleanString(params, 'status', result.status)
+  appendParsedId(params, 'roleId', result.roleId)
+  return params
 }
 
 export function mapperCreateUserPayload(form: UserCreateForm): UserCreatePayload {

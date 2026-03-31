@@ -8,6 +8,7 @@ import type {
   RequestsPagination,
   RequestsQueryParams,
 } from '@/types'
+import { buildQueryParams, appendString, appendParsedId } from '../shared/queryParams.mapper'
 import { formatDate, formatDateTime } from '@/utils'
 
 function resolveApproverLabel(item: HrRequestRaw): string {
@@ -74,38 +75,15 @@ export function mapperRequestsPagination(response: RequestPagedResponse): Reques
 }
 
 export function mapperRequestsQueryParams(queryParams: RequestsQueryParams): Record<string, number | string> {
-  const result: Record<string, number | string> = {
-    page: queryParams.page,
-    size: queryParams.size,
-    sortBy: queryParams.sortBy,
-    sortDir: queryParams.sortDir,
-  }
-
-  const search = queryParams.search.trim()
-  const statusId = queryParams.statusId.trim()
-  const idModule = queryParams.idModule.trim()
-  const createdFrom = queryParams.createdFrom.trim()
-  const createdTo = queryParams.createdTo.trim()
-  const approvalFrom = queryParams.approvalFrom.trim()
-  const approvalTo = queryParams.approvalTo.trim()
-
-  if (search.length > 0) result.search = search
-
-  if (statusId.length > 0) {
-    const parsedStatusId = Number(statusId)
-    if (Number.isInteger(parsedStatusId) && parsedStatusId > 0) result.statusId = parsedStatusId
-  }
-
-  if (idModule.length > 0) {
-    const parsedModuleId = Number(idModule)
-    if (Number.isInteger(parsedModuleId) && parsedModuleId > 0) result.idModule = parsedModuleId
-  }
-  if (createdFrom.length > 0) result.createdFrom = createdFrom
-  if (createdTo.length > 0) result.createdTo = createdTo
-  if (approvalFrom.length > 0) result.approvalFrom = approvalFrom
-  if (approvalTo.length > 0) result.approvalTo = approvalTo
-
-  return result
+  const params = buildQueryParams(queryParams)
+  appendString(params, 'search', queryParams.search)
+  appendParsedId(params, 'statusId', queryParams.statusId)
+  appendParsedId(params, 'idModule', queryParams.idModule)
+  appendString(params, 'createdFrom', queryParams.createdFrom)
+  appendString(params, 'createdTo', queryParams.createdTo)
+  appendString(params, 'approvalFrom', queryParams.approvalFrom)
+  appendString(params, 'approvalTo', queryParams.approvalTo)
+  return params
 }
 
 export function mapperRequestDetailView(detail: HrRequestDetailRaw | null): RequestDetailView | null {

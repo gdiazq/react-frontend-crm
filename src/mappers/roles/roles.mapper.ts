@@ -12,6 +12,7 @@ import type {
   RolesQueryParams,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
+import { buildQueryParams, appendString } from '../shared/queryParams.mapper'
 import { formatDate, formatRoleLabel } from '@/utils'
 
 export function mapperRolesRows(result: RoleRaw[]): RoleTableRow[] {
@@ -33,21 +34,14 @@ export function mapperRolesPagination(result: RolePagedResponse): RolesPaginatio
 }
 
 export function mapperRolesQueryParams(result: RolesQueryParams): Record<string, number | string> {
-  const search = result.search.trim()
+  const params = buildQueryParams(result)
+  appendString(params, 'search', result.search)
   const status = result.status.trim()
-  const queryParams: Record<string, number | string> = {
-    page: result.page,
-    size: result.size,
-    sortBy: result.sortBy,
-    sortDir: result.sortDir,
-  }
-
-  if (search.length > 0) queryParams.search = search
   if (status === 'true' || status === 'false') {
-    queryParams.status = status
-    queryParams.enabled = status
+    params.status = status
+    params.enabled = status
   }
-  return queryParams
+  return params
 }
 
 export function mapperRoleDetailView(detail: RoleDetail | null): RoleDetailView | null {

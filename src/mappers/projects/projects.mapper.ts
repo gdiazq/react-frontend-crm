@@ -11,6 +11,7 @@ import type {
   ProjectTableRow,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
+import { buildQueryParams, appendString, appendBooleanString, appendParsedId } from '../shared/queryParams.mapper'
 import { formatDate } from '@/utils'
 
 export function mapperProjectsRows(result: ProjectRaw[]): ProjectTableRow[] {
@@ -43,46 +44,17 @@ export function mapperProjectsPagination(result: ProjectPagedResponse): Projects
 }
 
 export function mapperProjectsQueryParams(result: ProjectsQueryParams): Record<string, number | string> {
-  const search = result.search.trim()
-  const active = result.active.trim()
-  const typeId = result.typeId.trim()
-  const statusId = result.statusId.trim()
-  const specialtyId = result.specialtyId.trim()
-  const createdFrom = result.createdFrom.trim()
-  const createdTo = result.createdTo.trim()
-  const updatedFrom = result.updatedFrom.trim()
-  const updatedTo = result.updatedTo.trim()
-  const queryParams: Record<string, number | string> = {
-    page: result.page,
-    size: result.size,
-    sortBy: result.sortBy,
-    sortDir: result.sortDir,
-  }
-
-  if (search.length > 0) queryParams.search = search
-  if (active === 'true' || active === 'false') queryParams.active = active
-
-  if (typeId.length > 0) {
-    const parsedTypeId = Number(typeId)
-    if (Number.isInteger(parsedTypeId) && parsedTypeId > 0) queryParams.typeId = parsedTypeId
-  }
-
-  if (statusId.length > 0) {
-    const parsedStatusId = Number(statusId)
-    if (Number.isInteger(parsedStatusId) && parsedStatusId > 0) queryParams.statusId = parsedStatusId
-  }
-
-  if (specialtyId.length > 0) {
-    const parsedSpecialtyId = Number(specialtyId)
-    if (Number.isInteger(parsedSpecialtyId) && parsedSpecialtyId > 0) queryParams.specialtyId = parsedSpecialtyId
-  }
-
-  if (createdFrom.length > 0) queryParams.createdFrom = createdFrom
-  if (createdTo.length > 0) queryParams.createdTo = createdTo
-  if (updatedFrom.length > 0) queryParams.updatedFrom = updatedFrom
-  if (updatedTo.length > 0) queryParams.updatedTo = updatedTo
-
-  return queryParams
+  const params = buildQueryParams(result)
+  appendString(params, 'search', result.search)
+  appendBooleanString(params, 'active', result.active)
+  appendParsedId(params, 'typeId', result.typeId)
+  appendParsedId(params, 'statusId', result.statusId)
+  appendParsedId(params, 'specialtyId', result.specialtyId)
+  appendString(params, 'createdFrom', result.createdFrom)
+  appendString(params, 'createdTo', result.createdTo)
+  appendString(params, 'updatedFrom', result.updatedFrom)
+  appendString(params, 'updatedTo', result.updatedTo)
+  return params
 }
 
 function parseRequiredNumber(value: string): number {

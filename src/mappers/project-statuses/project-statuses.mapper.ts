@@ -12,6 +12,7 @@ import type {
   ProjectStatusUpdatePayload,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
+import { buildQueryParams, appendString, appendBooleanString } from '../shared/queryParams.mapper'
 import { formatDate } from '@/utils'
 
 export function mapperProjectStatusesRows(result: ProjectStatusRaw[]): ProjectStatusTableRow[] {
@@ -33,27 +34,14 @@ export function mapperProjectStatusesPagination(result: ProjectStatusPagedRespon
 }
 
 export function mapperProjectStatusesQueryParams(result: ProjectStatusesQueryParams): Record<string, number | string> {
-  const search = result.search.trim()
-  const active = result.active.trim()
-  const createdFrom = result.createdFrom.trim()
-  const createdTo = result.createdTo.trim()
-  const updatedFrom = result.updatedFrom.trim()
-  const updatedTo = result.updatedTo.trim()
-  const queryParams: Record<string, number | string> = {
-    page: result.page,
-    size: result.size,
-    sortBy: result.sortBy,
-    sortDir: result.sortDir,
-  }
-
-  if (search.length > 0) queryParams.search = search
-  if (active == 'true' || active == 'false') queryParams.active = active
-  if (createdFrom.length > 0) queryParams.createdFrom = createdFrom
-  if (createdTo.length > 0) queryParams.createdTo = createdTo
-  if (updatedFrom.length > 0) queryParams.updatedFrom = updatedFrom
-  if (updatedTo.length > 0) queryParams.updatedTo = updatedTo
-
-  return queryParams
+  const params = buildQueryParams(result)
+  appendString(params, 'search', result.search)
+  appendBooleanString(params, 'active', result.active)
+  appendString(params, 'createdFrom', result.createdFrom)
+  appendString(params, 'createdTo', result.createdTo)
+  appendString(params, 'updatedFrom', result.updatedFrom)
+  appendString(params, 'updatedTo', result.updatedTo)
+  return params
 }
 
 export function mapperProjectStatusDetailView(detail: ProjectStatusDetail | null): ProjectStatusDetailView | null {

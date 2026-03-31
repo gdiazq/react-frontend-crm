@@ -12,6 +12,7 @@ import type {
   EmployeesQueryParams,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
+import { buildQueryParams, appendString, appendBooleanString, appendParsedId } from '../shared/queryParams.mapper'
 import { formatDate } from '@/utils'
 
 export function mapperEmployeesRows(response: EmployeeRaw[]): EmployeeTableRow[] {
@@ -42,28 +43,13 @@ export function mapperEmployeesPagination(response: EmployeePagedResponse): Empl
 }
 
 export function mapperEmployeesQueryParams(queryParams: EmployeesQueryParams): Record<string, string | number> {
-  const search = queryParams.search.trim()
-  const active = queryParams.active.trim()
-  const statusId = queryParams.statusId.trim()
-  const createdFrom = queryParams.createdFrom.trim()
-  const createdTo = queryParams.createdTo.trim()
-  const result: Record<string, string | number> = {
-    page: queryParams.page,
-    size: queryParams.size,
-    sortBy: queryParams.sortBy,
-    sortDir: queryParams.sortDir,
-  }
-
-  if (search.length > 0) result.search = search
-  if (active === 'true' || active === 'false') result.active = active
-  if (statusId.length > 0) {
-    const parsedStatusId = Number(statusId)
-    if (Number.isInteger(parsedStatusId) && parsedStatusId > 0) result.statusId = parsedStatusId
-  }
-  if (createdFrom.length > 0) result.createdFrom = createdFrom
-  if (createdTo.length > 0) result.createdTo = createdTo
-
-  return result
+  const params = buildQueryParams(queryParams)
+  appendString(params, 'search', queryParams.search)
+  appendBooleanString(params, 'active', queryParams.active)
+  appendParsedId(params, 'statusId', queryParams.statusId)
+  appendString(params, 'createdFrom', queryParams.createdFrom)
+  appendString(params, 'createdTo', queryParams.createdTo)
+  return params
 }
 
 export function mapperEmployeeDetailView(result: EmployeeDetail): EmployeeDetailView {
