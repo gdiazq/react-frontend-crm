@@ -70,3 +70,4 @@ export { ProjectStatusDetailComponent } from './project-statuses/ProjectStatusDe
 export { ProjectTypeDetailComponent } from './project-types/ProjectTypeDetailComponent'
 export { ProjectSpecialtyDetailComponent } from './project-specialties/ProjectSpecialtyDetailComponent'
 export { ProjectDetailComponent } from './projects/ProjectDetailComponent'
+export { LegalTerminationCauseDetailComponent } from './legal-termination-causes/LegalTerminationCauseDetailComponent'

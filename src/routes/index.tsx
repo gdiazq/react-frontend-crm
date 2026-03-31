@@ -33,7 +33,8 @@ const UsersFormDashboardPage = lazy(() => import('@/pages/users/UsersFormDashboa
 const RolesDashboardPage = lazy(() => import('@/pages/roles/RolesDashboardPage'))
 const RolesFormDashboardPage = lazy(() => import('@/pages/roles/RolesFormDashboardPage'))
 const SettlementsDashboardPage = lazy(() => import('@/pages/settlements/SettlementsDashboardPage'))
-const SettlementsTerminationDashboardPage = lazy(() => import('@/pages/settlements/SettlementsTerminationDashboardPage'))
+const LegalTerminationCausesDashboardPage = lazy(() => import('@/pages/settlements/LegalTerminationCausesDashboardPage'))
+const LegalTerminationCausesFormDashboardPage = lazy(() => import('@/pages/settlements/LegalTerminationCausesFormDashboardPage'))
 const SettlementsWorkQualityDashboardPage = lazy(() => import('@/pages/settlements/SettlementsWorkQualityDashboardPage'))
 const SettlementsSafetyDashboardPage = lazy(() => import('@/pages/settlements/SettlementsSafetyDashboardPage'))
 const SettlementsNoRehireDashboardPage = lazy(() => import('@/pages/settlements/SettlementsNoRehireDashboardPage'))
@@ -168,7 +169,19 @@ export const router = createBrowserRouter([
       },
       {
         path: '/settlements/termination-causes',
-        element: <SettlementsTerminationDashboardPage />,
+        element: <LegalTerminationCausesDashboardPage />,
+      },
+      {
+        path: '/settlements/termination-causes/new',
+        element: <LegalTerminationCausesFormDashboardPage />,
+      },
+      {
+        path: '/settlements/termination-causes/:editId',
+        element: <LegalTerminationCausesFormDashboardPage />,
+      },
+      {
+        path: '*',
+        element: <NotFoundPage />,
       },
       {
         path: '/settlements/work-quality',

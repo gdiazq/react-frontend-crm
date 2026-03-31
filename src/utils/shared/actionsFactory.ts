@@ -198,3 +198,24 @@ export function createProjectsActions() {
 
   return { actionViewDetail, actionUpdateProject, actionToggleStatus }
 }
+
+export function createLegalTerminationCausesActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.legalTerminationCauses.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateLegalTerminationCause(handler: () => void): DropdownAction {
+    return { id: 'update-legal-termination-cause', label: messages.legalTerminationCauses.ui.updateLegalTerminationCause, handler }
+  }
+
+  function actionToggleStatus(enabled: boolean, handler: () => void): DropdownAction {
+    return {
+      id: 'toggle-status',
+      label: enabled ? messages.legalTerminationCauses.ui.actionDisableLegalTerminationCause : messages.legalTerminationCauses.ui.actionEnableLegalTerminationCause,
+      tone: enabled ? 'danger' : 'default',
+      handler,
+    }
+  }
+
+  return { actionViewDetail, actionUpdateLegalTerminationCause, actionToggleStatus }
+}

@@ -1,4 +1,37 @@
 export default {
+  legalTerminationCauses: {
+    ui: {
+      title: 'Terminacion',
+      detailTitleFallback: 'Detalle',
+      actionViewDetail: 'Ver detalle',
+      updateLegalTerminationCause: 'Editar',
+      actionEnableLegalTerminationCause: 'Habilitar terminacion',
+      actionDisableLegalTerminationCause: 'Deshabilitar terminacion',
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      createTitle: 'Nuevo motivo de terminacion',
+      editTitle: 'Editar motivo de terminacion',
+    },
+    status: {
+      success: {
+        toggleEnabledSuccess: 'Motivo habilitado correctamente.',
+        toggleDisabledSuccess: 'Motivo deshabilitado correctamente.',
+        createLegalTerminationCauseSuccess: 'Motivo creado correctamente.',
+        updateLegalTerminationCauseSuccess: 'Motivo actualizado correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de motivos de terminacion.',
+        detailInvalidLegalTerminationCauseId: 'El id del motivo de terminacion no es valido.',
+        detailLoadError: 'No se pudo cargar el detalle del motivo de terminacion.',
+        createLegalTerminationCauseNameRequired: 'El nombre es obligatorio.',
+        createLegalTerminationCauseError: 'No se pudo crear el motivo de terminacion.',
+        updateLegalTerminationCauseInvalidId: 'El id del motivo de terminacion no es valido.',
+        updateLegalTerminationCauseError: 'No se pudo actualizar el motivo de terminacion.',
+        invalidStatusLegalTerminationCauseId: 'El id del motivo de terminacion no es valido.',
+        toggleStatusError: 'No se pudo actualizar el estado del motivo de terminacion.',
+      },
+    },
+  },
   auth: {
     ui: {
       loginMfaPrompt: 'Ingresa tu codigo MFA de 6 digitos para continuar.',

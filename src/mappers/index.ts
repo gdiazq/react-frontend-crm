@@ -46,6 +46,15 @@ export {
   mapperProjectStatusesQueryParams,
 } from './project-statuses/project-statuses.mapper'
 export {
+  mapperCreateLegalTerminationCausePayload,
+  mapperUpdateLegalTerminationCausePayload,
+  mapperLegalTerminationCauseDetailView,
+  mapperLegalTerminationCauseToForm,
+  mapperLegalTerminationCausesRows,
+  mapperLegalTerminationCausesPagination,
+  mapperLegalTerminationCausesQueryParams,
+} from './legal-termination-causes/legal-termination-causes.mapper'
+export {
   mapperCreateProjectSpecialtyPayload,
   mapperUpdateProjectSpecialtyPayload,
   mapperProjectSpecialtyDetailView,

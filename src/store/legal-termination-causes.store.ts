@@ -1,0 +1,317 @@
+import { create } from 'zustand'
+import {
+  initialLegalTerminationCausesPagination,
+  initialLegalTerminationCausesQueryParams,
+  initialLegalTerminationCausesRows,
+  legalTerminationCausesTableColumnIndex,
+} from '@/factories'
+import {
+  mapperLegalTerminationCausesPagination,
+  mapperLegalTerminationCausesRows,
+} from '@/mappers'
+import messages from '@/messages/messages'
+import { legalTerminationCausesService } from '@/services'
+import type { LegalTerminationCausesStore, OperationKey, OperationStatus } from '@/types'
+
+const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
+  list: { error: null, success: null, errorBack: null },
+  detail: { error: null, success: null, errorBack: null },
+  create: { error: null, success: null, errorBack: null },
+  update: { error: null, success: null, errorBack: null },
+  toggle: { error: null, success: null, errorBack: null },
+})
+
+export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore>()((set, get) => {
+  let latestLegalTerminationCauseDetailRequestId = 0
+
+  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error, success: null, errorBack: errorBack ?? null },
+      },
+    }))
+  }
+
+  const setOpSuccess = (key: OperationKey, success: string) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success, errorBack: null },
+      },
+    }))
+  }
+
+  const clearOp = (key: OperationKey) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success: null, errorBack: null },
+      },
+    }))
+  }
+
+  const resolveErrorMessage = (error: unknown, fallback: string): string => {
+    if (legalTerminationCausesService.isAxiosError(error)) {
+      return error.response?.data?.message || fallback
+    }
+    return fallback
+  }
+
+  return {
+    legalTerminationCausesRaw: [],
+    legalTerminationCauseDetail: null,
+    legalTerminationCausesRows: [...initialLegalTerminationCausesRows],
+    pagination: { ...initialLegalTerminationCausesPagination },
+    queryParams: { ...initialLegalTerminationCausesQueryParams },
+    loadingLegalTerminationCauses: false,
+    loadingLegalTerminationCauseDetail: false,
+    createLegalTerminationCauseSubmitting: false,
+    updateLegalTerminationCauseSubmitting: false,
+    loadingToggleStatus: false,
+    operationStatus: initialOperationStatus(),
+
+    getLegalTerminationCauses: async () => {
+      try {
+        set({ loadingLegalTerminationCauses: true })
+        clearOp('list')
+        const data = await legalTerminationCausesService.getLegalTerminationCauses(get().queryParams)
+        const pagination = mapperLegalTerminationCausesPagination(data)
+
+        set({
+          legalTerminationCausesRaw: data.content,
+          legalTerminationCausesRows: mapperLegalTerminationCausesRows(data.content),
+          pagination,
+          queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
+        })
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.loadError), error)
+      } finally {
+        set({ loadingLegalTerminationCauses: false })
+      }
+    },
+
+    getLegalTerminationCauseDetail: async (legalTerminationCauseId: string) => {
+      const parsedLegalTerminationCauseId = Number(legalTerminationCauseId)
+      if (!Number.isInteger(parsedLegalTerminationCauseId) || parsedLegalTerminationCauseId <= 0) {
+        setOpError('detail', messages.legalTerminationCauses.status.errors.detailInvalidLegalTerminationCauseId)
+        set({ legalTerminationCauseDetail: null })
+        return null
+      }
+      const requestId = ++latestLegalTerminationCauseDetailRequestId
+
+      try {
+        set({ loadingLegalTerminationCauseDetail: true, legalTerminationCauseDetail: null })
+        clearOp('detail')
+        const data = await legalTerminationCausesService.getLegalTerminationCauseDetail(parsedLegalTerminationCauseId)
+        if (requestId != latestLegalTerminationCauseDetailRequestId) return null
+        set({ legalTerminationCauseDetail: data })
+        return data
+      } catch (error) {
+        if (requestId != latestLegalTerminationCauseDetailRequestId) return null
+        setOpError('detail', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.detailLoadError), error)
+        return null
+      } finally {
+        if (requestId == latestLegalTerminationCauseDetailRequestId) {
+          set({ loadingLegalTerminationCauseDetail: false })
+        }
+      }
+    },
+
+    goToPage: async (page: number) => {
+      const { pagination } = get()
+      const lastPageIndex = pagination.totalPages - 1
+      if (page < 0 || page > lastPageIndex) return
+
+      set((state) => ({
+        pagination: { ...state.pagination, page },
+        queryParams: { ...state.queryParams, page },
+      }))
+      await get().getLegalTerminationCauses()
+    },
+
+    nextPage: async () => {
+      if (get().pagination.last) return
+      await get().goToPage(get().pagination.page + 1)
+    },
+
+    previousPage: async () => {
+      if (get().pagination.first) return
+      await get().goToPage(get().pagination.page - 1)
+    },
+
+    setSearch: (value: string) => {
+      set((state) => ({ queryParams: { ...state.queryParams, search: value } }))
+    },
+
+    setActiveFilter: (active: string) => {
+      set((state) => ({ queryParams: { ...state.queryParams, active } }))
+    },
+
+    setCreatedDateRange: ({ createdFrom, createdTo }) => {
+      set((state) => ({
+        queryParams: {
+          ...state.queryParams,
+          createdFrom,
+          createdTo,
+        },
+      }))
+    },
+
+    setUpdatedDateRange: ({ updatedFrom, updatedTo }) => {
+      set((state) => ({
+        queryParams: {
+          ...state.queryParams,
+          updatedFrom,
+          updatedTo,
+        },
+      }))
+    },
+
+    clearActiveFilter: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, active: '' } }))
+    },
+
+    clearCreatedDateRange: () => {
+      set((state) => ({
+        queryParams: {
+          ...state.queryParams,
+          createdFrom: '',
+          createdTo: '',
+        },
+      }))
+    },
+
+    clearUpdatedDateRange: () => {
+      set((state) => ({
+        queryParams: {
+          ...state.queryParams,
+          updatedFrom: '',
+          updatedTo: '',
+        },
+      }))
+    },
+
+    searchLegalTerminationCauses: async () => {
+      set((state) => ({
+        pagination: { ...state.pagination, page: 0 },
+        queryParams: { ...state.queryParams, page: 0 },
+      }))
+      await get().getLegalTerminationCauses()
+    },
+
+    sortLegalTerminationCauses: async (sortBy, sortDir) => {
+      set((state) => ({
+        pagination: { ...state.pagination, page: 0 },
+        queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
+      }))
+      await get().getLegalTerminationCauses()
+    },
+
+    createLegalTerminationCause: async (payload) => {
+      const name = payload.name.trim()
+      if (name.length < 3) {
+        setOpError('create', messages.legalTerminationCauses.status.errors.createLegalTerminationCauseNameRequired)
+        return false
+      }
+
+      try {
+        set({ createLegalTerminationCauseSubmitting: true })
+        clearOp('create')
+        await legalTerminationCausesService.createLegalTerminationCause(payload)
+        setOpSuccess('create', messages.legalTerminationCauses.status.success.createLegalTerminationCauseSuccess)
+        return true
+      } catch (error) {
+        setOpError('create', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.createLegalTerminationCauseError), error)
+        return false
+      } finally {
+        set({ createLegalTerminationCauseSubmitting: false })
+      }
+    },
+
+    updateLegalTerminationCause: async (payload) => {
+      if (!Number.isInteger(payload.id) || payload.id <= 0) {
+        setOpError('update', messages.legalTerminationCauses.status.errors.updateLegalTerminationCauseInvalidId)
+        return false
+      }
+      const name = payload.name.trim()
+      if (name.length < 3) {
+        setOpError('update', messages.legalTerminationCauses.status.errors.createLegalTerminationCauseNameRequired)
+        return false
+      }
+
+      try {
+        set({ updateLegalTerminationCauseSubmitting: true })
+        clearOp('update')
+        await legalTerminationCausesService.updateLegalTerminationCause(payload)
+        setOpSuccess('update', messages.legalTerminationCauses.status.success.updateLegalTerminationCauseSuccess)
+        return true
+      } catch (error) {
+        setOpError('update', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.updateLegalTerminationCauseError), error)
+        return false
+      } finally {
+        set({ updateLegalTerminationCauseSubmitting: false })
+      }
+    },
+
+    toggleLegalTerminationCauseStatus: async (legalTerminationCauseId: string, nextStatus: boolean) => {
+      const parsedLegalTerminationCauseId = Number(legalTerminationCauseId)
+      if (!Number.isInteger(parsedLegalTerminationCauseId) || parsedLegalTerminationCauseId <= 0) {
+        setOpError('toggle', messages.legalTerminationCauses.status.errors.invalidStatusLegalTerminationCauseId)
+        return false
+      }
+
+      const previousRow = get().legalTerminationCausesRows.find((row) => row.id == legalTerminationCauseId)
+      const previousRaw = get().legalTerminationCausesRaw.find((item) => item.id == parsedLegalTerminationCauseId)
+      if (!previousRow || !previousRaw) {
+        setOpError('toggle', messages.legalTerminationCauses.status.errors.invalidStatusLegalTerminationCauseId)
+        return false
+      }
+
+      try {
+        set({ loadingToggleStatus: true })
+        clearOp('toggle')
+        set((state) => ({
+          legalTerminationCausesRaw: state.legalTerminationCausesRaw.map((item) => (item.id == parsedLegalTerminationCauseId ? { ...item, active: nextStatus } : item)),
+          legalTerminationCausesRows: state.legalTerminationCausesRows.map((row) => {
+            if (row.id != legalTerminationCauseId) return row
+            return {
+              ...row,
+              active: nextStatus,
+              values: row.values.map((value, index) => {
+                if (index != legalTerminationCausesTableColumnIndex.status) return value
+                return nextStatus ? messages.legalTerminationCauses.ui.statusActive : messages.legalTerminationCauses.ui.statusInactive
+              }),
+            }
+          }),
+        }))
+
+        await legalTerminationCausesService.toggleLegalTerminationCauseStatus(parsedLegalTerminationCauseId, nextStatus)
+        return true
+      } catch (error) {
+        set((state) => ({
+          legalTerminationCausesRaw: state.legalTerminationCausesRaw.map((item) => (item.id == parsedLegalTerminationCauseId ? previousRaw : item)),
+          legalTerminationCausesRows: state.legalTerminationCausesRows.map((row) => (row.id == legalTerminationCauseId ? previousRow : row)),
+        }))
+        setOpError('toggle', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.toggleStatusError), error)
+        return false
+      } finally {
+        set({ loadingToggleStatus: false })
+      }
+    },
+
+    clearLegalTerminationCauseDetail: () => {
+      latestLegalTerminationCauseDetailRequestId += 1
+      set({ legalTerminationCauseDetail: null, loadingLegalTerminationCauseDetail: false })
+      clearOp('detail')
+    },
+
+    clearOperationStatus: (key) => {
+      clearOp(key)
+    },
+
+    clearAllOperationStatus: () => {
+      set({ operationStatus: initialOperationStatus() })
+    },
+  }
+})
