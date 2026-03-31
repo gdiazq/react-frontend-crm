@@ -219,3 +219,24 @@ export function createLegalTerminationCausesActions() {
 
   return { actionViewDetail, actionUpdateLegalTerminationCause, actionToggleStatus }
 }
+
+export function createQualityOfWorkActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.qualityOfWork.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateQualityOfWork(handler: () => void): DropdownAction {
+    return { id: 'update-quality-of-work', label: messages.qualityOfWork.ui.updateQualityOfWork, handler }
+  }
+
+  function actionToggleStatus(enabled: boolean, handler: () => void): DropdownAction {
+    return {
+      id: 'toggle-status',
+      label: enabled ? messages.qualityOfWork.ui.actionDisableQualityOfWork : messages.qualityOfWork.ui.actionEnableQualityOfWork,
+      tone: enabled ? 'danger' : 'default',
+      handler,
+    }
+  }
+
+  return { actionViewDetail, actionUpdateQualityOfWork, actionToggleStatus }
+}

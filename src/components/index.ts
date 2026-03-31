@@ -71,3 +71,4 @@ export { ProjectTypeDetailComponent } from './project-types/ProjectTypeDetailCom
 export { ProjectSpecialtyDetailComponent } from './project-specialties/ProjectSpecialtyDetailComponent'
 export { ProjectDetailComponent } from './projects/ProjectDetailComponent'
 export { LegalTerminationCauseDetailComponent } from './legal-termination-causes/LegalTerminationCauseDetailComponent'
+export { QualityOfWorkDetailComponent } from './quality-of-work/QualityOfWorkDetailComponent'

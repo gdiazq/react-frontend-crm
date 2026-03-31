@@ -17,3 +17,4 @@ export const projectSpecialtiesCreateValidationRules: Record<string, ValidationR
 export const projectTypesCreateValidationRules: Record<string, ValidationRule> = nameRule
 
 export const legalTerminationCausesCreateValidationRules: Record<string, ValidationRule> = nameRule
+export const qualityOfWorkCreateValidationRules: Record<string, ValidationRule> = nameRule

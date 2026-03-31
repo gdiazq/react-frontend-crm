@@ -29,6 +29,7 @@ export {
   createProjectTypesActions,
   createProjectsActions,
   createLegalTerminationCausesActions,
+  createQualityOfWorkActions,
 } from './shared/actionsFactory'
 export type { DropdownAction } from './shared/actionsFactory'
 export { downloadBlobFile, formatCsvImportSummary } from './file/fileUtils'
@@ -43,3 +44,4 @@ export { createProjectSpecialtiesTableCustomRenderer } from './project-specialti
 export { createProjectTypesTableCustomRenderer } from './project-types/projectTypesTableCellRules'
 export { createProjectsTableCustomRenderer } from './projects/projectsTableCellRules'
 export { createLegalTerminationCausesTableCustomRenderer } from './legal-termination-causes/legalTerminationCausesTableCellRules'
+export { createQualityOfWorkTableCustomRenderer } from './quality-of-work/qualityOfWorkTableCellRules'

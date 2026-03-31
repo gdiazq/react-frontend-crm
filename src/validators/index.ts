@@ -17,4 +17,5 @@ export {
   projectSpecialtiesCreateValidationRules,
   projectTypesCreateValidationRules,
   legalTerminationCausesCreateValidationRules,
+  qualityOfWorkCreateValidationRules,
 } from './entity-name.validators'

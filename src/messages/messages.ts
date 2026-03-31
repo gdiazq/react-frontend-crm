@@ -509,4 +509,33 @@ export default {
       },
     },
   },
+  qualityOfWork: {
+    ui: {
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      actionViewDetail: 'Ver detalle',
+      updateQualityOfWork: 'Editar',
+      actionEnableQualityOfWork: 'Habilitar calidad',
+      actionDisableQualityOfWork: 'Deshabilitar calidad',
+      detailTitleFallback: 'Detalle de calidad del trabajo',
+    },
+    status: {
+      success: {
+        toggleEnabledSuccess: 'Calidad habilitada correctamente.',
+        toggleDisabledSuccess: 'Calidad deshabilitada correctamente.',
+        createQualityOfWorkSuccess: 'Calidad del trabajo creada correctamente.',
+        updateQualityOfWorkSuccess: 'Calidad del trabajo actualizada correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de calidad del trabajo.',
+        detailInvalidId: 'El id de calidad del trabajo no es valido.',
+        detailLoadError: 'No se pudo cargar el detalle de calidad del trabajo.',
+        createError: 'No se pudo crear el registro de calidad del trabajo.',
+        updateInvalidId: 'El id de calidad del trabajo no es valido.',
+        updateError: 'No se pudo actualizar el registro de calidad del trabajo.',
+        invalidStatusId: 'El id de calidad del trabajo no es valido.',
+        toggleStatusError: 'No se pudo actualizar el estado de calidad del trabajo.',
+      },
+    },
+  },
 }

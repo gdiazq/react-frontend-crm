@@ -136,3 +136,12 @@ export {
   mapperIsFormValid,
 } from './validation/validation.mapper'
 export { mapperPagination } from './shared/pagination.mapper'
+export {
+  mapperCreateQualityOfWorkPayload,
+  mapperUpdateQualityOfWorkPayload,
+  mapperQualityOfWorkDetailView,
+  mapperQualityOfWorkToForm,
+  mapperQualityOfWorkRows,
+  mapperQualityOfWorkPagination,
+  mapperQualityOfWorkQueryParams,
+} from './quality-of-work/quality-of-work.mapper'
