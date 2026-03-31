@@ -20,3 +20,4 @@ export { useStoreSettings, selectActiveSessions, selectOtherSessions, selectMfaS
 export { useStoreTheme } from './theme.store'
 export { useStoreUsers } from './users.store'
 export { useStoreQualityOfWork } from './quality-of-work.store'
+export { useStoreSafetyCompliance } from './safety-compliance.store'

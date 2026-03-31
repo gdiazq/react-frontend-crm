@@ -145,3 +145,12 @@ export {
   mapperQualityOfWorkPagination,
   mapperQualityOfWorkQueryParams,
 } from './quality-of-work/quality-of-work.mapper'
+export {
+  mapperCreateSafetyCompliancePayload,
+  mapperUpdateSafetyCompliancePayload,
+  mapperSafetyComplianceDetailView,
+  mapperSafetyComplianceToForm,
+  mapperSafetyComplianceRows,
+  mapperSafetyCompliancePagination,
+  mapperSafetyComplianceQueryParams,
+} from './safety-compliance/safety-compliance.mapper'

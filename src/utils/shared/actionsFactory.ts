@@ -240,3 +240,26 @@ export function createQualityOfWorkActions() {
 
   return { actionViewDetail, actionUpdateQualityOfWork, actionToggleStatus }
 }
+
+export function createSafetyComplianceActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.safetyCompliance.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateSafetyCompliance(handler: () => void): DropdownAction {
+    return { id: 'update-safety-compliance', label: messages.safetyCompliance.ui.updateSafetyCompliance, handler }
+  }
+
+  function actionToggleStatus(enabled: boolean, handler: () => void): DropdownAction {
+    return {
+      id: 'toggle-status',
+      label: enabled ? messages.safetyCompliance.ui.actionDisableSafetyCompliance : messages.safetyCompliance.ui.actionEnableSafetyCompliance,
+      tone: enabled ? 'danger' : 'default',
+      handler,
+    }
+  }
+
+  return { actionViewDetail, actionUpdateSafetyCompliance, actionToggleStatus }
+}
+
+

@@ -46,3 +46,5 @@ export const AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_CREATE = '/settlements/te
 export const AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_EDIT = '/settlements/termination-causes/edit'
 export const AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY_CREATE = '/settlements/work-quality/new'
 export const AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY_EDIT = '/settlements/work-quality/edit'
+export const AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE_CREATE = '/settlements/safety-compliance/new'
+export const AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE_EDIT = '/settlements/safety-compliance/edit'

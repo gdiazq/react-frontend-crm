@@ -72,3 +72,4 @@ export { ProjectSpecialtyDetailComponent } from './project-specialties/ProjectSp
 export { ProjectDetailComponent } from './projects/ProjectDetailComponent'
 export { LegalTerminationCauseDetailComponent } from './legal-termination-causes/LegalTerminationCauseDetailComponent'
 export { QualityOfWorkDetailComponent } from './quality-of-work/QualityOfWorkDetailComponent'
+export { SafetyComplianceDetailComponent } from './safety-compliance/SafetyComplianceDetailComponent'

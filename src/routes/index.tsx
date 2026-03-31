@@ -37,7 +37,8 @@ const LegalTerminationCausesDashboardPage = lazy(() => import('@/pages/settlemen
 const LegalTerminationCausesFormDashboardPage = lazy(() => import('@/pages/settlements/LegalTerminationCausesFormDashboardPage'))
 const SettlementsWorkQualityDashboardPage = lazy(() => import('@/pages/settlements/WorkQualityDashboardPage'))
 const SettlementsWorkQualityFormDashboardPage = lazy(() => import('@/pages/settlements/WorkQualityFormDashboardPage'))
-const SettlementsSafetyDashboardPage = lazy(() => import('@/pages/settlements/SettlementsSafetyDashboardPage'))
+const SafetyComplianceDashboardPage = lazy(() => import('@/pages/settlements/SafetyComplianceDashboardPage'))
+const SafetyComplianceFormDashboardPage = lazy(() => import('@/pages/settlements/SafetyComplianceFormDashboardPage'))
 const SettlementsNoRehireDashboardPage = lazy(() => import('@/pages/settlements/SettlementsNoRehireDashboardPage'))
 const UnauthorizedPage = lazy(() => import('@/pages/errors/UnauthorizedPage'))
 const NotFoundPage = lazy(() => import('@/pages/errors/NotFoundPage'))
@@ -198,7 +199,15 @@ export const router = createBrowserRouter([
       },
       {
         path: '/settlements/safety-compliance',
-        element: <SettlementsSafetyDashboardPage />,
+        element: <SafetyComplianceDashboardPage />,
+      },
+      {
+        path: '/settlements/safety-compliance/new',
+        element: <SafetyComplianceFormDashboardPage />,
+      },
+      {
+        path: '/settlements/safety-compliance/:editId',
+        element: <SafetyComplianceFormDashboardPage />,
       },
       {
         path: '/settlements/no-rehire-cause',

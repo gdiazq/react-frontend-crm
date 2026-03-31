@@ -509,6 +509,35 @@ export default {
       },
     },
   },
+  safetyCompliance: {
+    ui: {
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      actionViewDetail: 'Ver detalle',
+      updateSafetyCompliance: 'Editar',
+      actionEnableSafetyCompliance: 'Habilitar cumplimiento',
+      actionDisableSafetyCompliance: 'Deshabilitar cumplimiento',
+      detailTitleFallback: 'Detalle de cumplimiento de seguridad',
+    },
+    status: {
+      success: {
+        toggleEnabledSuccess: 'Cumplimiento habilitado correctamente.',
+        toggleDisabledSuccess: 'Cumplimiento deshabilitado correctamente.',
+        createSafetyComplianceSuccess: 'Cumplimiento de seguridad creado correctamente.',
+        updateSafetyComplianceSuccess: 'Cumplimiento de seguridad actualizado correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de cumplimientos de seguridad.',
+        detailInvalidId: 'El id de cumplimiento de seguridad no es valido.',
+        detailLoadError: 'No se pudo cargar el detalle de cumplimiento de seguridad.',
+        createError: 'No se pudo crear el registro de cumplimiento de seguridad.',
+        updateInvalidId: 'El id de cumplimiento de seguridad no es valido.',
+        updateError: 'No se pudo actualizar el registro de cumplimiento de seguridad.',
+        invalidStatusId: 'El id de cumplimiento de seguridad no es valido.',
+        toggleStatusError: 'No se pudo actualizar el estado de cumplimiento de seguridad.',
+      },
+    },
+  },
   qualityOfWork: {
     ui: {
       statusActive: 'Activo',
