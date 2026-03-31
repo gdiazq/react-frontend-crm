@@ -10,6 +10,11 @@ import {
   AUTH_ROUTE_PROJECT_STATUSES,
   AUTH_ROUTE_PROJECT_SPECIALTIES,
   AUTH_ROUTE_PROJECT_TYPES,
+  AUTH_ROUTE_SETTLEMENTS,
+  AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE,
+  AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE,
+  AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES,
+  AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY,
   AUTH_ROUTE_REQUESTS,
   AUTH_ROUTE_ROLES,
   AUTH_ROUTE_SETTINGS,
@@ -136,6 +141,36 @@ export function LayoutPrivateDefault() {
     navigate(AUTH_ROUTE_CONTRACTS)
   }
 
+  const handleGoSettlements = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    navigate(AUTH_ROUTE_SETTLEMENTS)
+  }
+
+  const handleGoSettlementsTerminationCauses = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    navigate(AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES)
+  }
+
+  const handleGoSettlementsWorkQuality = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    navigate(AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY)
+  }
+
+  const handleGoSettlementsSafetyCompliance = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    navigate(AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE)
+  }
+
+  const handleGoSettlementsNoRehireCause = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    navigate(AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE)
+  }
+
   const handleGoProjects = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
@@ -234,6 +269,7 @@ export function LayoutPrivateDefault() {
         showRequests={canReadRequests}
         showEmployees={canReadEmployees}
         showContracts={canReadContracts}
+        showSettlements
         showProjects={canReadProjects}
         showProjectTypes={canReadProjectTypes}
         showProjectSpecialties={canReadProjectSpecialties}
@@ -246,6 +282,11 @@ export function LayoutPrivateDefault() {
         onGoRequests={handleGoRequests}
         onGoEmployees={handleGoEmployees}
         onGoContracts={handleGoContracts}
+        onGoSettlements={handleGoSettlements}
+        onGoSettlementsTerminationCauses={handleGoSettlementsTerminationCauses}
+        onGoSettlementsWorkQuality={handleGoSettlementsWorkQuality}
+        onGoSettlementsSafetyCompliance={handleGoSettlementsSafetyCompliance}
+        onGoSettlementsNoRehireCause={handleGoSettlementsNoRehireCause}
         onGoProjects={handleGoProjects}
         onGoProjectTypes={handleGoProjectTypes}
         onGoProjectSpecialties={handleGoProjectSpecialties}

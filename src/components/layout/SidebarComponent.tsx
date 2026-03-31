@@ -9,6 +9,7 @@ interface SidebarComponentProps {
   showRequests?: boolean
   showEmployees?: boolean
   showContracts?: boolean
+  showSettlements?: boolean
   showProjects?: boolean
   showProjectTypes?: boolean
   showProjectSpecialties?: boolean
@@ -21,6 +22,11 @@ interface SidebarComponentProps {
   onGoRequests: () => void
   onGoEmployees: () => void
   onGoContracts: () => void
+  onGoSettlements: () => void
+  onGoSettlementsTerminationCauses: () => void
+  onGoSettlementsWorkQuality: () => void
+  onGoSettlementsSafetyCompliance: () => void
+  onGoSettlementsNoRehireCause: () => void
   onGoProjects: () => void
   onGoProjectTypes: () => void
   onGoProjectSpecialties: () => void
@@ -36,6 +42,7 @@ export function SidebarComponent({
   showRequests = true,
   showEmployees = true,
   showContracts = true,
+  showSettlements = true,
   showProjects = true,
   showProjectTypes = true,
   showProjectSpecialties = true,
@@ -48,6 +55,11 @@ export function SidebarComponent({
   onGoRequests,
   onGoEmployees,
   onGoContracts,
+  onGoSettlements,
+  onGoSettlementsTerminationCauses,
+  onGoSettlementsWorkQuality,
+  onGoSettlementsSafetyCompliance,
+  onGoSettlementsNoRehireCause,
   onGoProjects,
   onGoProjectTypes,
   onGoProjectSpecialties,
@@ -61,6 +73,11 @@ export function SidebarComponent({
   const isRequestsActive = useMemo(() => location.pathname.startsWith('/requests'), [location.pathname])
   const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
   const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
+  const isSettlementsActive = useMemo(() => location.pathname === '/settlements', [location.pathname])
+  const isSettlementsTerminationCausesActive = useMemo(() => location.pathname === '/settlements/termination-causes', [location.pathname])
+  const isSettlementsWorkQualityActive = useMemo(() => location.pathname === '/settlements/work-quality', [location.pathname])
+  const isSettlementsSafetyComplianceActive = useMemo(() => location.pathname === '/settlements/safety-compliance', [location.pathname])
+  const isSettlementsNoRehireCauseActive = useMemo(() => location.pathname === '/settlements/no-rehire-cause', [location.pathname])
   const isProjectsActive = useMemo(() => {
     const path = location.pathname
     if (path === '/projects' || path === '/projects/new') return true
@@ -73,7 +90,7 @@ export function SidebarComponent({
   const isProjectSpecialtiesActive = useMemo(() => location.pathname.startsWith('/projects/specialties'), [location.pathname])
   const isProjectStatusesActive = useMemo(() => location.pathname.startsWith('/projects/statuses'), [location.pathname])
   const isRolesActive = useMemo(() => location.pathname.startsWith('/roles'), [location.pathname])
-  const hasRrhhItems = showRequests || showEmployees || showContracts
+  const hasRrhhItems = showRequests || showEmployees || showContracts || showSettlements
   const hasProjectsItems = showProjects || showProjectTypes || showProjectSpecialties || showProjectStatuses
   const hasAdministrationItems = showUsers || showRoles
 
@@ -206,6 +223,83 @@ export function SidebarComponent({
                     <span className={collapsed ? 'lg:hidden' : ''}>Contratos</span>
                   </button>
                 </SidebarTooltipComponent>
+              )}
+
+              {showSettlements && (
+                <>
+                  <SidebarTooltipComponent enabled={collapsed} active={isSettlementsActive} label="Finiquito">
+                    <button
+                      type="button"
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isSettlementsActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                      onClick={onGoSettlements}
+                    >
+                      <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M4 5h16v14H4z" />
+                        <path d="M8 9h8" />
+                        <path d="M8 13h8" />
+                        <path d="M8 17h5" />
+                      </svg>
+                      <span className={collapsed ? 'lg:hidden' : ''}>Finiquito</span>
+                    </button>
+                  </SidebarTooltipComponent>
+
+                  <div className={`${collapsed ? 'space-y-1' : 'ml-7 space-y-1'}`}>
+                    <SidebarTooltipComponent enabled={collapsed} active={isSettlementsTerminationCausesActive} label="Terminacion">
+                      <button
+                        type="button"
+                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isSettlementsTerminationCausesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                        onClick={onGoSettlementsTerminationCauses}
+                      >
+                        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M6 12h12" />
+                          <path d="M12 6v12" />
+                        </svg>
+                        <span className={collapsed ? 'lg:hidden' : ''}>Terminacion</span>
+                      </button>
+                    </SidebarTooltipComponent>
+
+                    <SidebarTooltipComponent enabled={collapsed} active={isSettlementsWorkQualityActive} label="Calidad del trabajo">
+                      <button
+                        type="button"
+                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isSettlementsWorkQualityActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                        onClick={onGoSettlementsWorkQuality}
+                      >
+                        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 2l3 7h7l-5.5 4.5L18.5 22 12 17.8 5.5 22l2-8.5L2 9h7z" />
+                        </svg>
+                        <span className={collapsed ? 'lg:hidden' : ''}>Calidad del trabajo</span>
+                      </button>
+                    </SidebarTooltipComponent>
+
+                    <SidebarTooltipComponent enabled={collapsed} active={isSettlementsSafetyComplianceActive} label="Seguridad">
+                      <button
+                        type="button"
+                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isSettlementsSafetyComplianceActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                        onClick={onGoSettlementsSafetyCompliance}
+                      >
+                        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 3l8 4v5c0 5-3.5 9-8 10-4.5-1-8-5-8-10V7z" />
+                          <path d="M9 12l2 2 4-4" />
+                        </svg>
+                        <span className={collapsed ? 'lg:hidden' : ''}>Seguridad</span>
+                      </button>
+                    </SidebarTooltipComponent>
+
+                    <SidebarTooltipComponent enabled={collapsed} active={isSettlementsNoRehireCauseActive} label="No recontratacion">
+                      <button
+                        type="button"
+                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isSettlementsNoRehireCauseActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                        onClick={onGoSettlementsNoRehireCause}
+                      >
+                        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="9" />
+                          <path d="M8 8l8 8" />
+                        </svg>
+                        <span className={collapsed ? 'lg:hidden' : ''}>No recontratacion</span>
+                      </button>
+                    </SidebarTooltipComponent>
+                  </div>
+                </>
               )}
             </section>
           )}

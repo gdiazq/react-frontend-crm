@@ -32,6 +32,11 @@ const EmployeesFormDashboardPage = lazy(() => import('@/pages/employees/Employee
 const UsersFormDashboardPage = lazy(() => import('@/pages/users/UsersFormDashboardPage'))
 const RolesDashboardPage = lazy(() => import('@/pages/roles/RolesDashboardPage'))
 const RolesFormDashboardPage = lazy(() => import('@/pages/roles/RolesFormDashboardPage'))
+const SettlementsDashboardPage = lazy(() => import('@/pages/settlements/SettlementsDashboardPage'))
+const SettlementsTerminationDashboardPage = lazy(() => import('@/pages/settlements/SettlementsTerminationDashboardPage'))
+const SettlementsWorkQualityDashboardPage = lazy(() => import('@/pages/settlements/SettlementsWorkQualityDashboardPage'))
+const SettlementsSafetyDashboardPage = lazy(() => import('@/pages/settlements/SettlementsSafetyDashboardPage'))
+const SettlementsNoRehireDashboardPage = lazy(() => import('@/pages/settlements/SettlementsNoRehireDashboardPage'))
 const UnauthorizedPage = lazy(() => import('@/pages/errors/UnauthorizedPage'))
 const NotFoundPage = lazy(() => import('@/pages/errors/NotFoundPage'))
 
@@ -156,6 +161,26 @@ export const router = createBrowserRouter([
             <ContractsDashboardPage />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: '/settlements',
+        element: <SettlementsDashboardPage />,
+      },
+      {
+        path: '/settlements/termination-causes',
+        element: <SettlementsTerminationDashboardPage />,
+      },
+      {
+        path: '/settlements/work-quality',
+        element: <SettlementsWorkQualityDashboardPage />,
+      },
+      {
+        path: '/settlements/safety-compliance',
+        element: <SettlementsSafetyDashboardPage />,
+      },
+      {
+        path: '/settlements/no-rehire-cause',
+        element: <SettlementsNoRehireDashboardPage />,
       },
       {
         path: '/projects',
