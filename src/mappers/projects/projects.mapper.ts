@@ -3,6 +3,7 @@ import type {
   ProjectCreateForm,
   ProjectCreatePayload,
   ProjectDetail,
+  ProjectDetailView,
   ProjectPagedResponse,
   ProjectRaw,
   ProjectUpdatePayload,
@@ -12,7 +13,7 @@ import type {
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendBooleanString, appendParsedId } from '../shared/queryParams.mapper'
-import { formatDate } from '@/utils'
+import { formatDate, formatDateTime } from '@/utils'
 
 export function mapperProjectsRows(result: ProjectRaw[]): ProjectTableRow[] {
   return result.map((item) => ({
@@ -154,4 +155,30 @@ export function mapperUpdateProjectPayload(projectId: number, form: ProjectCreat
   if (realEndDate !== null) payload.realEndDate = realEndDate
 
   return payload
+}
+
+export function mapperProjectDetailView(detail: ProjectDetail | null): ProjectDetailView | null {
+  if (!detail) return null
+
+  const companyRepresentatives = Array.isArray(detail.companyRepresentativeNames) ? detail.companyRepresentativeNames : []
+
+  return {
+    projectName: detail.name,
+    costCenterDisplay: String(detail.costCenter),
+    typeName: detail.typeName ?? '',
+    statusName: detail.statusName ?? '',
+    specialtyName: detail.specialtyName ?? '',
+    addressDisplay: detail.address ?? '',
+    descriptionDisplay: detail.description ?? '',
+    visitorName: detail.visitorName ?? '',
+    supervisorName: detail.supervisorName ?? '',
+    companyRepresentativesDisplay: companyRepresentatives.join(', '),
+    startDateDisplay: formatDate(detail.startDate || ''),
+    realStartDateDisplay: formatDate(detail.realStartDate || ''),
+    endDateDisplay: formatDate(detail.endDate || ''),
+    realEndDateDisplay: formatDate(detail.realEndDate || ''),
+    active: detail.active,
+    createdAtDisplay: formatDateTime(detail.createdAt),
+    updatedAtDisplay: formatDateTime(detail.updatedAt),
+  }
 }

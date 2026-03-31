@@ -30,13 +30,17 @@ export interface ProjectDetail {
   address?: string | null
   description?: string | null
   typeId?: number | null
+  typeName?: string | null
   statusId?: number | null
+  statusName?: string | null
   specialtyId?: number | null
+  specialtyName?: string | null
   visitorId?: number | null
   visitorName?: string | null
   supervisorId?: number | null
   supervisorName?: string | null
   companyRepresentativeIds?: number[] | null
+  companyRepresentativeNames?: string[] | null
   startDate?: string | null
   realStartDate?: string | null
   endDate?: string | null
@@ -44,6 +48,26 @@ export interface ProjectDetail {
   active: boolean
   createdAt: string
   updatedAt: string
+}
+
+export interface ProjectDetailView {
+  projectName: string
+  costCenterDisplay: string
+  typeName: string
+  statusName: string
+  specialtyName: string
+  addressDisplay: string
+  descriptionDisplay: string
+  visitorName: string
+  supervisorName: string
+  companyRepresentativesDisplay: string
+  startDateDisplay: string
+  realStartDateDisplay: string
+  endDateDisplay: string
+  realEndDateDisplay: string
+  active: boolean
+  createdAtDisplay: string
+  updatedAtDisplay: string
 }
 
 export interface ProjectTableRow {

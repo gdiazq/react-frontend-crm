@@ -179,6 +179,10 @@ export function createProjectTypesActions() {
 }
 
 export function createProjectsActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.projects.ui.actionViewDetail, handler }
+  }
+
   function actionUpdateProject(handler: () => void): DropdownAction {
     return { id: 'update-project', label: messages.projects.ui.actionUpdateProject, handler }
   }
@@ -192,5 +196,5 @@ export function createProjectsActions() {
     }
   }
 
-  return { actionUpdateProject, actionToggleStatus }
+  return { actionViewDetail, actionUpdateProject, actionToggleStatus }
 }

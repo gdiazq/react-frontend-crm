@@ -61,7 +61,14 @@ export function SidebarComponent({
   const isRequestsActive = useMemo(() => location.pathname.startsWith('/requests'), [location.pathname])
   const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
   const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
-  const isProjectsActive = useMemo(() => location.pathname === '/projects', [location.pathname])
+  const isProjectsActive = useMemo(() => {
+    const path = location.pathname
+    if (path === '/projects' || path === '/projects/new') return true
+    if (path.startsWith('/projects/types')) return false
+    if (path.startsWith('/projects/specialties')) return false
+    if (path.startsWith('/projects/statuses')) return false
+    return path.startsWith('/projects/')
+  }, [location.pathname])
   const isProjectTypesActive = useMemo(() => location.pathname.startsWith('/projects/types'), [location.pathname])
   const isProjectSpecialtiesActive = useMemo(() => location.pathname.startsWith('/projects/specialties'), [location.pathname])
   const isProjectStatusesActive = useMemo(() => location.pathname.startsWith('/projects/statuses'), [location.pathname])
@@ -228,58 +235,64 @@ export function SidebarComponent({
                 </SidebarTooltipComponent>
               )}
 
-              {showProjectTypes && (
-                <SidebarTooltipComponent enabled={collapsed} active={isProjectTypesActive} label="Tipos">
-                  <button
-                    type="button"
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectTypesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-                    onClick={onGoProjectTypes}
-                  >
-                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
-                    </svg>
-                    <span className={collapsed ? 'lg:hidden' : ''}>Tipos</span>
-                  </button>
-                </SidebarTooltipComponent>
-              )}
+              <div className={`${collapsed ? 'space-y-1' : 'ml-7 space-y-1'}`}>
+                {showProjectTypes && (
+                  <SidebarTooltipComponent enabled={collapsed} active={isProjectTypesActive} label="Tipos">
+                    <button
+                      type="button"
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectTypesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                      onClick={onGoProjectTypes}
+                    >
+                      <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M4 7h16" />
+                        <path d="M4 12h16" />
+                        <path d="M4 17h16" />
+                      </svg>
+                      <span className={collapsed ? 'lg:hidden' : ''}>Tipos</span>
+                    </button>
+                  </SidebarTooltipComponent>
+                )}
 
-              {showProjectSpecialties && (
-                <SidebarTooltipComponent enabled={collapsed} active={isProjectSpecialtiesActive} label="Especialidades">
-                  <button
-                    type="button"
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectSpecialtiesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-                    onClick={onGoProjectSpecialties}
-                  >
-                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M4 6h16M4 12h16M4 18h16" />
-                      <path d="M9 3v18" />
-                    </svg>
-                    <span className={collapsed ? 'lg:hidden' : ''}>Especialidades</span>
-                  </button>
-                </SidebarTooltipComponent>
-              )}
+                {showProjectSpecialties && (
+                  <SidebarTooltipComponent enabled={collapsed} active={isProjectSpecialtiesActive} label="Especialidades">
+                    <button
+                      type="button"
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectSpecialtiesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                      onClick={onGoProjectSpecialties}
+                    >
+                      <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M4 6h16" />
+                        <path d="M4 12h16" />
+                        <path d="M4 18h16" />
+                        <path d="M9 3v18" />
+                      </svg>
+                      <span className={collapsed ? 'lg:hidden' : ''}>Especialidades</span>
+                    </button>
+                  </SidebarTooltipComponent>
+                )}
 
-              {showProjectStatuses && (
-                <SidebarTooltipComponent enabled={collapsed} active={isProjectStatusesActive} label="Vigencia">
-                  <button
-                    type="button"
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectStatusesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
-                    onClick={onGoProjectStatuses}
-                  >
-                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M12 2v6" />
-                      <path d="M12 16v6" />
-                      <path d="M4.93 4.93l4.24 4.24" />
-                      <path d="M14.83 14.83l4.24 4.24" />
-                      <path d="M2 12h6" />
-                      <path d="M16 12h6" />
-                      <path d="M4.93 19.07l4.24-4.24" />
-                      <path d="M14.83 9.17l4.24-4.24" />
-                    </svg>
-                    <span className={collapsed ? 'lg:hidden' : ''}>Vigencia</span>
-                  </button>
-                </SidebarTooltipComponent>
-              )}
+                {showProjectStatuses && (
+                  <SidebarTooltipComponent enabled={collapsed} active={isProjectStatusesActive} label="Vigencia">
+                    <button
+                      type="button"
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isProjectStatusesActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                      onClick={onGoProjectStatuses}
+                    >
+                      <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2v6" />
+                        <path d="M12 16v6" />
+                        <path d="M4.93 4.93l4.24 4.24" />
+                        <path d="M14.83 14.83l4.24 4.24" />
+                        <path d="M2 12h6" />
+                        <path d="M16 12h6" />
+                        <path d="M4.93 19.07l4.24-4.24" />
+                        <path d="M14.83 9.17l4.24-4.24" />
+                      </svg>
+                      <span className={collapsed ? 'lg:hidden' : ''}>Vigencia</span>
+                    </button>
+                  </SidebarTooltipComponent>
+                )}
+              </div>
             </section>
           )}
 

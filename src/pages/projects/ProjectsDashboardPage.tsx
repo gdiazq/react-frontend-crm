@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DetailSidebarComponent,
   InputComponent,
   PaginationComponent,
+  ProjectDetailComponent,
   RightSidebarComponent,
   SaveConfirmComponent,
   SelectComponent,
@@ -14,6 +16,7 @@ import {
 } from '@/components'
 import { AUTH_ROUTE_PROJECTS, AUTH_ROUTE_PROJECTS_CREATE, AUTH_ROUTE_PROJECTS_EDIT } from '@/constant'
 import { projectsTableColumns, projectsTableColumnIndex, projectsTableSortByColumn } from '@/factories'
+import { mapperProjectDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { projectsService } from '@/services'
 import { useStoreAuth, useStoreProjects, useStoreSelects } from '@/store'
@@ -33,14 +36,19 @@ export default function ProjectsDashboardPage() {
   const navigate = useNavigate()
 
   const projectsRows = useStoreProjects((s) => s.projectsRows)
+  const projectDetail = useStoreProjects((s) => s.projectDetail)
   const pagination = useStoreProjects((s) => s.pagination)
   const queryParams = useStoreProjects((s) => s.queryParams)
   const loadingProjects = useStoreProjects((s) => s.loadingProjects)
+  const loadingProjectDetail = useStoreProjects((s) => s.loadingProjectDetail)
   const loadingToggleStatus = useStoreProjects((s) => s.loadingToggleStatus)
   const listError = useStoreProjects((s) => s.operationStatus.list.error)
+  const detailError = useStoreProjects((s) => s.operationStatus.detail.error)
   const toggleError = useStoreProjects((s) => s.operationStatus.toggle.error)
   const clearOperationStatus = useStoreProjects((s) => s.clearOperationStatus)
   const getProjects = useStoreProjects((s) => s.getProjects)
+  const getProjectDetail = useStoreProjects((s) => s.getProjectDetail)
+  const clearProjectDetail = useStoreProjects((s) => s.clearProjectDetail)
   const goToPage = useStoreProjects((s) => s.goToPage)
   const setSearch = useStoreProjects((s) => s.setSearch)
   const setActiveFilter = useStoreProjects((s) => s.setActiveFilter)
@@ -59,6 +67,7 @@ export default function ProjectsDashboardPage() {
   const sortProjects = useStoreProjects((s) => s.sortProjects)
   const toggleProjectStatus = useStoreProjects((s) => s.toggleProjectStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
+  const canReadProject = hasPermission('PROJECT', 'canRead')
   const canUpdateProject = hasPermission('PROJECT', 'canUpdate')
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
@@ -82,7 +91,7 @@ export default function ProjectsDashboardPage() {
   const getProjectSpecialtyOptions = useStoreSelects((s) => s.getProjectSpecialtyOptions)
   const clearProjectSpecialtyOptionsStatus = useStoreSelects((s) => s.clearProjectSpecialtyOptionsStatus)
 
-  const { actionUpdateProject, actionToggleStatus } = createProjectsActions()
+  const { actionViewDetail, actionUpdateProject, actionToggleStatus } = createProjectsActions()
 
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
@@ -95,6 +104,9 @@ export default function ProjectsDashboardPage() {
     updatedFrom: queryParams.updatedFrom,
     updatedTo: queryParams.updatedTo,
   }))
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
+  const [selectedDetailName, setSelectedDetailName] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<ProjectTableRow | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
@@ -110,6 +122,12 @@ export default function ProjectsDashboardPage() {
   const projectTypeSelectOptions = projectTypeOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const projectStatusSelectOptions = projectStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const projectSpecialtySelectOptions = projectSpecialtyOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const projectDetailView = mapperProjectDetailView(projectDetail)
+  const detailTitle = projectDetailView
+    ? `Detalle de ${projectDetailView.projectName}`
+    : selectedDetailName
+      ? `Detalle de ${selectedDetailName}`
+      : 'Detalle de proyecto'
   const activeSortColumn = PROJECTS_SORTABLE_COLUMNS.find((index) => projectsTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
@@ -124,7 +142,31 @@ export default function ProjectsDashboardPage() {
     void getProjectSpecialtyOptions()
   }, [getProjects, getStatusOptions, getProjectTypeOptions, getProjectStatusOptions, getProjectSpecialtyOptions])
 
+  const handleViewDetail = (row: ProjectTableRow) => {
+    setSelectedDetailRowId(row.id)
+    setSelectedDetailName(String(row.values[PROJECT_NAME_COLUMN_INDEX] ?? 'Proyecto'))
+    setDetailOpen(true)
+    void getProjectDetail(row.id)
+  }
+
+  const handleCloseDetail = () => {
+    setDetailOpen(false)
+    setSelectedDetailRowId(null)
+    setSelectedDetailName('')
+    clearProjectDetail()
+  }
+
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getProjectDetail(selectedDetailRowId)
+  }
+
   const findProjectRowById = (rowId: string) => projectsRows.find((row) => row.id === rowId) ?? null
+  const handleViewDetailById = (rowId: string) => {
+    const projectRow = findProjectRowById(rowId)
+    if (!projectRow) return
+    handleViewDetail(projectRow)
+  }
 
   const getProjectTypeName = (rowId: string) => {
     const row = findProjectRowById(rowId)
@@ -156,12 +198,20 @@ export default function ProjectsDashboardPage() {
   }
 
   const resolveRowActions = (row: ProjectTableRow): DropdownAction[] => {
-    if (!canUpdateProject) return []
+    const actions: DropdownAction[] = []
 
-    return [
-      actionUpdateProject(() => handleUpdateProject(row)),
-      actionToggleStatus(row.active === true, () => handleToggleStatus(row)),
-    ]
+    if (canReadProject) {
+      actions.push(actionViewDetail(() => handleViewDetail(row)))
+    }
+
+    if (canUpdateProject) {
+      actions.push(
+        actionUpdateProject(() => handleUpdateProject(row)),
+        actionToggleStatus(row.active === true, () => handleToggleStatus(row)),
+      )
+    }
+
+    return actions
   }
 
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
@@ -171,10 +221,12 @@ export default function ProjectsDashboardPage() {
   }
 
   const renderCustomCell = createProjectsTableCustomRenderer({
+    nameColumnIndex: PROJECT_NAME_COLUMN_INDEX,
     typeColumnIndex: PROJECT_TYPE_COLUMN_INDEX,
     statusColumnIndex: PROJECT_STATUS_COLUMN_INDEX,
     specialtyColumnIndex: PROJECT_SPECIALTY_COLUMN_INDEX,
     activeColumnIndex: PROJECT_ACTIVE_COLUMN_INDEX,
+    onViewDetail: handleViewDetailById,
     getTypeName: getProjectTypeName,
     getStatusName: getProjectStatusName,
     getSpecialtyName: getProjectSpecialtyName,
@@ -197,6 +249,9 @@ export default function ProjectsDashboardPage() {
       setConfirmOpen(false)
       setPendingToggleRow(null)
       await getProjects()
+      if (selectedDetailRowId === pendingToggleRow.id && detailOpen) {
+        void getProjectDetail(pendingToggleRow.id)
+      }
       navigate(AUTH_ROUTE_PROJECTS)
       window.scrollTo({ top: 0, behavior: 'smooth' })
       setActionsMessage(
@@ -439,7 +494,7 @@ export default function ProjectsDashboardPage() {
         loading={loadingProjects}
         emptyMessage="No hay proyectos registrados."
         customRenderer={renderCustomCell}
-        actionsConfig={canUpdateProject
+        actionsConfig={canReadProject || canUpdateProject
           ? {
               columnIndex: ACTIONS_COLUMN_INDEX,
               resolveRowActions: resolveRowActionsFromTableRow,
@@ -574,6 +629,20 @@ export default function ProjectsDashboardPage() {
           </div>
         </div>
       </RightSidebarComponent>
+
+      <DetailSidebarComponent
+        open={detailOpen}
+        title={detailTitle}
+        onClose={handleCloseDetail}
+      >
+        <ProjectDetailComponent
+          key={selectedDetailRowId ?? 'empty-project-detail'}
+          detail={projectDetailView}
+          loading={loadingProjectDetail}
+          errorMessage={detailError}
+          onRetry={handleRetryDetail}
+        />
+      </DetailSidebarComponent>
 
       <SaveConfirmComponent
         open={confirmOpen}

@@ -78,13 +78,6 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
         return null
       }
 
-      const cachedProjectDetail = get().projectsRaw.find((item) => item.id == parsedProjectId)
-      if (cachedProjectDetail) {
-        set({ projectDetail: cachedProjectDetail })
-        clearOp('detail')
-        return cachedProjectDetail
-      }
-
       const requestId = ++latestProjectDetailRequestId
 
       try {

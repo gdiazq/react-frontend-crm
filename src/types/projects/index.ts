@@ -1,6 +1,7 @@
 export type {
   ProjectRaw,
   ProjectDetail,
+  ProjectDetailView,
   ProjectTableRow,
   ProjectsSortBy,
   ProjectsSortDir,

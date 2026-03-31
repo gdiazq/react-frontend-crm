@@ -361,6 +361,7 @@ export default {
     ui: {
       statusActive: 'Activo',
       statusInactive: 'Inactivo',
+      actionViewDetail: 'Ver detalle',
       actionUpdateProject: 'Editar proyecto',
       actionEnableProject: 'Habilitar proyecto',
       actionDisableProject: 'Deshabilitar proyecto',
