@@ -1,11 +1,11 @@
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
+import { ButtonComponent } from '@/components/ui/button/ButtonComponent'
 
 interface HeroContentProps {
   onGoRegister: () => void
   onGoDashboard: () => void
 }
 
-export default function HeroContent({ onGoRegister, onGoDashboard }: HeroContentProps) {
+export function HeroContent({ onGoRegister, onGoDashboard }: HeroContentProps) {
   return (
     <div>
       <h1 className="mt-6 text-balance text-4xl font-bold leading-tight tracking-tight sm:text-5xl">

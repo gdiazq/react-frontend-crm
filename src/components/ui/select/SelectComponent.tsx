@@ -23,7 +23,7 @@ interface SelectComponentProps {
   onValuesChange?: (values: string[]) => void
 }
 
-export default function SelectComponent({
+export function SelectComponent({
   value = '',
   values = [],
   label,

@@ -7,7 +7,7 @@ interface DetailFieldCardComponentProps {
   valueClassName?: string
 }
 
-export default function DetailFieldCardComponent({
+export function DetailFieldCardComponent({
   title,
   value,
   className = '',

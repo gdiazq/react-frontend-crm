@@ -7,7 +7,7 @@ interface RightSidebarComponentProps {
   children?: ReactNode
 }
 
-export default function RightSidebarComponent({
+export function RightSidebarComponent({
   open,
   title = 'Panel',
   onClose,

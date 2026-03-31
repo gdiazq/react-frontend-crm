@@ -7,7 +7,7 @@ interface DetailSidebarComponentProps {
   children?: ReactNode
 }
 
-export default function DetailSidebarComponent({
+export function DetailSidebarComponent({
   open,
   title = 'Detalle',
   onClose,

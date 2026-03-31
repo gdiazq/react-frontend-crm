@@ -1,1 +1,1 @@
-export { default as axiosInstance } from './axios.config'
+export { axiosInstance } from './axios.config'

@@ -6,7 +6,7 @@ interface TabsComponentProps {
   onTabChange: (tab: SettingTabKey) => void
 }
 
-export default function TabsComponent({ tabs, activeTab, onTabChange }: TabsComponentProps) {
+export function TabsComponent({ tabs, activeTab, onTabChange }: TabsComponentProps) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-1 dark:border-white/10 dark:bg-slate-900/60">
       <div className="flex flex-wrap gap-1">

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
+import { ButtonComponent } from '@/components/ui/button/ButtonComponent'
 
 interface DetailStateWrapperComponentProps {
   loading: boolean
@@ -11,7 +11,7 @@ interface DetailStateWrapperComponentProps {
   children: ReactNode
 }
 
-export default function DetailStateWrapperComponent({
+export function DetailStateWrapperComponent({
   loading,
   errorMessage,
   hasData,

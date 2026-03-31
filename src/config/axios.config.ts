@@ -21,7 +21,7 @@ const resolvePendingRequests = (success: boolean) => {
   pendingRequests = []
 }
 
-const axiosInstance = axios.create({
+export const axiosInstance = axios.create({
   baseURL: APP_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -77,4 +77,4 @@ axiosInstance.interceptors.response.use(function (response) {
   }
 })
 
-export default axiosInstance
+

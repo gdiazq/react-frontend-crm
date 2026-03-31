@@ -7,7 +7,7 @@ interface ToolbarActionsDropdownComponentProps {
   onBulkUpload: () => void
 }
 
-export default function ToolbarActionsDropdownComponent({
+export function ToolbarActionsDropdownComponent({
   disabled = false,
   showBulkUpload = true,
   onDownloadReport,

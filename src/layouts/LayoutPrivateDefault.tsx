@@ -19,7 +19,7 @@ import { NavbarComponent, NotificationPanel, SidebarComponent } from '@/componen
 import { useStoreAuth, useStoreNotification, useStoreTheme } from '@/store'
 import { selectFilterNotifications, selectUnreadCount } from '@/store/notification.store'
 
-export default function LayoutPrivateDefault() {
+export function LayoutPrivateDefault() {
   const navigate = useNavigate()
   const user = useStoreAuth((s) => s.user)
   const hasPermission = useStoreAuth((s) => s.hasPermission)

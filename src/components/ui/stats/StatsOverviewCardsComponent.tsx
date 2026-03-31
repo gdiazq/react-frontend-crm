@@ -13,7 +13,7 @@ function formatCounter(value: number): string {
   return value.toLocaleString('es-CL')
 }
 
-export default function StatsOverviewCardsComponent({
+export function StatsOverviewCardsComponent({
   totalLabel,
   activeLabel,
   total,

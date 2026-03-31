@@ -1,7 +1,7 @@
 import messages from '@/messages/messages'
 import type { RoleDetailView } from '@/types'
-import StatusBadgeComponent from '@/components/ui/status/StatusBadgeComponent'
-import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
+import { StatusBadgeComponent } from '@/components/ui/status/StatusBadgeComponent'
+import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
 
 interface RoleDetailComponentProps {
   detail: RoleDetailView | null
@@ -17,7 +17,7 @@ function parsePermissionName(permissionName: string) {
   return { resource, action }
 }
 
-export default function RoleDetailComponent({
+export function RoleDetailComponent({
   detail,
   loading,
   errorMessage,

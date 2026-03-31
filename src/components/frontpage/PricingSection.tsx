@@ -1,4 +1,4 @@
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
+import { ButtonComponent } from '@/components/ui/button/ButtonComponent'
 import type { CrmPricingPlan } from '@/types'
 
 interface PricingSectionProps {
@@ -6,7 +6,7 @@ interface PricingSectionProps {
   onSelectPlan: (planId: string) => void
 }
 
-export default function PricingSection({ plans, onSelectPlan }: PricingSectionProps) {
+export function PricingSection({ plans, onSelectPlan }: PricingSectionProps) {
   return (
     <section className="relative isolate overflow-hidden border-y border-slate-200 py-16 dark:border-white/10">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_0%,_rgba(8,145,178,0.12),_transparent_40%),radial-gradient(circle_at_80%_100%,_rgba(14,165,233,0.12),_transparent_45%)] dark:bg-[radial-gradient(circle_at_20%_0%,_rgba(56,189,248,0.2),_transparent_42%),radial-gradient(circle_at_80%_100%,_rgba(14,165,233,0.18),_transparent_48%)]" />

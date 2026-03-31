@@ -5,7 +5,7 @@ interface LayoutPublicDefaultProps {
   children?: ReactNode
 }
 
-export default function LayoutPublicDefault({ children }: LayoutPublicDefaultProps) {
+export function LayoutPublicDefault({ children }: LayoutPublicDefaultProps) {
   return (
     <main id="layout-public-default">
       {children ?? <Outlet />}

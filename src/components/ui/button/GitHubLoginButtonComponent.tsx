@@ -1,4 +1,4 @@
-import ButtonComponent from './ButtonComponent'
+import { ButtonComponent } from './ButtonComponent'
 
 interface GitHubLoginButtonComponentProps {
   loading?: boolean
@@ -9,7 +9,7 @@ interface GitHubLoginButtonComponentProps {
   className?: string
 }
 
-export default function GitHubLoginButtonComponent({
+export function GitHubLoginButtonComponent({
   loading = false,
   label,
   loadingLabel,

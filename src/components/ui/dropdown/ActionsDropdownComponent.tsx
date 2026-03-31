@@ -9,7 +9,7 @@ interface ActionsDropdownComponentProps {
   openDirection?: 'up' | 'down'
 }
 
-export default function ActionsDropdownComponent({
+export function ActionsDropdownComponent({
   open,
   actions,
   onToggle,

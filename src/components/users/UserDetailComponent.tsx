@@ -1,5 +1,5 @@
-import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
-import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
+import { AvatarInitialsComponent } from '@/components/ui/avatar/AvatarInitialsComponent'
+import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
 import type { UserDetailView } from '@/types'
 
 interface UserDetailComponentProps {
@@ -9,7 +9,7 @@ interface UserDetailComponentProps {
   onRetry?: () => void
 }
 
-export default function UserDetailComponent({
+export function UserDetailComponent({
   detail,
   loading,
   errorMessage,

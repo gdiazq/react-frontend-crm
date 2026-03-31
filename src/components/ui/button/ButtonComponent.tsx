@@ -8,7 +8,7 @@ interface ButtonComponentProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onClick?: () => void
 }
 
-export default function ButtonComponent({
+export function ButtonComponent({
   variant = 'primary',
   label,
   loading = false,

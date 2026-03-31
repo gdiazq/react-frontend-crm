@@ -1,9 +1,9 @@
 import { type ReactNode, useState } from 'react'
-import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
-import DetailFieldCardComponent from '@/components/ui/detail/DetailFieldCardComponent'
-import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
-import DetailSectionDropdownComponent from '@/components/ui/dropdown/DetailSectionDropdownComponent'
-import EmployeeApprovalStatusBadgeComponent from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
+import { AvatarInitialsComponent } from '@/components/ui/avatar/AvatarInitialsComponent'
+import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
+import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
+import { DetailSectionDropdownComponent } from '@/components/ui/dropdown/DetailSectionDropdownComponent'
+import { EmployeeApprovalStatusBadgeComponent } from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
 import type { RequestDetailView } from '@/types'
 
 interface RequestDetailComponentProps {
@@ -21,7 +21,7 @@ interface RequestDetailContentProps {
   onTabChange: (tab: RequestDetailTabKey) => void
 }
 
-export default function RequestDetailComponent({
+export function RequestDetailComponent({
   detail,
   loading,
   errorMessage,

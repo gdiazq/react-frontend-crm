@@ -1,6 +1,6 @@
-import DetailFieldCardComponent from '@/components/ui/detail/DetailFieldCardComponent'
-import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
-import StatusBadgeComponent from '@/components/ui/status/StatusBadgeComponent'
+import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
+import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
+import { StatusBadgeComponent } from '@/components/ui/status/StatusBadgeComponent'
 import type { ProjectStatusDetailView } from '@/types'
 
 interface ProjectStatusDetailComponentProps {
@@ -10,7 +10,7 @@ interface ProjectStatusDetailComponentProps {
   onRetry?: () => void
 }
 
-export default function ProjectStatusDetailComponent({
+export function ProjectStatusDetailComponent({
   detail,
   loading,
   errorMessage,

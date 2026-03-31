@@ -3,7 +3,7 @@ interface CookieConsentBannerProps {
   onAccept: () => void
 }
 
-export default function CookieConsentBanner({ isVisible, onAccept }: CookieConsentBannerProps) {
+export function CookieConsentBanner({ isVisible, onAccept }: CookieConsentBannerProps) {
   if (!isVisible) return null
 
   return (

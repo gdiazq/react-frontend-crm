@@ -1,11 +1,11 @@
 import { type ReactNode, useState } from 'react'
-import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
-import DetailFieldCardComponent from '@/components/ui/detail/DetailFieldCardComponent'
-import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
-import DetailSectionDropdownComponent from '@/components/ui/dropdown/DetailSectionDropdownComponent'
-import ContractStatusBadgeComponent from '@/components/ui/status/ContractStatusBadgeComponent'
-import ContractTypeBadgeComponent from '@/components/ui/status/ContractTypeBadgeComponent'
-import EmployeeApprovalStatusBadgeComponent from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
+import { AvatarInitialsComponent } from '@/components/ui/avatar/AvatarInitialsComponent'
+import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
+import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
+import { DetailSectionDropdownComponent } from '@/components/ui/dropdown/DetailSectionDropdownComponent'
+import { ContractStatusBadgeComponent } from '@/components/ui/status/ContractStatusBadgeComponent'
+import { ContractTypeBadgeComponent } from '@/components/ui/status/ContractTypeBadgeComponent'
+import { EmployeeApprovalStatusBadgeComponent } from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
 import type { ContractDetailView } from '@/types'
 
 interface ContractDetailComponentProps {
@@ -23,7 +23,7 @@ interface ContractDetailContentProps {
   onTabChange: (tab: ContractDetailTabKey) => void
 }
 
-export default function ContractDetailComponent({
+export function ContractDetailComponent({
   detail,
   loading,
   errorMessage,

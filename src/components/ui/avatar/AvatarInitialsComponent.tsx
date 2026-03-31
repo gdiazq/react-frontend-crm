@@ -8,7 +8,7 @@ interface AvatarInitialsComponentProps {
   className?: string
 }
 
-export default function AvatarInitialsComponent({
+export function AvatarInitialsComponent({
   fullName,
   avatarUrl = '',
   fallbackInitials = '',

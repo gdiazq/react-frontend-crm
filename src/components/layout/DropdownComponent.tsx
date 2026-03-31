@@ -13,7 +13,7 @@ interface DropdownComponentProps {
   onGoLogout: () => void
 }
 
-export default function DropdownComponent({
+export function DropdownComponent({
   open,
   userLabel,
   userEmail,

@@ -1,11 +1,11 @@
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
+import { ButtonComponent } from '@/components/ui/button/ButtonComponent'
 
 interface HeroHeaderProps {
   onGoRegister: () => void
   onGoLogin: () => void
 }
 
-export default function HeroHeader({ onGoRegister, onGoLogin }: HeroHeaderProps) {
+export function HeroHeader({ onGoRegister, onGoLogin }: HeroHeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">

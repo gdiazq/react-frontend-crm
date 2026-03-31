@@ -4,7 +4,7 @@ interface FeatureGridProps {
   features: CrmFeature[]
 }
 
-export default function FeatureGrid({ features }: FeatureGridProps) {
+export function FeatureGrid({ features }: FeatureGridProps) {
   return (
     <section className="mx-auto max-w-7xl px-6 py-14 lg:px-8">
       {features.length > 0 ? (

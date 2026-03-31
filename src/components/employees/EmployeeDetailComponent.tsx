@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import AvatarInitialsComponent from '@/components/ui/avatar/AvatarInitialsComponent'
-import DetailFieldCardComponent from '@/components/ui/detail/DetailFieldCardComponent'
-import DetailStateWrapperComponent from '@/components/ui/detail/DetailStateWrapperComponent'
-import DetailSectionDropdownComponent from '@/components/ui/dropdown/DetailSectionDropdownComponent'
-import EmployeeApprovalStatusBadgeComponent from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
-import StatusBadgeComponent from '@/components/ui/status/StatusBadgeComponent'
+import { AvatarInitialsComponent } from '@/components/ui/avatar/AvatarInitialsComponent'
+import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
+import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
+import { DetailSectionDropdownComponent } from '@/components/ui/dropdown/DetailSectionDropdownComponent'
+import { EmployeeApprovalStatusBadgeComponent } from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
+import { StatusBadgeComponent } from '@/components/ui/status/StatusBadgeComponent'
 import type { EmployeeDetailView } from '@/types'
 
 interface EmployeeDetailComponentProps {
@@ -30,7 +30,7 @@ interface EmployeeDetailContentProps {
   onTabChange: (tab: EmployeeDetailTabKey) => void
 }
 
-export default function EmployeeDetailComponent({
+export function EmployeeDetailComponent({
   detail,
   loading,
   errorMessage,

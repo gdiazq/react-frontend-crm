@@ -6,7 +6,7 @@ interface SellerDashboardMainComponentProps {
   periodLabel: string
 }
 
-export default function SellerDashboardMainComponent({
+export function SellerDashboardMainComponent({
   kpis,
   pipeline,
   periodLabel,

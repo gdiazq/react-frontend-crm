@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import SidebarTooltipComponent from '@/components/ui/tooltip/SidebarTooltipComponent'
+import { SidebarTooltipComponent } from '@/components/ui/tooltip/SidebarTooltipComponent'
 
 interface SidebarComponentProps {
   mobileOpen: boolean
@@ -29,7 +29,7 @@ interface SidebarComponentProps {
   onGoLogout: () => void
 }
 
-export default function SidebarComponent({
+export function SidebarComponent({
   mobileOpen,
   collapsed,
   showUsers = true,

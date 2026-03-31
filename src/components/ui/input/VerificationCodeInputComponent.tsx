@@ -8,7 +8,7 @@ interface VerificationCodeInputComponentProps {
 
 const CODE_LENGTH = 6
 
-export default function VerificationCodeInputComponent({
+export function VerificationCodeInputComponent({
   value,
   error,
   onValueChange,

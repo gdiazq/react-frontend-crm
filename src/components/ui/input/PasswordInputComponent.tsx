@@ -10,7 +10,7 @@ interface PasswordInputComponentProps {
   onValueChange: (value: string) => void
 }
 
-export default function PasswordInputComponent({
+export function PasswordInputComponent({
   label,
   value,
   error,

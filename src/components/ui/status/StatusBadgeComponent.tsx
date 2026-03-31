@@ -4,7 +4,7 @@ interface StatusBadgeComponentProps {
   inactiveLabel?: string
 }
 
-export default function StatusBadgeComponent({
+export function StatusBadgeComponent({
   enabled,
   activeLabel = 'Activo',
   inactiveLabel = 'Inactivo',

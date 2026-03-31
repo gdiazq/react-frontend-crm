@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import ButtonComponent from '../button/ButtonComponent'
+import { ButtonComponent } from '../button/ButtonComponent'
 
 interface ExistingFileItem {
   id: number | string
@@ -24,7 +24,7 @@ interface FileDropzoneComponentProps {
   onClearExistingFiles?: () => void
 }
 
-export default function FileDropzoneComponent({
+export function FileDropzoneComponent({
   label = 'Adjuntar archivos',
   files,
   existingFiles = [],

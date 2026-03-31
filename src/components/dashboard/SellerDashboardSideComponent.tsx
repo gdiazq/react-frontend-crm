@@ -12,7 +12,7 @@ const priorityClass: Record<DashboardExampleTask['priority'], string> = {
   baja: 'text-emerald-600 dark:text-emerald-400',
 }
 
-export default function SellerDashboardSideComponent({
+export function SellerDashboardSideComponent({
   tasks,
   topClients,
   recentActivity,

@@ -7,7 +7,7 @@ interface InputComponentProps extends InputHTMLAttributes<HTMLInputElement> {
   modelValue?: string
 }
 
-export default function InputComponent({
+export function InputComponent({
   label,
   error,
   onValueChange,

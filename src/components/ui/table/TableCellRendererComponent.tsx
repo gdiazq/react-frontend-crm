@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react'
-import ActionsDropdownComponent from '@/components/ui/dropdown/ActionsDropdownComponent'
+import { ActionsDropdownComponent } from '@/components/ui/dropdown/ActionsDropdownComponent'
 import type { TableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
 
@@ -28,7 +28,7 @@ interface TableCellRendererComponentProps {
   }
 }
 
-export default function TableCellRendererComponent({
+export function TableCellRendererComponent({
   row,
   value,
   columnIndex,

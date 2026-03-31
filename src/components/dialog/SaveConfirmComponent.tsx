@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
+import { ButtonComponent } from '@/components/ui/button/ButtonComponent'
 
 interface SaveConfirmComponentProps {
   open: boolean
@@ -14,7 +14,7 @@ interface SaveConfirmComponentProps {
   onConfirm: () => void
 }
 
-export default function SaveConfirmComponent({
+export function SaveConfirmComponent({
   open,
   title = 'Confirmar',
   message,

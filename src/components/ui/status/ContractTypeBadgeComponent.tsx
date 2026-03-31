@@ -26,7 +26,7 @@ function resolveTypeClass(contractType: string): string {
   return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
 }
 
-export default function ContractTypeBadgeComponent({
+export function ContractTypeBadgeComponent({
   contractType,
 }: ContractTypeBadgeComponentProps) {
   const label = contractType.trim().length > 0 ? contractType : 'Sin tipo'

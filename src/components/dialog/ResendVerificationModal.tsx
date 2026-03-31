@@ -1,5 +1,5 @@
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
-import InputComponent from '@/components/ui/input/InputComponent'
+import { ButtonComponent } from '@/components/ui/button/ButtonComponent'
+import { InputComponent } from '@/components/ui/input/InputComponent'
 
 interface ResendVerificationModalProps {
   open: boolean
@@ -11,7 +11,7 @@ interface ResendVerificationModalProps {
   onPhoneNumberChange: (value: string) => void
 }
 
-export default function ResendVerificationModal({
+export function ResendVerificationModal({
   open,
   phoneNumber,
   submitting,

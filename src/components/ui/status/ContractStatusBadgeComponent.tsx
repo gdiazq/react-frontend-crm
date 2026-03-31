@@ -35,7 +35,7 @@ function resolveStatusClass(contractStatus: string): string {
   return 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300'
 }
 
-export default function ContractStatusBadgeComponent({
+export function ContractStatusBadgeComponent({
   contractStatus,
 }: ContractStatusBadgeComponentProps) {
   const label = contractStatus.trim().length > 0 ? contractStatus : 'Sin estado'

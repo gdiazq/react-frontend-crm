@@ -1,5 +1,5 @@
-import ButtonComponent from '@/components/ui/button/ButtonComponent'
-import InputComponent from '@/components/ui/input/InputComponent'
+import { ButtonComponent } from '@/components/ui/button/ButtonComponent'
+import { InputComponent } from '@/components/ui/input/InputComponent'
 
 interface SearchBarComponentProps {
   value: string
@@ -12,7 +12,7 @@ interface SearchBarComponentProps {
   onSearch: () => void
 }
 
-export default function SearchBarComponent({
+export function SearchBarComponent({
   value,
   loading = false,
   placeholder = 'Buscar por nombre, apellido o correo',

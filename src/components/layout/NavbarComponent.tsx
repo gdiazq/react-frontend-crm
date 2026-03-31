@@ -1,4 +1,4 @@
-import DropdownComponent from '@/components/layout/DropdownComponent'
+import { DropdownComponent } from '@/components/layout/DropdownComponent'
 
 interface NavbarComponentProps {
   unreadCount: number
@@ -17,7 +17,7 @@ interface NavbarComponentProps {
   onGoLogout: () => void
 }
 
-export default function NavbarComponent({
+export function NavbarComponent({
   unreadCount,
   userLabel,
   userEmail,

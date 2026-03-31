@@ -11,7 +11,7 @@ interface NotificationPanelProps {
   formatTimestamp: (value: string) => string
 }
 
-export default function NotificationPanel({
+export function NotificationPanel({
   isOpen,
   unreadCount,
   notifications,

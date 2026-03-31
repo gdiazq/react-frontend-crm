@@ -1,2 +1,2 @@
-export { default as LayoutPrivateDefault } from './LayoutPrivateDefault'
-export { default as LayoutPublicDefault } from './LayoutPublicDefault'
+export { LayoutPrivateDefault } from './LayoutPrivateDefault'
+export { LayoutPublicDefault } from './LayoutPublicDefault'

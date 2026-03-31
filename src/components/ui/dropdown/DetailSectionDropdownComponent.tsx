@@ -13,7 +13,7 @@ interface DetailSectionDropdownComponentProps {
   onValueChange: (value: string) => void
 }
 
-export default function DetailSectionDropdownComponent({
+export function DetailSectionDropdownComponent({
   label,
   value,
   options,

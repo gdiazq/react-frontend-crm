@@ -7,7 +7,7 @@ interface SidebarTooltipComponentProps {
   children: ReactNode
 }
 
-export default function SidebarTooltipComponent({
+export function SidebarTooltipComponent({
   enabled,
   active = false,
   label,

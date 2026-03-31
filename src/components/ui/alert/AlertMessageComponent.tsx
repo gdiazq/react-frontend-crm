@@ -5,7 +5,7 @@ interface AlertMessageComponentProps {
   className?: string
 }
 
-export default function AlertMessageComponent({
+export function AlertMessageComponent({
   message,
   tone = 'info',
   onClose,

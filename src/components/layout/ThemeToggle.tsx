@@ -3,7 +3,7 @@ interface ThemeToggleProps {
   onToggle: () => void
 }
 
-export default function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
+export function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
   return (
     <button
       type="button"

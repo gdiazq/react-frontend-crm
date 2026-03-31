@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { TableComponentProps, TableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
-import TableCellRendererComponent, { type TableCellCustomRenderer } from './TableCellRendererComponent'
+import { TableCellRendererComponent, type TableCellCustomRenderer } from './TableCellRendererComponent'
 
 export interface TableActionsConfig {
   columnIndex: number
@@ -14,7 +14,7 @@ interface FullTableComponentProps extends TableComponentProps {
   actionsConfig?: TableActionsConfig
 }
 
-export default function TableComponent({
+export function TableComponent({
   columns,
   rows,
   loading = false,

@@ -5,7 +5,7 @@ interface KpiPanelProps {
   stages: CrmStage[]
 }
 
-export default function KpiPanel({ stats, stages }: KpiPanelProps) {
+export function KpiPanel({ stats, stages }: KpiPanelProps) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-2xl shadow-slate-200/70 dark:border-white/10 dark:bg-slate-900/70 dark:shadow-none">
       {stats.length > 0 ? (
