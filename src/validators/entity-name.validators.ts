@@ -19,3 +19,4 @@ export const projectTypesCreateValidationRules: Record<string, ValidationRule> =
 export const legalTerminationCausesCreateValidationRules: Record<string, ValidationRule> = nameRule
 export const qualityOfWorkCreateValidationRules: Record<string, ValidationRule> = nameRule
 export const safetyComplianceCreateValidationRules: Record<string, ValidationRule> = nameRule
+export const noRehireCauseCreateValidationRules: Record<string, ValidationRule> = nameRule

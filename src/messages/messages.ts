@@ -538,6 +538,35 @@ export default {
       },
     },
   },
+  noRehireCause: {
+    ui: {
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      actionViewDetail: 'Ver detalle',
+      updateNoRehireCause: 'Editar',
+      actionEnableNoRehireCause: 'Habilitar causa',
+      actionDisableNoRehireCause: 'Deshabilitar causa',
+      detailTitleFallback: 'Detalle de causa de no recontratacion',
+    },
+    status: {
+      success: {
+        toggleEnabledSuccess: 'Causa habilitada correctamente.',
+        toggleDisabledSuccess: 'Causa deshabilitada correctamente.',
+        createNoRehireCauseSuccess: 'Causa de no recontratacion creada correctamente.',
+        updateNoRehireCauseSuccess: 'Causa de no recontratacion actualizada correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de causas de no recontratacion.',
+        detailInvalidId: 'El id de causa de no recontratacion no es valido.',
+        detailLoadError: 'No se pudo cargar el detalle de causa de no recontratacion.',
+        createError: 'No se pudo crear la causa de no recontratacion.',
+        updateInvalidId: 'El id de causa de no recontratacion no es valido.',
+        updateError: 'No se pudo actualizar la causa de no recontratacion.',
+        invalidStatusId: 'El id de causa de no recontratacion no es valido.',
+        toggleStatusError: 'No se pudo actualizar el estado de causa de no recontratacion.',
+      },
+    },
+  },
   qualityOfWork: {
     ui: {
       statusActive: 'Activo',

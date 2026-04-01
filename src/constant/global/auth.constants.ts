@@ -48,3 +48,5 @@ export const AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY_CREATE = '/settlements/work-qua
 export const AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY_EDIT = '/settlements/work-quality/edit'
 export const AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE_CREATE = '/settlements/safety-compliance/new'
 export const AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE_EDIT = '/settlements/safety-compliance/edit'
+export const AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE_CREATE = '/settlements/no-rehire-cause/new'
+export const AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE_EDIT = '/settlements/no-rehire-cause/edit'

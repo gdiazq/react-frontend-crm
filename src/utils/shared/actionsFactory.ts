@@ -262,4 +262,25 @@ export function createSafetyComplianceActions() {
   return { actionViewDetail, actionUpdateSafetyCompliance, actionToggleStatus }
 }
 
+export function createNoRehireCauseActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.noRehireCause.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateNoRehireCause(handler: () => void): DropdownAction {
+    return { id: 'update-no-rehire-cause', label: messages.noRehireCause.ui.updateNoRehireCause, handler }
+  }
+
+  function actionToggleStatus(enabled: boolean, handler: () => void): DropdownAction {
+    return {
+      id: 'toggle-status',
+      label: enabled ? messages.noRehireCause.ui.actionDisableNoRehireCause : messages.noRehireCause.ui.actionEnableNoRehireCause,
+      tone: enabled ? 'danger' : 'default',
+      handler,
+    }
+  }
+
+  return { actionViewDetail, actionUpdateNoRehireCause, actionToggleStatus }
+}
+
 
