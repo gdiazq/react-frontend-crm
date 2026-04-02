@@ -283,4 +283,11 @@ export function createNoRehireCauseActions() {
   return { actionViewDetail, actionUpdateNoRehireCause, actionToggleStatus }
 }
 
+export function createSettlementActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.settlement.ui.actionViewDetail, handler }
+  }
+
+  return { actionViewDetail }
+}
 

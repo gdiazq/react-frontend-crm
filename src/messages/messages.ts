@@ -596,4 +596,20 @@ export default {
       },
     },
   },
+  settlement: {
+    ui: {
+      actionViewDetail: 'Ver detalle',
+      detailTitleFallback: 'Detalle de acuerdo de termino',
+      rehireYes: 'Si',
+      rehireNo: 'No',
+    },
+    status: {
+      success: {},
+      errors: {
+        loadError: 'No se pudo cargar la lista de acuerdos de termino.',
+        detailInvalidId: 'El id de acuerdo de termino no es valido.',
+        detailLoadError: 'No se pudo cargar el detalle del acuerdo de termino.',
+      },
+    },
+  },
 }

@@ -74,3 +74,4 @@ export { LegalTerminationCauseDetailComponent } from './legal-termination-causes
 export { QualityOfWorkDetailComponent } from './quality-of-work/QualityOfWorkDetailComponent'
 export { SafetyComplianceDetailComponent } from './safety-compliance/SafetyComplianceDetailComponent'
 export { NoRehireCauseDetailComponent } from './no-rehire-cause/NoRehireCauseDetailComponent'
+export { SettlementDetailComponent } from './settlement/SettlementDetailComponent'

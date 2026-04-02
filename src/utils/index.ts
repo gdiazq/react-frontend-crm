@@ -32,6 +32,7 @@ export {
   createQualityOfWorkActions,
   createSafetyComplianceActions,
   createNoRehireCauseActions,
+  createSettlementActions,
 } from './shared/actionsFactory'
 export type { DropdownAction } from './shared/actionsFactory'
 export { downloadBlobFile, formatCsvImportSummary } from './file/fileUtils'
@@ -49,3 +50,4 @@ export { createLegalTerminationCausesTableCustomRenderer } from './legal-termina
 export { createQualityOfWorkTableCustomRenderer } from './quality-of-work/qualityOfWorkTableCellRules'
 export { createSafetyComplianceTableCustomRenderer } from './safety-compliance/safetyComplianceTableCellRules'
 export { createNoRehireCauseTableCustomRenderer } from './no-rehire-cause/noRehireCauseTableCellRules'
+export { createSettlementTableCustomRenderer } from './settlement/settlementTableCellRules'

@@ -1,0 +1,93 @@
+import type { Pagination } from '../common'
+
+export interface SettlementRaw {
+  id: number
+  status: string
+  employeeId: number
+  employeeFullName: string
+  employeeIdentification: string
+  contractId: number
+  endDate: string
+  legalTerminationCauseId: number
+  legalTerminationCauseName: string
+  qualityOfWorkId: number
+  qualityOfWorkName: string
+  safetyComplianceId: number
+  safetyComplianceName: string
+  rehireEligible: boolean
+  noReHiredCauseId: number | null
+  noReHiredCauseName: string | null
+  terminationDocumentUrl: string | null
+  observations: string | null
+  hrRequestId: number | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type SettlementDetail = SettlementRaw
+
+export interface SettlementDetailView {
+  statusDisplay: string
+  employeeFullNameDisplay: string
+  employeeIdentificationDisplay: string
+  contractIdDisplay: string
+  endDateDisplay: string
+  legalTerminationCauseNameDisplay: string
+  qualityOfWorkNameDisplay: string
+  safetyComplianceNameDisplay: string
+  rehireEligibleDisplay: string
+  noReHiredCauseNameDisplay: string
+  terminationDocumentUrl: string | null
+  observationsDisplay: string
+  hrRequestIdDisplay: string
+  createdAtDisplay: string
+  updatedAtDisplay: string
+}
+
+export interface SettlementTableRow {
+  id: string
+  values: string[]
+}
+
+export type SettlementSortBy =
+  | 'employeeFullName'
+  | 'status'
+  | 'endDate'
+  | 'legalTerminationCauseName'
+  | 'rehireEligible'
+  | 'createdAt'
+
+export type SettlementSortDir = 'asc' | 'desc'
+
+export type SettlementPagination = Pagination
+
+export interface SettlementQueryParams {
+  page: number
+  size: number
+  search: string
+  status: string
+  employeeId: string
+  legalTerminationCauseId: string
+  rehireEligible: string
+  endDateFrom: string
+  endDateTo: string
+  createdFrom: string
+  createdTo: string
+  sortBy: SettlementSortBy
+  sortDir: SettlementSortDir
+}
+
+export interface SettlementPagedResponse {
+  content: SettlementRaw[]
+  page?: number
+  number?: number
+  size?: number
+  totalElements?: number
+  totalPages?: number
+  total?: number
+  active?: number
+  pending?: number
+  first?: boolean
+  last?: boolean
+  empty?: boolean
+}
