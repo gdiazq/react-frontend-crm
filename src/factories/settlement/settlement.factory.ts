@@ -8,31 +8,37 @@ import type {
 export const settlementTableColumns: string[] = [
   'Identificacion',
   'Empleado',
-  'Estado',
   'Fecha fin',
   'Causa terminacion',
+  'Calidad trabajo',
+  'Estado',
   'Recontratable',
   'Creado',
+  'Actualizado',
   'Acciones',
 ]
 
 export const settlementTableColumnIndex = {
   identification: 0,
   employeeName: 1,
-  status: 2,
-  endDate: 3,
-  legalCause: 4,
-  rehire: 5,
-  createdAt: 6,
+  endDate: 2,
+  legalCause: 3,
+  qualityOfWork: 4,
+  status: 5,
+  rehire: 6,
+  createdAt: 7,
+  updatedAt: 8,
 }
 
 export const settlementTableSortByColumn: Partial<Record<number, SettlementSortBy>> = {
   1: 'employeeFullName',
-  2: 'status',
-  3: 'endDate',
-  4: 'legalTerminationCauseName',
-  5: 'rehireEligible',
-  6: 'createdAt',
+  2: 'endDate',
+  3: 'legalTerminationCauseName',
+  4: 'qualityOfWorkName',
+  5: 'status',
+  6: 'rehireEligible',
+  7: 'createdAt',
+  8: 'updatedAt',
 }
 
 export const initialSettlementRows: SettlementTableRow[] = []

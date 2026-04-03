@@ -1,5 +1,23 @@
 import type { Pagination } from '../common'
 
+export interface SettlementDocument {
+  id: number
+  fileName: string
+  contentType?: string | null
+  size: number
+  url?: string | null
+  entityType?: string | null
+  entityId?: number | null
+  createdAt?: string
+}
+
+export interface SettlementDetailDocumentView {
+  id: number
+  fileName: string
+  sizeDisplay: string
+  url: string
+}
+
 export interface SettlementRaw {
   id: number
   status: string
@@ -22,6 +40,7 @@ export interface SettlementRaw {
   hrRequestId: number | null
   createdAt: string
   updatedAt: string
+  documents?: SettlementDocument[]
 }
 
 export type SettlementDetail = SettlementRaw
@@ -42,6 +61,7 @@ export interface SettlementDetailView {
   hrRequestIdDisplay: string
   createdAtDisplay: string
   updatedAtDisplay: string
+  documents: SettlementDetailDocumentView[]
 }
 
 export interface SettlementTableRow {
@@ -54,8 +74,10 @@ export type SettlementSortBy =
   | 'status'
   | 'endDate'
   | 'legalTerminationCauseName'
+  | 'qualityOfWorkName'
   | 'rehireEligible'
   | 'createdAt'
+  | 'updatedAt'
 
 export type SettlementSortDir = 'asc' | 'desc'
 

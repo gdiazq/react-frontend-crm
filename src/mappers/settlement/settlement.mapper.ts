@@ -1,6 +1,7 @@
 import messages from '@/messages/messages'
 import type {
   SettlementDetail,
+  SettlementDetailDocumentView,
   SettlementDetailView,
   SettlementPagedResponse,
   SettlementPagination,
@@ -18,11 +19,13 @@ export function mapperSettlementRows(result: SettlementRaw[]): SettlementTableRo
     values: [
       item.employeeIdentification,
       item.employeeFullName,
-      item.status,
       formatDate(item.endDate),
       item.legalTerminationCauseName,
+      item.qualityOfWorkName,
+      item.status,
       item.rehireEligible ? messages.settlement.ui.rehireYes : messages.settlement.ui.rehireNo,
       formatDate(item.createdAt),
+      formatDate(item.updatedAt),
       '',
     ],
   }))
@@ -67,5 +70,22 @@ export function mapperSettlementDetailView(detail: SettlementDetail | null): Set
     hrRequestIdDisplay: detail.hrRequestId != null ? String(detail.hrRequestId) : '-',
     createdAtDisplay: formatDate(detail.createdAt),
     updatedAtDisplay: formatDate(detail.updatedAt),
+    documents: mapperSettlementDocuments(detail.documents),
   }
+}
+
+function resolveFileSize(size: number): string {
+  if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`
+  if (size >= 1024) return `${(size / 1024).toFixed(2)} KB`
+  return `${size} B`
+}
+
+function mapperSettlementDocuments(documents: SettlementDetail['documents']): SettlementDetailDocumentView[] {
+  if (!documents || documents.length === 0) return []
+  return documents.map((doc) => ({
+    id: doc.id,
+    fileName: doc.fileName,
+    sizeDisplay: resolveFileSize(doc.size),
+    url: doc.url?.trim() ?? '',
+  }))
 }

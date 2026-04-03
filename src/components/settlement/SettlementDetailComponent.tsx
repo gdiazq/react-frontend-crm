@@ -1,5 +1,7 @@
+import { type ReactNode, useState } from 'react'
 import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
 import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
+import { DetailSectionDropdownComponent } from '@/components/ui/dropdown/DetailSectionDropdownComponent'
 import type { SettlementDetailView } from '@/types'
 
 interface SettlementDetailComponentProps {
@@ -9,12 +11,22 @@ interface SettlementDetailComponentProps {
   onRetry?: () => void
 }
 
+type SettlementDetailTabKey = 'general' | 'conditions' | 'documents' | 'dates'
+
+interface SettlementDetailContentProps {
+  detail: SettlementDetailView
+  activeTab: SettlementDetailTabKey
+  onTabChange: (tab: SettlementDetailTabKey) => void
+}
+
 export function SettlementDetailComponent({
   detail,
   loading,
   errorMessage,
   onRetry,
 }: SettlementDetailComponentProps) {
+  const [activeTab, setActiveTab] = useState<SettlementDetailTabKey>('general')
+
   return (
     <DetailStateWrapperComponent
       loading={loading}
@@ -24,22 +36,28 @@ export function SettlementDetailComponent({
       emptyText="Selecciona un registro para ver su detalle."
       onRetry={onRetry}
     >
-      {detail && <SettlementDetailContent detail={detail} />}
+      {detail && (
+        <SettlementDetailContent
+          detail={detail}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      )}
     </DetailStateWrapperComponent>
   )
 }
 
-function SettlementDetailContent({
-  detail,
-}: {
-  detail: SettlementDetailView
-}) {
-  return (
-    <section className="space-y-5">
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Informacion general
-        </h3>
+function SettlementDetailContent({ detail, activeTab, onTabChange }: SettlementDetailContentProps) {
+  const tabSelectOptions = [
+    { value: 'general', label: 'Informacion general' },
+    { value: 'conditions', label: 'Condiciones de termino' },
+    { value: 'documents', label: 'Adjuntos' },
+    { value: 'dates', label: 'Fechas' },
+  ]
+
+  const renderTabContent = (): ReactNode => {
+    if (activeTab === 'general') {
+      return (
         <div className="grid gap-3 md:grid-cols-2">
           <DetailFieldCardComponent title="Estado" value={detail.statusDisplay} />
           <DetailFieldCardComponent title="Recontratable" value={detail.rehireEligibleDisplay} />
@@ -53,12 +71,11 @@ function SettlementDetailContent({
             <DetailFieldCardComponent title="Observaciones" value={detail.observationsDisplay} className="md:col-span-2" />
           )}
         </div>
-      </article>
+      )
+    }
 
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Condiciones de termino
-        </h3>
+    if (activeTab === 'conditions') {
+      return (
         <div className="grid gap-3 md:grid-cols-2">
           <DetailFieldCardComponent title="Causa legal" value={detail.legalTerminationCauseNameDisplay} className="md:col-span-2" />
           <DetailFieldCardComponent title="Calidad del trabajo" value={detail.qualityOfWorkNameDisplay} />
@@ -67,18 +84,57 @@ function SettlementDetailContent({
             <DetailFieldCardComponent title="Causa no recontratacion" value={detail.noReHiredCauseNameDisplay} className="md:col-span-2" />
           )}
         </div>
-      </article>
+      )
+    }
 
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Fechas
-        </h3>
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Fecha fin" value={detail.endDateDisplay} />
-          <DetailFieldCardComponent title="Creado" value={detail.createdAtDisplay} />
-          <DetailFieldCardComponent title="Actualizado" value={detail.updatedAtDisplay} />
+    if (activeTab === 'documents') {
+      if (detail.documents.length === 0) {
+        return <p className="text-sm text-slate-600 dark:text-slate-300">Sin adjuntos.</p>
+      }
+      return (
+        <div className="space-y-2">
+          {detail.documents.map((file) => (
+            <article
+              key={file.id}
+              className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2 dark:border-white/10"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{file.fileName}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{file.sizeDisplay}</p>
+              </div>
+              {file.url.length > 0 && (
+                <a
+                  href={file.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs font-semibold text-cyan-700 hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
+                >
+                  Ver
+                </a>
+              )}
+            </article>
+          ))}
         </div>
-      </article>
+      )
+    }
+
+    return (
+      <div className="grid gap-3 md:grid-cols-2">
+        <DetailFieldCardComponent title="Fecha fin" value={detail.endDateDisplay} />
+        <DetailFieldCardComponent title="Creado" value={detail.createdAtDisplay} />
+        <DetailFieldCardComponent title="Actualizado" value={detail.updatedAtDisplay} />
+      </div>
+    )
+  }
+
+  return (
+    <section className="space-y-4">
+      <DetailSectionDropdownComponent
+        value={activeTab}
+        options={tabSelectOptions}
+        onChange={(val) => onTabChange(val as SettlementDetailTabKey)}
+      />
+      {renderTabContent()}
     </section>
   )
 }
