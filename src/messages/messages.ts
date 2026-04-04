@@ -599,16 +599,25 @@ export default {
   settlement: {
     ui: {
       actionViewDetail: 'Ver detalle',
+      actionEdit: 'Editar',
       detailTitleFallback: 'Detalle de acuerdo de termino',
       rehireYes: 'Si',
       rehireNo: 'No',
     },
     status: {
-      success: {},
+      success: {
+        createSuccess: 'Acuerdo de termino creado correctamente.',
+        updateSuccess: 'Acuerdo de termino actualizado correctamente.',
+      },
       errors: {
         loadError: 'No se pudo cargar la lista de acuerdos de termino.',
         detailInvalidId: 'El id de acuerdo de termino no es valido.',
         detailLoadError: 'No se pudo cargar el detalle del acuerdo de termino.',
+        createError: 'No se pudo crear el acuerdo de termino.',
+        updateError: 'No se pudo actualizar el acuerdo de termino.',
+        loadFormOptionsError: 'No se pudieron cargar las opciones del formulario.',
+        filesMaxCountError: 'No se pueden adjuntar mas de 5 archivos.',
+        filesMaxSizeError: 'Uno o mas archivos superan el tamano maximo de 10 MB.',
       },
     },
   },

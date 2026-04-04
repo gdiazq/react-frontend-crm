@@ -32,6 +32,15 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
     }))
   }
 
+  const setOpSuccess = (key: OperationKey, success: string) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success, errorBack: null },
+      },
+    }))
+  }
+
   const clearOp = (key: OperationKey) => {
     set((state) => ({
       operationStatus: {
@@ -56,6 +65,8 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
     queryParams: { ...initialSettlementQueryParams },
     loadingSettlements: false,
     loadingSettlementDetail: false,
+    createSettlementSubmitting: false,
+    updateSettlementSubmitting: false,
     operationStatus: initialOperationStatus(),
 
     getSettlements: async () => {
@@ -199,6 +210,41 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
 
     clearOperationStatus: (key: OperationKey) => {
       clearOp(key)
+    },
+
+    createSettlement: async (payload, files = []) => {
+      try {
+        set({ createSettlementSubmitting: true })
+        clearOp('create')
+        await settlementService.createSettlement(payload, files)
+        setOpSuccess('create', messages.settlement.status.success.createSuccess)
+        return true
+      } catch (error) {
+        setOpError('create', resolveErrorMessage(error, messages.settlement.status.errors.createError), error)
+        return false
+      } finally {
+        set({ createSettlementSubmitting: false })
+      }
+    },
+
+    updateSettlement: async (payload, files = []) => {
+      if (!Number.isInteger(payload.id) || payload.id <= 0) {
+        setOpError('update', messages.settlement.status.errors.detailInvalidId)
+        return false
+      }
+
+      try {
+        set({ updateSettlementSubmitting: true })
+        clearOp('update')
+        await settlementService.updateSettlement(payload, files)
+        setOpSuccess('update', messages.settlement.status.success.updateSuccess)
+        return true
+      } catch (error) {
+        setOpError('update', resolveErrorMessage(error, messages.settlement.status.errors.updateError), error)
+        return false
+      } finally {
+        set({ updateSettlementSubmitting: false })
+      }
     },
   }
 })

@@ -79,6 +79,48 @@ export type SettlementSortBy =
   | 'createdAt'
   | 'updatedAt'
 
+export interface SettlementCreateForm {
+  employeeId: string
+  contractId: string
+  endDate: string
+  legalTerminationCauseId: string
+  qualityOfWorkId: string
+  safetyComplianceId: string
+  rehireEligible: string
+  noReHiredCauseId: string
+  observations: string
+  hrRequestId: string
+}
+
+export interface SettlementCreatePayload {
+  employeeId: number
+  contractId: number
+  endDate: string
+  legalTerminationCauseId: number
+  qualityOfWorkId: number
+  safetyComplianceId: number
+  rehireEligible: boolean
+  noReHiredCauseId: number | null
+  observations: string | null
+  hrRequestId: number | null
+}
+
+export interface SettlementUpdatePayload {
+  id: number
+  endDate: string
+  legalTerminationCauseId: number
+  qualityOfWorkId: number
+  safetyComplianceId: number
+  rehireEligible: boolean
+  noReHiredCauseId: number | null
+  observations: string | null
+  hrRequestId: number | null
+}
+
+export interface SettlementCreateResponse {
+  id: number
+}
+
 export type SettlementSortDir = 'asc' | 'desc'
 
 export type SettlementPagination = Pagination

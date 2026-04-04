@@ -33,6 +33,7 @@ const UsersFormDashboardPage = lazy(() => import('@/pages/users/UsersFormDashboa
 const RolesDashboardPage = lazy(() => import('@/pages/roles/RolesDashboardPage'))
 const RolesFormDashboardPage = lazy(() => import('@/pages/roles/RolesFormDashboardPage'))
 const SettlementsDashboardPage = lazy(() => import('@/pages/settlements/SettlementsDashboardPage'))
+const SettlementFormDashboardPage = lazy(() => import('@/pages/settlements/SettlementFormDashboardPage'))
 const LegalTerminationCausesDashboardPage = lazy(() => import('@/pages/settlements/LegalTerminationCausesDashboardPage'))
 const LegalTerminationCausesFormDashboardPage = lazy(() => import('@/pages/settlements/LegalTerminationCausesFormDashboardPage'))
 const SettlementsWorkQualityDashboardPage = lazy(() => import('@/pages/settlements/WorkQualityDashboardPage'))
@@ -169,6 +170,14 @@ export const router = createBrowserRouter([
       {
         path: '/settlements',
         element: <SettlementsDashboardPage />,
+      },
+      {
+        path: '/settlements/new',
+        element: <SettlementFormDashboardPage />,
+      },
+      {
+        path: '/settlements/:editId',
+        element: <SettlementFormDashboardPage />,
       },
       {
         path: '/settlements/termination-causes',

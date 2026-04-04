@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
@@ -25,6 +26,7 @@ import {
   createSettlementTableCustomRenderer,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
+import { AUTH_ROUTE_SETTLEMENTS_CREATE, AUTH_ROUTE_SETTLEMENTS_EDIT } from '@/constant'
 
 const EMPLOYEE_NAME_COLUMN_INDEX = settlementTableColumnIndex.employeeName
 const ACTIONS_COLUMN_INDEX = settlementTableColumns.length - 1
@@ -44,6 +46,7 @@ const REHIRE_ELIGIBLE_OPTIONS = [
 ]
 
 export default function SettlementsDashboardPage() {
+  const navigate = useNavigate()
   const settlementRows = useStoreSettlement((s) => s.settlementRows)
   const settlementDetail = useStoreSettlement((s) => s.settlementDetail)
   const pagination = useStoreSettlement((s) => s.pagination)
@@ -73,7 +76,7 @@ export default function SettlementsDashboardPage() {
   const clearCreatedDateRange = useStoreSettlement((s) => s.clearCreatedDateRange)
   const clearSettlementDetail = useStoreSettlement((s) => s.clearSettlementDetail)
 
-  const { actionViewDetail } = createSettlementActions()
+  const { actionViewDetail, actionEdit } = createSettlementActions()
 
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
@@ -152,7 +155,10 @@ export default function SettlementsDashboardPage() {
   }
 
   const resolveRowActions = (row: SettlementTableRow): DropdownAction[] => {
-    return [actionViewDetail(() => handleViewDetail(row))]
+    return [
+      actionViewDetail(() => handleViewDetail(row)),
+      actionEdit(() => navigate(`${AUTH_ROUTE_SETTLEMENTS_EDIT}=${row.id}`)),
+    ]
   }
 
   const findRowById = (rowId: string) => settlementRows.find((row) => row.id === rowId) ?? null
@@ -279,6 +285,14 @@ export default function SettlementsDashboardPage() {
             disabled={loadingSettlements}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loadingSettlements ? 'Buscando...' : 'Buscar'}
+          />
+          <ButtonComponent
+            type="button"
+            variant="primary"
+            disabled={loadingSettlements}
+            className="flex-1 text-white md:flex-none dark:text-white"
+            label="Nuevo finiquito"
+            onClick={() => navigate(AUTH_ROUTE_SETTLEMENTS_CREATE)}
           />
         </div>
       </form>

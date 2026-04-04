@@ -288,6 +288,10 @@ export function createSettlementActions() {
     return { id: 'view-detail', label: messages.settlement.ui.actionViewDetail, handler }
   }
 
-  return { actionViewDetail }
+  function actionEdit(handler: () => void): DropdownAction {
+    return { id: 'edit', label: messages.settlement.ui.actionEdit, handler }
+  }
+
+  return { actionViewDetail, actionEdit }
 }
 

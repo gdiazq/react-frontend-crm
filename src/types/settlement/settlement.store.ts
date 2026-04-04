@@ -1,5 +1,6 @@
 import type { OperationKey, OperationStatus } from '../common'
 import type {
+  SettlementCreatePayload,
   SettlementDetail,
   SettlementPagination,
   SettlementQueryParams,
@@ -7,6 +8,7 @@ import type {
   SettlementSortBy,
   SettlementSortDir,
   SettlementTableRow,
+  SettlementUpdatePayload,
 } from './settlement'
 
 export interface SettlementStore {
@@ -17,6 +19,8 @@ export interface SettlementStore {
   queryParams: SettlementQueryParams
   loadingSettlements: boolean
   loadingSettlementDetail: boolean
+  createSettlementSubmitting: boolean
+  updateSettlementSubmitting: boolean
   operationStatus: Record<OperationKey, OperationStatus>
 
   getSettlements: () => Promise<void>
@@ -39,4 +43,6 @@ export interface SettlementStore {
   sortSettlements: (sortBy: SettlementSortBy, sortDir: SettlementSortDir) => Promise<void>
   clearSettlementDetail: () => void
   clearOperationStatus: (key: OperationKey) => void
+  createSettlement: (payload: SettlementCreatePayload, files?: File[]) => Promise<boolean>
+  updateSettlement: (payload: SettlementUpdatePayload, files?: File[]) => Promise<boolean>
 }

@@ -3,6 +3,7 @@ import type {
   SettlementQueryParams,
   SettlementSortBy,
   SettlementTableRow,
+  SettlementCreateForm,
 } from '@/types'
 
 export const settlementTableColumns: string[] = [
@@ -68,4 +69,17 @@ export const initialSettlementQueryParams: SettlementQueryParams = {
   createdTo: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
+}
+
+export const initialCreateSettlementForm: SettlementCreateForm = {
+  employeeId: '',
+  contractId: '',
+  endDate: '',
+  legalTerminationCauseId: '',
+  qualityOfWorkId: '',
+  safetyComplianceId: '',
+  rehireEligible: '',
+  noReHiredCauseId: '',
+  observations: '',
+  hrRequestId: '',
 }
