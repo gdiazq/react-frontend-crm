@@ -1,5 +1,11 @@
 import type { CsvImportResponse } from '@/types'
 
+export function resolveFileSize(size: number): string {
+  if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`
+  if (size >= 1024) return `${(size / 1024).toFixed(2)} KB`
+  return `${size} B`
+}
+
 export function downloadBlobFile(blob: Blob, filename: string) {
   const url = window.URL.createObjectURL(blob)
   const anchor = document.createElement('a')

@@ -360,6 +360,22 @@ export default function SettlementFormDashboardPage() {
             onBlur={onValidation('endDate')}
             required
           />
+
+          <SelectComponent
+            value={form.rehireEligible}
+            label="Recontratable"
+            options={REHIRE_OPTIONS}
+            error={errors.rehireEligible}
+            onValueChange={(value) => {
+              if (value === 'true') {
+                setForm((prev) => ({ ...prev, rehireEligible: value, noReHiredCauseId: '' }))
+              } else {
+                handleFieldValueChange('rehireEligible')(value)
+              }
+            }}
+            onValidation={onValidation('rehireEligible')}
+            required
+          />
         </div>
 
         <SectionTitle title="Causas del finiquito" />
@@ -395,23 +411,7 @@ export default function SettlementFormDashboardPage() {
             required
           />
 
-          <SelectComponent
-            value={form.rehireEligible}
-            label="Recontratable"
-            options={REHIRE_OPTIONS}
-            error={errors.rehireEligible}
-            onValueChange={(value) => {
-              if (value === 'true') {
-                setForm((prev) => ({ ...prev, rehireEligible: value, noReHiredCauseId: '' }))
-              } else {
-                handleFieldValueChange('rehireEligible')(value)
-              }
-            }}
-            onValidation={onValidation('rehireEligible')}
-            required
-          />
-
-          {form.rehireEligible !== 'true' && (
+          {form.rehireEligible === 'false' && (
             <SelectComponent
               value={form.noReHiredCauseId}
               label="Causa no recontrato"
@@ -421,37 +421,36 @@ export default function SettlementFormDashboardPage() {
           )}
         </div>
 
-        <SectionTitle title="Datos adicionales" />
-        <div className="grid gap-4 md:grid-cols-2">
-          <InputComponent
-            value={form.observations}
-            label="Observaciones"
-            type="text"
-            placeholder="Ingresa observaciones (opcional)"
-            onValueChange={handleFieldValueChange('observations')}
-          />
-        </div>
+        <SectionTitle title="Observaciones" />
+        <textarea
+          value={form.observations}
+          placeholder="Ingresa observaciones (opcional)"
+          rows={4}
+          className="w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-400 focus:ring-offset-1 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+          onChange={(e) => handleFieldValueChange('observations')(e.target.value)}
+        />
 
         <SectionTitle title="Documentos" />
 
         <FileDropzoneComponent
-          label="Adjuntar documentos"
           files={settlementFiles}
-          existingFiles={existingDocuments.map((doc) => ({ id: doc.id, fileName: doc.fileName, size: doc.size, url: doc.url }))}
-
+          existingFiles={existingDocuments}
           error={filesError}
+          maxFiles={SETTLEMENT_FILES_MAX_COUNT}
+          disabled={saving}
+          helperText="Opcional. Maximo 5 archivos y 10 MB por archivo."
           onAddFiles={handleAddFiles}
           onRemoveFile={handleRemoveFile}
-          onClearFiles={handleClearFiles}
           onRemoveExistingFile={handleRemoveExistingFile}
+          onClearFiles={handleClearFiles}
           onClearExistingFiles={handleClearExistingFiles}
         />
 
-        <div className="flex items-center justify-between border-t border-slate-200 pt-4 dark:border-white/10">
+        <div className="flex flex-wrap justify-end gap-2">
           <ButtonComponent
             type="button"
             variant="outline"
-            label="Cancelar"
+            label="Volver"
             disabled={saving}
             onClick={() => navigate(AUTH_ROUTE_SETTLEMENTS)}
           />
@@ -466,7 +465,10 @@ export default function SettlementFormDashboardPage() {
 
       <SaveConfirmComponent
         open={confirmOpen}
+        title={isEditMode ? 'Confirmar actualizacion de finiquito' : 'Confirmar creacion de finiquito'}
         message={confirmMessage}
+        confirmLabel={submitLabel}
+        cancelLabel="Cancelar"
         loading={saving}
         onConfirm={() => { void handleConfirmSave() }}
         onClose={handleCloseConfirm}

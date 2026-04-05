@@ -13,7 +13,8 @@ import type {
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendParsedId } from '../shared/queryParams.mapper'
-import { formatDate, formatDateTime } from '@/utils'
+import { parseRequiredNumber, parseNullableString, normalizeDateValue } from '../shared/form.mapper'
+import { formatDate, formatDateTime, resolveFileSize } from '@/utils'
 
 export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
   return result.map((item) => ({
@@ -55,27 +56,6 @@ export function mapperContractsQueryParams(result: ContractsQueryParams): Record
   appendString(params, 'updatedFrom', result.updatedFrom)
   appendString(params, 'updatedTo', result.updatedTo)
   return params
-}
-
-function parseRequiredNumber(value: string): number {
-  const parsed = Number(value)
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : 0
-}
-
-function parseNullableString(value: string): string | null {
-  const normalized = value.trim()
-  return normalized.length > 0 ? normalized : null
-}
-
-function normalizeDateValue(value?: string | null): string {
-  const normalized = (value ?? '').trim()
-  return normalized.length >= 10 ? normalized.slice(0, 10) : normalized
-}
-
-function resolveFileSize(size: number): string {
-  if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`
-  if (size >= 1024) return `${(size / 1024).toFixed(2)} KB`
-  return `${size} B`
 }
 
 function mapperContractDocuments(documents: ContractDetail['documents']): ContractDetailDocumentView[] {

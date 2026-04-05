@@ -35,7 +35,7 @@ export {
   createSettlementActions,
 } from './shared/actionsFactory'
 export type { DropdownAction } from './shared/actionsFactory'
-export { downloadBlobFile, formatCsvImportSummary } from './file/fileUtils'
+export { downloadBlobFile, formatCsvImportSummary, resolveFileSize } from './file/fileUtils'
 export { getInitials } from './avatar/avatarUtils'
 export { createUsersTableCustomRenderer } from './users/usersTableCellRules'
 export { createContractsTableCustomRenderer } from './contracts/contractsTableCellRules'

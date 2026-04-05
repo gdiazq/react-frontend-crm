@@ -13,6 +13,7 @@ import type {
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendBooleanString, appendParsedId } from '../shared/queryParams.mapper'
+import { parseRequiredNumber, parseNullableId, parseNullableNumber, parseNullableString } from '../shared/form.mapper'
 import { formatDate } from '@/utils'
 
 export function mapperEmployeesRows(response: EmployeeRaw[]): EmployeeTableRow[] {
@@ -111,29 +112,6 @@ export function mapperEmployeeDetailView(result: EmployeeDetail): EmployeeDetail
   }
 }
 
-function parseRequiredNumber(value: string): number {
-  const parsed = Number(value)
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : 0
-}
-
-function parseNullableId(value: string): number | null {
-  const normalized = value.trim()
-  if (!normalized) return null
-  const parsed = Number(normalized)
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
-}
-
-function parseNullableNumber(value: string): number | null {
-  const normalized = value.trim()
-  if (!normalized) return null
-  const parsed = Number(normalized)
-  return Number.isFinite(parsed) ? parsed : null
-}
-
-function parseNullableString(value: string): string | null {
-  const normalized = value.trim()
-  return normalized.length > 0 ? normalized : null
-}
 
 export function mapperCreateEmployeePayload(form: EmployeeCreateForm): EmployeeCreatePayload {
   return {

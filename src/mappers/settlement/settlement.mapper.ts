@@ -14,7 +14,8 @@ import type {
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendParsedId, appendBooleanString } from '../shared/queryParams.mapper'
-import { formatDate } from '@/utils'
+import { parseRequiredNumber, parseNullableId, parseNullableString, normalizeDateValue } from '../shared/form.mapper'
+import { formatDate, resolveFileSize } from '@/utils'
 
 export function mapperSettlementRows(result: SettlementRaw[]): SettlementTableRow[] {
   return result.map((item) => ({
@@ -77,12 +78,6 @@ export function mapperSettlementDetailView(detail: SettlementDetail | null): Set
   }
 }
 
-function resolveFileSize(size: number): string {
-  if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`
-  if (size >= 1024) return `${(size / 1024).toFixed(2)} KB`
-  return `${size} B`
-}
-
 function mapperSettlementDocuments(documents: SettlementDetail['documents']): SettlementDetailDocumentView[] {
   if (!documents || documents.length === 0) return []
   return documents.map((doc) => ({
@@ -94,22 +89,6 @@ function mapperSettlementDocuments(documents: SettlementDetail['documents']): Se
 }
 
 // ─── Create / Update helpers ────────────────────────────────────────────────
-
-function parseRequiredNumber(value: string): number {
-  return Number(value.trim())
-}
-
-function parseNullableNumber(value: string): number | null {
-  const trimmed = value.trim()
-  if (!trimmed) return null
-  const parsed = Number(trimmed)
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null
-}
-
-function parseNullableString(value: string): string | null {
-  const trimmed = value.trim()
-  return trimmed.length > 0 ? trimmed : null
-}
 
 export function mapperCreateSettlementFormData(payload: SettlementCreatePayload, files: File[] = []): FormData {
   const formData = new FormData()
@@ -133,9 +112,9 @@ export function mapperCreateSettlementPayload(form: SettlementCreateForm): Settl
     qualityOfWorkId: parseRequiredNumber(form.qualityOfWorkId),
     safetyComplianceId: parseRequiredNumber(form.safetyComplianceId),
     rehireEligible: form.rehireEligible === 'true',
-    noReHiredCauseId: parseNullableNumber(form.noReHiredCauseId),
+    noReHiredCauseId: parseNullableId(form.noReHiredCauseId),
     observations: parseNullableString(form.observations),
-    hrRequestId: parseNullableNumber(form.hrRequestId),
+    hrRequestId: parseNullableId(form.hrRequestId),
   }
 }
 
@@ -147,16 +126,16 @@ export function mapperUpdateSettlementPayload(id: number, form: SettlementCreate
     qualityOfWorkId: parseRequiredNumber(form.qualityOfWorkId),
     safetyComplianceId: parseRequiredNumber(form.safetyComplianceId),
     rehireEligible: form.rehireEligible === 'true',
-    noReHiredCauseId: parseNullableNumber(form.noReHiredCauseId),
+    noReHiredCauseId: parseNullableId(form.noReHiredCauseId),
     observations: parseNullableString(form.observations),
-    hrRequestId: parseNullableNumber(form.hrRequestId),
+    hrRequestId: parseNullableId(form.hrRequestId),
   }
 }
 
 export function mapperSettlementDetailToForm(detail: SettlementDetail): SettlementCreateForm {
   return {
     employeeId: String(detail.employeeId),
-    endDate: detail.endDate ?? '',
+    endDate: normalizeDateValue(detail.endDate),
     legalTerminationCauseId: String(detail.legalTerminationCauseId),
     qualityOfWorkId: String(detail.qualityOfWorkId),
     safetyComplianceId: String(detail.safetyComplianceId),
