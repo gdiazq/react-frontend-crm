@@ -18,12 +18,12 @@ export const settlementSelectsService = {
   },
 
   getSafetyComplianceOptions: async () => {
-    const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECT_BASE}/safety-compliance`)
+    const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECT_BASE}/safety-compliances`)
     return data
   },
 
   getNoRehireCauseOptions: async () => {
-    const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECT_BASE}/no-rehire-causes`)
+    const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECT_BASE}/no-re-hired-causes`)
     return data
   },
 

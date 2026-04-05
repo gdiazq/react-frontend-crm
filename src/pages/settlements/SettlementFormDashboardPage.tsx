@@ -82,7 +82,6 @@ export default function SettlementFormDashboardPage() {
   const employeeWithContractOptions = useStoreSettlementSelects((s) => s.employeeWithContractOptions)
   const contractsByEmployeeOptions = useStoreSettlementSelects((s) => s.contractsByEmployeeOptions)
   const loadingFormOptions = useStoreSettlementSelects((s) => s.loadingFormOptions)
-  const loadingContractsByEmployee = useStoreSettlementSelects((s) => s.loadingContractsByEmployee)
   const formOptionsErrorMessage = useStoreSettlementSelects((s) => s.formOptionsErrorMessage)
   const getFormOptions = useStoreSettlementSelects((s) => s.getFormOptions)
   const getContractsByEmployee = useStoreSettlementSelects((s) => s.getContractsByEmployee)
@@ -111,11 +110,16 @@ export default function SettlementFormDashboardPage() {
     ? [{ label: editEmployeeLabel || `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployees]
     : selectEmployees
 
-  const selectContracts = toSelectOptions(contractsByEmployeeOptions)
   const selectLegalTerminationCauses = toSelectOptions(legalTerminationCauseOptions)
   const selectQualityOfWork = toSelectOptions(qualityOfWorkOptions)
   const selectSafetyCompliance = toSelectOptions(safetyComplianceOptions)
   const selectNoRehireCauses = toSelectOptions(noRehireCauseOptions)
+
+  useEffect(() => {
+    if (contractsByEmployeeOptions.length === 1) {
+      setForm((prev) => ({ ...prev, contractId: String(contractsByEmployeeOptions[0].id) }))
+    }
+  }, [contractsByEmployeeOptions])
 
   useEffect(() => {
     void getFormOptions()
@@ -367,29 +371,19 @@ export default function SettlementFormDashboardPage() {
             required
           />
 
-          <SelectComponent
-            value={form.contractId}
-            label="Contrato"
-            options={selectContracts}
-            error={errors.contractId}
-            disabled={isEditMode || loadingContractsByEmployee || !form.employeeId}
-            onValueChange={handleFieldValueChange('contractId')}
-            onValidation={onValidation('contractId')}
-            required
-          />
-        </div>
-
-        <SectionTitle title="Datos del finiquito" />
-        <div className="grid gap-4 md:grid-cols-3">
           <InputComponent
             value={form.endDate}
-            label="Fecha fin"
+            label="Fecha finiquito"
             type="date"
             error={errors.endDate}
             onValueChange={handleFieldValueChange('endDate')}
             onBlur={onValidation('endDate')}
             required
           />
+        </div>
+
+        <SectionTitle title="Causas del finiquito" />
+        <div className="grid gap-4 md:grid-cols-3">
 
           <SelectComponent
             value={form.legalTerminationCauseId}
@@ -426,17 +420,25 @@ export default function SettlementFormDashboardPage() {
             label="Recontratable"
             options={REHIRE_OPTIONS}
             error={errors.rehireEligible}
-            onValueChange={handleFieldValueChange('rehireEligible')}
+            onValueChange={(value) => {
+              if (value === 'true') {
+                setForm((prev) => ({ ...prev, rehireEligible: value, noReHiredCauseId: '' }))
+              } else {
+                handleFieldValueChange('rehireEligible')(value)
+              }
+            }}
             onValidation={onValidation('rehireEligible')}
             required
           />
 
-          <SelectComponent
-            value={form.noReHiredCauseId}
-            label="Causa no recontrato"
-            options={selectNoRehireCauses}
-            onValueChange={handleFieldValueChange('noReHiredCauseId')}
-          />
+          {form.rehireEligible !== 'true' && (
+            <SelectComponent
+              value={form.noReHiredCauseId}
+              label="Causa no recontrato"
+              options={selectNoRehireCauses}
+              onValueChange={handleFieldValueChange('noReHiredCauseId')}
+            />
+          )}
         </div>
 
         <SectionTitle title="Datos adicionales" />
@@ -447,14 +449,6 @@ export default function SettlementFormDashboardPage() {
             type="text"
             placeholder="Ingresa observaciones (opcional)"
             onValueChange={handleFieldValueChange('observations')}
-          />
-
-          <InputComponent
-            value={form.hrRequestId}
-            label="ID Solicitud RRHH"
-            type="number"
-            placeholder="Ingresa el ID de solicitud (opcional)"
-            onValueChange={handleFieldValueChange('hrRequestId')}
           />
         </div>
 
