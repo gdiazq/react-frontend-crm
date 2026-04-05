@@ -128,7 +128,6 @@ export function mapperUpdateSettlementFormData(payload: SettlementUpdatePayload,
 export function mapperCreateSettlementPayload(form: SettlementCreateForm): SettlementCreatePayload {
   return {
     employeeId: parseRequiredNumber(form.employeeId),
-    contractId: parseRequiredNumber(form.contractId),
     endDate: form.endDate.trim(),
     legalTerminationCauseId: parseRequiredNumber(form.legalTerminationCauseId),
     qualityOfWorkId: parseRequiredNumber(form.qualityOfWorkId),
@@ -157,7 +156,6 @@ export function mapperUpdateSettlementPayload(id: number, form: SettlementCreate
 export function mapperSettlementDetailToForm(detail: SettlementDetail): SettlementCreateForm {
   return {
     employeeId: String(detail.employeeId),
-    contractId: String(detail.contractId),
     endDate: detail.endDate ?? '',
     legalTerminationCauseId: String(detail.legalTerminationCauseId),
     qualityOfWorkId: String(detail.qualityOfWorkId),

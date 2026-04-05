@@ -73,7 +73,6 @@ export const initialSettlementQueryParams: SettlementQueryParams = {
 
 export const initialCreateSettlementForm: SettlementCreateForm = {
   employeeId: '',
-  contractId: '',
   endDate: '',
   legalTerminationCauseId: '',
   qualityOfWorkId: '',

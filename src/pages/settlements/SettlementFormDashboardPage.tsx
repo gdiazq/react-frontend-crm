@@ -80,13 +80,10 @@ export default function SettlementFormDashboardPage() {
   const safetyComplianceOptions = useStoreSettlementSelects((s) => s.safetyComplianceOptions)
   const noRehireCauseOptions = useStoreSettlementSelects((s) => s.noRehireCauseOptions)
   const employeeWithContractOptions = useStoreSettlementSelects((s) => s.employeeWithContractOptions)
-  const contractsByEmployeeOptions = useStoreSettlementSelects((s) => s.contractsByEmployeeOptions)
   const loadingFormOptions = useStoreSettlementSelects((s) => s.loadingFormOptions)
   const formOptionsErrorMessage = useStoreSettlementSelects((s) => s.formOptionsErrorMessage)
   const getFormOptions = useStoreSettlementSelects((s) => s.getFormOptions)
-  const getContractsByEmployee = useStoreSettlementSelects((s) => s.getContractsByEmployee)
   const clearFormOptionsStatus = useStoreSettlementSelects((s) => s.clearFormOptionsStatus)
-  const clearContractsByEmployee = useStoreSettlementSelects((s) => s.clearContractsByEmployee)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, settlementsCreateValidationRules)
 
@@ -116,12 +113,6 @@ export default function SettlementFormDashboardPage() {
   const selectNoRehireCauses = toSelectOptions(noRehireCauseOptions)
 
   useEffect(() => {
-    if (contractsByEmployeeOptions.length === 1) {
-      setForm((prev) => ({ ...prev, contractId: String(contractsByEmployeeOptions[0].id) }))
-    }
-  }, [contractsByEmployeeOptions])
-
-  useEffect(() => {
     void getFormOptions()
 
     return () => {
@@ -130,13 +121,11 @@ export default function SettlementFormDashboardPage() {
       clearOperationStatus('update')
       clearOperationStatus('detail')
       clearSettlementDetail()
-      clearContractsByEmployee()
     }
   }, [
     clearOperationStatus,
     clearSettlementDetail,
     clearFormOptionsStatus,
-    clearContractsByEmployee,
     getFormOptions,
   ])
 
@@ -155,9 +144,6 @@ export default function SettlementFormDashboardPage() {
       setExistingDocuments(detail.documents ?? [])
       setSettlementFiles([])
 
-      if (detail.employeeId) {
-        void getContractsByEmployee(detail.employeeId)
-      }
     }
 
     void load()
@@ -165,7 +151,7 @@ export default function SettlementFormDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [editSettlementId, getSettlementDetail, getContractsByEmployee, isEditMode])
+  }, [editSettlementId, getSettlementDetail, isEditMode])
 
   const clearSubmitStatus = () => {
     clearOperationStatus('create')
@@ -182,14 +168,8 @@ export default function SettlementFormDashboardPage() {
   }
 
   const handleEmployeeChange = (value: string) => {
-    setForm((prev) => ({ ...prev, employeeId: value, contractId: '' }))
-    clearContractsByEmployee()
+    setForm((prev) => ({ ...prev, employeeId: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
-
-    const parsedId = Number(value)
-    if (Number.isInteger(parsedId) && parsedId > 0) {
-      void getContractsByEmployee(parsedId)
-    }
   }
 
   const handleSubmit = (event: { preventDefault: () => void }) => {

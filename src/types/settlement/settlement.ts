@@ -81,7 +81,6 @@ export type SettlementSortBy =
 
 export interface SettlementCreateForm {
   employeeId: string
-  contractId: string
   endDate: string
   legalTerminationCauseId: string
   qualityOfWorkId: string
@@ -94,7 +93,6 @@ export interface SettlementCreateForm {
 
 export interface SettlementCreatePayload {
   employeeId: number
-  contractId: number
   endDate: string
   legalTerminationCauseId: number
   qualityOfWorkId: number
