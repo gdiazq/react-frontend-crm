@@ -127,9 +127,11 @@ export interface SettlementQueryParams {
   page: number
   size: number
   search: string
-  status: string
-  employeeId: string
+  statusId: string
   legalTerminationCauseId: string
+  qualityOfWorkId: string
+  safetyComplianceId: string
+  noReHiredCauseId: string
   rehireEligible: string
   endDateFrom: string
   endDateTo: string

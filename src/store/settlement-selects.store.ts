@@ -6,14 +6,20 @@ import type { SettlementSelectsStore } from '@/types'
 
 export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) => ({
   legalTerminationCauseOptions: [],
+  legalTerminationCauseFilterOptions: [],
+  qualityOfWorkFilterOptions: [],
+  safetyComplianceFilterOptions: [],
+  noRehireCauseFilterOptions: [],
   qualityOfWorkOptions: [],
   safetyComplianceOptions: [],
   noRehireCauseOptions: [],
   employeeWithContractOptions: [],
   contractsByEmployeeOptions: [],
   loadingFormOptions: false,
+  loadingFilterOptions: false,
   loadingContractsByEmployee: false,
   formOptionsErrorMessage: null,
+  filterOptionsErrorMessage: null,
   contractsByEmployeeErrorMessage: null,
   errorBack: null,
 
@@ -80,6 +86,47 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
 
   clearFormOptionsStatus: () => {
     set({ formOptionsErrorMessage: null })
+  },
+
+  getFilterOptions: async () => {
+    try {
+      set({ loadingFilterOptions: true, filterOptionsErrorMessage: null, errorBack: null })
+      const [
+        legalTerminationCauses,
+        qualityOfWork,
+        safetyCompliance,
+        noRehireCauses,
+      ] = await Promise.all([
+        settlementSelectsService.getLegalTerminationCauseOptions(),
+        settlementSelectsService.getQualityOfWorkOptions(),
+        settlementSelectsService.getSafetyComplianceOptions(),
+        settlementSelectsService.getNoRehireCauseOptions(),
+      ])
+      set({
+        legalTerminationCauseFilterOptions: mapperContractSelectOptions(legalTerminationCauses),
+        qualityOfWorkFilterOptions: mapperContractSelectOptions(qualityOfWork),
+        safetyComplianceFilterOptions: mapperContractSelectOptions(safetyCompliance),
+        noRehireCauseFilterOptions: mapperContractSelectOptions(noRehireCauses),
+      })
+    } catch (error) {
+      if (settlementSelectsService.isAxiosError(error)) {
+        set({
+          filterOptionsErrorMessage: error.response?.data?.message || messages.settlement.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          filterOptionsErrorMessage: messages.settlement.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingFilterOptions: false })
+    }
+  },
+
+  clearFilterOptionsStatus: () => {
+    set({ filterOptionsErrorMessage: null })
   },
 
   clearContractsByEmployee: () => {

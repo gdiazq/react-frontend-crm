@@ -42,9 +42,11 @@ export function mapperSettlementPagination(result: SettlementPagedResponse): Set
 export function mapperSettlementQueryParams(result: SettlementQueryParams): Record<string, number | string> {
   const params = buildQueryParams(result)
   appendString(params, 'search', result.search)
-  appendString(params, 'status', result.status)
-  appendParsedId(params, 'employeeId', result.employeeId)
+  appendParsedId(params, 'statusId', result.statusId)
   appendParsedId(params, 'legalTerminationCauseId', result.legalTerminationCauseId)
+  appendParsedId(params, 'qualityOfWorkId', result.qualityOfWorkId)
+  appendParsedId(params, 'safetyComplianceId', result.safetyComplianceId)
+  appendParsedId(params, 'noReHiredCauseId', result.noReHiredCauseId)
   appendBooleanString(params, 'rehireEligible', result.rehireEligible)
   appendString(params, 'endDateFrom', result.endDateFrom)
   appendString(params, 'endDateTo', result.endDateTo)

@@ -19,7 +19,7 @@ import {
 } from '@/factories'
 import { mapperSettlementDetailView } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreSettlement } from '@/store'
+import { useStoreEmployeeSelects, useStoreSettlement, useStoreSettlementSelects } from '@/store'
 import type { SettlementTableRow, TableRow, TableSortState } from '@/types'
 import {
   createSettlementActions,
@@ -31,14 +31,6 @@ import { AUTH_ROUTE_SETTLEMENTS_CREATE, AUTH_ROUTE_SETTLEMENTS_EDIT } from '@/co
 const EMPLOYEE_NAME_COLUMN_INDEX = settlementTableColumnIndex.employeeName
 const ACTIONS_COLUMN_INDEX = settlementTableColumns.length - 1
 const SORTABLE_COLUMNS = Object.keys(settlementTableSortByColumn).map((index) => Number(index))
-
-const TERMINATION_STATUS_OPTIONS = [
-  { label: 'Borrador', value: 'BORRADOR' },
-  { label: 'En revision', value: 'EN_REVISION' },
-  { label: 'Aprobado', value: 'APROBADO' },
-  { label: 'Rechazado', value: 'RECHAZADO' },
-  { label: 'Firmado', value: 'FIRMADO' },
-]
 
 const REHIRE_ELIGIBLE_OPTIONS = [
   { label: 'Si', value: 'true' },
@@ -63,26 +55,47 @@ export default function SettlementsDashboardPage() {
   const searchSettlements = useStoreSettlement((s) => s.searchSettlements)
   const sortSettlements = useStoreSettlement((s) => s.sortSettlements)
   const setStatusFilter = useStoreSettlement((s) => s.setStatusFilter)
-  const setEmployeeIdFilter = useStoreSettlement((s) => s.setEmployeeIdFilter)
   const setLegalTerminationCauseIdFilter = useStoreSettlement((s) => s.setLegalTerminationCauseIdFilter)
+  const setQualityOfWorkIdFilter = useStoreSettlement((s) => s.setQualityOfWorkIdFilter)
+  const setSafetyComplianceIdFilter = useStoreSettlement((s) => s.setSafetyComplianceIdFilter)
+  const setNoReHiredCauseIdFilter = useStoreSettlement((s) => s.setNoReHiredCauseIdFilter)
   const setRehireEligibleFilter = useStoreSettlement((s) => s.setRehireEligibleFilter)
   const setEndDateRange = useStoreSettlement((s) => s.setEndDateRange)
   const setCreatedDateRange = useStoreSettlement((s) => s.setCreatedDateRange)
   const clearStatusFilter = useStoreSettlement((s) => s.clearStatusFilter)
-  const clearEmployeeIdFilter = useStoreSettlement((s) => s.clearEmployeeIdFilter)
   const clearLegalTerminationCauseIdFilter = useStoreSettlement((s) => s.clearLegalTerminationCauseIdFilter)
+  const clearQualityOfWorkIdFilter = useStoreSettlement((s) => s.clearQualityOfWorkIdFilter)
+  const clearSafetyComplianceIdFilter = useStoreSettlement((s) => s.clearSafetyComplianceIdFilter)
+  const clearNoReHiredCauseIdFilter = useStoreSettlement((s) => s.clearNoReHiredCauseIdFilter)
   const clearRehireEligibleFilter = useStoreSettlement((s) => s.clearRehireEligibleFilter)
   const clearEndDateRange = useStoreSettlement((s) => s.clearEndDateRange)
   const clearCreatedDateRange = useStoreSettlement((s) => s.clearCreatedDateRange)
   const clearSettlementDetail = useStoreSettlement((s) => s.clearSettlementDetail)
 
+  const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
+  const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
+  const approvalEmployeeStatusOptionsErrorMessage = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
+  const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
+  const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
+
+  const legalTerminationCauseFilterOptions = useStoreSettlementSelects((s) => s.legalTerminationCauseFilterOptions)
+  const qualityOfWorkFilterOptions = useStoreSettlementSelects((s) => s.qualityOfWorkFilterOptions)
+  const safetyComplianceFilterOptions = useStoreSettlementSelects((s) => s.safetyComplianceFilterOptions)
+  const noRehireCauseFilterOptions = useStoreSettlementSelects((s) => s.noRehireCauseFilterOptions)
+  const loadingFilterOptions = useStoreSettlementSelects((s) => s.loadingFilterOptions)
+  const filterOptionsErrorMessage = useStoreSettlementSelects((s) => s.filterOptionsErrorMessage)
+  const getFilterOptions = useStoreSettlementSelects((s) => s.getFilterOptions)
+  const clearFilterOptionsStatus = useStoreSettlementSelects((s) => s.clearFilterOptionsStatus)
+
   const { actionViewDetail, actionEdit } = createSettlementActions()
 
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
-    status: queryParams.status,
-    employeeId: queryParams.employeeId,
+    statusId: queryParams.statusId,
     legalTerminationCauseId: queryParams.legalTerminationCauseId,
+    qualityOfWorkId: queryParams.qualityOfWorkId,
+    safetyComplianceId: queryParams.safetyComplianceId,
+    noReHiredCauseId: queryParams.noReHiredCauseId,
     rehireEligible: queryParams.rehireEligible,
     endDateFrom: queryParams.endDateFrom,
     endDateTo: queryParams.endDateTo,
@@ -98,6 +111,12 @@ export default function SettlementsDashboardPage() {
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
+  const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const legalCauseSelectOptions = legalTerminationCauseFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const qualityOfWorkSelectOptions = qualityOfWorkFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const safetyComplianceSelectOptions = safetyComplianceFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const noRehireCauseSelectOptions = noRehireCauseFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+
   const activeSortColumn = SORTABLE_COLUMNS.find((index) => settlementTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
@@ -111,13 +130,17 @@ export default function SettlementsDashboardPage() {
 
   useEffect(() => {
     void getSettlements()
-  }, [getSettlements])
+    void getApprovalEmployeeStatusOptions()
+    void getFilterOptions()
+  }, [getSettlements, getApprovalEmployeeStatusOptions, getFilterOptions])
 
   useEffect(() => {
     setFilters({
-      status: queryParams.status,
-      employeeId: queryParams.employeeId,
+      statusId: queryParams.statusId,
       legalTerminationCauseId: queryParams.legalTerminationCauseId,
+      qualityOfWorkId: queryParams.qualityOfWorkId,
+      safetyComplianceId: queryParams.safetyComplianceId,
+      noReHiredCauseId: queryParams.noReHiredCauseId,
       rehireEligible: queryParams.rehireEligible,
       endDateFrom: queryParams.endDateFrom,
       endDateTo: queryParams.endDateTo,
@@ -125,9 +148,11 @@ export default function SettlementsDashboardPage() {
       createdTo: queryParams.createdTo,
     })
   }, [
-    queryParams.status,
-    queryParams.employeeId,
+    queryParams.statusId,
     queryParams.legalTerminationCauseId,
+    queryParams.qualityOfWorkId,
+    queryParams.safetyComplianceId,
+    queryParams.noReHiredCauseId,
     queryParams.rehireEligible,
     queryParams.endDateFrom,
     queryParams.endDateTo,
@@ -192,9 +217,11 @@ export default function SettlementsDashboardPage() {
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
-  const handleStatusFilterChange = (value: string) => handleChangeFilter('status', value)
-  const handleEmployeeIdFilterChange = (value: string) => handleChangeFilter('employeeId', value)
+  const handleStatusFilterChange = (value: string) => handleChangeFilter('statusId', value)
   const handleLegalCauseIdFilterChange = (value: string) => handleChangeFilter('legalTerminationCauseId', value)
+  const handleQualityOfWorkIdFilterChange = (value: string) => handleChangeFilter('qualityOfWorkId', value)
+  const handleSafetyComplianceIdFilterChange = (value: string) => handleChangeFilter('safetyComplianceId', value)
+  const handleNoReHiredCauseIdFilterChange = (value: string) => handleChangeFilter('noReHiredCauseId', value)
   const handleRehireEligibleFilterChange = (value: string) => handleChangeFilter('rehireEligible', value)
   const handleEndDateFromFilterChange = (value: string) => handleChangeFilter('endDateFrom', value)
   const handleEndDateToFilterChange = (value: string) => handleChangeFilter('endDateTo', value)
@@ -202,9 +229,16 @@ export default function SettlementsDashboardPage() {
   const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
 
   const handleApplyFilters = async () => {
-    setStatusFilter(filters.status.trim())
-    setEmployeeIdFilter(filters.employeeId.trim())
-    setLegalTerminationCauseIdFilter(filters.legalTerminationCauseId.trim())
+    const selectedStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.statusId)
+    const selectedLegalCause = legalTerminationCauseFilterOptions.find((option) => String(option.id) === filters.legalTerminationCauseId)
+    const selectedQualityOfWork = qualityOfWorkFilterOptions.find((option) => String(option.id) === filters.qualityOfWorkId)
+    const selectedSafetyCompliance = safetyComplianceFilterOptions.find((option) => String(option.id) === filters.safetyComplianceId)
+    const selectedNoReHiredCause = noRehireCauseFilterOptions.find((option) => String(option.id) === filters.noReHiredCauseId)
+    setStatusFilter(selectedStatus ? String(selectedStatus.id) : '')
+    setLegalTerminationCauseIdFilter(selectedLegalCause ? String(selectedLegalCause.id) : '')
+    setQualityOfWorkIdFilter(selectedQualityOfWork ? String(selectedQualityOfWork.id) : '')
+    setSafetyComplianceIdFilter(selectedSafetyCompliance ? String(selectedSafetyCompliance.id) : '')
+    setNoReHiredCauseIdFilter(selectedNoReHiredCause ? String(selectedNoReHiredCause.id) : '')
     setRehireEligibleFilter(filters.rehireEligible)
     setEndDateRange({ endDateFrom: filters.endDateFrom.trim(), endDateTo: filters.endDateTo.trim() })
     setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
@@ -214,9 +248,11 @@ export default function SettlementsDashboardPage() {
 
   const handleClearFilters = async () => {
     setFilters({
-      status: '',
-      employeeId: '',
+      statusId: '',
       legalTerminationCauseId: '',
+      qualityOfWorkId: '',
+      safetyComplianceId: '',
+      noReHiredCauseId: '',
       rehireEligible: '',
       endDateFrom: '',
       endDateTo: '',
@@ -224,8 +260,10 @@ export default function SettlementsDashboardPage() {
       createdTo: '',
     })
     clearStatusFilter()
-    clearEmployeeIdFilter()
     clearLegalTerminationCauseIdFilter()
+    clearQualityOfWorkIdFilter()
+    clearSafetyComplianceIdFilter()
+    clearNoReHiredCauseIdFilter()
     clearRehireEligibleFilter()
     clearEndDateRange()
     clearCreatedDateRange()
@@ -245,6 +283,22 @@ export default function SettlementsDashboardPage() {
         total={pagination.total}
         active={pagination.active}
       />
+
+      {filterOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={filterOptionsErrorMessage}
+          tone="error"
+          onClose={clearFilterOptionsStatus}
+        />
+      )}
+
+      {approvalEmployeeStatusOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={approvalEmployeeStatusOptionsErrorMessage}
+          tone="error"
+          onClose={clearApprovalEmployeeStatusOptionsStatus}
+        />
+      )}
 
       {listError && (
         <AlertMessageComponent
@@ -330,9 +384,10 @@ export default function SettlementsDashboardPage() {
       >
         <div className="space-y-4">
           <SelectComponent
-            value={filters.status}
+            value={filters.statusId}
             label="Estado"
-            options={TERMINATION_STATUS_OPTIONS}
+            options={statusSelectOptions}
+            loading={loadingApprovalEmployeeStatusOptions}
             onValueChange={handleStatusFilterChange}
           />
           <SelectComponent
@@ -341,21 +396,33 @@ export default function SettlementsDashboardPage() {
             options={REHIRE_ELIGIBLE_OPTIONS}
             onValueChange={handleRehireEligibleFilterChange}
           />
-          <InputComponent
-            id="termination-employee-id"
-            value={filters.employeeId}
-            label="ID Empleado"
-            type="number"
-            aria-label="ID de empleado"
-            onValueChange={handleEmployeeIdFilterChange}
-          />
-          <InputComponent
-            id="termination-legal-cause-id"
+          <SelectComponent
             value={filters.legalTerminationCauseId}
-            label="ID Causa legal"
-            type="number"
-            aria-label="ID de causa de terminacion legal"
+            label="Causa terminacion"
+            options={legalCauseSelectOptions}
+            loading={loadingFilterOptions}
             onValueChange={handleLegalCauseIdFilterChange}
+          />
+          <SelectComponent
+            value={filters.qualityOfWorkId}
+            label="Calidad del trabajo"
+            options={qualityOfWorkSelectOptions}
+            loading={loadingFilterOptions}
+            onValueChange={handleQualityOfWorkIdFilterChange}
+          />
+          <SelectComponent
+            value={filters.safetyComplianceId}
+            label="Cumplimiento seguridad"
+            options={safetyComplianceSelectOptions}
+            loading={loadingFilterOptions}
+            onValueChange={handleSafetyComplianceIdFilterChange}
+          />
+          <SelectComponent
+            value={filters.noReHiredCauseId}
+            label="Causa no recontrato"
+            options={noRehireCauseSelectOptions}
+            loading={loadingFilterOptions}
+            onValueChange={handleNoReHiredCauseIdFilterChange}
           />
           <div className="space-y-3 rounded-xl border border-fuchsia-500/35 bg-fuchsia-50/15 p-3 dark:border-fuchsia-400/25 dark:bg-fuchsia-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-fuchsia-700 dark:text-fuchsia-300">
@@ -414,9 +481,9 @@ export default function SettlementsDashboardPage() {
             <ButtonComponent
               type="button"
               variant="primary"
-              disabled={loadingSettlements}
+              disabled={loadingSettlements || loadingApprovalEmployeeStatusOptions || loadingFilterOptions}
               className="text-white dark:text-white"
-              label={loadingSettlements ? 'Aplicando...' : 'Aplicar'}
+              label={loadingApprovalEmployeeStatusOptions || loadingFilterOptions ? 'Aplicando...' : 'Aplicar'}
               onClick={() => { void handleApplyFilters() }}
             />
           </div>

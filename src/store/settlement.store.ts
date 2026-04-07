@@ -132,16 +132,24 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
       set((state) => ({ queryParams: { ...state.queryParams, search: value } }))
     },
 
-    setStatusFilter: (status: string) => {
-      set((state) => ({ queryParams: { ...state.queryParams, status } }))
-    },
-
-    setEmployeeIdFilter: (employeeId: string) => {
-      set((state) => ({ queryParams: { ...state.queryParams, employeeId } }))
+    setStatusFilter: (statusId: string) => {
+      set((state) => ({ queryParams: { ...state.queryParams, statusId } }))
     },
 
     setLegalTerminationCauseIdFilter: (legalTerminationCauseId: string) => {
       set((state) => ({ queryParams: { ...state.queryParams, legalTerminationCauseId } }))
+    },
+
+    setQualityOfWorkIdFilter: (qualityOfWorkId: string) => {
+      set((state) => ({ queryParams: { ...state.queryParams, qualityOfWorkId } }))
+    },
+
+    setSafetyComplianceIdFilter: (safetyComplianceId: string) => {
+      set((state) => ({ queryParams: { ...state.queryParams, safetyComplianceId } }))
+    },
+
+    setNoReHiredCauseIdFilter: (noReHiredCauseId: string) => {
+      set((state) => ({ queryParams: { ...state.queryParams, noReHiredCauseId } }))
     },
 
     setRehireEligibleFilter: (rehireEligible: string) => {
@@ -161,15 +169,23 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
     },
 
     clearStatusFilter: () => {
-      set((state) => ({ queryParams: { ...state.queryParams, status: '' } }))
-    },
-
-    clearEmployeeIdFilter: () => {
-      set((state) => ({ queryParams: { ...state.queryParams, employeeId: '' } }))
+      set((state) => ({ queryParams: { ...state.queryParams, statusId: '' } }))
     },
 
     clearLegalTerminationCauseIdFilter: () => {
       set((state) => ({ queryParams: { ...state.queryParams, legalTerminationCauseId: '' } }))
+    },
+
+    clearQualityOfWorkIdFilter: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, qualityOfWorkId: '' } }))
+    },
+
+    clearSafetyComplianceIdFilter: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, safetyComplianceId: '' } }))
+    },
+
+    clearNoReHiredCauseIdFilter: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, noReHiredCauseId: '' } }))
     },
 
     clearRehireEligibleFilter: () => {
