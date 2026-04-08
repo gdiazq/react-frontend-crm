@@ -1,13 +1,21 @@
+import {
+  EmployeeApprovalStatusBadgeComponent,
+  StatusBadgeComponent,
+} from '@/components'
 import type { TableCellCustomRenderer } from '@/components'
 import type { TableRow } from '@/types'
 
 interface CreateSettlementTableCustomRendererParams {
   employeeNameColumnIndex: number
+  statusColumnIndex: number
+  rehireColumnIndex: number
   onViewDetail: (rowId: string) => void
 }
 
 export function createSettlementTableCustomRenderer({
   employeeNameColumnIndex,
+  statusColumnIndex,
+  rehireColumnIndex,
   onViewDetail,
 }: CreateSettlementTableCustomRendererParams): TableCellCustomRenderer {
   return ({ row, value, columnIndex }) => {
@@ -22,6 +30,20 @@ export function createSettlementTableCustomRenderer({
         >
           {value}
         </button>
+      )
+    }
+
+    if (columnIndex === statusColumnIndex) {
+      return <EmployeeApprovalStatusBadgeComponent statusName={String(value ?? '')} />
+    }
+
+    if (columnIndex === rehireColumnIndex) {
+      return (
+        <StatusBadgeComponent
+          enabled={value === 'Si'}
+          activeLabel="Si"
+          inactiveLabel="No"
+        />
       )
     }
 

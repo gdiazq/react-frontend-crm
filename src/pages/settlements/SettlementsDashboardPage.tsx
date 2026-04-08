@@ -29,6 +29,8 @@ import type { DropdownAction } from '@/utils'
 import { AUTH_ROUTE_SETTLEMENTS_CREATE, AUTH_ROUTE_SETTLEMENTS_EDIT } from '@/constant'
 
 const EMPLOYEE_NAME_COLUMN_INDEX = settlementTableColumnIndex.employeeName
+const STATUS_COLUMN_INDEX = settlementTableColumnIndex.status
+const REHIRE_COLUMN_INDEX = settlementTableColumnIndex.rehire
 const ACTIONS_COLUMN_INDEX = settlementTableColumns.length - 1
 const SORTABLE_COLUMNS = Object.keys(settlementTableSortByColumn).map((index) => Number(index))
 
@@ -202,6 +204,8 @@ export default function SettlementsDashboardPage() {
 
   const renderCustomCell = createSettlementTableCustomRenderer({
     employeeNameColumnIndex: EMPLOYEE_NAME_COLUMN_INDEX,
+    statusColumnIndex: STATUS_COLUMN_INDEX,
+    rehireColumnIndex: REHIRE_COLUMN_INDEX,
     onViewDetail: handleViewDetailById,
   })
 

@@ -1,7 +1,10 @@
 import { type ReactNode, useState } from 'react'
+import { AvatarInitialsComponent } from '@/components/ui/avatar/AvatarInitialsComponent'
 import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
 import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
 import { DetailSectionDropdownComponent } from '@/components/ui/dropdown/DetailSectionDropdownComponent'
+import { EmployeeApprovalStatusBadgeComponent } from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
+import { StatusBadgeComponent } from '@/components/ui/status/StatusBadgeComponent'
 import type { SettlementDetailView } from '@/types'
 
 interface SettlementDetailComponentProps {
@@ -59,14 +62,8 @@ function SettlementDetailContent({ detail, activeTab, onTabChange }: SettlementD
     if (activeTab === 'general') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Estado" value={detail.statusDisplay} />
-          <DetailFieldCardComponent title="Recontratable" value={detail.rehireEligibleDisplay} />
           <DetailFieldCardComponent title="Empleado" value={detail.employeeFullNameDisplay} />
           <DetailFieldCardComponent title="Identificacion" value={detail.employeeIdentificationDisplay} />
-          <DetailFieldCardComponent title="ID Contrato" value={detail.contractIdDisplay} />
-          {detail.hrRequestIdDisplay !== '-' && (
-            <DetailFieldCardComponent title="ID Solicitud RRHH" value={detail.hrRequestIdDisplay} />
-          )}
           {detail.observationsDisplay !== '-' && (
             <DetailFieldCardComponent title="Observaciones" value={detail.observationsDisplay} className="md:col-span-2" />
           )}
@@ -128,13 +125,42 @@ function SettlementDetailContent({ detail, activeTab, onTabChange }: SettlementD
   }
 
   return (
-    <section className="space-y-4">
-      <DetailSectionDropdownComponent
-        value={activeTab}
-        options={tabSelectOptions}
-        onChange={(val) => onTabChange(val as SettlementDetailTabKey)}
-      />
-      {renderTabContent()}
+    <section className="space-y-5">
+      <article className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 dark:border-white/10 dark:from-slate-900/60 dark:to-slate-900/30">
+        <div className="flex items-start gap-4">
+          <AvatarInitialsComponent
+            fullName={detail.employeeFullNameDisplay}
+            fallbackInitials="FQ"
+            className="bg-fuchsia-100 font-bold text-fuchsia-800 dark:bg-fuchsia-900/30 dark:text-fuchsia-200"
+          />
+          <div className="min-w-0 flex-1 space-y-1">
+            <p className="truncate text-base font-semibold">{detail.employeeFullNameDisplay}</p>
+            <p className="truncate text-sm text-slate-600 dark:text-slate-300">{detail.employeeIdentificationDisplay}</p>
+            <p className="truncate text-sm text-slate-600 dark:text-slate-300">{detail.endDateDisplay}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <EmployeeApprovalStatusBadgeComponent statusName={detail.statusDisplay} />
+              <StatusBadgeComponent
+                enabled={detail.rehireEligibleDisplay === 'Si'}
+                activeLabel="Recontratable"
+                inactiveLabel="No recontratable"
+              />
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article className="rounded-xl border border-slate-200 p-2 dark:border-white/10">
+        <DetailSectionDropdownComponent
+          value={activeTab}
+          label="Seccion"
+          options={tabSelectOptions}
+          onValueChange={(value) => onTabChange(value as SettlementDetailTabKey)}
+        />
+      </article>
+
+      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+        {renderTabContent()}
+      </article>
     </section>
   )
 }
