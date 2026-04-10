@@ -62,20 +62,17 @@ export default function ContractsDashboardPage() {
   const clearEndDateRange = useStoreContracts((s) => s.clearEndDateRange)
   const clearUpdatedDateRange = useStoreContracts((s) => s.clearUpdatedDateRange)
   const searchContracts = useStoreContracts((s) => s.searchContracts)
-
   const contractTypeFilterOptions = useStoreContractSelects((s) => s.contractTypeFilterOptions)
   const contractStatusFilterOptions = useStoreContractSelects((s) => s.contractStatusFilterOptions)
   const loadingContractFilterOptions = useStoreContractSelects((s) => s.loadingContractFilterOptions)
   const contractFilterOptionsErrorMessage = useStoreContractSelects((s) => s.contractFilterOptionsErrorMessage)
   const getContractFilterOptions = useStoreContractSelects((s) => s.getContractFilterOptions)
   const clearContractFilterOptionsStatus = useStoreContractSelects((s) => s.clearContractFilterOptionsStatus)
-
   const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
   const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
   const approvalEmployeeStatusOptionsErrorMessage = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
   const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
   const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
-
   const { actionViewDetail, actionUpdateContract } = createContractsActions()
 
   // --- State ---
