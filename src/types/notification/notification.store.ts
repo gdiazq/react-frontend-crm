@@ -5,6 +5,7 @@ import type {
 } from './notification'
 
 export interface NotificationStore {
+  connectedUserId: number | null
   counter: NotificationCountResponse
   notifications: NotificationItem[]
   tab: number

@@ -1,7 +1,5 @@
 import { create } from 'zustand'
-import { Client } from '@stomp/stompjs'
 import { notificationService } from '@/services'
-import { authService } from '@/services'
 import {
   initialCounterNotification,
   initialErrorMessageNotification,
@@ -31,8 +29,19 @@ import type {
 } from '@/types'
 
 const MAX_NOTIFICATIONS = 50
+const WS_RECONNECT_DELAY = 5_000
+const WS_MAX_RECONNECT_ATTEMPTS = 10
 
-let activeStompClient: Client | null = null
+let activeWebSocket: WebSocket | null = null
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null
+let reconnectAttempts = 0
+
+const clearReconnectTimer = () => {
+  if (reconnectTimer !== null) {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
+  }
+}
 
 const isObjectRecord = (value: unknown) => typeof value === 'object' && value !== null
 
@@ -90,10 +99,6 @@ const resolveWsUrl = () => {
   return ''
 }
 
-const requestWsTicket = async () => {
-  return authService.requestWsTicket()
-}
-
 const notificationTabFilters: Record<number, (item: NotificationItem) => boolean> = {
   1: (item) => item.inbox,
   2: (item) => !item.read && item.inbox,
@@ -101,6 +106,7 @@ const notificationTabFilters: Record<number, (item: NotificationItem) => boolean
 }
 
 export const useStoreNotification = create<NotificationStore>()((set, get) => ({
+  connectedUserId: null,
   counter: { ...initialCounterNotification },
   notifications: [...initialNotifications],
   tab: initialTabNotification,
@@ -117,9 +123,11 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   },
 
   getNotifications: async (type = '', page = 0, size = 20) => {
+    const userId = get().connectedUserId
+    if (!userId) return
     try {
       set({ loadingNotifications: true, errorMessage: null })
-      const data = await notificationService.getNotifications(type, page, size)
+      const data = await notificationService.getNotifications(userId, type, page, size)
       set({ notifications: data.content.map(mapperNotification) })
     } catch {
       set({ errorMessage: messages.notification.status.errors.loadError })
@@ -129,8 +137,10 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   },
 
   getCounter: async () => {
+    const userId = get().connectedUserId
+    if (!userId) return
     try {
-      const data = await notificationService.getCounter()
+      const data = await notificationService.getCounter(userId)
       set({ counter: data })
     } catch {
       set({ errorMessage: messages.notification.status.errors.counterError })
@@ -138,8 +148,10 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   },
 
   markAllAsRead: async () => {
+    const userId = get().connectedUserId
+    if (!userId) return
     try {
-      await notificationService.markAllAsRead()
+      await notificationService.markAllAsRead(userId)
       set((state) => ({
         notifications: updateNotificationsByIds(
           state.notifications,
@@ -158,13 +170,15 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   },
 
   archiveNotification: async (payload: NotificationItem) => {
+    const userId = get().connectedUserId
+    if (!userId) return
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {
       set({ errorMessage: messages.notification.status.errors.invalidIdArchive })
       return
     }
     try {
-      await notificationService.archiveNotifications([numericId])
+      await notificationService.archiveNotifications(userId, [numericId])
       set((state) => ({
         notifications: findNotificationById(state.notifications, payload.id, mapperArchiveNotification),
       }))
@@ -179,13 +193,15 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   },
 
   markAsRead: async (payload: NotificationItem) => {
+    const userId = get().connectedUserId
+    if (!userId) return
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {
       set({ errorMessage: messages.notification.status.errors.invalidIdRead })
       return
     }
     try {
-      await notificationService.markAsRead([numericId])
+      await notificationService.markAsRead(userId, [numericId])
       set((state) => ({
         notifications: findNotificationById(state.notifications, payload.id, mapperMarkAsRead),
       }))
@@ -208,15 +224,17 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   clearNotifications: () => set({ notifications: [] }),
 
   disconnect: () => {
-    if (!activeStompClient) return
-    activeStompClient.deactivate()
-    activeStompClient = null
-    if (get().status !== 'idle') set({ status: 'disconnected' })
+    clearReconnectTimer()
+    reconnectAttempts = 0
+    if (!activeWebSocket) return
+    activeWebSocket.close()
+    activeWebSocket = null
+    if (get().status !== 'idle') set({ connectedUserId: null, status: 'disconnected' })
   },
 
   connect: async (userId: number) => {
     if (!userId) return
-    if (activeStompClient?.active) return
+    if (activeWebSocket && activeWebSocket.readyState === WebSocket.OPEN) return
 
     const wsUrl = resolveWsUrl()
     if (!wsUrl) {
@@ -224,53 +242,47 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
       return
     }
 
-    set({ status: 'connecting', errorMessage: null })
+    set({ connectedUserId: userId, status: 'connecting', errorMessage: null })
 
-    let wsTicket = ''
-    try {
-      wsTicket = await requestWsTicket()
-    } catch {
-      set({ status: 'error', errorMessage: messages.notification.status.errors.wsTicketError })
-      return
-    }
-
-    if (!wsTicket) {
-      set({ status: 'error', errorMessage: messages.notification.status.errors.wsTicketInvalid })
-      return
-    }
-
-    const encodedTicket = encodeURIComponent(wsTicket)
     const brokerURL = wsUrl.includes('?')
-      ? `${wsUrl}&ticket=${encodedTicket}`
-      : `${wsUrl}?ticket=${encodedTicket}`
+      ? `${wsUrl}&userId=${userId}`
+      : `${wsUrl}?userId=${userId}`
 
-    const client = new Client({
-      brokerURL,
-      reconnectDelay: 5000,
-      onConnect: () => {
-        set({ status: 'connected' })
-        client.subscribe(`/topic/notifications/${userId}`, async (message) => {
-          const payload = parseNotificationPayload(message.body)
-          const notification = payload
-            ? mapperNotificationFromPayload(payload, messages.notification.ui.newNotificationFallback)
-            : mapperNotificationFromPayload({}, String(message.body || messages.notification.ui.newNotificationFallback))
-          get().pushNotification(notification)
-          await get().getCounter()
-        })
-      },
-      onWebSocketError: () => {
-        set({ status: 'error', errorMessage: messages.notification.status.errors.wsConnectionError })
-      },
-      onStompError: () => {
-        set({ status: 'error', errorMessage: messages.notification.status.errors.wsStompError })
-      },
-      onDisconnect: () => {
-        if (get().status !== 'error') set({ status: 'disconnected' })
-      },
-    })
+    const ws = new WebSocket(brokerURL)
 
-    activeStompClient = client
-    client.activate()
+    ws.onopen = () => {
+      reconnectAttempts = 0
+      set({ status: 'connected', errorMessage: null })
+    }
+
+    ws.onmessage = async (event) => {
+      const payload = parseNotificationPayload(String(event.data))
+      const notification = payload
+        ? mapperNotificationFromPayload(payload, messages.notification.ui.newNotificationFallback)
+        : mapperNotificationFromPayload({}, String(event.data || messages.notification.ui.newNotificationFallback))
+      get().pushNotification(notification)
+      await get().getCounter()
+    }
+
+    ws.onerror = () => {
+      set({ status: 'error', errorMessage: messages.notification.status.errors.wsConnectionError })
+    }
+
+    ws.onclose = () => {
+      activeWebSocket = null
+      if (get().status === 'error') return
+
+      set({ status: 'disconnected' })
+
+      if (reconnectAttempts < WS_MAX_RECONNECT_ATTEMPTS) {
+        reconnectAttempts++
+        reconnectTimer = setTimeout(() => {
+          get().connect(userId)
+        }, WS_RECONNECT_DELAY)
+      }
+    }
+
+    activeWebSocket = ws
   },
 }))
 

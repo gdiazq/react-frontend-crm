@@ -4,29 +4,42 @@ import type { NotificationCountResponse, NotificationPagedResponse } from '@/typ
 
 const NOTIFICATION_BASE_PATH = '/notification'
 
+const userIdHeaders = (userId: number) => ({
+  headers: { 'X-User-Id': String(userId) },
+})
+
 export const notificationService = {
-  getNotifications: async (type = '', page = 0, size = 20) => {
+  getNotifications: async (userId: number, type = '', page = 0, size = 20) => {
     const { data } = await axiosInstance.get<NotificationPagedResponse>(`${NOTIFICATION_BASE_PATH}/paged`, {
       params: { type, page, size },
+      ...userIdHeaders(userId),
     })
     return data
   },
 
-  getCounter: async () => {
-    const { data } = await axiosInstance.get<NotificationCountResponse>(`${NOTIFICATION_BASE_PATH}/count`)
+  getCounter: async (userId: number) => {
+    const { data } = await axiosInstance.get<NotificationCountResponse>(`${NOTIFICATION_BASE_PATH}/count`, {
+      ...userIdHeaders(userId),
+    })
     return data
   },
 
-  markAllAsRead: async () => {
-    await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read-all`)
+  markAllAsRead: async (userId: number) => {
+    await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read-all`, null, {
+      ...userIdHeaders(userId),
+    })
   },
 
-  archiveNotifications: async (ids: number[]) => {
-    await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids })
+  archiveNotifications: async (userId: number, ids: number[]) => {
+    await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids }, {
+      ...userIdHeaders(userId),
+    })
   },
 
-  markAsRead: async (ids: number[]) => {
-    await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read`, { ids })
+  markAsRead: async (userId: number, ids: number[]) => {
+    await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read`, { ids }, {
+      ...userIdHeaders(userId),
+    })
   },
 
   isAxiosError: axios.isAxiosError,
