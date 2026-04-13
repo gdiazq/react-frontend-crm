@@ -1,5 +1,8 @@
 import { create } from 'zustand'
 import { notificationService } from '@/services'
+import { useStoreAuth } from '@/store/auth.store'
+
+const getAuthUserId = (): number | null => useStoreAuth.getState().user?.id ?? null
 import {
   initialCounterNotification,
   initialErrorMessageNotification,
@@ -117,13 +120,15 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   captureTab: (tab: number) => set({ tab }),
 
   pushNotification: (item: NotificationItem) => {
-    set((state) => ({
-      notifications: [item, ...state.notifications].slice(0, MAX_NOTIFICATIONS),
-    }))
+    set((state) => {
+      const alreadyExists = state.notifications.some((n) => n.id === item.id)
+      if (alreadyExists) return state
+      return { notifications: [item, ...state.notifications].slice(0, MAX_NOTIFICATIONS) }
+    })
   },
 
   getNotifications: async (type = '', page = 0, size = 20) => {
-    const userId = get().connectedUserId
+    const userId = getAuthUserId()
     if (!userId) return
     try {
       set({ loadingNotifications: true, errorMessage: null })
@@ -137,7 +142,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   },
 
   getCounter: async () => {
-    const userId = get().connectedUserId
+    const userId = getAuthUserId()
     if (!userId) return
     try {
       const data = await notificationService.getCounter(userId)
@@ -148,7 +153,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   },
 
   markAllAsRead: async () => {
-    const userId = get().connectedUserId
+    const userId = getAuthUserId()
     if (!userId) return
     try {
       await notificationService.markAllAsRead(userId)
@@ -170,7 +175,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   },
 
   archiveNotification: async (payload: NotificationItem) => {
-    const userId = get().connectedUserId
+    const userId = getAuthUserId()
     if (!userId) return
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {
@@ -193,7 +198,7 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
   },
 
   markAsRead: async (payload: NotificationItem) => {
-    const userId = get().connectedUserId
+    const userId = getAuthUserId()
     if (!userId) return
     const numericId = convertIdToNumber(payload.id)
     if (numericId === null) {

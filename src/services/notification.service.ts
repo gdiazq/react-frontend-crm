@@ -2,7 +2,7 @@ import axios from 'axios'
 import { notificationAxiosInstance } from '@/config'
 import type { NotificationCountResponse, NotificationPagedResponse } from '@/types'
 
-const NOTIFICATION_BASE_PATH = '/notification'
+const NOTIFICATION_BASE_PATH = 'notification'
 
 const userIdHeaders = (userId: number) => ({
   headers: { 'X-User-Id': String(userId) },
