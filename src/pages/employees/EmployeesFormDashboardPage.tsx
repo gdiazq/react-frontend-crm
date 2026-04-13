@@ -22,14 +22,22 @@ type PendingAction =
   | null
 
 type HealthTariffUnit = 'uf' | 'pesos' | 'unknown'
+type HealthInsuranceKind = 'fonasa' | 'isapre' | 'unknown'
 
 const toSelectOptions = (options: EmployeeSelectOption[]) =>
   options.map((option) => ({ label: option.name, value: String(option.id) }))
 
 function resolveHealthTariffUnit(label: string): HealthTariffUnit {
-  const normalized = label.toLowerCase()
-  if (normalized.includes('uf')) return 'uf'
-  if (normalized.includes('peso')) return 'pesos'
+  const normalized = label.toLowerCase().trim()
+  if (normalized.includes('uf') || normalized.includes('u.f')) return 'uf'
+  if (normalized.includes('peso') || normalized.includes('clp') || normalized.includes('$')) return 'pesos'
+  return 'unknown'
+}
+
+function resolveHealthInsuranceKind(label: string): HealthInsuranceKind {
+  const normalized = label.toLowerCase().trim()
+  if (normalized.includes('fonasa')) return 'fonasa'
+  if (normalized.length > 0) return 'isapre'
   return 'unknown'
 }
 
@@ -81,6 +89,7 @@ export default function EmployeesFormDashboardPage() {
   const healthInsuranceTariffOptions = useStoreEmployeeSelects((s) => s.healthInsuranceTariffOptions)
   const paymentMethodOptions = useStoreEmployeeSelects((s) => s.paymentMethodOptions)
   const bankOptions = useStoreEmployeeSelects((s) => s.bankOptions)
+  const projectCostCenterOptions = useStoreEmployeeSelects((s) => s.projectCostCenterOptions)
 
   const loadingFormOptions = useStoreEmployeeSelects((s) => s.loadingFormOptions)
   const loadingCommuneOptions = useStoreEmployeeSelects((s) => s.loadingCommuneOptions)
@@ -89,6 +98,7 @@ export default function EmployeesFormDashboardPage() {
   const communeOptionsErrorMessage = useStoreEmployeeSelects((s) => s.communeOptionsErrorMessage)
   const cityOptionsErrorMessage = useStoreEmployeeSelects((s) => s.cityOptionsErrorMessage)
   const getFormOptions = useStoreEmployeeSelects((s) => s.getFormOptions)
+  const getProjectCostCenterOption = useStoreEmployeeSelects((s) => s.getProjectCostCenterOption)
   const getCommuneOptions = useStoreEmployeeSelects((s) => s.getCommuneOptions)
   const getCityOptions = useStoreEmployeeSelects((s) => s.getCityOptions)
   const clearFormOptionsStatus = useStoreEmployeeSelects((s) => s.clearFormOptionsStatus)
@@ -128,10 +138,14 @@ export default function EmployeesFormDashboardPage() {
   const selectHealthInsuranceTariffs = toSelectOptions(healthInsuranceTariffOptions)
   const selectPaymentMethods = toSelectOptions(paymentMethodOptions)
   const selectBanks = toSelectOptions(bankOptions)
+  const selectProjectCostCenters = toSelectOptions(projectCostCenterOptions)
+  const selectedHealthInsuranceLabel = selectHealthInsurances.find((option) => option.value === form.healthInsuranceId)?.label ?? ''
+  const selectedHealthInsuranceKind = resolveHealthInsuranceKind(selectedHealthInsuranceLabel)
+  const showHealthInsuranceIsapreFields = selectedHealthInsuranceKind === 'isapre'
   const selectedTariffLabel = selectHealthInsuranceTariffs.find((option) => option.value === form.healthInsuranceTariffId)?.label ?? ''
   const selectedTariffUnit = resolveHealthTariffUnit(selectedTariffLabel)
-  const showHealthInsuranceUFInput = selectedTariffUnit !== 'pesos'
-  const showHealthInsurancePesosInput = selectedTariffUnit !== 'uf'
+  const showHealthInsuranceUFInput = showHealthInsuranceIsapreFields && selectedTariffUnit === 'uf'
+  const showHealthInsurancePesosInput = showHealthInsuranceIsapreFields && selectedTariffUnit === 'pesos'
 
   useEffect(() => {
     void getFormOptions()
@@ -171,6 +185,9 @@ export default function EmployeesFormDashboardPage() {
         active: detail.active,
         rehireEligible: detail.rehireEligible,
       })
+      if (detail.costCenter != null) {
+        void getProjectCostCenterOption(detail.costCenter)
+      }
     }
 
     void load()
@@ -178,7 +195,7 @@ export default function EmployeesFormDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [editEmployeeId, getEmployeeDetail, isEditMode])
+  }, [editEmployeeId, getEmployeeDetail, getProjectCostCenterOption, isEditMode])
 
   useEffect(() => {
     const regionId = Number(form.regionId)
@@ -196,6 +213,28 @@ export default function EmployeesFormDashboardPage() {
     }
     void getCityOptions(communeId)
   }, [form.communeId, getCityOptions])
+
+  useEffect(() => {
+    if (!showHealthInsuranceIsapreFields) {
+      setForm((prev) => {
+        if (
+          prev.healthInsuranceTariffId === '' &&
+          prev.isapreFun === '' &&
+          prev.healthInsuranceUF === '' &&
+          prev.healthInsurancePesos === ''
+        ) {
+          return prev
+        }
+        return {
+          ...prev,
+          healthInsuranceTariffId: '',
+          isapreFun: '',
+          healthInsuranceUF: '',
+          healthInsurancePesos: '',
+        }
+      })
+    }
+  }, [showHealthInsuranceIsapreFields])
 
   const clearSubmitStatus = () => {
     clearOperationStatus('create')
@@ -220,6 +259,21 @@ export default function EmployeesFormDashboardPage() {
           return { ...prev, healthInsuranceTariffId: value, healthInsuranceUF: '' }
         }
         return { ...prev, healthInsuranceTariffId: value }
+      }
+      if (field === 'healthInsuranceId') {
+        const nextHealthInsuranceLabel = selectHealthInsurances.find((option) => option.value === value)?.label ?? ''
+        const nextHealthInsuranceKind = resolveHealthInsuranceKind(nextHealthInsuranceLabel)
+        if (nextHealthInsuranceKind === 'fonasa') {
+          return {
+            ...prev,
+            healthInsuranceId: value,
+            healthInsuranceTariffId: '',
+            isapreFun: '',
+            healthInsuranceUF: '',
+            healthInsurancePesos: '',
+          }
+        }
+        return { ...prev, healthInsuranceId: value }
       }
       return { ...prev, [field]: value }
     })
@@ -431,6 +485,15 @@ export default function EmployeesFormDashboardPage() {
 
           <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Perfil laboral base</h3>
           <div className="grid gap-4 md:grid-cols-3">
+            <SelectComponent
+              value={form.costCenter}
+              label="Proyecto"
+              options={selectProjectCostCenters}
+              error={errors.costCenter}
+              onValueChange={handleFieldValueChange('costCenter')}
+              onValidation={onValidation('costCenter')}
+              required
+            />
             <SelectComponent 
               value={form.educationLevelId} 
               label="Nivel educacional" 
@@ -682,19 +745,23 @@ export default function EmployeesFormDashboardPage() {
             onValidation={onValidation('healthInsuranceId')} 
             required 
           />
-          <SelectComponent 
-            value={form.healthInsuranceTariffId} 
-            label="Tarifa salud" 
-            options={selectHealthInsuranceTariffs} 
-            onValueChange={handleFieldValueChange('healthInsuranceTariffId')} 
-          />
-          <InputComponent 
-            value={form.isapreFun} 
-            label="Isapre FUN" 
-            type="text" 
-            placeholder="Ingresa isapre FUN" 
-            onValueChange={handleFieldValueChange('isapreFun')} 
-          />
+          {showHealthInsuranceIsapreFields && (
+            <SelectComponent 
+              value={form.healthInsuranceTariffId} 
+              label="Tarifa salud" 
+              options={selectHealthInsuranceTariffs} 
+              onValueChange={handleFieldValueChange('healthInsuranceTariffId')} 
+            />
+          )}
+          {showHealthInsuranceIsapreFields && (
+            <InputComponent 
+              value={form.isapreFun} 
+              label="Isapre FUN" 
+              type="text" 
+              placeholder="Ingresa isapre FUN" 
+              onValueChange={handleFieldValueChange('isapreFun')} 
+            />
+          )}
           {showHealthInsuranceUFInput && (
             <InputComponent 
               value={form.healthInsuranceUF} 

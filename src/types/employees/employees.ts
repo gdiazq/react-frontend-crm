@@ -19,6 +19,7 @@ export interface EmployeeRaw {
 }
 
 export interface EmployeeCreateForm {
+  costCenter: string
   identification: string
   identificationTypeId: string
   firstName: string
@@ -67,6 +68,7 @@ export interface EmployeeCreateForm {
 }
 
 export interface EmployeeCreatePayload {
+  costCenter: number
   identification: string
   identificationTypeId: number
   firstName: string
@@ -116,6 +118,7 @@ export interface EmployeeCreatePayload {
 
 export interface EmployeeUpdatePayload {
   id: number
+  costCenter: number
   identification: string
   identificationTypeId: number
   firstName: string
@@ -185,6 +188,8 @@ interface EmployeeNamedRef {
 export interface EmployeeDetail {
   id: number
   userId?: number | null
+  costCenter?: number | null
+  projectName?: string | null
   identification: string
   identificationType?: EmployeeNamedRef | null
   firstName: string
@@ -249,6 +254,8 @@ export interface EmployeeDetailView {
   statusName: string
   rehireEligible: boolean
   hasContract: boolean
+  costCenterDisplay: string
+  projectName: string
   identification: string
   identificationType: string
   birthDate: string

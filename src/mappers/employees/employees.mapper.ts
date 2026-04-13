@@ -61,6 +61,8 @@ export function mapperEmployeeDetailView(result: EmployeeDetail): EmployeeDetail
     statusName: result.status?.name || '',
     rehireEligible: result.rehireEligible,
     hasContract: result.hasContract,
+    costCenterDisplay: result.costCenter != null ? String(result.costCenter) : '-',
+    projectName: result.projectName || '-',
     identification: result.identification,
     identificationType: result.identificationType?.name || '',
     birthDate: result.birthDate || '',
@@ -115,6 +117,7 @@ export function mapperEmployeeDetailView(result: EmployeeDetail): EmployeeDetail
 
 export function mapperCreateEmployeePayload(form: EmployeeCreateForm): EmployeeCreatePayload {
   return {
+    costCenter: parseRequiredNumber(form.costCenter),
     identification: form.identification.trim(),
     identificationTypeId: parseRequiredNumber(form.identificationTypeId),
     firstName: form.firstName.trim(),
@@ -165,6 +168,7 @@ export function mapperCreateEmployeePayload(form: EmployeeCreateForm): EmployeeC
 
 export function mapperEmployeeDetailToForm(detail: EmployeeDetail): EmployeeCreateForm {
   return {
+    costCenter: detail.costCenter != null ? String(detail.costCenter) : '',
     identification: detail.identification,
     identificationTypeId: detail.identificationType?.id ? String(detail.identificationType.id) : '',
     firstName: detail.firstName,
@@ -220,6 +224,7 @@ export function mapperUpdateEmployeePayload(
 ): EmployeeUpdatePayload {
   return {
     id: employeeId,
+    costCenter: parseRequiredNumber(form.costCenter),
     identification: form.identification.trim(),
     identificationTypeId: parseRequiredNumber(form.identificationTypeId),
     firstName: form.firstName.trim(),

@@ -74,6 +74,14 @@ function EmployeeDetailContent({ detail, activeTab, onTabChange }: EmployeeDetai
     if (activeTab === 'personal') {
       return (
         <div className="grid gap-3 md:grid-cols-2">
+          <DetailFieldCardComponent
+            title="Centro costo"
+            value={detail.costCenterDisplay}
+          />
+          <DetailFieldCardComponent
+            title="Proyecto"
+            value={detail.projectName}
+          />
           <DetailFieldCardComponent 
             title="Tipo identificacion" 
             value={detail.identificationType} 

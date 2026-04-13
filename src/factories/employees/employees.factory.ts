@@ -58,6 +58,7 @@ export const initialEmployeesQueryParams: EmployeesQueryParams = {
 }
 
 export const initialCreateEmployeeForm: EmployeeCreateForm = {
+  costCenter: '',
   identification: '',
   identificationTypeId: '',
   firstName: '',
