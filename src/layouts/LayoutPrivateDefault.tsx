@@ -59,31 +59,37 @@ export function LayoutPrivateDefault() {
   const canReadRoles = hasPermission('ROLE', 'canRead')
 
   useEffect(() => {
+    let cancelled = false
+
     const init = async () => {
       if (!useStoreAuth.getState().user) {
         try {
           await getCurrentUser()
         } catch {
-          navigate(AUTH_ROUTE_LOGIN)
+          if (!cancelled) navigate(AUTH_ROUTE_LOGIN)
           return
         }
       }
 
+      if (cancelled) return
+
       const userId = useStoreAuth.getState().user?.id
       if (!userId) return
 
+      connect(userId)
       captureTab(2)
       getNotifications('', 0, 20)
       getCounter()
-      connect(userId)
     }
 
     init()
 
     return () => {
+      cancelled = true
       disconnectRef.current()
     }
-  }, [captureTab, connect, getCurrentUser, getCounter, getNotifications, navigate])
+  }, [])
+
 
   const handleGoDashboard = () => {
     setMobileSidebarOpen(false)

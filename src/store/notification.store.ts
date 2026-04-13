@@ -227,14 +227,16 @@ export const useStoreNotification = create<NotificationStore>()((set, get) => ({
     clearReconnectTimer()
     reconnectAttempts = 0
     if (!activeWebSocket) return
-    activeWebSocket.close()
-    activeWebSocket = null
+    if (activeWebSocket.readyState === WebSocket.OPEN) {
+      activeWebSocket.close()
+      activeWebSocket = null
+    }
     if (get().status !== 'idle') set({ connectedUserId: null, status: 'disconnected' })
   },
 
   connect: async (userId: number) => {
     if (!userId) return
-    if (activeWebSocket && activeWebSocket.readyState === WebSocket.OPEN) return
+    if (activeWebSocket && (activeWebSocket.readyState === WebSocket.CONNECTING || activeWebSocket.readyState === WebSocket.OPEN)) return
 
     const wsUrl = resolveWsUrl()
     if (!wsUrl) {

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { axiosInstance } from '@/config'
+import { notificationAxiosInstance } from '@/config'
 import type { NotificationCountResponse, NotificationPagedResponse } from '@/types'
 
 const NOTIFICATION_BASE_PATH = '/notification'
@@ -10,7 +10,7 @@ const userIdHeaders = (userId: number) => ({
 
 export const notificationService = {
   getNotifications: async (userId: number, type = '', page = 0, size = 20) => {
-    const { data } = await axiosInstance.get<NotificationPagedResponse>(`${NOTIFICATION_BASE_PATH}/paged`, {
+    const { data } = await notificationAxiosInstance.get<NotificationPagedResponse>(`${NOTIFICATION_BASE_PATH}/paged`, {
       params: { type, page, size },
       ...userIdHeaders(userId),
     })
@@ -18,26 +18,26 @@ export const notificationService = {
   },
 
   getCounter: async (userId: number) => {
-    const { data } = await axiosInstance.get<NotificationCountResponse>(`${NOTIFICATION_BASE_PATH}/count`, {
+    const { data } = await notificationAxiosInstance.get<NotificationCountResponse>(`${NOTIFICATION_BASE_PATH}/count`, {
       ...userIdHeaders(userId),
     })
     return data
   },
 
   markAllAsRead: async (userId: number) => {
-    await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read-all`, null, {
+    await notificationAxiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read-all`, null, {
       ...userIdHeaders(userId),
     })
   },
 
   archiveNotifications: async (userId: number, ids: number[]) => {
-    await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids }, {
+    await notificationAxiosInstance.patch(`${NOTIFICATION_BASE_PATH}/archive`, { ids }, {
       ...userIdHeaders(userId),
     })
   },
 
   markAsRead: async (userId: number, ids: number[]) => {
-    await axiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read`, { ids }, {
+    await notificationAxiosInstance.patch(`${NOTIFICATION_BASE_PATH}/read`, { ids }, {
       ...userIdHeaders(userId),
     })
   },
