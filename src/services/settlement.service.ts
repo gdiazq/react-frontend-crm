@@ -38,5 +38,12 @@ export const settlementService = {
     })
   },
 
+  exportSettlementsCsv: async () => {
+    const { data } = await axiosInstance.get<Blob>('/rrhh/settlements/export/csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
+
   isAxiosError: axios.isAxiosError,
 }

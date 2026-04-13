@@ -113,11 +113,15 @@ export function TableComponent({
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-white/10">
             {loading ? (
-              <tr>
-                <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
-                  Cargando...
-                </td>
-              </tr>
+              Array.from({ length: 6 }).map((_, rowIndex) => (
+                <tr key={rowIndex}>
+                  {columns.map((_, colIndex) => (
+                    <td key={colIndex} className="px-4 py-3">
+                      <div className="h-4 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                    </td>
+                  ))}
+                </tr>
+              ))
             ) : rows.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">

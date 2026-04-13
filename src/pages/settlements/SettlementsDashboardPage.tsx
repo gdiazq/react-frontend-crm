@@ -11,6 +11,7 @@ import {
   StatsOverviewCardsComponent,
   TableComponent,
   SettlementDetailComponent,
+  ToolbarActionsDropdownComponent,
 } from '@/components'
 import {
   settlementTableColumns,
@@ -19,11 +20,13 @@ import {
 } from '@/factories'
 import { mapperSettlementDetailView } from '@/mappers'
 import messages from '@/messages/messages'
+import { settlementService } from '@/services'
 import { useStoreEmployeeSelects, useStoreSettlement, useStoreSettlementSelects } from '@/store'
 import type { SettlementTableRow, TableRow, TableSortState } from '@/types'
 import {
   createSettlementActions,
   createSettlementTableCustomRenderer,
+  downloadBlobFile,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import { AUTH_ROUTE_SETTLEMENTS_CREATE, AUTH_ROUTE_SETTLEMENTS_EDIT } from '@/constant'
@@ -107,6 +110,8 @@ export default function SettlementsDashboardPage() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
+  const [downloadingReport, setDownloadingReport] = useState(false)
+  const [actionsMessage, setActionsMessage] = useState('')
 
   const settlementDetailView = mapperSettlementDetailView(settlementDetail)
   const currentPage = pagination.page + 1
@@ -275,6 +280,29 @@ export default function SettlementsDashboardPage() {
     setFiltersOpen(false)
   }
 
+  const handleDownloadReport = async () => {
+    if (downloadingReport) return
+
+    try {
+      setDownloadingReport(true)
+      const csvBlob = await settlementService.exportSettlementsCsv()
+      downloadBlobFile(csvBlob, 'settlements.csv')
+      setActionsMessage('Reporte descargado correctamente.')
+    } catch (error) {
+      if (settlementService.isAxiosError(error)) {
+        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
+      } else {
+        setActionsMessage('No se pudo descargar el reporte.')
+      }
+    } finally {
+      setDownloadingReport(false)
+    }
+  }
+
+  const handleBulkUpload = () => {
+    setActionsMessage('Carga masiva no disponible para finiquitos.')
+  }
+
   return (
     <section className="min-w-0 space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
@@ -352,6 +380,12 @@ export default function SettlementsDashboardPage() {
             label="Nuevo finiquito"
             onClick={() => navigate(AUTH_ROUTE_SETTLEMENTS_CREATE)}
           />
+          <ToolbarActionsDropdownComponent
+            disabled={loadingSettlements || downloadingReport}
+            showBulkUpload={false}
+            onDownloadReport={() => { void handleDownloadReport() }}
+            onBulkUpload={handleBulkUpload}
+          />
         </div>
       </form>
 
@@ -369,6 +403,14 @@ export default function SettlementsDashboardPage() {
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}
       />
+
+      {actionsMessage && (
+        <AlertMessageComponent
+          message={actionsMessage}
+          tone="info"
+          onClose={() => setActionsMessage('')}
+        />
+      )}
 
       <div className="flex justify-end">
         <PaginationComponent
