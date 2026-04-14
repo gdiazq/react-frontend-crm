@@ -5,6 +5,7 @@ import {
   ButtonComponent,
   InputComponent,
   SaveConfirmComponent,
+  SelectComponent,
 } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION } from '@/constant'
 import { initialCreateTerminationQuizQuestionForm } from '@/factories'
@@ -14,7 +15,8 @@ import {
   mapperTerminationQuizQuestionToForm,
   mapperUpdateTerminationQuizQuestionPayload,
 } from '@/mappers'
-import { useStoreTerminationQuizQuestion } from '@/store'
+import { useStoreTerminationQuizQuestion, useStoreSettlementSelects } from '@/store'
+import type { ContractSelectOption } from '@/types'
 import type {
   TerminationQuizQuestionCreateForm,
   TerminationQuizQuestionCreatePayload,
@@ -22,6 +24,9 @@ import type {
   TerminationQuizQuestionUpdatePayload,
 } from '@/types'
 import { terminationQuizQuestionCreateValidationRules } from '@/validators'
+
+const toSelectOptions = (options: ContractSelectOption[]) =>
+  options.map((option) => ({ label: option.name, value: String(option.id) }))
 
 type PendingAction =
   | { mode: 'create', payload: TerminationQuizQuestionCreatePayload }
@@ -51,7 +56,22 @@ export default function TerminationQuizQuestionFormDashboardPage() {
   const createTerminationQuizQuestion = useStoreTerminationQuizQuestion((s) => s.createTerminationQuizQuestion)
   const updateTerminationQuizQuestion = useStoreTerminationQuizQuestion((s) => s.updateTerminationQuizQuestion)
 
-  const { errors, validateAll, onValidation } = useFormValidation(form, terminationQuizQuestionCreateValidationRules)
+  const employeeWithContractOptions = useStoreSettlementSelects((s) => s.employeeWithContractOptions)
+  const loadingFormOptions = useStoreSettlementSelects((s) => s.loadingFormOptions)
+  const formOptionsErrorMessage = useStoreSettlementSelects((s) => s.formOptionsErrorMessage)
+  const getFormOptions = useStoreSettlementSelects((s) => s.getFormOptions)
+  const clearFormOptionsStatus = useStoreSettlementSelects((s) => s.clearFormOptionsStatus)
+
+  const selectEmployees = toSelectOptions(employeeWithContractOptions)
+  const shouldIncludeCurrentEmployee = isEditMode
+    && form.employeeId.trim().length > 0
+    && !selectEmployees.some((option) => option.value === form.employeeId)
+  const selectEmployeesWithCurrent = shouldIncludeCurrentEmployee
+    ? [{ label: `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployees]
+    : selectEmployees
+
+  const validatableForm = { question: form.question, questionGroup: form.questionGroup, required: form.required, displayOrder: form.displayOrder, employeeId: form.employeeId }
+  const { errors, validateAll, onValidation } = useFormValidation(validatableForm, terminationQuizQuestionCreateValidationRules)
 
   const saving = createSubmitting || updateSubmitting
 
@@ -64,7 +84,11 @@ export default function TerminationQuizQuestionFormDashboardPage() {
   const activeStatus = isEditMode ? updateStatus : createStatus
   const submitErrorMessage = activeStatus.error
   const submitSuccessMessage = activeStatus.success
-  const canSubmit = !saving
+  const canSubmit = !saving && !loadingFormOptions
+
+  useEffect(() => {
+    void getFormOptions()
+  }, [getFormOptions])
 
   useEffect(() => {
     return () => {
@@ -179,6 +203,14 @@ export default function TerminationQuizQuestionFormDashboardPage() {
         />
       )}
 
+      {formOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={formOptionsErrorMessage}
+          tone="error"
+          onClose={clearFormOptionsStatus}
+        />
+      )}
+
       {submitErrorMessage && (
         <AlertMessageComponent
           message={submitErrorMessage}
@@ -237,12 +269,11 @@ export default function TerminationQuizQuestionFormDashboardPage() {
             onValueChange={(v) => handleChangeField('displayOrder', v)}
           />
 
-          <InputComponent
+          <SelectComponent
             value={form.employeeId}
-            label="ID Empleado (opcional)"
-            type="number"
-            placeholder="Dejar en blanco si aplica a todos"
-            autoComplete="off"
+            label="Empleado"
+            options={selectEmployeesWithCurrent}
+            disabled={loadingFormOptions}
             onValueChange={(v) => handleChangeField('employeeId', v)}
           />
         </div>
