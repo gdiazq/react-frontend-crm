@@ -283,6 +283,27 @@ export function createNoRehireCauseActions() {
   return { actionViewDetail, actionUpdateNoRehireCause, actionToggleStatus }
 }
 
+export function createTerminationQuizQuestionActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.terminationQuizQuestion.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateTerminationQuizQuestion(handler: () => void): DropdownAction {
+    return { id: 'update-termination-quiz-question', label: messages.terminationQuizQuestion.ui.updateTerminationQuizQuestion, handler }
+  }
+
+  function actionToggleStatus(enabled: boolean, handler: () => void): DropdownAction {
+    return {
+      id: 'toggle-status',
+      label: enabled ? messages.terminationQuizQuestion.ui.actionDisableTerminationQuizQuestion : messages.terminationQuizQuestion.ui.actionEnableTerminationQuizQuestion,
+      tone: enabled ? 'danger' : 'default',
+      handler,
+    }
+  }
+
+  return { actionViewDetail, actionUpdateTerminationQuizQuestion, actionToggleStatus }
+}
+
 export function createSettlementActions() {
   function actionViewDetail(handler: () => void): DropdownAction {
     return { id: 'view-detail', label: messages.settlement.ui.actionViewDetail, handler }

@@ -27,6 +27,7 @@ interface SidebarComponentProps {
   onGoSettlementsWorkQuality: () => void
   onGoSettlementsSafetyCompliance: () => void
   onGoSettlementsNoRehireCause: () => void
+  onGoSettlementsTerminationQuizQuestion: () => void
   onGoProjects: () => void
   onGoProjectTypes: () => void
   onGoProjectSpecialties: () => void
@@ -60,6 +61,7 @@ export function SidebarComponent({
   onGoSettlementsWorkQuality,
   onGoSettlementsSafetyCompliance,
   onGoSettlementsNoRehireCause,
+  onGoSettlementsTerminationQuizQuestion,
   onGoProjects,
   onGoProjectTypes,
   onGoProjectSpecialties,
@@ -78,6 +80,7 @@ export function SidebarComponent({
   const isSettlementsWorkQualityActive = useMemo(() => location.pathname === '/settlements/work-quality', [location.pathname])
   const isSettlementsSafetyComplianceActive = useMemo(() => location.pathname === '/settlements/safety-compliance', [location.pathname])
   const isSettlementsNoRehireCauseActive = useMemo(() => location.pathname === '/settlements/no-rehire-cause', [location.pathname])
+  const isSettlementsTerminationQuizQuestionActive = useMemo(() => location.pathname === '/settlements/termination-quiz-question', [location.pathname])
   const isProjectsActive = useMemo(() => {
     const path = location.pathname
     if (path === '/projects' || path === '/projects/new') return true
@@ -296,6 +299,21 @@ export function SidebarComponent({
                           <path d="M8 8l8 8" />
                         </svg>
                         <span className={collapsed ? 'lg:hidden' : ''}>No recontratacion</span>
+                      </button>
+                    </SidebarTooltipComponent>
+
+                    <SidebarTooltipComponent enabled={collapsed} active={isSettlementsTerminationQuizQuestionActive} label="Quiz de salida">
+                      <button
+                        type="button"
+                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isSettlementsTerminationQuizQuestionActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                        onClick={onGoSettlementsTerminationQuizQuestion}
+                      >
+                        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+                          <rect x="9" y="3" width="6" height="4" rx="1" />
+                          <path d="M9 12h6M9 16h4" />
+                        </svg>
+                        <span className={collapsed ? 'lg:hidden' : ''}>Quiz de salida</span>
                       </button>
                     </SidebarTooltipComponent>
                   </div>

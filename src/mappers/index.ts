@@ -171,6 +171,15 @@ export {
   mapperNoRehireCauseQueryParams,
 } from './no-rehire-cause/no-rehire-cause.mapper'
 export {
+  mapperCreateTerminationQuizQuestionPayload,
+  mapperUpdateTerminationQuizQuestionPayload,
+  mapperTerminationQuizQuestionDetailView,
+  mapperTerminationQuizQuestionToForm,
+  mapperTerminationQuizQuestionRows,
+  mapperTerminationQuizQuestionPagination,
+  mapperTerminationQuizQuestionQueryParams,
+} from './termination-quiz-question/termination-quiz-question.mapper'
+export {
   mapperSettlementRows,
   mapperSettlementPagination,
   mapperSettlementQueryParams,

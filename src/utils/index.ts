@@ -32,6 +32,7 @@ export {
   createQualityOfWorkActions,
   createSafetyComplianceActions,
   createNoRehireCauseActions,
+  createTerminationQuizQuestionActions,
   createSettlementActions,
 } from './shared/actionsFactory'
 export type { DropdownAction } from './shared/actionsFactory'
@@ -50,4 +51,5 @@ export { createLegalTerminationCausesTableCustomRenderer } from './legal-termina
 export { createQualityOfWorkTableCustomRenderer } from './quality-of-work/qualityOfWorkTableCellRules'
 export { createSafetyComplianceTableCustomRenderer } from './safety-compliance/safetyComplianceTableCellRules'
 export { createNoRehireCauseTableCustomRenderer } from './no-rehire-cause/noRehireCauseTableCellRules'
+export { createTerminationQuizQuestionTableCustomRenderer } from './termination-quiz-question/terminationQuizQuestionTableCellRules'
 export { createSettlementTableCustomRenderer } from './settlement/settlementTableCellRules'

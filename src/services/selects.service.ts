@@ -9,6 +9,7 @@ import type {
   SelectRoleOption,
   SelectStatusOption,
   SelectSupervisorOption,
+  SelectTerminationQuizQuestionOption,
   SelectUserEmailOption,
   SelectUserNameOption,
   SelectVisitorOption,
@@ -67,6 +68,11 @@ export const selectsService = {
 
   getCompanyRepresentativeOptions: async () => {
     const { data } = await axiosInstance.get<SelectCompanyRepresentativeOption[]>('/rrhh/employee/select/company-representatives')
+    return data
+  },
+
+  getTerminationQuizQuestionOptions: async () => {
+    const { data } = await axiosInstance.get<SelectTerminationQuizQuestionOption[]>('/rrhh/select/termination-quiz-questions')
     return data
   },
 

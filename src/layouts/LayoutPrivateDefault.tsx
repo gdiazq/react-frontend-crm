@@ -12,6 +12,7 @@ import {
   AUTH_ROUTE_PROJECT_TYPES,
   AUTH_ROUTE_SETTLEMENTS,
   AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE,
+  AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION,
   AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE,
   AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES,
   AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY,
@@ -177,6 +178,12 @@ export function LayoutPrivateDefault() {
     navigate(AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE)
   }
 
+  const handleGoSettlementsTerminationQuizQuestion = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    navigate(AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION)
+  }
+
   const handleGoProjects = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
@@ -293,6 +300,7 @@ export function LayoutPrivateDefault() {
         onGoSettlementsWorkQuality={handleGoSettlementsWorkQuality}
         onGoSettlementsSafetyCompliance={handleGoSettlementsSafetyCompliance}
         onGoSettlementsNoRehireCause={handleGoSettlementsNoRehireCause}
+        onGoSettlementsTerminationQuizQuestion={handleGoSettlementsTerminationQuizQuestion}
         onGoProjects={handleGoProjects}
         onGoProjectTypes={handleGoProjectTypes}
         onGoProjectSpecialties={handleGoProjectSpecialties}

@@ -20,5 +20,6 @@ export {
   qualityOfWorkCreateValidationRules,
   safetyComplianceCreateValidationRules,
   noRehireCauseCreateValidationRules,
+  terminationQuizQuestionCreateValidationRules,
 } from './entity-name.validators'
 export { settlementsCreateValidationRules } from './settlements.validators'

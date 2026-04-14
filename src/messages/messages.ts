@@ -565,6 +565,35 @@ export default {
       },
     },
   },
+  terminationQuizQuestion: {
+    ui: {
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      actionViewDetail: 'Ver detalle',
+      updateTerminationQuizQuestion: 'Editar',
+      actionEnableTerminationQuizQuestion: 'Habilitar pregunta',
+      actionDisableTerminationQuizQuestion: 'Deshabilitar pregunta',
+      detailTitleFallback: 'Detalle de pregunta de quiz de salida',
+    },
+    status: {
+      success: {
+        toggleEnabledSuccess: 'Pregunta habilitada correctamente.',
+        toggleDisabledSuccess: 'Pregunta deshabilitada correctamente.',
+        createSuccess: 'Pregunta de quiz de salida creada correctamente.',
+        updateSuccess: 'Pregunta de quiz de salida actualizada correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de preguntas del quiz de salida.',
+        detailInvalidId: 'El id de pregunta de quiz de salida no es valido.',
+        detailLoadError: 'No se pudo cargar el detalle de pregunta del quiz de salida.',
+        createError: 'No se pudo crear la pregunta del quiz de salida.',
+        updateInvalidId: 'El id de pregunta de quiz de salida no es valido.',
+        updateError: 'No se pudo actualizar la pregunta del quiz de salida.',
+        invalidStatusId: 'El id de pregunta de quiz de salida no es valido.',
+        toggleStatusError: 'No se pudo actualizar el estado de la pregunta del quiz de salida.',
+      },
+    },
+  },
   qualityOfWork: {
     ui: {
       statusActive: 'Activo',

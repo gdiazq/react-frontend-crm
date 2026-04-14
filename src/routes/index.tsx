@@ -42,6 +42,8 @@ const SafetyComplianceDashboardPage = lazy(() => import('@/pages/settlements/Saf
 const SafetyComplianceFormDashboardPage = lazy(() => import('@/pages/settlements/SafetyComplianceFormDashboardPage'))
 const NoRehireCauseDashboardPage = lazy(() => import('@/pages/settlements/NoRehireCauseDashboardPage'))
 const NoRehireCauseFormDashboardPage = lazy(() => import('@/pages/settlements/NoRehireCauseFormDashboardPage'))
+const TerminationQuizQuestionDashboardPage = lazy(() => import('@/pages/settlements/TerminationQuizQuestionDashboardPage'))
+const TerminationQuizQuestionFormDashboardPage = lazy(() => import('@/pages/settlements/TerminationQuizQuestionFormDashboardPage'))
 const UnauthorizedPage = lazy(() => import('@/pages/errors/UnauthorizedPage'))
 const NotFoundPage = lazy(() => import('@/pages/errors/NotFoundPage'))
 
@@ -230,6 +232,18 @@ export const router = createBrowserRouter([
       {
         path: '/settlements/no-rehire-cause/:editId',
         element: <NoRehireCauseFormDashboardPage />,
+      },
+      {
+        path: '/settlements/termination-quiz-question',
+        element: <TerminationQuizQuestionDashboardPage />,
+      },
+      {
+        path: '/settlements/termination-quiz-question/new',
+        element: <TerminationQuizQuestionFormDashboardPage />,
+      },
+      {
+        path: '/settlements/termination-quiz-question/:editId',
+        element: <TerminationQuizQuestionFormDashboardPage />,
       },
       {
         path: '/projects',

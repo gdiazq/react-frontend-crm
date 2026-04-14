@@ -52,3 +52,22 @@ export interface SelectCompanyRepresentativeOption {
   id: number
   name: string
 }
+
+export interface SelectTerminationQuizQuestionOptionItem {
+  id: number
+  label: string
+  displayOrder: number
+}
+
+export interface SelectTerminationQuizQuestionOption {
+  id: number
+  employeeId: number | null
+  question: string
+  questionGroup: string
+  required: boolean
+  displayOrder: number
+  active: boolean
+  options: SelectTerminationQuizQuestionOptionItem[]
+  createdAt: string
+  updatedAt: string
+}

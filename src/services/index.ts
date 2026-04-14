@@ -18,5 +18,6 @@ export { legalTerminationCausesService } from './legal-termination-causes.servic
 export { qualityOfWorkService } from './quality-of-work.service'
 export { safetyComplianceService } from './safety-compliance.service'
 export { noRehireCauseService } from './no-rehire-cause.service'
+export { terminationQuizQuestionService } from './termination-quiz-question.service'
 export { settlementService } from './settlement.service'
 export { settlementSelectsService } from './settlement-selects.service'
