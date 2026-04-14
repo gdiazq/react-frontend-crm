@@ -36,7 +36,6 @@ export interface TerminationQuizQuestionDetailView {
   questionDisplay: string
   questionGroupDisplay: string
   required: boolean
-  displayOrderDisplay: string
   employeeIdDisplay: string
   active: boolean
   optionLabels: string[]
@@ -46,14 +45,12 @@ export interface TerminationQuizQuestionDetailView {
 
 export interface TerminationQuizQuestionOptionForm {
   label: string
-  displayOrder: string
 }
 
 export interface TerminationQuizQuestionCreateForm {
   question: string
   questionGroup: string
   required: string
-  displayOrder: string
   employeeId: string
   options: TerminationQuizQuestionOptionForm[]
 }
@@ -63,8 +60,7 @@ export interface TerminationQuizQuestionCreatePayload {
   question: string
   questionGroup: string
   required: boolean
-  displayOrder: number
-  options: { label: string; displayOrder: number }[]
+  options: { label: string }[]
 }
 
 export interface TerminationQuizQuestionUpdatePayload {
@@ -73,8 +69,7 @@ export interface TerminationQuizQuestionUpdatePayload {
   question: string
   questionGroup: string
   required: boolean
-  displayOrder: number
-  options: { label: string; displayOrder: number }[]
+  options: { label: string }[]
 }
 
 export interface TerminationQuizQuestionCreateResponse {

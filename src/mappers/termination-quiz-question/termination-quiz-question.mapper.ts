@@ -59,7 +59,6 @@ export function mapperTerminationQuizQuestionDetailView(detail: TerminationQuizQ
     questionDisplay: detail.question,
     questionGroupDisplay: detail.questionGroup || '-',
     required: detail.required,
-    displayOrderDisplay: String(detail.displayOrder),
     employeeIdDisplay: detail.employeeId ? String(detail.employeeId) : '-',
     active: detail.active,
     optionLabels: detail.options?.map((o) => o.label) ?? [],
@@ -73,11 +72,10 @@ export function mapperTerminationQuizQuestionToForm(detail: TerminationQuizQuest
     question: detail.question || '',
     questionGroup: detail.questionGroup || '',
     required: detail.required ? 'true' : 'false',
-    displayOrder: String(detail.displayOrder ?? 1),
     employeeId: detail.employeeId ? String(detail.employeeId) : '',
     options: detail.options?.length
-      ? detail.options.map((o) => ({ label: o.label, displayOrder: String(o.displayOrder) }))
-      : [{ label: '', displayOrder: '1' }],
+      ? detail.options.map((o) => ({ label: o.label }))
+      : [{ label: '' }],
   }
 }
 
@@ -85,13 +83,12 @@ export function mapperCreateTerminationQuizQuestionPayload(form: TerminationQuiz
   const question = form.question.trim()
   const questionGroup = form.questionGroup.trim()
   const required = form.required !== 'false'
-  const displayOrder = parseInt(form.displayOrder, 10) || 1
   const employeeIdNum = parseInt(form.employeeId, 10)
   const options = form.options
     .filter((o) => o.label.trim().length > 0)
-    .map((o, i) => ({ label: o.label.trim(), displayOrder: parseInt(o.displayOrder, 10) || i + 1 }))
+    .map((o) => ({ label: o.label.trim() }))
 
-  const payload: TerminationQuizQuestionCreatePayload = { question, questionGroup, required, displayOrder, options }
+  const payload: TerminationQuizQuestionCreatePayload = { question, questionGroup, required, options }
   if (Number.isInteger(employeeIdNum) && employeeIdNum > 0) payload.employeeId = employeeIdNum
   return payload
 }
@@ -100,13 +97,12 @@ export function mapperUpdateTerminationQuizQuestionPayload(id: number, form: Ter
   const question = form.question.trim()
   const questionGroup = form.questionGroup.trim()
   const required = form.required !== 'false'
-  const displayOrder = parseInt(form.displayOrder, 10) || 1
   const employeeIdNum = parseInt(form.employeeId, 10)
   const options = form.options
     .filter((o) => o.label.trim().length > 0)
-    .map((o, i) => ({ label: o.label.trim(), displayOrder: parseInt(o.displayOrder, 10) || i + 1 }))
+    .map((o) => ({ label: o.label.trim() }))
 
-  const payload: TerminationQuizQuestionUpdatePayload = { id, question, questionGroup, required, displayOrder, options }
+  const payload: TerminationQuizQuestionUpdatePayload = { id, question, questionGroup, required, options }
   if (Number.isInteger(employeeIdNum) && employeeIdNum > 0) payload.employeeId = employeeIdNum
   return payload
 }

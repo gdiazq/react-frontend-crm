@@ -46,7 +46,6 @@ function TerminationQuizQuestionDetailContent({
           <DetailFieldCardComponent title="Grupo" value={detail.questionGroupDisplay} />
           <DetailFieldCardComponent title="Estado" value={<StatusBadgeComponent enabled={detail.active} />} />
           <DetailFieldCardComponent title="Requerida" value={detail.required ? 'Sí' : 'No'} />
-          <DetailFieldCardComponent title="Orden" value={detail.displayOrderDisplay} />
           {detail.employeeIdDisplay !== '-' && (
             <DetailFieldCardComponent title="ID Empleado" value={detail.employeeIdDisplay} />
           )}

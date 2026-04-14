@@ -20,7 +20,6 @@ import type { ContractSelectOption } from '@/types'
 import type {
   TerminationQuizQuestionCreateForm,
   TerminationQuizQuestionCreatePayload,
-  TerminationQuizQuestionOptionForm,
   TerminationQuizQuestionUpdatePayload,
 } from '@/types'
 import { terminationQuizQuestionCreateValidationRules } from '@/validators'
@@ -70,7 +69,7 @@ export default function TerminationQuizQuestionFormDashboardPage() {
     ? [{ label: `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployees]
     : selectEmployees
 
-  const validatableForm = { question: form.question, questionGroup: form.questionGroup, required: form.required, displayOrder: form.displayOrder, employeeId: form.employeeId }
+  const validatableForm = { question: form.question, questionGroup: form.questionGroup, required: form.required, employeeId: form.employeeId }
   const { errors, validateAll, onValidation } = useFormValidation(validatableForm, terminationQuizQuestionCreateValidationRules)
 
   const saving = createSubmitting || updateSubmitting
@@ -127,10 +126,10 @@ export default function TerminationQuizQuestionFormDashboardPage() {
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
-  const handleOptionChange = (index: number, field: keyof TerminationQuizQuestionOptionForm, value: string) => {
+  const handleOptionChange = (index: number, value: string) => {
     setForm((prev) => {
       const options = [...prev.options]
-      options[index] = { ...options[index], [field]: value }
+      options[index] = { label: value }
       return { ...prev, options }
     })
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
@@ -139,14 +138,14 @@ export default function TerminationQuizQuestionFormDashboardPage() {
   const handleAddOption = () => {
     setForm((prev) => ({
       ...prev,
-      options: [...prev.options, { label: '', displayOrder: String(prev.options.length + 1) }],
+      options: [...prev.options, { label: '' }],
     }))
   }
 
   const handleRemoveOption = (index: number) => {
     setForm((prev) => ({
       ...prev,
-      options: prev.options.filter((_, i) => i !== index),
+      options: prev.options.slice(0, index).concat(prev.options.slice(index + 1)),
     }))
   }
 
@@ -259,24 +258,13 @@ export default function TerminationQuizQuestionFormDashboardPage() {
           required
         />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <InputComponent
-            value={form.displayOrder}
-            label="Orden de visualizacion"
-            type="number"
-            placeholder="1"
-            autoComplete="off"
-            onValueChange={(v) => handleChangeField('displayOrder', v)}
-          />
-
-          <SelectComponent
-            value={form.employeeId}
-            label="Empleado"
-            options={selectEmployeesWithCurrent}
-            disabled={loadingFormOptions}
-            onValueChange={(v) => handleChangeField('employeeId', v)}
-          />
-        </div>
+        <SelectComponent
+          value={form.employeeId}
+          label="Empleado"
+          options={selectEmployeesWithCurrent}
+          disabled={loadingFormOptions}
+          onValueChange={(v) => handleChangeField('employeeId', v)}
+        />
 
         <div>
           <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -330,17 +318,7 @@ export default function TerminationQuizQuestionFormDashboardPage() {
                   type="text"
                   placeholder="Ingresa la etiqueta de la opcion"
                   autoComplete="off"
-                  onValueChange={(v) => handleOptionChange(index, 'label', v)}
-                />
-              </div>
-              <div className="w-24">
-                <InputComponent
-                  value={option.displayOrder}
-                  label="Orden"
-                  type="number"
-                  placeholder={String(index + 1)}
-                  autoComplete="off"
-                  onValueChange={(v) => handleOptionChange(index, 'displayOrder', v)}
+                  onValueChange={(v) => handleOptionChange(index, v)}
                 />
               </div>
               {form.options.length > 1 && (
