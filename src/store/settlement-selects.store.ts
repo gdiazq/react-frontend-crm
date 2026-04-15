@@ -6,6 +6,7 @@ import type { SettlementSelectsStore } from '@/types'
 
 export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) => ({
   quizQuestionGroupOptions: [],
+  terminationQuizQuestionGroups: [],
   legalTerminationCauseOptions: [],
   legalTerminationCauseFilterOptions: [],
   qualityOfWorkFilterOptions: [],
@@ -17,11 +18,13 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
   employeeWithContractOptions: [],
   contractsByEmployeeOptions: [],
   loadingQuizQuestionGroupOptions: false,
+  loadingTerminationQuizQuestionGroups: false,
   loadingEmployeeWithContractOptions: false,
   loadingFormOptions: false,
   loadingFilterOptions: false,
   loadingContractsByEmployee: false,
   quizQuestionGroupOptionsErrorMessage: null,
+  terminationQuizQuestionGroupsErrorMessage: null,
   employeeWithContractOptionsErrorMessage: null,
   formOptionsErrorMessage: null,
   filterOptionsErrorMessage: null,
@@ -47,6 +50,33 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
       }
     } finally {
       set({ loadingQuizQuestionGroupOptions: false })
+    }
+  },
+
+  getTerminationQuizQuestionGroups: async (employeeId: number) => {
+    try {
+      set({
+        loadingTerminationQuizQuestionGroups: true,
+        terminationQuizQuestionGroupsErrorMessage: null,
+        errorBack: null,
+      })
+      const groups = await settlementSelectsService.getTerminationQuizQuestionGroups(employeeId)
+      set({ terminationQuizQuestionGroups: groups })
+    } catch (error) {
+      if (settlementSelectsService.isAxiosError(error)) {
+        set({
+          terminationQuizQuestionGroupsErrorMessage: error.response?.data?.message || messages.settlement.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          terminationQuizQuestionGroupsErrorMessage: messages.settlement.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      }
+      set({ terminationQuizQuestionGroups: [] })
+    } finally {
+      set({ loadingTerminationQuizQuestionGroups: false })
     }
   },
 
@@ -139,6 +169,14 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
 
   clearQuizQuestionGroupOptionsStatus: () => {
     set({ quizQuestionGroupOptionsErrorMessage: null })
+  },
+
+  clearTerminationQuizQuestionGroups: () => {
+    set({ terminationQuizQuestionGroups: [] })
+  },
+
+  clearTerminationQuizQuestionGroupsStatus: () => {
+    set({ terminationQuizQuestionGroupsErrorMessage: null })
   },
 
   clearEmployeeWithContractOptionsStatus: () => {

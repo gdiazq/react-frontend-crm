@@ -80,9 +80,15 @@ export default function SettlementFormDashboardPage() {
   const safetyComplianceOptions = useStoreSettlementSelects((s) => s.safetyComplianceOptions)
   const noRehireCauseOptions = useStoreSettlementSelects((s) => s.noRehireCauseOptions)
   const employeeWithContractOptions = useStoreSettlementSelects((s) => s.employeeWithContractOptions)
+  const terminationQuizQuestionGroups = useStoreSettlementSelects((s) => s.terminationQuizQuestionGroups)
+  const loadingTerminationQuizQuestionGroups = useStoreSettlementSelects((s) => s.loadingTerminationQuizQuestionGroups)
+  const terminationQuizQuestionGroupsErrorMessage = useStoreSettlementSelects((s) => s.terminationQuizQuestionGroupsErrorMessage)
   const loadingFormOptions = useStoreSettlementSelects((s) => s.loadingFormOptions)
   const formOptionsErrorMessage = useStoreSettlementSelects((s) => s.formOptionsErrorMessage)
   const getFormOptions = useStoreSettlementSelects((s) => s.getFormOptions)
+  const getTerminationQuizQuestionGroups = useStoreSettlementSelects((s) => s.getTerminationQuizQuestionGroups)
+  const clearTerminationQuizQuestionGroups = useStoreSettlementSelects((s) => s.clearTerminationQuizQuestionGroups)
+  const clearTerminationQuizQuestionGroupsStatus = useStoreSettlementSelects((s) => s.clearTerminationQuizQuestionGroupsStatus)
   const clearFormOptionsStatus = useStoreSettlementSelects((s) => s.clearFormOptionsStatus)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, settlementsCreateValidationRules)
@@ -117,6 +123,8 @@ export default function SettlementFormDashboardPage() {
 
     return () => {
       clearFormOptionsStatus()
+      clearTerminationQuizQuestionGroups()
+      clearTerminationQuizQuestionGroupsStatus()
       clearOperationStatus('create')
       clearOperationStatus('update')
       clearOperationStatus('detail')
@@ -126,6 +134,8 @@ export default function SettlementFormDashboardPage() {
     clearOperationStatus,
     clearSettlementDetail,
     clearFormOptionsStatus,
+    clearTerminationQuizQuestionGroups,
+    clearTerminationQuizQuestionGroupsStatus,
     getFormOptions,
   ])
 
@@ -152,6 +162,19 @@ export default function SettlementFormDashboardPage() {
       cancelled = true
     }
   }, [editSettlementId, getSettlementDetail, isEditMode])
+
+  useEffect(() => {
+    const employeeId = Number(form.employeeId)
+    if (!Number.isInteger(employeeId) || employeeId <= 0) {
+      clearTerminationQuizQuestionGroups()
+      return
+    }
+    void getTerminationQuizQuestionGroups(employeeId)
+  }, [
+    clearTerminationQuizQuestionGroups,
+    form.employeeId,
+    getTerminationQuizQuestionGroups,
+  ])
 
   const clearSubmitStatus = () => {
     clearOperationStatus('create')
@@ -420,6 +443,42 @@ export default function SettlementFormDashboardPage() {
             />
           )}
         </div>
+
+        <SectionTitle title="Quiz de salida" />
+        {terminationQuizQuestionGroupsErrorMessage && (
+          <AlertMessageComponent
+            message={terminationQuizQuestionGroupsErrorMessage}
+            tone="error"
+            onClose={clearTerminationQuizQuestionGroupsStatus}
+          />
+        )}
+
+        {loadingTerminationQuizQuestionGroups && (
+          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando preguntas del quiz de salida...</p>
+        )}
+
+        {!loadingTerminationQuizQuestionGroups && terminationQuizQuestionGroups.length === 0 && (
+          <p className="text-sm text-slate-600 dark:text-slate-300">No hay preguntas configuradas para este trabajador.</p>
+        )}
+
+        {!loadingTerminationQuizQuestionGroups && terminationQuizQuestionGroups.length > 0 && (
+          <div className="space-y-3">
+            {terminationQuizQuestionGroups.map((group) => (
+              <article key={group.groupId} className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  {group.groupName}
+                </h3>
+                <ul className="mt-3 space-y-2">
+                  {group.questions.map((question) => (
+                    <li key={question.id} className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-white/10">
+                      {question.name}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        )}
 
         <SectionTitle title="Datos adicionales" />
         <div className="flex flex-col gap-1">
