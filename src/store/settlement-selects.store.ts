@@ -5,6 +5,7 @@ import { settlementSelectsService } from '@/services'
 import type { SettlementSelectsStore } from '@/types'
 
 export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) => ({
+  quizQuestionGroupOptions: [],
   legalTerminationCauseOptions: [],
   legalTerminationCauseFilterOptions: [],
   qualityOfWorkFilterOptions: [],
@@ -15,13 +16,37 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
   noRehireCauseOptions: [],
   employeeWithContractOptions: [],
   contractsByEmployeeOptions: [],
+  loadingQuizQuestionGroupOptions: false,
   loadingFormOptions: false,
   loadingFilterOptions: false,
   loadingContractsByEmployee: false,
+  quizQuestionGroupOptionsErrorMessage: null,
   formOptionsErrorMessage: null,
   filterOptionsErrorMessage: null,
   contractsByEmployeeErrorMessage: null,
   errorBack: null,
+
+  getQuizQuestionGroupOptions: async () => {
+    try {
+      set({ loadingQuizQuestionGroupOptions: true, quizQuestionGroupOptionsErrorMessage: null, errorBack: null })
+      const options = await settlementSelectsService.getQuizQuestionGroupOptions()
+      set({ quizQuestionGroupOptions: mapperContractSelectOptions(options) })
+    } catch (error) {
+      if (settlementSelectsService.isAxiosError(error)) {
+        set({
+          quizQuestionGroupOptionsErrorMessage: error.response?.data?.message || messages.settlement.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          quizQuestionGroupOptionsErrorMessage: messages.settlement.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingQuizQuestionGroupOptions: false })
+    }
+  },
 
   getFormOptions: async () => {
     try {
@@ -86,6 +111,10 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
 
   clearFormOptionsStatus: () => {
     set({ formOptionsErrorMessage: null })
+  },
+
+  clearQuizQuestionGroupOptionsStatus: () => {
+    set({ quizQuestionGroupOptionsErrorMessage: null })
   },
 
   getFilterOptions: async () => {

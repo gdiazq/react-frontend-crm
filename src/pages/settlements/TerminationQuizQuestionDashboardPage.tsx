@@ -25,7 +25,7 @@ import {
 } from '@/factories'
 import { mapperTerminationQuizQuestionDetailView } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAuth, useStoreTerminationQuizQuestion, useStoreSelects } from '@/store'
+import { useStoreAuth, useStoreSettlementSelects, useStoreTerminationQuizQuestion, useStoreSelects } from '@/store'
 import type { TerminationQuizQuestionTableRow, TableRow, TableSortState } from '@/types'
 import {
   createTerminationQuizQuestionActions,
@@ -75,6 +75,11 @@ export default function TerminationQuizQuestionDashboardPage() {
   const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
   const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
   const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
+  const quizQuestionGroupOptions = useStoreSettlementSelects((s) => s.quizQuestionGroupOptions)
+  const loadingQuizQuestionGroupOptions = useStoreSettlementSelects((s) => s.loadingQuizQuestionGroupOptions)
+  const quizQuestionGroupOptionsErrorMessage = useStoreSettlementSelects((s) => s.quizQuestionGroupOptionsErrorMessage)
+  const getQuizQuestionGroupOptions = useStoreSettlementSelects((s) => s.getQuizQuestionGroupOptions)
+  const clearQuizQuestionGroupOptionsStatus = useStoreSettlementSelects((s) => s.clearQuizQuestionGroupOptionsStatus)
 
   const {
     actionViewDetail,
@@ -85,7 +90,7 @@ export default function TerminationQuizQuestionDashboardPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
     activeId: queryParams.active,
-    questionGroup: queryParams.questionGroup,
+    questionGroupId: '',
     employeeId: queryParams.employeeId,
     createdFrom: queryParams.createdFrom,
     createdTo: queryParams.createdTo,
@@ -104,6 +109,11 @@ export default function TerminationQuizQuestionDashboardPage() {
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
   const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const questionGroupSelectOptions = quizQuestionGroupOptions.map((option) => ({
+    label: option.name,
+    value: String(option.id),
+  }))
+  const loadingFilterOptions = loadingStatusOptions || loadingQuizQuestionGroupOptions
   const activeSortColumn = SORTABLE_COLUMNS.find((index) => terminationQuizQuestionTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
@@ -113,7 +123,16 @@ export default function TerminationQuizQuestionDashboardPage() {
   useEffect(() => {
     void getTerminationQuizQuestion()
     void getStatusOptions()
-  }, [getTerminationQuizQuestion, getStatusOptions])
+    void getQuizQuestionGroupOptions()
+  }, [getTerminationQuizQuestion, getStatusOptions, getQuizQuestionGroupOptions])
+
+  useEffect(() => {
+    if (queryParams.questionGroup.trim().length === 0) return
+    if (filters.questionGroupId.length > 0) return
+    const selectedOption = quizQuestionGroupOptions.find((option) => option.name === queryParams.questionGroup)
+    if (!selectedOption) return
+    setFilters((prev) => ({ ...prev, questionGroupId: String(selectedOption.id) }))
+  }, [filters.questionGroupId, queryParams.questionGroup, quizQuestionGroupOptions])
 
   const handleViewDetail = (row: TerminationQuizQuestionTableRow) => {
     setSelectedDetailRowId(row.id)
@@ -188,7 +207,7 @@ export default function TerminationQuizQuestionDashboardPage() {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
   const handleActiveFilterChange = (value: string) => handleChangeFilter('activeId', value)
-  const handleQuestionGroupFilterChange = (value: string) => handleChangeFilter('questionGroup', value)
+  const handleQuestionGroupFilterChange = (value: string) => handleChangeFilter('questionGroupId', value)
   const handleEmployeeIdFilterChange = (value: string) => handleChangeFilter('employeeId', value)
   const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
   const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
@@ -197,8 +216,9 @@ export default function TerminationQuizQuestionDashboardPage() {
 
   const handleApplyFilters = async () => {
     const selectedStatus = statusOptions.find((option) => String(option.id) === filters.activeId)
+    const selectedQuestionGroup = quizQuestionGroupOptions.find((option) => String(option.id) === filters.questionGroupId)
     setActiveFilter(selectedStatus ? String(selectedStatus.id) : '')
-    setQuestionGroupFilter(filters.questionGroup.trim())
+    setQuestionGroupFilter(selectedQuestionGroup ? selectedQuestionGroup.name : '')
     setEmployeeIdFilter(filters.employeeId.trim())
     setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
     setUpdatedDateRange({ updatedFrom: filters.updatedFrom.trim(), updatedTo: filters.updatedTo.trim() })
@@ -209,7 +229,7 @@ export default function TerminationQuizQuestionDashboardPage() {
   const handleClearFilters = async () => {
     setFilters({
       activeId: '',
-      questionGroup: '',
+      questionGroupId: '',
       employeeId: '',
       createdFrom: '',
       createdTo: '',
@@ -289,6 +309,14 @@ export default function TerminationQuizQuestionDashboardPage() {
           message={statusOptionsErrorMessage}
           tone="error"
           onClose={clearStatusOptionsStatus}
+        />
+      )}
+
+      {quizQuestionGroupOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={quizQuestionGroupOptionsErrorMessage}
+          tone="error"
+          onClose={clearQuizQuestionGroupOptionsStatus}
         />
       )}
 
@@ -382,12 +410,11 @@ export default function TerminationQuizQuestionDashboardPage() {
             onValueChange={handleActiveFilterChange}
           />
 
-          <InputComponent
-            id="tqq-question-group"
-            value={filters.questionGroup}
+          <SelectComponent
+            value={filters.questionGroupId}
             label="Grupo de pregunta"
-            type="text"
-            placeholder="Ej: Ambiente Laboral"
+            options={questionGroupSelectOptions}
+            disabled={loadingQuizQuestionGroupOptions}
             onValueChange={handleQuestionGroupFilterChange}
           />
 
@@ -452,16 +479,16 @@ export default function TerminationQuizQuestionDashboardPage() {
             <ButtonComponent
               type="button"
               variant="outline"
-              disabled={loadingTerminationQuizQuestion || loadingToggleStatus || loadingStatusOptions}
+              disabled={loadingTerminationQuizQuestion || loadingToggleStatus || loadingFilterOptions}
               label="Limpiar"
               onClick={() => { void handleClearFilters() }}
             />
             <ButtonComponent
               type="button"
               variant="primary"
-              disabled={loadingTerminationQuizQuestion || loadingToggleStatus || loadingStatusOptions}
+              disabled={loadingTerminationQuizQuestion || loadingToggleStatus || loadingFilterOptions}
               className="text-white dark:text-white"
-              label={loadingStatusOptions ? 'Aplicando...' : 'Aplicar'}
+              label={loadingFilterOptions ? 'Aplicando...' : 'Aplicar'}
               onClick={() => { void handleApplyFilters() }}
             />
           </div>

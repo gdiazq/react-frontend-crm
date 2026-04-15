@@ -21,7 +21,7 @@ export function mapperTerminationQuizQuestionRows(result: TerminationQuizQuestio
     active: item.active,
     values: [
       item.question,
-      item.questionGroup,
+      item.questionGroupName,
       item.required ? 'Sí' : 'No',
       item.active ? messages.terminationQuizQuestion.ui.statusActive : messages.terminationQuizQuestion.ui.statusInactive,
       formatDate(item.createdAt),
@@ -57,11 +57,10 @@ export function mapperTerminationQuizQuestionDetailView(detail: TerminationQuizQ
 
   return {
     questionDisplay: detail.question,
-    questionGroupDisplay: detail.questionGroup || '-',
+    questionGroupDisplay: detail.questionGroupName || '-',
     required: detail.required,
     employeeIdDisplay: detail.employeeId ? String(detail.employeeId) : '-',
     active: detail.active,
-    optionLabels: detail.options?.map((o) => o.label) ?? [],
     createdAtDisplay: formatDate(detail.createdAt),
     updatedAtDisplay: formatDate(detail.updatedAt),
   }
@@ -70,12 +69,9 @@ export function mapperTerminationQuizQuestionDetailView(detail: TerminationQuizQ
 export function mapperTerminationQuizQuestionToForm(detail: TerminationQuizQuestionDetail): TerminationQuizQuestionCreateForm {
   return {
     question: detail.question || '',
-    questionGroup: detail.questionGroup || '',
+    questionGroup: detail.questionGroupName || '',
     required: detail.required ? 'true' : 'false',
     employeeId: detail.employeeId ? String(detail.employeeId) : '',
-    options: detail.options?.length
-      ? detail.options.map((o) => ({ label: o.label }))
-      : [{ label: '' }],
   }
 }
 
@@ -84,11 +80,12 @@ export function mapperCreateTerminationQuizQuestionPayload(form: TerminationQuiz
   const questionGroup = form.questionGroup.trim()
   const required = form.required !== 'false'
   const employeeIdNum = parseInt(form.employeeId, 10)
-  const options = form.options
-    .filter((o) => o.label.trim().length > 0)
-    .map((o) => ({ label: o.label.trim() }))
 
-  const payload: TerminationQuizQuestionCreatePayload = { question, questionGroup, required, options }
+  const payload: TerminationQuizQuestionCreatePayload = {
+    question,
+    questionGroup,
+    required,
+  }
   if (Number.isInteger(employeeIdNum) && employeeIdNum > 0) payload.employeeId = employeeIdNum
   return payload
 }
@@ -98,11 +95,13 @@ export function mapperUpdateTerminationQuizQuestionPayload(id: number, form: Ter
   const questionGroup = form.questionGroup.trim()
   const required = form.required !== 'false'
   const employeeIdNum = parseInt(form.employeeId, 10)
-  const options = form.options
-    .filter((o) => o.label.trim().length > 0)
-    .map((o) => ({ label: o.label.trim() }))
 
-  const payload: TerminationQuizQuestionUpdatePayload = { id, question, questionGroup, required, options }
+  const payload: TerminationQuizQuestionUpdatePayload = {
+    id,
+    question,
+    questionGroup,
+    required,
+  }
   if (Number.isInteger(employeeIdNum) && employeeIdNum > 0) payload.employeeId = employeeIdNum
   return payload
 }

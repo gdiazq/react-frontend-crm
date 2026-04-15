@@ -7,6 +7,11 @@ const RRHH_EMPLOYEE_SELECT = '/rrhh/employee/select'
 const RRHH_CONTRACT_SELECT = '/rrhh/contract/select'
 
 export const settlementSelectsService = {
+  getQuizQuestionGroupOptions: async () => {
+    const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECT_BASE}/quiz-question-groups`)
+    return data
+  },
+
   getLegalTerminationCauseOptions: async () => {
     const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECT_BASE}/legal-termination-causes`)
     return data

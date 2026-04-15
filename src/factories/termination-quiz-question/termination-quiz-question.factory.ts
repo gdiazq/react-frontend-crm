@@ -64,5 +64,4 @@ export const initialCreateTerminationQuizQuestionForm: TerminationQuizQuestionCr
   questionGroup: '',
   required: 'true',
   employeeId: '',
-  options: [{ label: '' }],
 }

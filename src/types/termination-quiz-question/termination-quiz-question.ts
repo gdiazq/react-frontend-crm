@@ -1,20 +1,14 @@
 import type { Pagination } from '../common'
 
-export interface TerminationQuizQuestionOption {
-  id: number
-  label: string
-  displayOrder: number
-}
-
 export interface TerminationQuizQuestionRaw {
   id: number
   employeeId: number | null
   question: string
-  questionGroup: string
+  questionGroupId?: number | null
+  questionGroupName: string
   required: boolean
   displayOrder: number
   active: boolean
-  options: TerminationQuizQuestionOption[]
   createdAt: string
   updatedAt: string
 }
@@ -23,11 +17,11 @@ export interface TerminationQuizQuestionDetail {
   id: number
   employeeId: number | null
   question: string
-  questionGroup: string
+  questionGroupId?: number | null
+  questionGroupName: string
   required: boolean
   displayOrder: number
   active: boolean
-  options: TerminationQuizQuestionOption[]
   createdAt: string
   updatedAt: string
 }
@@ -38,13 +32,8 @@ export interface TerminationQuizQuestionDetailView {
   required: boolean
   employeeIdDisplay: string
   active: boolean
-  optionLabels: string[]
   createdAtDisplay: string
   updatedAtDisplay: string
-}
-
-export interface TerminationQuizQuestionOptionForm {
-  label: string
 }
 
 export interface TerminationQuizQuestionCreateForm {
@@ -52,7 +41,6 @@ export interface TerminationQuizQuestionCreateForm {
   questionGroup: string
   required: string
   employeeId: string
-  options: TerminationQuizQuestionOptionForm[]
 }
 
 export interface TerminationQuizQuestionCreatePayload {
@@ -60,7 +48,6 @@ export interface TerminationQuizQuestionCreatePayload {
   question: string
   questionGroup: string
   required: boolean
-  options: { label: string }[]
 }
 
 export interface TerminationQuizQuestionUpdatePayload {
@@ -69,18 +56,17 @@ export interface TerminationQuizQuestionUpdatePayload {
   question: string
   questionGroup: string
   required: boolean
-  options: { label: string }[]
 }
 
 export interface TerminationQuizQuestionCreateResponse {
   id: number
   employeeId: number | null
   question: string
-  questionGroup: string
+  questionGroupId?: number | null
+  questionGroupName: string
   required: boolean
   displayOrder: number
   active: boolean
-  options: TerminationQuizQuestionOption[]
   createdAt: string
   updatedAt: string
 }

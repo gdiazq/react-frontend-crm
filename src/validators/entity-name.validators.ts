@@ -29,7 +29,6 @@ export const terminationQuizQuestionCreateValidationRules: Record<string, Valida
   },
   questionGroup: {
     required: true,
-    minLength: 2,
-    custom: (value: string) => (value.trim().length >= 2 ? null : 'Minimo 2 caracteres'),
+    custom: (value: string) => (value.trim().length > 0 ? null : 'Ingresa el grupo de pregunta'),
   },
 }

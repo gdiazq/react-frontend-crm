@@ -52,24 +52,6 @@ function TerminationQuizQuestionDetailContent({
         </div>
       </article>
 
-      {detail.optionLabels.length > 0 && (
-        <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-            Opciones
-          </h3>
-          <ul className="space-y-2">
-            {detail.optionLabels.map((label, index) => (
-              <li
-                key={index}
-                className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-white/10 dark:bg-slate-800/40"
-              >
-                {label}
-              </li>
-            ))}
-          </ul>
-        </article>
-      )}
-
       <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
           Fechas

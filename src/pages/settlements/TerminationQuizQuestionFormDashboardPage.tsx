@@ -16,16 +16,12 @@ import {
   mapperUpdateTerminationQuizQuestionPayload,
 } from '@/mappers'
 import { useStoreTerminationQuizQuestion, useStoreSettlementSelects } from '@/store'
-import type { ContractSelectOption } from '@/types'
 import type {
   TerminationQuizQuestionCreateForm,
   TerminationQuizQuestionCreatePayload,
   TerminationQuizQuestionUpdatePayload,
 } from '@/types'
 import { terminationQuizQuestionCreateValidationRules } from '@/validators'
-
-const toSelectOptions = (options: ContractSelectOption[]) =>
-  options.map((option) => ({ label: option.name, value: String(option.id) }))
 
 type PendingAction =
   | { mode: 'create', payload: TerminationQuizQuestionCreatePayload }
@@ -61,7 +57,7 @@ export default function TerminationQuizQuestionFormDashboardPage() {
   const getFormOptions = useStoreSettlementSelects((s) => s.getFormOptions)
   const clearFormOptionsStatus = useStoreSettlementSelects((s) => s.clearFormOptionsStatus)
 
-  const selectEmployees = toSelectOptions(employeeWithContractOptions)
+  const selectEmployees = employeeWithContractOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const shouldIncludeCurrentEmployee = isEditMode
     && form.employeeId.trim().length > 0
     && !selectEmployees.some((option) => option.value === form.employeeId)
@@ -124,29 +120,6 @@ export default function TerminationQuizQuestionFormDashboardPage() {
   const handleChangeField = (field: keyof TerminationQuizQuestionCreateForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
-  }
-
-  const handleOptionChange = (index: number, value: string) => {
-    setForm((prev) => {
-      const options = [...prev.options]
-      options[index] = { label: value }
-      return { ...prev, options }
-    })
-    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
-  }
-
-  const handleAddOption = () => {
-    setForm((prev) => ({
-      ...prev,
-      options: [...prev.options, { label: '' }],
-    }))
-  }
-
-  const handleRemoveOption = (index: number) => {
-    setForm((prev) => ({
-      ...prev,
-      options: prev.options.slice(0, index).concat(prev.options.slice(index + 1)),
-    }))
   }
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
@@ -250,8 +223,7 @@ export default function TerminationQuizQuestionFormDashboardPage() {
           value={form.questionGroup}
           label="Grupo de pregunta"
           type="text"
-          placeholder="Ej: Ambiente Laboral"
-          autoComplete="off"
+          placeholder="Ingresa el grupo de pregunta"
           error={errors.questionGroup}
           onValueChange={(v) => handleChangeField('questionGroup', v)}
           onBlur={onValidation('questionGroup')}
@@ -294,44 +266,6 @@ export default function TerminationQuizQuestionFormDashboardPage() {
               No
             </label>
           </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Opciones de respuesta
-            </label>
-            <ButtonComponent
-              type="button"
-              variant="outline"
-              label="+ Agregar opcion"
-              onClick={handleAddOption}
-            />
-          </div>
-
-          {form.options.map((option, index) => (
-            <div key={index} className="flex items-end gap-2">
-              <div className="flex-1">
-                <InputComponent
-                  value={option.label}
-                  label={`Opcion ${index + 1}`}
-                  type="text"
-                  placeholder="Ingresa la etiqueta de la opcion"
-                  autoComplete="off"
-                  onValueChange={(v) => handleOptionChange(index, v)}
-                />
-              </div>
-              {form.options.length > 1 && (
-                <ButtonComponent
-                  type="button"
-                  variant="outline"
-                  label="✕"
-                  className="mb-0.5 shrink-0 border-red-300 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/20"
-                  onClick={() => handleRemoveOption(index)}
-                />
-              )}
-            </div>
-          ))}
         </div>
 
         <div className="flex flex-wrap justify-end gap-2">

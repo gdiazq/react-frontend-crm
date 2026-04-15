@@ -10,5 +10,7 @@ export type {
   SelectVisitorOption,
   SelectSupervisorOption,
   SelectCompanyRepresentativeOption,
+  SelectTerminationQuizQuestionOptionItem,
+  SelectTerminationQuizQuestionOption,
 } from './selects'
 export type { SelectsStore } from './selects.store'
