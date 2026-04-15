@@ -11,6 +11,7 @@ export type {
   SettlementQueryParams,
   SettlementPagedResponse,
   SettlementCreateForm,
+  SettlementQuizAnswerPayload,
   SettlementCreatePayload,
   SettlementUpdatePayload,
   SettlementCreateResponse,

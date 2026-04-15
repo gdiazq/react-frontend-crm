@@ -11,6 +11,7 @@ import type {
   SettlementRaw,
   SettlementTableRow,
   SettlementUpdatePayload,
+  SettlementQuizAnswerPayload,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendParsedId, appendBooleanString } from '../shared/queryParams.mapper'
@@ -106,7 +107,10 @@ export function mapperUpdateSettlementFormData(payload: SettlementUpdatePayload,
   return formData
 }
 
-export function mapperCreateSettlementPayload(form: SettlementCreateForm): SettlementCreatePayload {
+export function mapperCreateSettlementPayload(
+  form: SettlementCreateForm,
+  quizAnswers: SettlementQuizAnswerPayload[] = [],
+): SettlementCreatePayload {
   return {
     employeeId: parseRequiredNumber(form.employeeId),
     endDate: form.endDate.trim(),
@@ -117,6 +121,7 @@ export function mapperCreateSettlementPayload(form: SettlementCreateForm): Settl
     noReHiredCauseId: parseNullableId(form.noReHiredCauseId),
     observations: parseNullableString(form.observations),
     hrRequestId: parseNullableId(form.hrRequestId),
+    quizAnswers,
   }
 }
 

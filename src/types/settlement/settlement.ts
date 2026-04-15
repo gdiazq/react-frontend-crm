@@ -91,6 +91,11 @@ export interface SettlementCreateForm {
   hrRequestId: string
 }
 
+export interface SettlementQuizAnswerPayload {
+  questionId: number
+  answer: string
+}
+
 export interface SettlementCreatePayload {
   employeeId: number
   endDate: string
@@ -101,6 +106,7 @@ export interface SettlementCreatePayload {
   noReHiredCauseId: number | null
   observations: string | null
   hrRequestId: number | null
+  quizAnswers: SettlementQuizAnswerPayload[]
 }
 
 export interface SettlementUpdatePayload {

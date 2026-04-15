@@ -22,6 +22,7 @@ import type {
   ContractSelectOption,
   SettlementCreatePayload,
   SettlementDocument,
+  SettlementQuizAnswerPayload,
   SettlementUpdatePayload,
 } from '@/types'
 import { settlementsCreateValidationRules } from '@/validators'
@@ -60,6 +61,7 @@ export default function SettlementFormDashboardPage() {
   const [existingDocuments, setExistingDocuments] = useState<SettlementDocument[]>([])
   const [settlementFiles, setSettlementFiles] = useState<File[]>([])
   const [filesError, setFilesError] = useState<string | null>(null)
+  const [quizAnswersByQuestionId, setQuizAnswersByQuestionId] = useState<Record<number, string>>({})
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
@@ -153,6 +155,7 @@ export default function SettlementFormDashboardPage() {
       setEditEmployeeLabel((detail.employeeFullName ?? '').trim())
       setExistingDocuments(detail.documents ?? [])
       setSettlementFiles([])
+      setQuizAnswersByQuestionId({})
 
     }
 
@@ -192,7 +195,23 @@ export default function SettlementFormDashboardPage() {
 
   const handleEmployeeChange = (value: string) => {
     setForm((prev) => ({ ...prev, employeeId: value }))
+    setQuizAnswersByQuestionId({})
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
+  }
+
+  const handleQuizAnswerChange = (questionId: number, value: string) => {
+    setQuizAnswersByQuestionId((prev) => ({ ...prev, [questionId]: value }))
+    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
+  }
+
+  const buildQuizAnswersPayload = (): SettlementQuizAnswerPayload[] => {
+    const allQuestionIds = terminationQuizQuestionGroups.flatMap((group) => group.questions.map((question) => question.id))
+    return allQuestionIds
+      .map((questionId) => ({
+        questionId,
+        answer: (quizAnswersByQuestionId[questionId] || '').trim(),
+      }))
+      .filter((item) => item.answer.length > 0)
   }
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
@@ -212,7 +231,7 @@ export default function SettlementFormDashboardPage() {
     } else {
       setPendingAction({
         mode: 'create',
-        payload: mapperCreateSettlementPayload(form),
+        payload: mapperCreateSettlementPayload(form, buildQuizAnswersPayload()),
         files: [...settlementFiles],
       })
     }
@@ -444,40 +463,57 @@ export default function SettlementFormDashboardPage() {
           )}
         </div>
 
-        <SectionTitle title="Quiz de salida" />
-        {terminationQuizQuestionGroupsErrorMessage && (
-          <AlertMessageComponent
-            message={terminationQuizQuestionGroupsErrorMessage}
-            tone="error"
-            onClose={clearTerminationQuizQuestionGroupsStatus}
-          />
-        )}
+        {!isEditMode && (
+          <>
+            <SectionTitle title="Quiz de salida" />
+            {terminationQuizQuestionGroupsErrorMessage && (
+              <AlertMessageComponent
+                message={terminationQuizQuestionGroupsErrorMessage}
+                tone="error"
+                onClose={clearTerminationQuizQuestionGroupsStatus}
+              />
+            )}
 
-        {loadingTerminationQuizQuestionGroups && (
-          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando preguntas del quiz de salida...</p>
-        )}
+            {loadingTerminationQuizQuestionGroups && (
+              <p className="text-sm text-slate-600 dark:text-slate-300">Cargando preguntas del quiz de salida...</p>
+            )}
 
-        {!loadingTerminationQuizQuestionGroups && terminationQuizQuestionGroups.length === 0 && (
-          <p className="text-sm text-slate-600 dark:text-slate-300">No hay preguntas configuradas para este trabajador.</p>
-        )}
+            {!loadingTerminationQuizQuestionGroups && terminationQuizQuestionGroups.length === 0 && (
+              <p className="text-sm text-slate-600 dark:text-slate-300">No hay preguntas configuradas para este trabajador.</p>
+            )}
 
-        {!loadingTerminationQuizQuestionGroups && terminationQuizQuestionGroups.length > 0 && (
-          <div className="space-y-3">
-            {terminationQuizQuestionGroups.map((group) => (
-              <article key={group.groupId} className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                  {group.groupName}
-                </h3>
-                <ul className="mt-3 space-y-2">
-                  {group.questions.map((question) => (
-                    <li key={question.id} className="rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-white/10">
-                      {question.name}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
+            {!loadingTerminationQuizQuestionGroups && terminationQuizQuestionGroups.length > 0 && (
+              <div className="space-y-3">
+                {terminationQuizQuestionGroups.map((group) => (
+                  <article key={group.groupId} className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                      {group.groupName}
+                    </h3>
+                    <div className="mt-3 grid gap-3">
+                      {group.questions.map((question) => (
+                        <div key={question.id} className="flex flex-col gap-1">
+                          <label
+                            htmlFor={`settlement-quiz-answer-${question.id}`}
+                            className="text-sm font-medium text-slate-700 dark:text-slate-200"
+                          >
+                            {question.name}
+                          </label>
+                          <textarea
+                            id={`settlement-quiz-answer-${question.id}`}
+                            value={quizAnswersByQuestionId[question.id] || ''}
+                            placeholder="Ingresa tu respuesta"
+                            rows={3}
+                            className="w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-400 focus:ring-offset-1 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+                            onChange={(event) => handleQuizAnswerChange(question.id, event.target.value)}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         <SectionTitle title="Datos adicionales" />
