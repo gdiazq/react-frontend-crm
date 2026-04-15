@@ -17,10 +17,12 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
   employeeWithContractOptions: [],
   contractsByEmployeeOptions: [],
   loadingQuizQuestionGroupOptions: false,
+  loadingEmployeeWithContractOptions: false,
   loadingFormOptions: false,
   loadingFilterOptions: false,
   loadingContractsByEmployee: false,
   quizQuestionGroupOptionsErrorMessage: null,
+  employeeWithContractOptionsErrorMessage: null,
   formOptionsErrorMessage: null,
   filterOptionsErrorMessage: null,
   contractsByEmployeeErrorMessage: null,
@@ -45,6 +47,28 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
       }
     } finally {
       set({ loadingQuizQuestionGroupOptions: false })
+    }
+  },
+
+  getEmployeeWithContractOptions: async () => {
+    try {
+      set({ loadingEmployeeWithContractOptions: true, employeeWithContractOptionsErrorMessage: null, errorBack: null })
+      const options = await settlementSelectsService.getEmployeeWithContractOptions()
+      set({ employeeWithContractOptions: mapperContractSelectOptions(options) })
+    } catch (error) {
+      if (settlementSelectsService.isAxiosError(error)) {
+        set({
+          employeeWithContractOptionsErrorMessage: error.response?.data?.message || messages.settlement.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          employeeWithContractOptionsErrorMessage: messages.settlement.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingEmployeeWithContractOptions: false })
     }
   },
 
@@ -115,6 +139,10 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
 
   clearQuizQuestionGroupOptionsStatus: () => {
     set({ quizQuestionGroupOptionsErrorMessage: null })
+  },
+
+  clearEmployeeWithContractOptionsStatus: () => {
+    set({ employeeWithContractOptionsErrorMessage: null })
   },
 
   getFilterOptions: async () => {

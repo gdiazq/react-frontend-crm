@@ -3,6 +3,7 @@ import type { Pagination } from '../common'
 export interface TerminationQuizQuestionRaw {
   id: number
   employeeId: number | null
+  employeeName?: string | null
   question: string
   questionGroupId?: number | null
   questionGroupName: string
@@ -16,6 +17,7 @@ export interface TerminationQuizQuestionRaw {
 export interface TerminationQuizQuestionDetail {
   id: number
   employeeId: number | null
+  employeeName?: string | null
   question: string
   questionGroupId?: number | null
   questionGroupName: string
@@ -30,7 +32,7 @@ export interface TerminationQuizQuestionDetailView {
   questionDisplay: string
   questionGroupDisplay: string
   required: boolean
-  employeeIdDisplay: string
+  employeeDisplay: string
   active: boolean
   createdAtDisplay: string
   updatedAtDisplay: string
@@ -61,6 +63,7 @@ export interface TerminationQuizQuestionUpdatePayload {
 export interface TerminationQuizQuestionCreateResponse {
   id: number
   employeeId: number | null
+  employeeName?: string | null
   question: string
   questionGroupId?: number | null
   questionGroupName: string

@@ -80,6 +80,11 @@ export default function TerminationQuizQuestionDashboardPage() {
   const quizQuestionGroupOptionsErrorMessage = useStoreSettlementSelects((s) => s.quizQuestionGroupOptionsErrorMessage)
   const getQuizQuestionGroupOptions = useStoreSettlementSelects((s) => s.getQuizQuestionGroupOptions)
   const clearQuizQuestionGroupOptionsStatus = useStoreSettlementSelects((s) => s.clearQuizQuestionGroupOptionsStatus)
+  const employeeWithContractOptions = useStoreSettlementSelects((s) => s.employeeWithContractOptions)
+  const loadingEmployeeWithContractOptions = useStoreSettlementSelects((s) => s.loadingEmployeeWithContractOptions)
+  const employeeWithContractOptionsErrorMessage = useStoreSettlementSelects((s) => s.employeeWithContractOptionsErrorMessage)
+  const getEmployeeWithContractOptions = useStoreSettlementSelects((s) => s.getEmployeeWithContractOptions)
+  const clearEmployeeWithContractOptionsStatus = useStoreSettlementSelects((s) => s.clearEmployeeWithContractOptionsStatus)
 
   const {
     actionViewDetail,
@@ -113,7 +118,11 @@ export default function TerminationQuizQuestionDashboardPage() {
     label: option.name,
     value: String(option.id),
   }))
-  const loadingFilterOptions = loadingStatusOptions || loadingQuizQuestionGroupOptions
+  const employeeSelectOptions = employeeWithContractOptions.map((option) => ({
+    label: option.name,
+    value: String(option.id),
+  }))
+  const loadingFilterOptions = loadingStatusOptions || loadingQuizQuestionGroupOptions || loadingEmployeeWithContractOptions
   const activeSortColumn = SORTABLE_COLUMNS.find((index) => terminationQuizQuestionTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
@@ -124,7 +133,8 @@ export default function TerminationQuizQuestionDashboardPage() {
     void getTerminationQuizQuestion()
     void getStatusOptions()
     void getQuizQuestionGroupOptions()
-  }, [getTerminationQuizQuestion, getStatusOptions, getQuizQuestionGroupOptions])
+    void getEmployeeWithContractOptions()
+  }, [getTerminationQuizQuestion, getStatusOptions, getQuizQuestionGroupOptions, getEmployeeWithContractOptions])
 
   useEffect(() => {
     if (queryParams.questionGroup.trim().length === 0) return
@@ -320,6 +330,14 @@ export default function TerminationQuizQuestionDashboardPage() {
         />
       )}
 
+      {employeeWithContractOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={employeeWithContractOptionsErrorMessage}
+          tone="error"
+          onClose={clearEmployeeWithContractOptionsStatus}
+        />
+      )}
+
       <form
         className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
         onSubmit={(event) => {
@@ -418,12 +436,11 @@ export default function TerminationQuizQuestionDashboardPage() {
             onValueChange={handleQuestionGroupFilterChange}
           />
 
-          <InputComponent
-            id="tqq-employee-id"
+          <SelectComponent
             value={filters.employeeId}
-            label="ID Empleado"
-            type="number"
-            placeholder="Dejar en blanco para todos"
+            label="Empleado"
+            options={employeeSelectOptions}
+            disabled={loadingEmployeeWithContractOptions}
             onValueChange={handleEmployeeIdFilterChange}
           />
 

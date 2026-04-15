@@ -59,7 +59,7 @@ export function mapperTerminationQuizQuestionDetailView(detail: TerminationQuizQ
     questionDisplay: detail.question,
     questionGroupDisplay: detail.questionGroupName || '-',
     required: detail.required,
-    employeeIdDisplay: detail.employeeId ? String(detail.employeeId) : '-',
+    employeeDisplay: detail.employeeName?.trim() || '-',
     active: detail.active,
     createdAtDisplay: formatDate(detail.createdAt),
     updatedAtDisplay: formatDate(detail.updatedAt),
