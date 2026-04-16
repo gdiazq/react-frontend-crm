@@ -14,7 +14,7 @@ interface SettlementDetailComponentProps {
   onRetry?: () => void
 }
 
-type SettlementDetailTabKey = 'general' | 'conditions' | 'documents' | 'dates'
+type SettlementDetailTabKey = 'general' | 'conditions' | 'quiz' | 'documents' | 'dates'
 
 interface SettlementDetailContentProps {
   detail: SettlementDetailView
@@ -54,6 +54,7 @@ function SettlementDetailContent({ detail, activeTab, onTabChange }: SettlementD
   const tabSelectOptions = [
     { value: 'general', label: 'Informacion general' },
     { value: 'conditions', label: 'Condiciones de termino' },
+    { value: 'quiz', label: 'Quiz de salida' },
     { value: 'documents', label: 'Adjuntos' },
     { value: 'dates', label: 'Fechas' },
   ]
@@ -109,6 +110,45 @@ function SettlementDetailContent({ detail, activeTab, onTabChange }: SettlementD
                   Ver
                 </a>
               )}
+            </article>
+          ))}
+        </div>
+      )
+    }
+
+    if (activeTab === 'quiz') {
+      if (detail.quizAnswers.length === 0) {
+        return <p className="text-sm text-slate-600 dark:text-slate-300">Sin respuestas del quiz de salida.</p>
+      }
+
+      const groupedQuizAnswers: Array<{ groupName: string; answers: typeof detail.quizAnswers }> = []
+      detail.quizAnswers.forEach((quizAnswer) => {
+        const group = groupedQuizAnswers.find((item) => item.groupName === quizAnswer.questionGroupNameDisplay)
+        if (group) {
+          group.answers.push(quizAnswer)
+          return
+        }
+        groupedQuizAnswers.push({
+          groupName: quizAnswer.questionGroupNameDisplay,
+          answers: [quizAnswer],
+        })
+      })
+
+      return (
+        <div className="space-y-3">
+          {groupedQuizAnswers.map((group) => (
+            <article key={group.groupName} className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                {group.groupName}
+              </h3>
+              <div className="mt-3 space-y-3">
+                {group.answers.map((quizAnswer) => (
+                  <article key={quizAnswer.questionId} className="rounded-lg border border-slate-200 p-3 dark:border-white/10">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{quizAnswer.questionTextDisplay}</p>
+                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{quizAnswer.answerDisplay}</p>
+                  </article>
+                ))}
+              </div>
             </article>
           ))}
         </div>

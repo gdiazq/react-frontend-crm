@@ -18,6 +18,20 @@ export interface SettlementDetailDocumentView {
   url: string
 }
 
+export interface SettlementQuizAnswer {
+  questionId: number
+  questionText: string
+  questionGroupName: string
+  answer: string
+}
+
+export interface SettlementQuizAnswerView {
+  questionId: number
+  questionTextDisplay: string
+  questionGroupNameDisplay: string
+  answerDisplay: string
+}
+
 export interface SettlementRaw {
   id: number
   status: string
@@ -41,6 +55,7 @@ export interface SettlementRaw {
   createdAt: string
   updatedAt: string
   documents?: SettlementDocument[]
+  quizAnswers?: SettlementQuizAnswer[]
 }
 
 export type SettlementDetail = SettlementRaw
@@ -62,6 +77,7 @@ export interface SettlementDetailView {
   createdAtDisplay: string
   updatedAtDisplay: string
   documents: SettlementDetailDocumentView[]
+  quizAnswers: SettlementQuizAnswerView[]
 }
 
 export interface SettlementTableRow {

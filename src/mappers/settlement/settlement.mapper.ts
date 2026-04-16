@@ -7,6 +7,7 @@ import type {
   SettlementDetailView,
   SettlementPagedResponse,
   SettlementPagination,
+  SettlementQuizAnswerView,
   SettlementQueryParams,
   SettlementRaw,
   SettlementTableRow,
@@ -78,6 +79,7 @@ export function mapperSettlementDetailView(detail: SettlementDetail | null): Set
     createdAtDisplay: formatDate(detail.createdAt),
     updatedAtDisplay: formatDate(detail.updatedAt),
     documents: mapperSettlementDocuments(detail.documents),
+    quizAnswers: mapperSettlementQuizAnswers(detail.quizAnswers),
   }
 }
 
@@ -88,6 +90,16 @@ function mapperSettlementDocuments(documents: SettlementDetail['documents']): Se
     fileName: doc.fileName,
     sizeDisplay: resolveFileSize(doc.size),
     url: doc.url?.trim() ?? '',
+  }))
+}
+
+function mapperSettlementQuizAnswers(quizAnswers: SettlementDetail['quizAnswers']): SettlementQuizAnswerView[] {
+  if (!quizAnswers || quizAnswers.length === 0) return []
+  return quizAnswers.map((quizAnswer) => ({
+    questionId: quizAnswer.questionId,
+    questionTextDisplay: quizAnswer.questionText?.trim() || '-',
+    questionGroupNameDisplay: quizAnswer.questionGroupName?.trim() || 'Sin grupo',
+    answerDisplay: quizAnswer.answer?.trim() || '-',
   }))
 }
 
