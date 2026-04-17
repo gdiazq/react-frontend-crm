@@ -55,3 +55,6 @@ export const AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION_CREATE = '/settlem
 export const AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION_EDIT = '/settlements/termination-quiz-question/edit'
 export const AUTH_ROUTE_SETTLEMENTS_CREATE = '/settlements/new'
 export const AUTH_ROUTE_SETTLEMENTS_EDIT = '/settlements/edit'
+export const AUTH_ROUTE_TRANSFERS = '/transfers'
+export const AUTH_ROUTE_TRANSFERS_CREATE = '/transfers/new'
+export const AUTH_ROUTE_TRANSFERS_EDIT = '/transfers/edit'

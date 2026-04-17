@@ -648,4 +648,31 @@ export default {
       },
     },
   },
+  transfer: {
+    ui: {
+      actionViewDetail: 'Ver detalle',
+      updateTransfer: 'Editar',
+      detailTitleFallback: 'Detalle de traspaso',
+    },
+    status: {
+      success: {
+        createSuccess: 'Traspaso creado correctamente.',
+        updateSuccess: 'Traspaso actualizado correctamente.',
+        deleteDocumentSuccess: 'Documento eliminado correctamente.',
+        exportSuccess: 'CSV exportado correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de traspasos.',
+        detailInvalidId: 'El id del traspaso no es valido.',
+        detailLoadError: 'No se pudo cargar el detalle del traspaso.',
+        createError: 'No se pudo crear el traspaso.',
+        updateError: 'No se pudo actualizar el traspaso.',
+        updateInvalidId: 'El id del traspaso no es valido.',
+        deleteDocumentError: 'No se pudo eliminar el documento.',
+        exportError: 'No se pudo exportar el CSV de traspasos.',
+        filesMaxCountError: 'No se pueden adjuntar mas de 5 archivos.',
+        filesMaxSizeError: 'Uno o mas archivos superan el tamano maximo de 10 MB.',
+      },
+    },
+  },
 }
