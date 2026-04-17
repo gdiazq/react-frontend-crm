@@ -76,3 +76,6 @@ export { SafetyComplianceDetailComponent } from './safety-compliance/SafetyCompl
 export { NoRehireCauseDetailComponent } from './no-rehire-cause/NoRehireCauseDetailComponent'
 export { TerminationQuizQuestionDetailComponent } from './termination-quiz-question/TerminationQuizQuestionDetailComponent'
 export { SettlementDetailComponent } from './settlement/SettlementDetailComponent'
+
+// Transfer Components
+export { TransferDetailComponent } from './transfer/TransferDetailComponent'
