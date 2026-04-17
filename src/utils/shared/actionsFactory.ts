@@ -316,3 +316,15 @@ export function createSettlementActions() {
   return { actionViewDetail, actionEdit }
 }
 
+export function createTransferActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.transfer.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateTransfer(handler: () => void): DropdownAction {
+    return { id: 'update-transfer', label: messages.transfer.ui.updateTransfer, handler }
+  }
+
+  return { actionViewDetail, actionUpdateTransfer }
+}
+

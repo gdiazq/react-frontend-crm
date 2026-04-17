@@ -34,6 +34,7 @@ export {
   createNoRehireCauseActions,
   createTerminationQuizQuestionActions,
   createSettlementActions,
+  createTransferActions,
 } from './shared/actionsFactory'
 export type { DropdownAction } from './shared/actionsFactory'
 export { downloadBlobFile, formatCsvImportSummary, resolveFileSize } from './file/fileUtils'
@@ -53,3 +54,4 @@ export { createSafetyComplianceTableCustomRenderer } from './safety-compliance/s
 export { createNoRehireCauseTableCustomRenderer } from './no-rehire-cause/noRehireCauseTableCellRules'
 export { createTerminationQuizQuestionTableCustomRenderer } from './termination-quiz-question/terminationQuizQuestionTableCellRules'
 export { createSettlementTableCustomRenderer } from './settlement/settlementTableCellRules'
+export { createTransferTableCustomRenderer } from './transfer/transferTableCellRules'
