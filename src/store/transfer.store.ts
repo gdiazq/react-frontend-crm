@@ -210,6 +210,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
       if (!userId) return false
       try {
         set({ loadingDeleteDocument: true })
+        clearOp('toggle')
         await transferService.deleteTransferDocument(transferId, fileId, userId)
         set((state) => {
           if (!state.transferDetail) return {}
@@ -220,10 +221,10 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
             },
           }
         })
-        setOpSuccess('detail', messages.transfer.status.success.deleteDocumentSuccess)
+        setOpSuccess('toggle', messages.transfer.status.success.deleteDocumentSuccess)
         return true
       } catch (error) {
-        setOpError('detail', resolveErrorMessage(error, messages.transfer.status.errors.deleteDocumentError), error)
+        setOpError('toggle', resolveErrorMessage(error, messages.transfer.status.errors.deleteDocumentError), error)
         return false
       } finally {
         set({ loadingDeleteDocument: false })

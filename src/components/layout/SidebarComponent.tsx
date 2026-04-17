@@ -9,6 +9,7 @@ interface SidebarComponentProps {
   showRequests?: boolean
   showEmployees?: boolean
   showContracts?: boolean
+  showTransfers?: boolean
   showSettlements?: boolean
   showProjects?: boolean
   showProjectTypes?: boolean
@@ -22,6 +23,7 @@ interface SidebarComponentProps {
   onGoRequests: () => void
   onGoEmployees: () => void
   onGoContracts: () => void
+  onGoTransfers: () => void
   onGoSettlements: () => void
   onGoSettlementsTerminationCauses: () => void
   onGoSettlementsWorkQuality: () => void
@@ -43,6 +45,7 @@ export function SidebarComponent({
   showRequests = true,
   showEmployees = true,
   showContracts = true,
+  showTransfers = true,
   showSettlements = true,
   showProjects = true,
   showProjectTypes = true,
@@ -56,6 +59,7 @@ export function SidebarComponent({
   onGoRequests,
   onGoEmployees,
   onGoContracts,
+  onGoTransfers,
   onGoSettlements,
   onGoSettlementsTerminationCauses,
   onGoSettlementsWorkQuality,
@@ -75,6 +79,7 @@ export function SidebarComponent({
   const isRequestsActive = useMemo(() => location.pathname.startsWith('/requests'), [location.pathname])
   const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
   const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
+  const isTransfersActive = useMemo(() => location.pathname.startsWith('/transfers'), [location.pathname])
   const isSettlementsActive = useMemo(() => location.pathname === '/settlements', [location.pathname])
   const isSettlementsTerminationCausesActive = useMemo(() => location.pathname === '/settlements/termination-causes', [location.pathname])
   const isSettlementsWorkQualityActive = useMemo(() => location.pathname === '/settlements/work-quality', [location.pathname])
@@ -93,7 +98,7 @@ export function SidebarComponent({
   const isProjectSpecialtiesActive = useMemo(() => location.pathname.startsWith('/projects/specialties'), [location.pathname])
   const isProjectStatusesActive = useMemo(() => location.pathname.startsWith('/projects/statuses'), [location.pathname])
   const isRolesActive = useMemo(() => location.pathname.startsWith('/roles'), [location.pathname])
-  const hasRrhhItems = showRequests || showEmployees || showContracts || showSettlements
+  const hasRrhhItems = showRequests || showEmployees || showContracts || showTransfers || showSettlements
   const hasProjectsItems = showProjects || showProjectTypes || showProjectSpecialties || showProjectStatuses
   const hasAdministrationItems = showUsers || showRoles
 
@@ -224,6 +229,24 @@ export function SidebarComponent({
                       <path d="M8 17h8" />
                     </svg>
                     <span className={collapsed ? 'lg:hidden' : ''}>Contratos</span>
+                  </button>
+                </SidebarTooltipComponent>
+              )}
+
+              {showTransfers && (
+                <SidebarTooltipComponent enabled={collapsed} active={isTransfersActive} label="Traspasos">
+                  <button
+                    type="button"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${getItemClasses(isTransfersActive)} ${collapsed ? 'lg:justify-center lg:px-2' : ''}`}
+                    onClick={onGoTransfers}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M8 7h9a2 2 0 0 1 2 2v8" />
+                      <path d="M16 4l3 3-3 3" />
+                      <path d="M16 17H7a2 2 0 0 1-2-2V7" />
+                      <path d="M8 20l-3-3 3-3" />
+                    </svg>
+                    <span className={collapsed ? 'lg:hidden' : ''}>Traspasos</span>
                   </button>
                 </SidebarTooltipComponent>
               )}

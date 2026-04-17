@@ -3,7 +3,7 @@ import type { Pagination } from '../common'
 export interface TransferDocument {
   id: number
   fileName: string
-  url: string
+  url: string | null
   uploadedAt: string
 }
 

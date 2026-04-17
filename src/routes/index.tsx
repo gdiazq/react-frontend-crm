@@ -19,6 +19,7 @@ const UsersDashboardPage = lazy(() => import('@/pages/users/UsersDashboardPage')
 const RequestsDashboardPage = lazy(() => import('@/pages/requests/RequestsDashboardPage'))
 const EmployeesDashboardPage = lazy(() => import('@/pages/employees/EmployeesDashboardPage'))
 const ContractsDashboardPage = lazy(() => import('@/pages/contracts/ContractsDashboardPage'))
+const TransfersDashboardPage = lazy(() => import('@/pages/transfers/TransfersDashboardPage'))
 const ProjectsDashboardPage = lazy(() => import('@/pages/projects/ProjectsDashboardPage'))
 const ProjectStatusesDashboardPage = lazy(() => import('@/pages/projects/ProjectStatusesDashboardPage'))
 const ProjectStatusesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectStatusesFormDashboardPage'))
@@ -28,6 +29,7 @@ const ProjectsFormDashboardPage = lazy(() => import('@/pages/projects/ProjectsFo
 const ProjectTypesDashboardPage = lazy(() => import('@/pages/projects/ProjectTypesDashboardPage'))
 const ProjectTypesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectTypesFormDashboardPage'))
 const ContractsFormDashboardPage = lazy(() => import('@/pages/contracts/ContractsFormDashboardPage'))
+const TransferFormDashboardPage = lazy(() => import('@/pages/transfers/TransferFormDashboardPage'))
 const EmployeesFormDashboardPage = lazy(() => import('@/pages/employees/EmployeesFormDashboardPage'))
 const UsersFormDashboardPage = lazy(() => import('@/pages/users/UsersFormDashboardPage'))
 const RolesDashboardPage = lazy(() => import('@/pages/roles/RolesDashboardPage'))
@@ -166,6 +168,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canRead">
             <ContractsDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/transfers',
+        element: (
+          <ProtectedRoute requiresPermissions module="TRANSFER" permissionType="canRead">
+            <TransfersDashboardPage />
           </ProtectedRoute>
         ),
       },
@@ -354,6 +364,22 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canUpdate">
             <ContractsFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/transfers/new',
+        element: (
+          <ProtectedRoute requiresPermissions module="TRANSFER" permissionType="canCreate">
+            <TransferFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/transfers/:editId',
+        element: (
+          <ProtectedRoute requiresPermissions module="TRANSFER" permissionType="canUpdate">
+            <TransferFormDashboardPage />
           </ProtectedRoute>
         ),
       },

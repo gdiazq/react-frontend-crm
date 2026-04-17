@@ -35,7 +35,7 @@ export const initialTransferRows: TransferTableRow[] = []
 
 export const initialTransferPagination: TransferPagination = {
   page: 0,
-  size: 10,
+  size: 8,
   totalElements: 0,
   totalPages: 0,
   total: 0,
@@ -46,7 +46,7 @@ export const initialTransferPagination: TransferPagination = {
 
 export const initialTransferQueryParams: TransferQueryParams = {
   page: 0,
-  size: 10,
+  size: 8,
   employeeId: '',
   status: '',
   sortBy: 'createdAt',

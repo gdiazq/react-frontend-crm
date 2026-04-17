@@ -67,7 +67,7 @@ function mapperTransferDocuments(documents: TransferDetail['documents']): Transf
   return documents.map((doc) => ({
     id: doc.id,
     fileName: doc.fileName,
-    url: doc.url,
+    url: doc.url?.trim() ?? '',
   }))
 }
 
