@@ -83,7 +83,7 @@ export type TransferPagination = Pagination
 export interface TransferQueryParams {
   page: number
   size: number
-  employeeId: string
+  search: string
   status: string
   sortBy: TransferSortBy
   sortDir: TransferSortDir

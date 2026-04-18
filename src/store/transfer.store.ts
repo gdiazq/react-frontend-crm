@@ -139,16 +139,16 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
       await get().goToPage(get().pagination.page - 1)
     },
 
-    setEmployeeIdFilter: (employeeId: string) => {
-      set((state) => ({ queryParams: { ...state.queryParams, employeeId } }))
+    setSearch: (search: string) => {
+      set((state) => ({ queryParams: { ...state.queryParams, search } }))
     },
 
     setStatusFilter: (status: string) => {
       set((state) => ({ queryParams: { ...state.queryParams, status } }))
     },
 
-    clearEmployeeIdFilter: () => {
-      set((state) => ({ queryParams: { ...state.queryParams, employeeId: '' } }))
+    clearSearch: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, search: '' } }))
     },
 
     clearStatusFilter: () => {

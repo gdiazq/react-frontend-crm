@@ -47,7 +47,7 @@ export const initialTransferPagination: TransferPagination = {
 export const initialTransferQueryParams: TransferQueryParams = {
   page: 0,
   size: 8,
-  employeeId: '',
+  search: '',
   status: '',
   sortBy: 'createdAt',
   sortDir: 'desc',

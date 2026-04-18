@@ -50,7 +50,7 @@ export default function TransfersDashboardPage() {
   const goToPage = useStoreTransfer((s) => s.goToPage)
   const searchTransfers = useStoreTransfer((s) => s.searchTransfers)
   const sortTransfers = useStoreTransfer((s) => s.sortTransfers)
-  const setEmployeeIdFilter = useStoreTransfer((s) => s.setEmployeeIdFilter)
+  const setSearch = useStoreTransfer((s) => s.setSearch)
   const setStatusFilter = useStoreTransfer((s) => s.setStatusFilter)
   const clearStatusFilter = useStoreTransfer((s) => s.clearStatusFilter)
   const deleteTransferDocument = useStoreTransfer((s) => s.deleteTransferDocument)
@@ -241,10 +241,10 @@ export default function TransfersDashboardPage() {
           />
           <div className="min-w-0 flex-1">
             <InputComponent
-              value={queryParams.employeeId}
+              value={queryParams.search}
               type="text"
-              placeholder="Buscar por id trabajador"
-              onValueChange={setEmployeeIdFilter}
+              placeholder="Buscar por nombre del trabajador"
+              onValueChange={setSearch}
             />
           </div>
         </div>

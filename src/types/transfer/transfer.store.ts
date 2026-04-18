@@ -33,9 +33,9 @@ export interface TransferStore {
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
-  setEmployeeIdFilter: (employeeId: string) => void
+  setSearch: (search: string) => void
   setStatusFilter: (status: string) => void
-  clearEmployeeIdFilter: () => void
+  clearSearch: () => void
   clearStatusFilter: () => void
   searchTransfers: () => Promise<void>
   sortTransfers: (sortBy: TransferSortBy, sortDir: TransferSortDir) => Promise<void>
