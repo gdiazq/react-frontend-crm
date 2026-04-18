@@ -25,6 +25,9 @@ export const transferTableColumnIndex = {
 
 export const transferTableSortByColumn: Partial<Record<number, TransferSortBy>> = {
   0: 'employeeFullName',
+  1: 'employeeIdentification',
+  2: 'fromCostCenterName',
+  3: 'toCostCenterName',
   4: 'effectiveDate',
   5: 'status',
   6: 'createdAt',
@@ -49,6 +52,13 @@ export const initialTransferQueryParams: TransferQueryParams = {
   size: 8,
   search: '',
   status: '',
+  toCostCenter: '',
+  effectiveDateFrom: '',
+  effectiveDateTo: '',
+  createdFrom: '',
+  createdTo: '',
+  updatedFrom: '',
+  updatedTo: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
 }

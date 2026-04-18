@@ -130,5 +130,10 @@ export const employeeSelectsService = {
     return data
   },
 
+  getTransferToCostCenterOptions: async () => {
+    const { data } = await axiosInstance.get<EmployeeSelectOption[]>('/rrhh/transfers/select/to-cost-centers')
+    return data
+  },
+
   isAxiosError: axios.isAxiosError,
 }

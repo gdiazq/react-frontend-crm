@@ -12,7 +12,7 @@ import type {
   TransferUpdatePayload,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
-import { appendString, buildQueryParams } from '../shared/queryParams.mapper'
+import { appendParsedId, appendString, buildQueryParams } from '../shared/queryParams.mapper'
 import { normalizeDateValue, parseRequiredNumber } from '../shared/form.mapper'
 import { formatDate } from '@/utils'
 
@@ -41,6 +41,13 @@ export function mapperTransferQueryParams(result: TransferQueryParams): Record<s
   const params = buildQueryParams(result)
   appendString(params, 'search', result.search)
   appendString(params, 'status', result.status)
+  appendParsedId(params, 'toCostCenter', result.toCostCenter)
+  appendString(params, 'effectiveDateFrom', result.effectiveDateFrom)
+  appendString(params, 'effectiveDateTo', result.effectiveDateTo)
+  appendString(params, 'createdFrom', result.createdFrom)
+  appendString(params, 'createdTo', result.createdTo)
+  appendString(params, 'updatedFrom', result.updatedFrom)
+  appendString(params, 'updatedTo', result.updatedTo)
   return params
 }
 

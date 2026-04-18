@@ -26,16 +26,19 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
   paymentMethodOptions: [],
   bankOptions: [],
   projectCostCenterOptions: [],
+  transferToCostCenterOptions: [],
   approvalEmployeeStatusOptions: [],
   hrRequestTypeOptions: [],
   loadingFormOptions: false,
   loadingCommuneOptions: false,
   loadingCityOptions: false,
+  loadingTransferToCostCenterOptions: false,
   loadingApprovalEmployeeStatusOptions: false,
   loadingHrRequestTypeOptions: false,
   formOptionsErrorMessage: null,
   communeOptionsErrorMessage: null,
   cityOptionsErrorMessage: null,
+  transferToCostCenterOptionsErrorMessage: null,
   approvalEmployeeStatusOptionsErrorMessage: null,
   hrRequestTypeOptionsErrorMessage: null,
   errorBack: null,
@@ -141,6 +144,32 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
       })
     } catch (error) {
       set({ errorBack: error })
+    }
+  },
+
+  getTransferToCostCenterOptions: async () => {
+    try {
+      set({
+        loadingTransferToCostCenterOptions: true,
+        transferToCostCenterOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await employeeSelectsService.getTransferToCostCenterOptions()
+      set({ transferToCostCenterOptions: mapperEmployeeSelectOptions(data) })
+    } catch (error) {
+      if (employeeSelectsService.isAxiosError(error)) {
+        set({
+          transferToCostCenterOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadTransferToCostCentersError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          transferToCostCenterOptionsErrorMessage: messages.selects.status.errors.loadTransferToCostCentersError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingTransferToCostCenterOptions: false })
     }
   },
 
@@ -258,6 +287,10 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
 
   clearCityOptionsStatus: () => {
     set({ cityOptionsErrorMessage: null })
+  },
+
+  clearTransferToCostCenterOptionsStatus: () => {
+    set({ transferToCostCenterOptionsErrorMessage: null })
   },
 
   clearApprovalEmployeeStatusOptionsStatus: () => {

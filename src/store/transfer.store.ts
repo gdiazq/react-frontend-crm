@@ -147,12 +147,44 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
       set((state) => ({ queryParams: { ...state.queryParams, status } }))
     },
 
+    setToCostCenterFilter: (toCostCenter: string) => {
+      set((state) => ({ queryParams: { ...state.queryParams, toCostCenter } }))
+    },
+
+    setEffectiveDateRange: ({ effectiveDateFrom, effectiveDateTo }) => {
+      set((state) => ({ queryParams: { ...state.queryParams, effectiveDateFrom, effectiveDateTo } }))
+    },
+
+    setCreatedDateRange: ({ createdFrom, createdTo }) => {
+      set((state) => ({ queryParams: { ...state.queryParams, createdFrom, createdTo } }))
+    },
+
+    setUpdatedDateRange: ({ updatedFrom, updatedTo }) => {
+      set((state) => ({ queryParams: { ...state.queryParams, updatedFrom, updatedTo } }))
+    },
+
     clearSearch: () => {
       set((state) => ({ queryParams: { ...state.queryParams, search: '' } }))
     },
 
     clearStatusFilter: () => {
       set((state) => ({ queryParams: { ...state.queryParams, status: '' } }))
+    },
+
+    clearToCostCenterFilter: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, toCostCenter: '' } }))
+    },
+
+    clearEffectiveDateRange: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, effectiveDateFrom: '', effectiveDateTo: '' } }))
+    },
+
+    clearCreatedDateRange: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, createdFrom: '', createdTo: '' } }))
+    },
+
+    clearUpdatedDateRange: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, updatedFrom: '', updatedTo: '' } }))
     },
 
     searchTransfers: async () => {

@@ -75,7 +75,15 @@ export interface TransferTableRow {
   values: string[]
 }
 
-export type TransferSortBy = 'employeeFullName' | 'effectiveDate' | 'status' | 'createdAt' | 'updatedAt'
+export type TransferSortBy =
+  | 'employeeFullName'
+  | 'employeeIdentification'
+  | 'fromCostCenterName'
+  | 'toCostCenterName'
+  | 'effectiveDate'
+  | 'status'
+  | 'createdAt'
+  | 'updatedAt'
 export type TransferSortDir = 'asc' | 'desc'
 
 export type TransferPagination = Pagination
@@ -85,6 +93,13 @@ export interface TransferQueryParams {
   size: number
   search: string
   status: string
+  toCostCenter: string
+  effectiveDateFrom: string
+  effectiveDateTo: string
+  createdFrom: string
+  createdTo: string
+  updatedFrom: string
+  updatedTo: string
   sortBy: TransferSortBy
   sortDir: TransferSortDir
 }

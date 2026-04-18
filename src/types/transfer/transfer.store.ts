@@ -35,8 +35,16 @@ export interface TransferStore {
   previousPage: () => Promise<void>
   setSearch: (search: string) => void
   setStatusFilter: (status: string) => void
+  setToCostCenterFilter: (toCostCenter: string) => void
+  setEffectiveDateRange: (range: { effectiveDateFrom: string, effectiveDateTo: string }) => void
+  setCreatedDateRange: (range: { createdFrom: string, createdTo: string }) => void
+  setUpdatedDateRange: (range: { updatedFrom: string, updatedTo: string }) => void
   clearSearch: () => void
   clearStatusFilter: () => void
+  clearToCostCenterFilter: () => void
+  clearEffectiveDateRange: () => void
+  clearCreatedDateRange: () => void
+  clearUpdatedDateRange: () => void
   searchTransfers: () => Promise<void>
   sortTransfers: (sortBy: TransferSortBy, sortDir: TransferSortDir) => Promise<void>
   clearTransferDetail: () => void

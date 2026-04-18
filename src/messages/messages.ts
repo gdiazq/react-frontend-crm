@@ -493,6 +493,7 @@ export default {
         loadProjectStatusesError: 'No se pudieron cargar las vigencias de proyecto.',
         loadApprovalEmployeeStatusesError: 'No se pudieron cargar los estados de aprobacion.',
         loadHrRequestTypesError: 'No se pudieron cargar los tipos de solicitud.',
+        loadTransferToCostCentersError: 'No se pudieron cargar los centros de destino.',
         loadVisitorsError: 'No se pudieron cargar los visitadores.',
         loadSupervisorsError: 'No se pudieron cargar los supervisores.',
         loadCompanyRepresentativesError: 'No se pudieron cargar los representantes de empresa.',
