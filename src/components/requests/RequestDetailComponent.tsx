@@ -1,24 +1,21 @@
-import { type ReactNode, useState } from 'react'
-import { AvatarInitialsComponent } from '@/components/ui/avatar/AvatarInitialsComponent'
+import { DetailBadgeComponent } from '@/components/ui/detail/DetailBadgeComponent'
 import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
+import { DetailHeroComponent } from '@/components/ui/detail/DetailHeroComponent'
+import { DetailSectionHeaderComponent } from '@/components/ui/detail/DetailSectionHeaderComponent'
 import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
-import { DetailSectionDropdownComponent } from '@/components/ui/dropdown/DetailSectionDropdownComponent'
-import { EmployeeApprovalStatusBadgeComponent } from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
+import { DropdownActionsMenuComponent } from '@/components/ui/dropdown/DropdownActionsMenuComponent'
 import type { RequestDetailView } from '@/types'
+import type { DropdownAction } from '@/utils'
+import { resolveApprovalTone } from '@/utils'
 
 interface RequestDetailComponentProps {
   detail: RequestDetailView | null
   loading: boolean
   errorMessage: string | null
   onRetry?: () => void
-}
-
-type RequestDetailTabKey = 'general' | 'approval' | 'rejection' | 'dates'
-
-interface RequestDetailContentProps {
-  detail: RequestDetailView
-  activeTab: RequestDetailTabKey
-  onTabChange: (tab: RequestDetailTabKey) => void
+  onApprove?: () => void
+  onReject?: () => void
+  moreActions?: DropdownAction[]
 }
 
 export function RequestDetailComponent({
@@ -26,9 +23,10 @@ export function RequestDetailComponent({
   loading,
   errorMessage,
   onRetry,
+  onApprove,
+  onReject,
+  moreActions,
 }: RequestDetailComponentProps) {
-  const [activeTab, setActiveTab] = useState<RequestDetailTabKey>('general')
-
   return (
     <DetailStateWrapperComponent
       loading={loading}
@@ -41,123 +39,143 @@ export function RequestDetailComponent({
       {detail && (
         <RequestDetailContent
           detail={detail}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onApprove={onApprove}
+          onReject={onReject}
+          moreActions={moreActions}
         />
       )}
     </DetailStateWrapperComponent>
   )
 }
 
-function RequestDetailContent({ detail, activeTab, onTabChange }: RequestDetailContentProps) {
-  const tabOptions = [
-    { value: 'general', label: 'Informacion general' },
-    { value: 'approval', label: 'Aprobacion' },
-    { value: 'rejection', label: 'Rechazo' },
-    { value: 'dates', label: 'Fechas' },
-  ]
+interface RequestDetailContentProps {
+  detail: RequestDetailView
+  onApprove?: () => void
+  onReject?: () => void
+  moreActions?: DropdownAction[]
+}
 
-  const renderTabContent = (): ReactNode => {
-    if (activeTab === 'general') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent 
-            title="Tipo solicitud" 
-            value={detail.requestTypeName} 
-          />
-          <DetailFieldCardComponent 
-            title="Operacion" 
-            value={detail.actionDisplay} 
-          />
-          <DetailFieldCardComponent 
-            title="Requiere aprobacion" 
-            value={detail.requireApprovalLabel} 
-          />
-        </div>
-      )
-    }
-
-    if (activeTab === 'approval') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent 
-            title="Aprobador" 
-            value={detail.approverName} 
-          />
-          <DetailFieldCardComponent 
-            title="Fecha aprobacion" 
-            value={detail.approvalDateDisplay} 
-          />
-          <DetailFieldCardComponent 
-            title="Aprobador RRHH" 
-            value={detail.hhrrApproverName} 
-          />
-          <DetailFieldCardComponent 
-            title="Fecha aprobacion RRHH" 
-            value={detail.hhrrApprovalDateDisplay} 
-          />
-        </div>
-      )
-    }
-
-    if (activeTab === 'rejection') {
-      return (
-        <div className="grid gap-3">
-          <DetailFieldCardComponent 
-            title="Detalle rechazo" 
-            value={detail.rejectionDetailDisplay} 
-          />
-        </div>
-      )
-    }
-
-    return (
-      <div className="grid gap-3 md:grid-cols-2">
-        <DetailFieldCardComponent 
-          title="Creado" 
-          value={detail.createdAtDisplay} 
-        />
-        <DetailFieldCardComponent 
-          title="Actualizado" 
-          value={detail.updatedAtDisplay} 
-        />
-      </div>
-    )
-  }
+function RequestDetailContent({ detail, onApprove, onReject, moreActions }: RequestDetailContentProps) {
+  const approvalTone = resolveApprovalTone(detail.statusName)
+  const requiresApproval = /^s[ií]/i.test(detail.requireApprovalLabel.trim())
+  const description = (
+    <>
+      Solicitud de <span className="num">{detail.requestTypeName || '—'}</span>, operación{' '}
+      <span className="num">{detail.actionDisplay || '—'}</span>.
+    </>
+  )
 
   return (
-    <section className="space-y-5">
-      <article className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 dark:border-white/10 dark:from-slate-900/60 dark:to-slate-900/30">
-        <div className="flex items-start gap-4">
-          <AvatarInitialsComponent
-            fullName={detail.fullName}
-            fallbackInitials="SR"
-            className="bg-cyan-100 font-bold text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-200"
-          />
+    <section className="space-y-12">
+      <DetailHeroComponent
+        eyebrowLabel={detail.moduleDisplay || 'Solicitud'}
+        eyebrowId={detail.identification}
+        displayName={detail.fullName}
+        description={description}
+        badges={
+          <>
+            <DetailBadgeComponent tone={approvalTone} dot>
+              {detail.statusName || 'Sin estado'}
+            </DetailBadgeComponent>
+            <DetailBadgeComponent tone={requiresApproval ? 'accent' : 'neutral'} dot>
+              {requiresApproval ? 'Requiere aprobación' : 'Sin aprobación'}
+            </DetailBadgeComponent>
+          </>
+        }
+        actions={<HeroActionButtons onApprove={onApprove} onReject={onReject} moreActions={moreActions} />}
+      />
 
-          <div className="min-w-0 flex-1 space-y-1">
-            <p className="truncate text-base font-semibold">{detail.fullName}</p>
-            <p className="truncate text-sm text-slate-600 dark:text-slate-300">{detail.identification}</p>
-            <p className="truncate text-sm text-slate-600 dark:text-slate-300">{detail.requestTypeName}</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <EmployeeApprovalStatusBadgeComponent statusName={detail.statusName} />
-            </div>
-          </div>
+      <section>
+        <DetailSectionHeaderComponent number="01" title="Solicitud" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Tipo de solicitud" value={detail.requestTypeName} />
+          <DetailFieldCardComponent title="Operación" value={detail.actionDisplay} />
+          <DetailFieldCardComponent title="Módulo" value={detail.moduleDisplay} />
+          <DetailFieldCardComponent title="Requiere aprobación" value={detail.requireApprovalLabel} />
         </div>
-      </article>
+      </section>
 
-      <article className="rounded-xl border border-slate-200 p-2 dark:border-white/10">
-        <DetailSectionDropdownComponent
-          value={activeTab}
-          label="Seccion"
-          options={tabOptions}
-          onValueChange={(value) => onTabChange(value as RequestDetailTabKey)}
-        />
-      </article>
+      <section>
+        <DetailSectionHeaderComponent number="02" title="Aprobación" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Aprobador" value={detail.approverName} />
+          <DetailFieldCardComponent title="Fecha aprobación" value={detail.approvalDateDisplay} />
+          <DetailFieldCardComponent title="Aprobador RRHH" value={detail.hhrrApproverName} />
+          <DetailFieldCardComponent title="Fecha aprobación RRHH" value={detail.hhrrApprovalDateDisplay} />
+        </div>
+      </section>
 
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        {renderTabContent()}
-      </article>
+      <section>
+        <DetailSectionHeaderComponent number="03" title="Rechazo" />
+        {detail.rejectionDetailDisplay ? (
+          <DetailFieldCardComponent
+            title="Detalle de rechazo"
+            value={detail.rejectionDetailDisplay}
+            valueClassName="whitespace-pre-line"
+          />
+        ) : (
+          <p className="text-[12.5px] text-slate-500 dark:text-slate-400">Sin motivo de rechazo registrado.</p>
+        )}
+      </section>
+
+      <section>
+        <DetailSectionHeaderComponent number="04" title="Fechas" />
+        <ol className="relative space-y-3 border-l border-slate-200 pl-5 dark:border-white/10">
+          <li className="relative">
+            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+            <div className="flex items-baseline gap-3">
+              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.createdAtDisplay || '—'}</span>
+              <p className="text-[13px] text-slate-700 dark:text-slate-200">Solicitud creada</p>
+            </div>
+          </li>
+          <li className="relative">
+            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+            <div className="flex items-baseline gap-3">
+              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.updatedAtDisplay || '—'}</span>
+              <p className="text-[13px] text-slate-700 dark:text-slate-200">Última actualización</p>
+            </div>
+          </li>
+        </ol>
+      </section>
     </section>
+  )
+}
+
+interface HeroActionButtonsProps {
+  onApprove?: () => void
+  onReject?: () => void
+  moreActions?: DropdownAction[]
+}
+
+function HeroActionButtons({ onApprove, onReject, moreActions }: HeroActionButtonsProps) {
+  const secondaryBtn =
+    'inline-flex items-center gap-1.5 r-md border border-slate-200 bg-white px-2.5 h-9 text-[12.5px] text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60'
+
+  if (!onApprove && !onReject && (!moreActions || moreActions.length === 0)) return null
+
+  return (
+    <>
+      {onReject && (
+        <button
+          type="button"
+          onClick={onReject}
+          className="inline-flex items-center gap-1.5 r-md border border-rose-300 bg-white px-2.5 h-9 text-[12.5px] text-rose-700 hover:bg-rose-50 dark:border-rose-400/40 dark:bg-slate-900 dark:text-rose-300 dark:hover:bg-rose-900/20"
+        >
+          Rechazar
+        </button>
+      )}
+      {moreActions && moreActions.length > 0 && (
+        <DropdownActionsMenuComponent actions={moreActions} triggerClassName={secondaryBtn} />
+      )}
+      {onApprove && (
+        <button
+          type="button"
+          onClick={onApprove}
+          className="inline-flex items-center gap-1.5 r-md accent-bg h-9 px-3 text-[12.5px] font-medium text-white transition hover:opacity-90"
+        >
+          Aprobar
+        </button>
+      )}
+    </>
   )
 }

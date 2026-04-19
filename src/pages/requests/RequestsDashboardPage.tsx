@@ -518,12 +518,21 @@ export default function RequestsDashboardPage() {
         title={detailTitle}
         onClose={handleCloseDetail}
       >
-        <RequestDetailComponent
-          detail={requestDetailView}
-          loading={loadingRequestDetail}
-          errorMessage={detailError}
-          onRetry={handleRetryDetail}
-        />
+        {(() => {
+          const selectedRow = selectedDetailRowId ? findRequestRowById(selectedDetailRowId) : null
+          const canAct = selectedRow ? !FINAL_REQUEST_STATUS_IDS.has(selectedRow.statusId) : false
+          return (
+            <RequestDetailComponent
+              key={selectedDetailRowId ?? 'empty-request-detail'}
+              detail={requestDetailView}
+              loading={loadingRequestDetail}
+              errorMessage={detailError}
+              onRetry={handleRetryDetail}
+              onApprove={canAct && selectedRow ? () => handleApproveRequest(selectedRow) : undefined}
+              onReject={canAct && selectedRow ? () => handleRejectRequest(selectedRow) : undefined}
+            />
+          )
+        })()}
       </DetailSidebarComponent>
 
       <SaveConfirmComponent
