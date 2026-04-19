@@ -1,10 +1,13 @@
-import { type ReactNode, useState } from 'react'
-import { AvatarInitialsComponent } from '@/components/ui/avatar/AvatarInitialsComponent'
+import { DetailBadgeComponent } from '@/components/ui/detail/DetailBadgeComponent'
 import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
+import { DetailHeroComponent } from '@/components/ui/detail/DetailHeroComponent'
+import { DetailSectionHeaderComponent } from '@/components/ui/detail/DetailSectionHeaderComponent'
 import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
-import { DetailSectionDropdownComponent } from '@/components/ui/dropdown/DetailSectionDropdownComponent'
-import { EmployeeApprovalStatusBadgeComponent } from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
+import { DropdownActionsMenuComponent } from '@/components/ui/dropdown/DropdownActionsMenuComponent'
+import { IconEdit } from '@/components/ui/icons/IconEdit'
 import type { TransferDetailView } from '@/types'
+import type { DropdownAction } from '@/utils'
+import { resolveApprovalTone } from '@/utils'
 
 interface TransferDetailComponentProps {
   detail: TransferDetailView | null
@@ -13,16 +16,8 @@ interface TransferDetailComponentProps {
   deletingDocumentId: number | null
   onRetry?: () => void
   onDeleteDocument: (fileId: number) => void
-}
-
-type TransferDetailTabKey = 'general' | 'documents' | 'dates'
-
-interface TransferDetailContentProps {
-  detail: TransferDetailView
-  activeTab: TransferDetailTabKey
-  deletingDocumentId: number | null
-  onTabChange: (tab: TransferDetailTabKey) => void
-  onDeleteDocument: (fileId: number) => void
+  onEdit?: () => void
+  moreActions?: DropdownAction[]
 }
 
 export function TransferDetailComponent({
@@ -32,9 +27,9 @@ export function TransferDetailComponent({
   deletingDocumentId,
   onRetry,
   onDeleteDocument,
+  onEdit,
+  moreActions,
 }: TransferDetailComponentProps) {
-  const [activeTab, setActiveTab] = useState<TransferDetailTabKey>('general')
-
   return (
     <DetailStateWrapperComponent
       loading={loading}
@@ -47,126 +42,179 @@ export function TransferDetailComponent({
       {detail && (
         <TransferDetailContent
           detail={detail}
-          activeTab={activeTab}
           deletingDocumentId={deletingDocumentId}
-          onTabChange={setActiveTab}
           onDeleteDocument={onDeleteDocument}
+          onEdit={onEdit}
+          moreActions={moreActions}
         />
       )}
     </DetailStateWrapperComponent>
   )
 }
 
+interface TransferDetailContentProps {
+  detail: TransferDetailView
+  deletingDocumentId: number | null
+  onDeleteDocument: (fileId: number) => void
+  onEdit?: () => void
+  moreActions?: DropdownAction[]
+}
+
 function TransferDetailContent({
   detail,
-  activeTab,
   deletingDocumentId,
-  onTabChange,
   onDeleteDocument,
+  onEdit,
+  moreActions,
 }: TransferDetailContentProps) {
-  const tabSelectOptions = [
-    { value: 'general', label: 'Informacion general' },
-    { value: 'documents', label: 'Adjuntos' },
-    { value: 'dates', label: 'Fechas' },
-  ]
-
-  const renderTabContent = (): ReactNode => {
-    if (activeTab === 'general') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Empleado" value={detail.employeeFullNameDisplay} />
-          <DetailFieldCardComponent title="RUT" value={detail.employeeIdentificationDisplay} />
-          <DetailFieldCardComponent title="Centro origen" value={detail.fromCostCenterNameDisplay} />
-          <DetailFieldCardComponent title="Centro destino" value={detail.toCostCenterNameDisplay} />
-          <DetailFieldCardComponent title="Fecha efectiva" value={detail.effectiveDateDisplay} />
-          {detail.hrRequestIdDisplay !== '-' && (
-            <DetailFieldCardComponent title="ID solicitud RRHH" value={detail.hrRequestIdDisplay} />
-          )}
-          <DetailFieldCardComponent title="Motivo" value={detail.reasonDisplay} className="md:col-span-2" />
-        </div>
-      )
-    }
-
-    if (activeTab === 'documents') {
-      if (detail.documents.length === 0) {
-        return <p className="text-sm text-slate-600 dark:text-slate-300">Sin adjuntos.</p>
-      }
-      return (
-        <div className="space-y-2">
-          {detail.documents.map((file) => (
-            <article
-              key={file.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2 dark:border-white/10"
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{file.fileName}</p>
-              </div>
-              <div className="flex shrink-0 items-center gap-3">
-                {file.url.length > 0 && (
-                  <a
-                    href={file.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs font-semibold text-cyan-700 hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
-                  >
-                    Ver
-                  </a>
-                )}
-                <button
-                  type="button"
-                  disabled={deletingDocumentId === file.id}
-                  onClick={() => onDeleteDocument(file.id)}
-                  className="text-xs font-semibold text-red-600 hover:text-red-700 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300"
-                >
-                  {deletingDocumentId === file.id ? 'Eliminando...' : 'Eliminar'}
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      )
-    }
-
-    return (
-      <div className="grid gap-3 md:grid-cols-2">
-        <DetailFieldCardComponent title="Creado" value={detail.createdAtDisplay} />
-        <DetailFieldCardComponent title="Actualizado" value={detail.updatedAtDisplay} />
-      </div>
-    )
-  }
+  const approvalTone = resolveApprovalTone(detail.statusDisplay)
+  const description = (
+    <>
+      Traslado desde <span className="num">{detail.fromCostCenterNameDisplay || '—'}</span> a{' '}
+      <span className="num">{detail.toCostCenterNameDisplay || '—'}</span>, efectivo el{' '}
+      <span className="num">{detail.effectiveDateDisplay || '—'}</span>.
+    </>
+  )
 
   return (
-    <section className="space-y-5">
-      <article className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 dark:border-white/10 dark:from-slate-900/60 dark:to-slate-900/30">
-        <div className="flex items-start gap-4">
-          <AvatarInitialsComponent
-            fullName={detail.employeeFullNameDisplay}
-            fallbackInitials="TR"
-            className="bg-blue-100 font-bold text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
-          />
-          <div className="min-w-0 flex-1 space-y-1">
-            <p className="truncate text-base font-semibold">{detail.employeeFullNameDisplay}</p>
-            <p className="truncate text-sm text-slate-600 dark:text-slate-300">{detail.employeeIdentificationDisplay}</p>
-            <p className="truncate text-sm text-slate-600 dark:text-slate-300">{detail.effectiveDateDisplay}</p>
-            <div className="mt-2">
-              <EmployeeApprovalStatusBadgeComponent statusName={detail.statusDisplay} />
-            </div>
-          </div>
+    <section className="space-y-12">
+      <DetailHeroComponent
+        eyebrowLabel="Traspaso"
+        eyebrowId={detail.employeeIdentificationDisplay}
+        displayName={detail.employeeFullNameDisplay}
+        description={description}
+        badges={
+          <>
+            <DetailBadgeComponent tone={approvalTone} dot>
+              {detail.statusDisplay || 'Sin estado'}
+            </DetailBadgeComponent>
+            <DetailBadgeComponent tone={detail.hrRequestIdDisplay && detail.hrRequestIdDisplay !== '-' ? 'accent' : 'neutral'} dot>
+              {detail.hrRequestIdDisplay && detail.hrRequestIdDisplay !== '-'
+                ? `Solicitud RRHH #${detail.hrRequestIdDisplay}`
+                : 'Sin solicitud vinculada'}
+            </DetailBadgeComponent>
+          </>
+        }
+        actions={<HeroActionButtons onEdit={onEdit} moreActions={moreActions} />}
+      />
+
+      <section>
+        <DetailSectionHeaderComponent number="01" title="Traspaso" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Trabajador" value={detail.employeeFullNameDisplay} />
+          <DetailFieldCardComponent title="Identificación" value={detail.employeeIdentificationDisplay} mono />
+          <DetailFieldCardComponent title="Centro origen" value={detail.fromCostCenterNameDisplay} />
+          <DetailFieldCardComponent title="Centro destino" value={detail.toCostCenterNameDisplay} />
+          <DetailFieldCardComponent title="Fecha efectiva" value={detail.effectiveDateDisplay} mono />
+          {detail.hrRequestIdDisplay && detail.hrRequestIdDisplay !== '-' && (
+            <DetailFieldCardComponent title="Solicitud RRHH" value={detail.hrRequestIdDisplay} mono />
+          )}
         </div>
-      </article>
+        <div className="mt-3">
+          <DetailFieldCardComponent
+            title="Motivo"
+            value={detail.reasonDisplay}
+            valueClassName="whitespace-pre-line"
+          />
+        </div>
+      </section>
 
-      <article className="rounded-xl border border-slate-200 p-2 dark:border-white/10">
-        <DetailSectionDropdownComponent
-          value={activeTab}
-          label="Seccion"
-          options={tabSelectOptions}
-          onValueChange={(value) => onTabChange(value as TransferDetailTabKey)}
-        />
-      </article>
+      <section>
+        <DetailSectionHeaderComponent number="02" title="Adjuntos" />
+        {detail.documents.length === 0 ? (
+          <p className="text-[12.5px] text-slate-500 dark:text-slate-400">Sin adjuntos.</p>
+        ) : (
+          <ul className="space-y-2">
+            {detail.documents.map((file) => (
+              <li
+                key={file.id}
+                className="r-lg flex items-center justify-between gap-3 border border-slate-200 px-3 py-2 dark:border-white/10"
+              >
+                <p className="min-w-0 truncate text-[13px] font-medium text-slate-800 dark:text-slate-100">
+                  {file.fileName}
+                </p>
+                <div className="flex shrink-0 items-center gap-3">
+                  {file.url.length > 0 && (
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[12px] font-semibold accent-text hover:opacity-80"
+                    >
+                      Ver
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    disabled={deletingDocumentId === file.id}
+                    onClick={() => onDeleteDocument(file.id)}
+                    className="text-[12px] font-semibold text-rose-600 hover:text-rose-700 disabled:opacity-50 dark:text-rose-400 dark:hover:text-rose-300"
+                  >
+                    {deletingDocumentId === file.id ? 'Eliminando...' : 'Eliminar'}
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        {renderTabContent()}
-      </article>
+      <section>
+        <DetailSectionHeaderComponent number="03" title="Fechas" />
+        <ol className="relative space-y-3 border-l border-slate-200 pl-5 dark:border-white/10">
+          <li className="relative">
+            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+            <div className="flex items-baseline gap-3">
+              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.createdAtDisplay || '—'}</span>
+              <p className="text-[13px] text-slate-700 dark:text-slate-200">Traspaso creado</p>
+            </div>
+          </li>
+          <li className="relative">
+            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+            <div className="flex items-baseline gap-3">
+              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.effectiveDateDisplay || '—'}</span>
+              <p className="text-[13px] text-slate-700 dark:text-slate-200">Fecha efectiva</p>
+            </div>
+          </li>
+          <li className="relative">
+            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+            <div className="flex items-baseline gap-3">
+              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.updatedAtDisplay || '—'}</span>
+              <p className="text-[13px] text-slate-700 dark:text-slate-200">Última actualización</p>
+            </div>
+          </li>
+        </ol>
+      </section>
     </section>
+  )
+}
+
+interface HeroActionButtonsProps {
+  onEdit?: () => void
+  moreActions?: DropdownAction[]
+}
+
+function HeroActionButtons({ onEdit, moreActions }: HeroActionButtonsProps) {
+  const secondaryBtn =
+    'inline-flex items-center gap-1.5 r-md border border-slate-200 bg-white px-2.5 h-9 text-[12.5px] text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60'
+
+  if (!onEdit && (!moreActions || moreActions.length === 0)) return null
+
+  return (
+    <>
+      {moreActions && moreActions.length > 0 && (
+        <DropdownActionsMenuComponent actions={moreActions} triggerClassName={secondaryBtn} />
+      )}
+      {onEdit && (
+        <button
+          type="button"
+          onClick={onEdit}
+          className="inline-flex items-center gap-1.5 r-md accent-bg h-9 px-3 text-[12.5px] font-medium text-white transition hover:opacity-90"
+        >
+          <IconEdit />
+          Editar
+        </button>
+      )}
+    </>
   )
 }

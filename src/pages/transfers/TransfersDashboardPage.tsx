@@ -525,6 +525,20 @@ export default function TransfersDashboardPage() {
           deletingDocumentId={deletingDocumentId}
           onRetry={handleRetryDetail}
           onDeleteDocument={(fileId) => { void handleDeleteDocument(fileId) }}
+          onEdit={
+            selectedDetailRowId && canUpdateTransfer
+              ? () => navigate(`${AUTH_ROUTE_TRANSFERS_EDIT}=${selectedDetailRowId}`)
+              : undefined
+          }
+          moreActions={
+            selectedDetailRowId
+              ? (findRowById(selectedDetailRowId)
+                  ? resolveRowActions(findRowById(selectedDetailRowId)!).filter(
+                      (action) => action.id !== 'view-detail' && action.id !== 'update-transfer',
+                    )
+                  : [])
+              : []
+          }
         />
       </DetailSidebarComponent>
     </section>
