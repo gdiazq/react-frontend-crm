@@ -625,6 +625,11 @@ export default function EmployeesDashboardPage() {
           loading={loadingEmployeeDetail}
           errorMessage={detailError}
           onRetry={handleRetryDetail}
+          onEdit={
+            selectedDetailRowId
+              ? () => navigate(`${AUTH_ROUTE_EMPLOYEES_EDIT}=${selectedDetailRowId}`)
+              : undefined
+          }
         />
       </DetailSidebarComponent>
 

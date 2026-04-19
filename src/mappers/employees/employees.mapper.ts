@@ -109,6 +109,7 @@ export function mapperEmployeeDetailView(result: EmployeeDetail): EmployeeDetail
     userEmail: result.userEmail || '',
     userEnabled: result.userEnabled ?? null,
     requestId: result.requestId != null ? String(result.requestId) : 'Sin registro',
+    createdAt: result.createdAt || '',
     createdAtDisplay: formatDate(result.createdAt, 'Sin registro'),
     updatedAtDisplay: formatDate(result.updatedAt, 'Sin registro'),
   }

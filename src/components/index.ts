@@ -22,6 +22,16 @@ export { ActionsDropdownComponent } from './ui/dropdown/ActionsDropdownComponent
 export { ToolbarActionsDropdownComponent } from './ui/dropdown/ToolbarActionsDropdownComponent'
 export { DetailSectionDropdownComponent } from './ui/dropdown/DetailSectionDropdownComponent'
 export { AlertMessageComponent } from './ui/alert/AlertMessageComponent'
+export { DetailFieldCardComponent } from './ui/detail/DetailFieldCardComponent'
+export { DetailSectionHeaderComponent } from './ui/detail/DetailSectionHeaderComponent'
+export { DetailHeroComponent } from './ui/detail/DetailHeroComponent'
+export { DetailBadgeComponent } from './ui/detail/DetailBadgeComponent'
+export { DetailStateWrapperComponent } from './ui/detail/DetailStateWrapperComponent'
+
+// Icons
+export { IconDownload } from './ui/icons/IconDownload'
+export { IconDots } from './ui/icons/IconDots'
+export { IconEdit } from './ui/icons/IconEdit'
 
 // Layout Components
 export { ThemeToggle } from './layout/ThemeToggle'

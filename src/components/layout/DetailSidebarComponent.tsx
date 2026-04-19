@@ -39,7 +39,7 @@ export function DetailSidebarComponent({
         }`}
       >
         <header className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-white/10">
-          <h2 className="text-lg font-semibold">{title}</h2>
+          <h2 className="display text-[24px] leading-none text-slate-900 dark:text-slate-50">{title}</h2>
           <button
             type="button"
             aria-label="Cerrar detalle"
@@ -50,7 +50,7 @@ export function DetailSidebarComponent({
           </button>
         </header>
 
-        <section className="h-[calc(100vh-69px)] overflow-y-auto p-5">
+        <section className="sidebar-scrollbar h-[calc(100vh-69px)] overflow-y-auto p-5">
           {children}
         </section>
       </aside>

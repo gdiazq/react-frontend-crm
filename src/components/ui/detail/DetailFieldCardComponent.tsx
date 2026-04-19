@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 interface DetailFieldCardComponentProps {
   title: string
   value: ReactNode
+  mono?: boolean
   className?: string
   valueClassName?: string
 }
@@ -10,15 +11,24 @@ interface DetailFieldCardComponentProps {
 export function DetailFieldCardComponent({
   title,
   value,
+  mono = false,
   className = '',
   valueClassName = '',
 }: DetailFieldCardComponentProps) {
+  const resolvedValue = value === null || value === undefined || value === '' ? '—' : value
+
   return (
-    <div className={`rounded-lg border border-slate-200/80 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-slate-900/20 ${className}`.trim()}>
-      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{title}</div>
-      <div className={`mt-1 text-sm font-medium text-slate-900 dark:text-slate-100 ${valueClassName}`.trim()}>
-        {value}
-      </div>
+    <div
+      className={`flex items-baseline justify-between gap-4 border-b border-slate-100 py-2 dark:border-white/5 ${className}`.trim()}
+    >
+      <span className="shrink-0 text-[11px] uppercase tracking-[0.08em] text-slate-400 dark:text-slate-500">
+        {title}
+      </span>
+      <span
+        className={`min-w-0 text-right text-[13px] text-slate-800 dark:text-slate-100 ${mono ? 'num' : 'font-medium'} ${valueClassName}`.trim()}
+      >
+        {resolvedValue}
+      </span>
     </div>
   )
 }

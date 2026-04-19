@@ -1,33 +1,23 @@
-import { useState } from 'react'
 import { AvatarInitialsComponent } from '@/components/ui/avatar/AvatarInitialsComponent'
+import { DetailBadgeComponent } from '@/components/ui/detail/DetailBadgeComponent'
 import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
+import { DetailHeroComponent } from '@/components/ui/detail/DetailHeroComponent'
+import { DetailSectionHeaderComponent } from '@/components/ui/detail/DetailSectionHeaderComponent'
 import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
-import { DetailSectionDropdownComponent } from '@/components/ui/dropdown/DetailSectionDropdownComponent'
-import { EmployeeApprovalStatusBadgeComponent } from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
-import { StatusBadgeComponent } from '@/components/ui/status/StatusBadgeComponent'
+import { IconDownload } from '@/components/ui/icons/IconDownload'
+import { IconDots } from '@/components/ui/icons/IconDots'
+import { IconEdit } from '@/components/ui/icons/IconEdit'
 import type { EmployeeDetailView } from '@/types'
+import { resolveApprovalTone, buildTenureStat } from '@/utils'
 
 interface EmployeeDetailComponentProps {
   detail: EmployeeDetailView | null
   loading: boolean
   errorMessage: string | null
   onRetry?: () => void
-}
-
-type EmployeeDetailTabKey =
-  | 'personal'
-  | 'contact'
-  | 'emergency'
-  | 'address'
-  | 'health'
-  | 'payment'
-  | 'linkedUser'
-  | 'dates'
-
-interface EmployeeDetailContentProps {
-  detail: EmployeeDetailView
-  activeTab: EmployeeDetailTabKey
-  onTabChange: (tab: EmployeeDetailTabKey) => void
+  onEdit?: () => void
+  onExport?: () => void
+  onMore?: () => void
 }
 
 export function EmployeeDetailComponent({
@@ -35,9 +25,10 @@ export function EmployeeDetailComponent({
   loading,
   errorMessage,
   onRetry,
+  onEdit,
+  onExport,
+  onMore,
 }: EmployeeDetailComponentProps) {
-  const [activeTab, setActiveTab] = useState<EmployeeDetailTabKey>('personal')
-
   return (
     <DetailStateWrapperComponent
       loading={loading}
@@ -50,319 +41,220 @@ export function EmployeeDetailComponent({
       {detail && (
         <EmployeeDetailContent
           detail={detail}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onEdit={onEdit}
+          onExport={onExport}
+          onMore={onMore}
         />
       )}
     </DetailStateWrapperComponent>
   )
 }
 
-function EmployeeDetailContent({ detail, activeTab, onTabChange }: EmployeeDetailContentProps) {
-  const tabSelectOptions = [
-    { value: 'personal', label: 'Datos personales' },
-    { value: 'contact', label: 'Contacto' },
-    { value: 'emergency', label: 'Emergencia' },
-    { value: 'address', label: 'Direccion' },
-    { value: 'health', label: 'Salud y prevision' },
-    { value: 'payment', label: 'Pago y tallas' },
-    { value: 'linkedUser', label: 'Usuario vinculado' },
-    { value: 'dates', label: 'Fechas' },
-  ]
+interface EmployeeDetailContentProps {
+  detail: EmployeeDetailView
+  onEdit?: () => void
+  onExport?: () => void
+  onMore?: () => void
+}
 
-  const renderTabContent = () => {
-    if (activeTab === 'personal') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent
-            title="Centro costo"
-            value={detail.costCenterDisplay}
-          />
-          <DetailFieldCardComponent
-            title="Proyecto"
-            value={detail.projectName}
-          />
-          <DetailFieldCardComponent 
-            title="Tipo identificacion" 
-            value={detail.identificationType} 
-          />
-          <DetailFieldCardComponent 
-            title="Fecha nacimiento" 
-            value={detail.birthDate} 
-          />
-          <DetailFieldCardComponent 
-            title="Genero" 
-            value={detail.gender} 
-          />
-          <DetailFieldCardComponent 
-            title="Estado civil" 
-            value={detail.maritalStatus} 
-          />
-          <DetailFieldCardComponent 
-            title="Educacion" 
-            value={detail.educationLevel} 
-          />
-          <DetailFieldCardComponent 
-            title="Licencia" 
-            value={detail.driverLicense} 
-          />
-          <DetailFieldCardComponent 
-            title="Profesion" 
-            value={detail.profession} 
-          />
-          <DetailFieldCardComponent 
-            title="Nacionalidad" 
-            value={detail.nationality} 
-          />
-          <DetailFieldCardComponent 
-            title="Extranjero" 
-            value={detail.expat} 
-          />
-        </div>
-      )
-    }
-
-    if (activeTab === 'contact') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent 
-            title="Correo personal" 
-            value={detail.personalEmail} 
-          />
-          <DetailFieldCardComponent 
-            title="Correo corporativo" 
-            value={detail.corporateEmail} 
-            valueClassName="break-all" 
-          />
-          <DetailFieldCardComponent 
-            title="Telefono" 
-            value={detail.phone} 
-          />
-          <DetailFieldCardComponent 
-            title="Telefono 2" 
-            value={detail.phone2} 
-          />
-        </div>
-      )
-    }
-
-    if (activeTab === 'emergency') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent 
-            title="Parentesco" 
-            value={detail.emergencyContactRelationship} 
-          />
-          <DetailFieldCardComponent 
-            title="Nombre contacto" 
-            value={detail.emergencyContactName} 
-          />
-          <DetailFieldCardComponent 
-            title="Telefono" 
-            value={detail.emergencyContactPhone} 
-          />
-          <DetailFieldCardComponent 
-            title="Telefono 2" 
-            value={detail.emergencyContactPhone2} 
-          />
-        </div>
-      )
-    }
-
-    if (activeTab === 'address') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent 
-            title="Calle" 
-            value={detail.streetName} 
-          />
-          <DetailFieldCardComponent 
-            title="Numero" 
-            value={detail.streetNumber} 
-          />
-          <DetailFieldCardComponent 
-            title="Cod. postal" 
-            value={detail.postalCode} 
-          />
-          <DetailFieldCardComponent 
-            title="Departamento" 
-            value={detail.department} 
-          />
-          <DetailFieldCardComponent 
-            title="Villa" 
-            value={detail.village} 
-          />
-          <DetailFieldCardComponent 
-            title="Manzana" 
-            value={detail.block} 
-          />
-          <DetailFieldCardComponent 
-            title="Region" 
-            value={detail.region} 
-          />
-          <DetailFieldCardComponent 
-            title="Comuna" 
-            value={detail.commune} 
-          />
-          <DetailFieldCardComponent 
-            title="Ciudad" 
-            value={detail.city} 
-          />
-        </div>
-      )
-    }
-
-    if (activeTab === 'health') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent 
-            title="Asig. familiar" 
-            value={detail.familyAllowanceTier} 
-          />
-          <DetailFieldCardComponent 
-            title="Jubilacion" 
-            value={detail.retirementStatus} 
-          />
-          <DetailFieldCardComponent 
-            title="Estado pension" 
-            value={detail.pensionStatus} 
-          />
-          <DetailFieldCardComponent 
-            title="AFP" 
-            value={detail.afp} 
-          />
-          <DetailFieldCardComponent 
-            title="ISAPRE/FUN" 
-            value={detail.isapreFun} 
-          />
-          <DetailFieldCardComponent 
-            title="Seguro salud" 
-            value={detail.healthInsurance} 
-          />
-          <DetailFieldCardComponent 
-            title="Plan salud" 
-            value={detail.healthInsuranceTariff} 
-          />
-          <DetailFieldCardComponent 
-            title="Salud UF" 
-            value={detail.healthInsuranceUF} 
-          />
-          <DetailFieldCardComponent 
-            title="Salud pesos" 
-            value={detail.healthInsurancePesos} 
-          />
-        </div>
-      )
-    }
-
-    if (activeTab === 'payment') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent 
-            title="Metodo de pago" 
-            value={detail.paymentMethod} 
-          />
-          <DetailFieldCardComponent 
-            title="Banco" 
-            value={detail.bank} 
-          />
-          <DetailFieldCardComponent 
-            title="Cuenta" 
-            value={detail.bankAccount} 
-          />
-          <DetailFieldCardComponent 
-            title="Talla ropa" 
-            value={detail.clothingSize} 
-          />
-          <DetailFieldCardComponent 
-            title="Talla zapato" 
-            value={detail.shoeSize} 
-          />
-          <DetailFieldCardComponent 
-            title="Talla pantalon" 
-            value={detail.pantSize} 
-          />
-        </div>
-      )
-    }
-
-    if (activeTab === 'linkedUser') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent 
-            title="Usuario" 
-            value={detail.username} 
-          />
-          <DetailFieldCardComponent 
-            title="Email" 
-            value={detail.userEmail} 
-            valueClassName="break-all" 
-          />
-          <DetailFieldCardComponent
-            title="Estado"
-            value={<StatusBadgeComponent enabled={detail.userEnabled ?? false} />}
-            className="md:col-span-2"
-          />
-        </div>
-      )
-    }
-
-    return (
-      <div className="grid gap-3 md:grid-cols-2">
-        <DetailFieldCardComponent 
-          title="Creado" 
-          value={detail.createdAtDisplay} 
-        />
-        <DetailFieldCardComponent 
-          title="Actualizado" 
-          value={detail.updatedAtDisplay} 
-        />
-      </div>
-    )
-  }
+function EmployeeDetailContent({ detail, onEdit, onExport, onMore }: EmployeeDetailContentProps) {
+  const approvalTone = resolveApprovalTone(detail.statusName)
+  const tenureStat = buildTenureStat(detail.createdAt)
+  const description = (
+    <>
+      Asignado al proyecto <span className="num">{detail.projectName || '—'}</span>, centro de costo{' '}
+      <span className="num">{detail.costCenterDisplay || '—'}</span>.
+    </>
+  )
 
   return (
-    <section className="space-y-5">
-      <article className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 dark:border-white/10 dark:from-slate-900/60 dark:to-slate-900/30">
-        <div className="flex items-start gap-4">
-          <AvatarInitialsComponent
-            fullName={detail.fullName}
-            fallbackInitials="TR"
-            className="bg-cyan-100 font-bold text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-200"
+    <section className="space-y-12">
+      <DetailHeroComponent
+        displayName={detail.fullName}
+        description={description}
+        badges={
+          <>
+            <DetailBadgeComponent tone={approvalTone} dot>
+              {detail.statusName || 'Sin estado'}
+            </DetailBadgeComponent>
+            <DetailBadgeComponent tone={detail.hasContract ? 'accent' : 'neutral'} dot>
+              {detail.hasContract ? 'Contrato vigente' : 'Sin contrato'}
+            </DetailBadgeComponent>
+            <DetailBadgeComponent tone={detail.rehireEligible ? 'ok' : 'bad'} dot>
+              {detail.rehireEligible ? 'Recontratable' : 'No recontratable'}
+            </DetailBadgeComponent>
+          </>
+        }
+        stat={tenureStat}
+        actions={<HeroActionButtons onEdit={onEdit} onExport={onExport} onMore={onMore} />}
+      />
+
+      <section>
+        <DetailSectionHeaderComponent number="01" title="Datos generales" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent
+            title="Identificación"
+            value={`${detail.identificationType} · ${detail.identification}`}
+            mono
           />
-          <div className="min-w-0 flex-1 space-y-1">
-            <p className="truncate text-base font-semibold">{detail.fullName}</p>
-            <p className="truncate text-sm text-slate-600 dark:text-slate-300">{detail.identification}</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <EmployeeApprovalStatusBadgeComponent statusName={detail.statusName} />
-              <StatusBadgeComponent
-                enabled={detail.hasContract}
-                activeLabel="Contrato: Si"
-                inactiveLabel="Contrato: No"
-              />
-              <StatusBadgeComponent enabled={detail.active} />
-              <StatusBadgeComponent
-                enabled={detail.rehireEligible}
-                activeLabel="Recontratable: Si"
-                inactiveLabel="Recontratable: No"
-              />
-            </div>
-          </div>
+          <DetailFieldCardComponent title="Centro costo" value={detail.costCenterDisplay} />
+          <DetailFieldCardComponent title="Proyecto" value={detail.projectName} />
+          <DetailFieldCardComponent title="Fecha nacimiento" value={detail.birthDate} />
+          <DetailFieldCardComponent title="Género" value={detail.gender} />
+          <DetailFieldCardComponent title="Estado civil" value={detail.maritalStatus} />
+          <DetailFieldCardComponent title="Educación" value={detail.educationLevel} />
+          <DetailFieldCardComponent title="Profesión" value={detail.profession} />
+          <DetailFieldCardComponent title="Licencia" value={detail.driverLicense} />
+          <DetailFieldCardComponent title="Nacionalidad" value={detail.nationality} />
+          <DetailFieldCardComponent title="Extranjero" value={detail.expat} />
         </div>
-      </article>
+      </section>
 
-      <article className="rounded-xl border border-slate-200 p-2 dark:border-white/10">
-        <DetailSectionDropdownComponent
-          value={activeTab}
-          label="Seccion"
-          options={tabSelectOptions}
-          onValueChange={(value) => onTabChange(value as EmployeeDetailTabKey)}
-        />
-      </article>
+      <section>
+        <DetailSectionHeaderComponent number="02" title="Contacto" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Correo corporativo" value={detail.corporateEmail} valueClassName="break-all" />
+          <DetailFieldCardComponent title="Correo personal" value={detail.personalEmail} valueClassName="break-all" />
+          <DetailFieldCardComponent title="Teléfono" value={detail.phone} mono />
+          <DetailFieldCardComponent title="Teléfono 2" value={detail.phone2} mono />
+        </div>
+      </section>
 
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        {renderTabContent()}
-      </article>
+      <section>
+        <DetailSectionHeaderComponent number="03" title="Contacto de emergencia" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Nombre" value={detail.emergencyContactName} />
+          <DetailFieldCardComponent title="Parentesco" value={detail.emergencyContactRelationship} />
+          <DetailFieldCardComponent title="Teléfono" value={detail.emergencyContactPhone} mono />
+          <DetailFieldCardComponent title="Teléfono 2" value={detail.emergencyContactPhone2} mono />
+        </div>
+      </section>
+
+      <section>
+        <DetailSectionHeaderComponent number="04" title="Dirección" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Calle" value={detail.streetName} />
+          <DetailFieldCardComponent title="Número" value={detail.streetNumber} mono />
+          <DetailFieldCardComponent title="Código postal" value={detail.postalCode} mono />
+          <DetailFieldCardComponent title="Departamento" value={detail.department} />
+          <DetailFieldCardComponent title="Villa" value={detail.village} />
+          <DetailFieldCardComponent title="Manzana" value={detail.block} />
+          <DetailFieldCardComponent title="Región" value={detail.region} />
+          <DetailFieldCardComponent title="Comuna" value={detail.commune} />
+          <DetailFieldCardComponent title="Ciudad" value={detail.city} />
+        </div>
+      </section>
+
+      <section>
+        <DetailSectionHeaderComponent number="05" title="Salud y previsión" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="AFP" value={detail.afp} />
+          <DetailFieldCardComponent title="Asig. familiar" value={detail.familyAllowanceTier} />
+          <DetailFieldCardComponent title="Estado pensión" value={detail.pensionStatus} />
+          <DetailFieldCardComponent title="Jubilación" value={detail.retirementStatus} />
+          <DetailFieldCardComponent title="ISAPRE/FUN" value={detail.isapreFun} />
+          <DetailFieldCardComponent title="Seguro salud" value={detail.healthInsurance} />
+          <DetailFieldCardComponent title="Plan salud" value={detail.healthInsuranceTariff} />
+          <DetailFieldCardComponent title="Salud UF" value={detail.healthInsuranceUF} mono />
+          <DetailFieldCardComponent title="Salud pesos" value={detail.healthInsurancePesos} mono />
+        </div>
+      </section>
+
+      <section>
+        <DetailSectionHeaderComponent number="06" title="Pago y tallas" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Método de pago" value={detail.paymentMethod} />
+          <DetailFieldCardComponent title="Banco" value={detail.bank} />
+          <DetailFieldCardComponent title="Cuenta" value={detail.bankAccount} mono />
+          <DetailFieldCardComponent title="Talla ropa" value={detail.clothingSize} mono />
+          <DetailFieldCardComponent title="Talla zapato" value={detail.shoeSize} mono />
+          <DetailFieldCardComponent title="Talla pantalón" value={detail.pantSize} mono />
+        </div>
+      </section>
+
+      <section>
+        <DetailSectionHeaderComponent number="07" title="Usuario vinculado" />
+        {detail.username || detail.userEmail ? (
+          <div className="r-lg flex items-center gap-4 border border-slate-200 p-4 dark:border-white/10">
+            <AvatarInitialsComponent
+              fullName={detail.fullName}
+              fallbackInitials="TR"
+              className="accent-bg-soft accent-text h-12 w-12 text-[13px] font-bold"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-semibold text-slate-900 dark:text-slate-50">
+                {detail.username ? `@${detail.username}` : 'Sin usuario'}
+              </p>
+              <p className="truncate text-[12.5px] text-slate-500 dark:text-slate-400">
+                {detail.userEmail || '—'}
+              </p>
+            </div>
+            <DetailBadgeComponent tone={detail.userEnabled ? 'ok' : 'bad'} dot>
+              {detail.userEnabled ? 'Habilitado' : 'Deshabilitado'}
+            </DetailBadgeComponent>
+          </div>
+        ) : (
+          <p className="text-[12.5px] text-slate-500 dark:text-slate-400">Sin usuario vinculado.</p>
+        )}
+      </section>
+
+      <section>
+        <DetailSectionHeaderComponent number="08" title="Fechas" />
+        <ol className="relative space-y-3 border-l border-slate-200 pl-5 dark:border-white/10">
+          <li className="relative">
+            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+            <div className="flex items-baseline gap-3">
+              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.createdAtDisplay || '—'}</span>
+              <p className="text-[13px] text-slate-700 dark:text-slate-200">Registro creado</p>
+            </div>
+          </li>
+          <li className="relative">
+            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+            <div className="flex items-baseline gap-3">
+              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.updatedAtDisplay || '—'}</span>
+              <p className="text-[13px] text-slate-700 dark:text-slate-200">Última actualización</p>
+            </div>
+          </li>
+        </ol>
+      </section>
     </section>
   )
 }
+
+interface HeroActionButtonsProps {
+  onEdit?: () => void
+  onExport?: () => void
+  onMore?: () => void
+}
+
+function HeroActionButtons({ onEdit, onExport, onMore }: HeroActionButtonsProps) {
+  const baseBtn =
+    'inline-flex items-center gap-1.5 r-md border border-slate-200 bg-white px-2.5 h-9 text-[12.5px] text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60'
+
+  return (
+    <>
+      <button type="button" onClick={onExport} className={baseBtn}>
+        <IconDownload />
+        Exportar
+      </button>
+      <button
+        type="button"
+        onClick={onMore}
+        aria-label="Más acciones"
+        className={`${baseBtn} px-2`}
+      >
+        <IconDots />
+      </button>
+      <button
+        type="button"
+        onClick={onEdit}
+        className="inline-flex items-center gap-1.5 r-md accent-bg h-9 px-3 text-[12.5px] font-medium text-white transition hover:opacity-90"
+      >
+        <IconEdit />
+        Editar
+      </button>
+    </>
+  )
+}
+
+

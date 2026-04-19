@@ -302,6 +302,7 @@ export interface EmployeeDetailView {
   userEmail: string
   userEnabled: boolean | null
   requestId: string
+  createdAt: string
   createdAtDisplay: string
   updatedAtDisplay: string
 }
