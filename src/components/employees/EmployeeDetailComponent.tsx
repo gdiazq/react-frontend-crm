@@ -4,10 +4,11 @@ import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCard
 import { DetailHeroComponent } from '@/components/ui/detail/DetailHeroComponent'
 import { DetailSectionHeaderComponent } from '@/components/ui/detail/DetailSectionHeaderComponent'
 import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
+import { DropdownActionsMenuComponent } from '@/components/ui/dropdown/DropdownActionsMenuComponent'
 import { IconDownload } from '@/components/ui/icons/IconDownload'
-import { IconDots } from '@/components/ui/icons/IconDots'
 import { IconEdit } from '@/components/ui/icons/IconEdit'
 import type { EmployeeDetailView } from '@/types'
+import type { DropdownAction } from '@/utils'
 import { resolveApprovalTone, buildTenureStat } from '@/utils'
 
 interface EmployeeDetailComponentProps {
@@ -17,7 +18,7 @@ interface EmployeeDetailComponentProps {
   onRetry?: () => void
   onEdit?: () => void
   onExport?: () => void
-  onMore?: () => void
+  moreActions?: DropdownAction[]
 }
 
 export function EmployeeDetailComponent({
@@ -27,7 +28,7 @@ export function EmployeeDetailComponent({
   onRetry,
   onEdit,
   onExport,
-  onMore,
+  moreActions,
 }: EmployeeDetailComponentProps) {
   return (
     <DetailStateWrapperComponent
@@ -43,7 +44,7 @@ export function EmployeeDetailComponent({
           detail={detail}
           onEdit={onEdit}
           onExport={onExport}
-          onMore={onMore}
+          moreActions={moreActions}
         />
       )}
     </DetailStateWrapperComponent>
@@ -54,10 +55,10 @@ interface EmployeeDetailContentProps {
   detail: EmployeeDetailView
   onEdit?: () => void
   onExport?: () => void
-  onMore?: () => void
+  moreActions?: DropdownAction[]
 }
 
-function EmployeeDetailContent({ detail, onEdit, onExport, onMore }: EmployeeDetailContentProps) {
+function EmployeeDetailContent({ detail, onEdit, onExport, moreActions }: EmployeeDetailContentProps) {
   const approvalTone = resolveApprovalTone(detail.statusName)
   const tenureStat = buildTenureStat(detail.createdAt)
   const description = (
@@ -86,7 +87,7 @@ function EmployeeDetailContent({ detail, onEdit, onExport, onMore }: EmployeeDet
           </>
         }
         stat={tenureStat}
-        actions={<HeroActionButtons onEdit={onEdit} onExport={onExport} onMore={onMore} />}
+        actions={<HeroActionButtons onEdit={onEdit} onExport={onExport} moreActions={moreActions} />}
       />
 
       <section>
@@ -224,10 +225,10 @@ function EmployeeDetailContent({ detail, onEdit, onExport, onMore }: EmployeeDet
 interface HeroActionButtonsProps {
   onEdit?: () => void
   onExport?: () => void
-  onMore?: () => void
+  moreActions?: DropdownAction[]
 }
 
-function HeroActionButtons({ onEdit, onExport, onMore }: HeroActionButtonsProps) {
+function HeroActionButtons({ onEdit, onExport, moreActions }: HeroActionButtonsProps) {
   const baseBtn =
     'inline-flex items-center gap-1.5 r-md border border-slate-200 bg-white px-2.5 h-9 text-[12.5px] text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60'
 
@@ -237,14 +238,7 @@ function HeroActionButtons({ onEdit, onExport, onMore }: HeroActionButtonsProps)
         <IconDownload />
         Exportar
       </button>
-      <button
-        type="button"
-        onClick={onMore}
-        aria-label="Más acciones"
-        className={`${baseBtn} px-2`}
-      >
-        <IconDots />
-      </button>
+      <DropdownActionsMenuComponent actions={moreActions ?? []} />
       <button
         type="button"
         onClick={onEdit}

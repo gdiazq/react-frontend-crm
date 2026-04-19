@@ -614,6 +614,11 @@ export default function ContractsDashboardPage() {
           loading={loadingContractDetail}
           errorMessage={detailError}
           onRetry={handleRetryDetail}
+          onEdit={
+            selectedDetailRowId
+              ? () => navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${selectedDetailRowId}`)
+              : undefined
+          }
         />
       </DetailSidebarComponent>
     </section>

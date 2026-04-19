@@ -630,6 +630,15 @@ export default function EmployeesDashboardPage() {
               ? () => navigate(`${AUTH_ROUTE_EMPLOYEES_EDIT}=${selectedDetailRowId}`)
               : undefined
           }
+          moreActions={
+            selectedDetailRowId
+              ? (findEmployeeRowById(selectedDetailRowId)
+                  ? resolveRowActions(findEmployeeRowById(selectedDetailRowId)!).filter(
+                      (action) => action.id !== 'view-detail' && action.id !== 'update-employee',
+                    )
+                  : [])
+              : []
+          }
         />
       </DetailSidebarComponent>
 

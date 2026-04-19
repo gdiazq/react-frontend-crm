@@ -55,4 +55,4 @@ export { createNoRehireCauseTableCustomRenderer } from './no-rehire-cause/noRehi
 export { createTerminationQuizQuestionTableCustomRenderer } from './termination-quiz-question/terminationQuizQuestionTableCellRules'
 export { createSettlementTableCustomRenderer } from './settlement/settlementTableCellRules'
 export { createTransferTableCustomRenderer } from './transfer/transferTableCellRules'
-export { resolveApprovalTone, buildTenureStat } from './detail/detailUtils'
+export { resolveApprovalTone, resolveContractStatusTone, buildTenureStat } from './detail/detailUtils'

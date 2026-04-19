@@ -15,6 +15,26 @@ export function resolveApprovalTone(statusName: string): 'ok' | 'warn' | 'bad' |
   return 'neutral'
 }
 
+export function resolveContractStatusTone(statusName: string): 'ok' | 'warn' | 'bad' | 'accent' | 'neutral' {
+  const normalized = statusName
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+  if (normalized.includes('vigente') || normalized.includes('activo')) return 'ok'
+  if (normalized.includes('pendiente')) return 'warn'
+  if (normalized.includes('suspendido')) return 'neutral'
+  if (
+    normalized.includes('vencido')
+    || normalized.includes('finalizado')
+    || normalized.includes('terminado')
+    || normalized.includes('anulado')
+    || normalized.includes('rechazado')
+  ) return 'bad'
+  return 'accent'
+}
+
 export function buildTenureStat(createdAt: string): DetailHeroStat | undefined {
   if (!createdAt) return undefined
   const createdDate = new Date(createdAt)

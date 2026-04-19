@@ -1,26 +1,20 @@
-import { type ReactNode, useState } from 'react'
-import { AvatarInitialsComponent } from '@/components/ui/avatar/AvatarInitialsComponent'
+import { DetailBadgeComponent } from '@/components/ui/detail/DetailBadgeComponent'
 import { DetailFieldCardComponent } from '@/components/ui/detail/DetailFieldCardComponent'
+import { DetailHeroComponent, type DetailHeroStat } from '@/components/ui/detail/DetailHeroComponent'
+import { DetailSectionHeaderComponent } from '@/components/ui/detail/DetailSectionHeaderComponent'
 import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
-import { DetailSectionDropdownComponent } from '@/components/ui/dropdown/DetailSectionDropdownComponent'
-import { ContractStatusBadgeComponent } from '@/components/ui/status/ContractStatusBadgeComponent'
-import { ContractTypeBadgeComponent } from '@/components/ui/status/ContractTypeBadgeComponent'
-import { EmployeeApprovalStatusBadgeComponent } from '@/components/ui/status/EmployeeApprovalStatusBadgeComponent'
+import { IconDownload } from '@/components/ui/icons/IconDownload'
+import { IconEdit } from '@/components/ui/icons/IconEdit'
 import type { ContractDetailView } from '@/types'
+import { resolveApprovalTone, resolveContractStatusTone } from '@/utils'
 
 interface ContractDetailComponentProps {
   detail: ContractDetailView | null
   loading: boolean
   errorMessage: string | null
   onRetry?: () => void
-}
-
-type ContractDetailTabKey = 'general' | 'organization' | 'conditions' | 'documents' | 'dates'
-
-interface ContractDetailContentProps {
-  detail: ContractDetailView
-  activeTab: ContractDetailTabKey
-  onTabChange: (tab: ContractDetailTabKey) => void
+  onEdit?: () => void
+  onExport?: () => void
 }
 
 export function ContractDetailComponent({
@@ -28,9 +22,9 @@ export function ContractDetailComponent({
   loading,
   errorMessage,
   onRetry,
+  onEdit,
+  onExport,
 }: ContractDetailComponentProps) {
-  const [activeTab, setActiveTab] = useState<ContractDetailTabKey>('general')
-
   return (
     <DetailStateWrapperComponent
       loading={loading}
@@ -43,140 +37,193 @@ export function ContractDetailComponent({
       {detail && (
         <ContractDetailContent
           detail={detail}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onEdit={onEdit}
+          onExport={onExport}
         />
       )}
     </DetailStateWrapperComponent>
   )
 }
 
-function ContractDetailContent({ detail, activeTab, onTabChange }: ContractDetailContentProps) {
-  const tabSelectOptions = [
-    { value: 'general', label: 'Informacion general' },
-    { value: 'organization', label: 'Organizacion' },
-    { value: 'conditions', label: 'Condiciones' },
-    { value: 'documents', label: 'Adjuntos' },
-    { value: 'dates', label: 'Fechas' },
-  ]
+interface ContractDetailContentProps {
+  detail: ContractDetailView
+  onEdit?: () => void
+  onExport?: () => void
+}
 
-  const renderTabContent = (): ReactNode => {
-    if (activeTab === 'general') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          <DetailFieldCardComponent title="Nombre contrato" value={detail.contractName} />
-          <DetailFieldCardComponent title="Numero" value={detail.contractNumber} />
+function ContractDetailContent({ detail, onEdit, onExport }: ContractDetailContentProps) {
+  const approvalTone = resolveApprovalTone(detail.approvalStatusName)
+  const contractStatusTone = resolveContractStatusTone(detail.contractStatusName)
+  const documentsStat: DetailHeroStat = {
+    label: 'Adjuntos',
+    value: detail.documents.length,
+    unit: detail.documents.length === 1 ? 'doc' : 'docs',
+    progress: Math.min(100, detail.documents.length * 20),
+  }
+  const description = (
+    <>
+      Trabajador <span className="num">{detail.employeeName || '—'}</span>
+      {detail.contractNumber ? (
+        <>
+          , contrato N° <span className="num">{detail.contractNumber}</span>
+        </>
+      ) : null}
+      .
+    </>
+  )
+
+  return (
+    <section className="space-y-12">
+      <DetailHeroComponent
+        displayName={detail.contractName || 'Sin nombre'}
+        description={description}
+        badges={
+          <>
+            <DetailBadgeComponent tone={contractStatusTone} dot>
+              {detail.contractStatusName || 'Sin estado'}
+            </DetailBadgeComponent>
+            <DetailBadgeComponent tone={approvalTone} dot>
+              {detail.approvalStatusName || 'Sin aprobación'}
+            </DetailBadgeComponent>
+            {detail.contractTypeName && (
+              <DetailBadgeComponent tone="accent">
+                {detail.contractTypeName}
+              </DetailBadgeComponent>
+            )}
+          </>
+        }
+        stat={documentsStat}
+        actions={<HeroActionButtons onEdit={onEdit} onExport={onExport} />}
+      />
+
+      <section>
+        <DetailSectionHeaderComponent number="01" title="Datos generales" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Número" value={detail.contractNumber} mono />
+          <DetailFieldCardComponent title="Tipo contrato" value={detail.contractTypeName} />
           <DetailFieldCardComponent title="Trabajador" value={detail.employeeName} />
-          <DetailFieldCardComponent title="Identificacion" value={detail.employeeIdentification} />
+          <DetailFieldCardComponent title="Identificación" value={detail.employeeIdentification} mono />
         </div>
-      )
-    }
+      </section>
 
-    if (activeTab === 'organization') {
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
+      <section>
+        <DetailSectionHeaderComponent number="02" title="Organización" />
+        <div className="grid gap-x-10 md:grid-cols-2">
           <DetailFieldCardComponent title="Empresa" value={detail.companyName} />
           <DetailFieldCardComponent title="Zona" value={detail.zoneName} />
           <DetailFieldCardComponent title="Cargo" value={detail.jobTitleName} />
           <DetailFieldCardComponent title="Sede" value={detail.siteName} />
           <DetailFieldCardComponent title="Sindicato" value={detail.laborUnionName} />
-          <DetailFieldCardComponent title="Agrupacion seguridad" value={detail.safetyGroupName} />
+          <DetailFieldCardComponent title="Agrup. seguridad" value={detail.safetyGroupName} />
         </div>
-      )
-    }
+      </section>
 
-    if (activeTab === 'conditions') {
-      return (
-        <div className="space-y-3">
-          <div className="grid gap-3 md:grid-cols-2">
-            <DetailFieldCardComponent title="Sueldo base" value={detail.baseSalary} />
-            <DetailFieldCardComponent title="Sueldo acordado" value={detail.agreedSalary} />
-            <DetailFieldCardComponent title="Horas semanales" value={detail.weeklyWorkHours} />
-            <DetailFieldCardComponent title="Dias de trabajo" value={detail.workDays} />
-            <DetailFieldCardComponent title="Inicio" value={detail.startDateDisplay} />
-            <DetailFieldCardComponent title="Fin" value={detail.endDateDisplay} />
-            <DetailFieldCardComponent title="Colacion" value={detail.mealTypeName} />
-            <DetailFieldCardComponent title="Movilizacion" value={detail.transportTypeName} />
-          </div>
-          <DetailFieldCardComponent title="Detalle" value={detail.contractDetailText} />
+      <section>
+        <DetailSectionHeaderComponent number="03" title="Condiciones" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Sueldo base" value={detail.baseSalary} mono />
+          <DetailFieldCardComponent title="Sueldo acordado" value={detail.agreedSalary} mono />
+          <DetailFieldCardComponent title="Horas semanales" value={detail.weeklyWorkHours} mono />
+          <DetailFieldCardComponent title="Días de trabajo" value={detail.workDays} mono />
+          <DetailFieldCardComponent title="Colación" value={detail.mealTypeName} />
+          <DetailFieldCardComponent title="Movilización" value={detail.transportTypeName} />
         </div>
-      )
-    }
+        {detail.contractDetailText && (
+          <p className="mt-4 whitespace-pre-line text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">
+            {detail.contractDetailText}
+          </p>
+        )}
+      </section>
 
-    if (activeTab === 'documents') {
-      if (detail.documents.length === 0) {
-        return <p className="text-sm text-slate-600 dark:text-slate-300">Sin adjuntos.</p>
-      }
-
-      return (
-        <div className="space-y-2">
-          {detail.documents.map((file) => (
-            <article
-              key={file.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2 dark:border-white/10"
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{file.fileName}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{file.sizeDisplay}</p>
-              </div>
-              {file.url.length > 0 && (
-                <a
-                  href={file.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs font-semibold text-cyan-700 hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
-                >
-                  Ver
-                </a>
-              )}
-            </article>
-          ))}
+      <section>
+        <DetailSectionHeaderComponent number="04" title="Vigencia" />
+        <div className="grid gap-x-10 md:grid-cols-2">
+          <DetailFieldCardComponent title="Inicio" value={detail.startDateDisplay} mono />
+          <DetailFieldCardComponent title="Fin" value={detail.endDateDisplay} mono />
         </div>
-      )
-    }
+      </section>
 
-    return (
-      <div className="grid gap-3 md:grid-cols-2">
-        <DetailFieldCardComponent title="Creado" value={detail.createdAtDisplay} />
-        <DetailFieldCardComponent title="Actualizado" value={detail.updatedAtDisplay} />
-      </div>
-    )
-  }
+      <section>
+        <DetailSectionHeaderComponent number="05" title="Adjuntos" />
+        {detail.documents.length === 0 ? (
+          <p className="text-[12.5px] text-slate-500 dark:text-slate-400">Sin adjuntos.</p>
+        ) : (
+          <ul className="space-y-2">
+            {detail.documents.map((file) => (
+              <li
+                key={file.id}
+                className="r-md flex items-center justify-between gap-3 border border-slate-200 px-3 py-2 dark:border-white/10"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-[13px] font-medium text-slate-800 dark:text-slate-100">
+                    {file.fileName}
+                  </p>
+                  <p className="num text-[11px] text-slate-500 dark:text-slate-400">
+                    {file.sizeDisplay}
+                  </p>
+                </div>
+                {file.url.length > 0 && (
+                  <a
+                    href={file.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="accent-text text-[11.5px] font-semibold uppercase tracking-[0.12em] hover:opacity-80"
+                  >
+                    Ver
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section>
+        <DetailSectionHeaderComponent number="06" title="Fechas" />
+        <ol className="relative space-y-3 border-l border-slate-200 pl-5 dark:border-white/10">
+          <li className="relative">
+            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+            <div className="flex items-baseline gap-3">
+              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.createdAtDisplay || '—'}</span>
+              <p className="text-[13px] text-slate-700 dark:text-slate-200">Registro creado</p>
+            </div>
+          </li>
+          <li className="relative">
+            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+            <div className="flex items-baseline gap-3">
+              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.updatedAtDisplay || '—'}</span>
+              <p className="text-[13px] text-slate-700 dark:text-slate-200">Última actualización</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </section>
+  )
+}
+
+interface HeroActionButtonsProps {
+  onEdit?: () => void
+  onExport?: () => void
+}
+
+function HeroActionButtons({ onEdit, onExport }: HeroActionButtonsProps) {
+  const baseBtn =
+    'inline-flex items-center gap-1.5 r-md border border-slate-200 bg-white px-2.5 h-9 text-[12.5px] text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60'
 
   return (
-    <section className="space-y-5">
-      <article className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4 dark:border-white/10 dark:from-slate-900/60 dark:to-slate-900/30">
-        <div className="flex items-start gap-4">
-          <AvatarInitialsComponent
-            fullName={detail.employeeName}
-            fallbackInitials="CT"
-            className="bg-cyan-100 font-bold text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-200"
-          />
-          <div className="min-w-0 flex-1 space-y-1">
-            <p className="truncate text-base font-semibold">{detail.contractName}</p>
-            <p className="truncate text-sm text-slate-600 dark:text-slate-300">{detail.employeeName}</p>
-            <p className="truncate text-sm text-slate-600 dark:text-slate-300">{detail.employeeIdentification}</p>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <ContractTypeBadgeComponent contractType={detail.contractTypeName} />
-              <ContractStatusBadgeComponent contractStatus={detail.contractStatusName} />
-              <EmployeeApprovalStatusBadgeComponent statusName={detail.approvalStatusName} />
-            </div>
-          </div>
-        </div>
-      </article>
-
-      <article className="rounded-xl border border-slate-200 p-2 dark:border-white/10">
-        <DetailSectionDropdownComponent
-          value={activeTab}
-          label="Seccion"
-          options={tabSelectOptions}
-          onValueChange={(value) => onTabChange(value as ContractDetailTabKey)}
-        />
-      </article>
-
-      <article className="rounded-xl border border-slate-200 p-4 dark:border-white/10">
-        {renderTabContent()}
-      </article>
-    </section>
+    <>
+      <button type="button" onClick={onExport} className={baseBtn}>
+        <IconDownload />
+        Exportar
+      </button>
+      <button
+        type="button"
+        onClick={onEdit}
+        className="inline-flex items-center gap-1.5 r-md accent-bg h-9 px-3 text-[12.5px] font-medium text-white transition hover:opacity-90"
+      >
+        <IconEdit />
+        Editar
+      </button>
+    </>
   )
 }
