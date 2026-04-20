@@ -27,6 +27,7 @@ export { DetailSectionHeaderComponent } from './ui/detail/DetailSectionHeaderCom
 export { DetailHeroComponent } from './ui/detail/DetailHeroComponent'
 export { DetailBadgeComponent } from './ui/detail/DetailBadgeComponent'
 export { DetailStateWrapperComponent } from './ui/detail/DetailStateWrapperComponent'
+export { DetailSkeletonComponent } from './ui/detail/DetailSkeletonComponent'
 
 // Icons
 export { IconDownload } from './ui/icons/IconDownload'

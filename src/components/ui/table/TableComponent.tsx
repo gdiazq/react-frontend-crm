@@ -57,107 +57,117 @@ export function TableComponent({
       }
     : undefined
 
+  const renderSortIndicator = (columnIndex: number) => {
+    const isActive = sortState.columnIndex === columnIndex
+    const direction = isActive ? sortState.direction : null
+    return (
+      <span
+        aria-hidden="true"
+        className={`flex h-4 w-3 flex-col items-center justify-center leading-none transition ${
+          isActive ? 'accent-text' : 'text-slate-300 dark:text-slate-600'
+        }`}
+      >
+        <svg viewBox="0 0 10 6" className={`h-[5px] w-[10px] ${direction === 'asc' ? '' : direction === 'desc' ? 'opacity-30' : 'opacity-60'}`} fill="currentColor">
+          <path d="M5 0 L10 6 L0 6 Z" />
+        </svg>
+        <svg viewBox="0 0 10 6" className={`mt-[1px] h-[5px] w-[10px] ${direction === 'desc' ? '' : direction === 'asc' ? 'opacity-30' : 'opacity-60'}`} fill="currentColor">
+          <path d="M0 0 L10 0 L5 6 Z" />
+        </svg>
+      </span>
+    )
+  }
+
   return (
-    <section className="overflow-visible min-w-0 rounded-xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+    <section className="r-lg overflow-visible min-w-0 border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
       <div className={`min-w-0 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] ${scrollContainerClassName}`.trim()}>
-        <table className="w-full min-w-max">
-          <thead className="bg-slate-50 dark:bg-slate-800/60">
+        <table className="w-full min-w-max border-separate border-spacing-0">
+          <thead>
             <tr>
-              {columns.map((column, columnIndex) => (
-                <th
-                  key={column}
-                  className="px-4 py-3 text-left text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-200"
-                >
-                  {isSortableColumn(columnIndex) ? (
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-between gap-2 text-left transition hover:text-cyan-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:hover:text-cyan-300"
-                      onClick={() => onSortChange?.(columnIndex)}
-                    >
-                      <span>{column}</span>
-                      <span className="flex flex-col leading-none text-[9px]">
-                        <span
-                          className={
-                            sortState.columnIndex === columnIndex && sortState.direction === 'asc'
-                              ? 'text-cyan-600 dark:text-cyan-300'
-                              : 'text-slate-300 dark:text-slate-600'
-                          }
-                        >
-                          ▲
-                        </span>
-                        <span
-                          className={
-                            sortState.columnIndex === columnIndex && sortState.direction === 'desc'
-                              ? 'text-cyan-600 dark:text-cyan-300'
-                              : 'text-slate-300 dark:text-slate-600'
-                          }
-                        >
-                          ▼
-                        </span>
+              {columns.map((column, columnIndex) => {
+                const isSortable = sortableColumnIndexes.includes(columnIndex)
+                return (
+                  <th
+                    key={column}
+                    scope="col"
+                    className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/60 px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.08em] text-slate-500 first:rounded-tl-lg last:rounded-tr-lg dark:border-white/10 dark:bg-slate-800/40 dark:text-slate-400"
+                  >
+                    {isSortableColumn(columnIndex) ? (
+                      <button
+                        type="button"
+                        className="group inline-flex items-center gap-1.5 text-left transition hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 dark:hover:text-slate-200"
+                        onClick={() => onSortChange?.(columnIndex)}
+                      >
+                        <span>{column}</span>
+                        {renderSortIndicator(columnIndex)}
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5">
+                        <span>{column}</span>
+                        {isSortable && renderSortIndicator(columnIndex)}
                       </span>
-                    </button>
-                  ) : (
-                    <div className="flex items-center justify-between gap-2">
-                      <span>{column}</span>
-                      {sortableColumnIndexes.includes(columnIndex) && (
-                        <span className="flex flex-col leading-none text-[9px] text-slate-300 dark:text-slate-600">
-                          <span>▲</span>
-                          <span>▼</span>
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </th>
-              ))}
+                    )}
+                  </th>
+                )
+              })}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-white/10">
+          <tbody>
             {loading ? (
               Array.from({ length: 6 }).map((_, rowIndex) => (
                 <tr key={rowIndex}>
                   {columns.map((_, colIndex) => (
-                    <td key={colIndex} className="px-4 py-3">
-                      <div className="h-4 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                    <td key={colIndex} className="border-b border-slate-100 px-4 py-3 dark:border-white/5">
+                      <div className="h-3 w-3/4 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
                     </td>
                   ))}
                 </tr>
               ))
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                <td
+                  colSpan={columns.length}
+                  className="px-4 py-10 text-center text-[12.5px] text-slate-500 dark:text-slate-400"
+                >
                   {emptyMessage}
                 </td>
               </tr>
             ) : (
-              rows.map((row, rowIndex) => (
-                <tr key={row.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
-                  {columns.map((column, index) => {
-                    const cellValue = row.values[index] || '-'
-                    return (
-                      <td
-                        key={`${row.id}-${column}-${index}`}
-                        className="whitespace-nowrap px-4 py-3 text-sm text-slate-700 dark:text-slate-200"
-                      >
-                        {renderCell
-                          ? renderCell(row, cellValue, index, rowIndex)
-                          : (customRenderer != null || internalActionsConfig != null)
-                            ? (
-                              <TableCellRendererComponent
-                                row={row}
-                                value={cellValue}
-                                columnIndex={index}
-                                rowIndex={rowIndex}
-                                rowsLength={rows.length}
-                                customRenderer={customRenderer}
-                                actionsConfig={internalActionsConfig}
-                              />
-                            )
-                            : cellValue}
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))
+              rows.map((row, rowIndex) => {
+                const isLast = rowIndex === rows.length - 1
+                return (
+                  <tr
+                    key={row.id}
+                    className="group transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-800/40"
+                  >
+                    {columns.map((column, index) => {
+                      const cellValue = row.values[index] || '-'
+                      const borderClass = isLast ? '' : 'border-b border-slate-100 dark:border-white/5'
+                      return (
+                        <td
+                          key={`${row.id}-${column}-${index}`}
+                          className={`whitespace-nowrap px-4 py-3 text-[13px] text-slate-700 transition-colors dark:text-slate-200 ${borderClass}`.trim()}
+                        >
+                          {renderCell
+                            ? renderCell(row, cellValue, index, rowIndex)
+                            : (customRenderer != null || internalActionsConfig != null)
+                              ? (
+                                <TableCellRendererComponent
+                                  row={row}
+                                  value={cellValue}
+                                  columnIndex={index}
+                                  rowIndex={rowIndex}
+                                  rowsLength={rows.length}
+                                  customRenderer={customRenderer}
+                                  actionsConfig={internalActionsConfig}
+                                />
+                              )
+                              : cellValue}
+                        </td>
+                      )
+                    })}
+                  </tr>
+                )
+              })
             )}
           </tbody>
         </table>

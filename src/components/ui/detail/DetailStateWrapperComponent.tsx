@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { ButtonComponent } from '@/components/ui/button/ButtonComponent'
+import { DetailSkeletonComponent } from './DetailSkeletonComponent'
 
 interface DetailStateWrapperComponentProps {
   loading: boolean
@@ -9,6 +10,8 @@ interface DetailStateWrapperComponentProps {
   emptyText: string
   onRetry?: () => void
   children: ReactNode
+  skeletonSections?: number
+  skeletonFieldsPerSection?: number
 }
 
 export function DetailStateWrapperComponent({
@@ -19,9 +22,16 @@ export function DetailStateWrapperComponent({
   emptyText,
   onRetry,
   children,
+  skeletonSections,
+  skeletonFieldsPerSection,
 }: DetailStateWrapperComponentProps) {
   if (loading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-300">{loadingText}</p>
+    return (
+      <DetailSkeletonComponent
+        sections={skeletonSections}
+        fieldsPerSection={skeletonFieldsPerSection}
+      />
+    )
   }
 
   if (errorMessage) {
