@@ -145,7 +145,7 @@ export function TableComponent({
                       return (
                         <td
                           key={`${row.id}-${column}-${index}`}
-                          className={`whitespace-nowrap px-4 py-3 text-[13px] text-slate-700 transition-colors dark:text-slate-200 ${borderClass}`.trim()}
+                          className={`whitespace-nowrap px-4 py-3 text-[12.5px] text-slate-800 transition-colors dark:text-slate-100 ${borderClass}`.trim()}
                         >
                           {renderCell
                             ? renderCell(row, cellValue, index, rowIndex)
