@@ -16,7 +16,7 @@ import {
 import { AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
 import { mapperContractDetailView } from '@/mappers'
-import { contractsService } from '@/services'
+import { contractsService, storageService } from '@/services'
 import { useStoreContractSelects, useStoreContracts, useStoreEmployeeSelects } from '@/store'
 import type { ContractTableRow, TableRow, TableSortState } from '@/types'
 import { createContractsActions, createContractsTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
@@ -337,6 +337,10 @@ export default function ContractsDashboardPage() {
     }
   }
 
+  const handleDownloadDocument = (fileId: number) => {
+    window.open(storageService.getDownloadUrl(fileId), '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <section className="min-w-0 space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
@@ -614,6 +618,7 @@ export default function ContractsDashboardPage() {
           loading={loadingContractDetail}
           errorMessage={detailError}
           onRetry={handleRetryDetail}
+          onDownloadDocument={handleDownloadDocument}
           onEdit={
             selectedDetailRowId
               ? () => navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${selectedDetailRowId}`)

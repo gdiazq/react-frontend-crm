@@ -15,6 +15,7 @@ interface ContractDetailComponentProps {
   onRetry?: () => void
   onEdit?: () => void
   onExport?: () => void
+  onDownloadDocument?: (fileId: number) => void
 }
 
 export function ContractDetailComponent({
@@ -24,6 +25,7 @@ export function ContractDetailComponent({
   onRetry,
   onEdit,
   onExport,
+  onDownloadDocument,
 }: ContractDetailComponentProps) {
   return (
     <DetailStateWrapperComponent
@@ -39,6 +41,7 @@ export function ContractDetailComponent({
           detail={detail}
           onEdit={onEdit}
           onExport={onExport}
+          onDownloadDocument={onDownloadDocument}
         />
       )}
     </DetailStateWrapperComponent>
@@ -49,9 +52,15 @@ interface ContractDetailContentProps {
   detail: ContractDetailView
   onEdit?: () => void
   onExport?: () => void
+  onDownloadDocument?: (fileId: number) => void
 }
 
-function ContractDetailContent({ detail, onEdit, onExport }: ContractDetailContentProps) {
+function ContractDetailContent({
+  detail,
+  onEdit,
+  onExport,
+  onDownloadDocument,
+}: ContractDetailContentProps) {
   const approvalTone = resolveApprovalTone(detail.approvalStatusName)
   const contractStatusTone = resolveContractStatusTone(detail.contractStatusName)
   const documentsStat: DetailHeroStat = {
@@ -162,16 +171,14 @@ function ContractDetailContent({ detail, onEdit, onExport }: ContractDetailConte
                     {file.sizeDisplay}
                   </p>
                 </div>
-                {file.url.length > 0 && (
-                  <a
-                    href={file.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="accent-text text-[11.5px] font-semibold uppercase tracking-[0.12em] hover:opacity-80"
-                  >
-                    Ver
-                  </a>
-                )}
+                <button
+                  type="button"
+                  disabled={!onDownloadDocument}
+                  onClick={() => onDownloadDocument?.(file.id)}
+                  className="inline-flex cursor-pointer items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+                >
+                  Descargar
+                </button>
               </li>
             ))}
           </ul>

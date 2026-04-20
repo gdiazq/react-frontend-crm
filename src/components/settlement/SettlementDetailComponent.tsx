@@ -12,6 +12,7 @@ interface SettlementDetailComponentProps {
   loading: boolean
   errorMessage: string | null
   onRetry?: () => void
+  onDownloadDocument?: (fileId: number) => void
 }
 
 type SettlementDetailTabKey = 'general' | 'conditions' | 'quiz' | 'documents' | 'dates'
@@ -20,6 +21,7 @@ interface SettlementDetailContentProps {
   detail: SettlementDetailView
   activeTab: SettlementDetailTabKey
   onTabChange: (tab: SettlementDetailTabKey) => void
+  onDownloadDocument?: (fileId: number) => void
 }
 
 export function SettlementDetailComponent({
@@ -27,6 +29,7 @@ export function SettlementDetailComponent({
   loading,
   errorMessage,
   onRetry,
+  onDownloadDocument,
 }: SettlementDetailComponentProps) {
   const [activeTab, setActiveTab] = useState<SettlementDetailTabKey>('general')
 
@@ -44,13 +47,19 @@ export function SettlementDetailComponent({
           detail={detail}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          onDownloadDocument={onDownloadDocument}
         />
       )}
     </DetailStateWrapperComponent>
   )
 }
 
-function SettlementDetailContent({ detail, activeTab, onTabChange }: SettlementDetailContentProps) {
+function SettlementDetailContent({
+  detail,
+  activeTab,
+  onTabChange,
+  onDownloadDocument,
+}: SettlementDetailContentProps) {
   const tabSelectOptions = [
     { value: 'general', label: 'Informacion general' },
     { value: 'conditions', label: 'Condiciones de termino' },
@@ -100,16 +109,14 @@ function SettlementDetailContent({ detail, activeTab, onTabChange }: SettlementD
                 <p className="truncate text-sm font-medium">{file.fileName}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{file.sizeDisplay}</p>
               </div>
-              {file.url.length > 0 && (
-                <a
-                  href={file.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs font-semibold text-cyan-700 hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
-                >
-                  Ver
-                </a>
-              )}
+              <button
+                type="button"
+                disabled={!onDownloadDocument}
+                onClick={() => onDownloadDocument?.(file.id)}
+                className="inline-flex cursor-pointer items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+              >
+                Descargar
+              </button>
             </article>
           ))}
         </div>

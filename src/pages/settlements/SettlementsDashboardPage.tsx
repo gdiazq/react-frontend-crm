@@ -20,7 +20,7 @@ import {
 } from '@/factories'
 import { mapperSettlementDetailView } from '@/mappers'
 import messages from '@/messages/messages'
-import { settlementService } from '@/services'
+import { settlementService, storageService } from '@/services'
 import { useStoreEmployeeSelects, useStoreSettlement, useStoreSettlementSelects } from '@/store'
 import type { SettlementTableRow, TableRow, TableSortState } from '@/types'
 import {
@@ -303,6 +303,10 @@ export default function SettlementsDashboardPage() {
     setActionsMessage('Carga masiva no disponible para finiquitos.')
   }
 
+  const handleDownloadDocument = (fileId: number) => {
+    window.open(storageService.getDownloadUrl(fileId), '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <section className="min-w-0 space-y-4">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
@@ -547,6 +551,7 @@ export default function SettlementsDashboardPage() {
           loading={loadingSettlementDetail}
           errorMessage={detailError}
           onRetry={handleRetryDetail}
+          onDownloadDocument={handleDownloadDocument}
         />
       </DetailSidebarComponent>
     </section>

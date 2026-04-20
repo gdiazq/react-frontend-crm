@@ -134,16 +134,6 @@ function TransferDetailContent({
                   {file.fileName}
                 </p>
                 <div className="flex shrink-0 items-center gap-3">
-                  {file.url.length > 0 && (
-                    <a
-                      href={file.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[12px] font-semibold accent-text hover:opacity-80"
-                    >
-                      Ver
-                    </a>
-                  )}
                   <button
                     type="button"
                     disabled={deletingDocumentId === file.id}
