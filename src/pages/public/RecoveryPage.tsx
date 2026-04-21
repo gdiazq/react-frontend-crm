@@ -46,28 +46,33 @@ export default function RecoveryPage() {
       <div className="fixed right-4 top-4 z-50">
         <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
       </div>
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(8,145,178,0.12),_transparent_45%),radial-gradient(circle_at_80%_20%,_rgba(14,116,144,0.1),_transparent_35%)] dark:bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_40%),radial-gradient(circle_at_80%_20%,_rgba(14,165,233,0.12),_transparent_35%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(8,145,178,0.08),_transparent_55%),radial-gradient(circle_at_80%_20%,_rgba(14,116,144,0.06),_transparent_45%)] dark:bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.12),_transparent_45%),radial-gradient(circle_at_80%_20%,_rgba(14,165,233,0.08),_transparent_40%)]" />
 
-      <section className="flex flex-1 items-center justify-center p-6">
-        <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-2xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-slate-900/75 dark:shadow-none">
+      <section className="flex flex-1 items-center justify-center px-6 py-12">
+        <section className="r-xl soft-ring w-full max-w-lg border border-slate-200/80 bg-white/95 px-10 py-12 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_20px_50px_-30px_rgba(15,23,42,0.15)] backdrop-blur-sm dark:border-white/10 dark:bg-slate-900/70 dark:shadow-none">
           <button
             type="button"
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 opacity-90 transition hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:text-slate-300 dark:focus-visible:ring-offset-slate-950"
+            className="num inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 transition hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-400)] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:focus-visible:ring-offset-slate-950"
             onClick={() => { useStoreAuthFlow.setState({ errorMessage: null, successMessage: null }); navigate(AUTH_ROUTE_LOGIN) }}
           >
             <span aria-hidden="true">←</span>
-            Volver al login
+            VOLVER AL LOGIN
           </button>
 
-          <h1 className="mt-4 text-balance text-2xl font-bold">Recuperar contrasena</h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            Ingresa tu correo para enviarte un codigo de recuperacion.
-          </p>
+          <header className="mt-5">
+            <h1 className="display mt-4 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+              Recuperar
+              <span className="display-it text-slate-500 dark:text-slate-400"> tu contraseña</span>
+            </h1>
+            <p className="mt-3 text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">
+              Ingresa tu correo y te enviaremos un código para restablecer tu acceso.
+            </p>
+          </header>
 
-          <form className="mt-7 space-y-4" onSubmit={submitForm}>
+          <form className="mt-10 space-y-6" onSubmit={submitForm}>
             <InputComponent
               value={form.email}
-              label="Correo electronico"
+              label="Correo electrónico"
               type="email"
               autoComplete="email"
               placeholder="Ingresa tu correo"
@@ -76,26 +81,24 @@ export default function RecoveryPage() {
             />
 
             <ButtonComponent type="submit" variant="solid" disabled={forgotPasswordSubmitting} className="w-full">
-              {forgotPasswordSubmitting ? 'Enviando...' : 'Enviar codigo'}
+              {forgotPasswordSubmitting ? 'Enviando...' : 'Enviar código'}
             </ButtonComponent>
-          </form>
 
-          {errorMessage && (
-            <AlertMessageComponent
-              message={errorMessage}
-              tone="error"
-              className="mt-3"
-              onClose={() => useStoreAuthFlow.setState({ errorMessage: null })}
-            />
-          )}
-          {!errorMessage && successMessage && (
-            <AlertMessageComponent
-              message={successMessage}
-              tone="success"
-              className="mt-3"
-              onClose={() => useStoreAuthFlow.setState({ successMessage: null })}
-            />
-          )}
+            {errorMessage && (
+              <AlertMessageComponent
+                message={errorMessage}
+                tone="error"
+                onClose={() => useStoreAuthFlow.setState({ errorMessage: null })}
+              />
+            )}
+            {!errorMessage && successMessage && (
+              <AlertMessageComponent
+                message={successMessage}
+                tone="success"
+                onClose={() => useStoreAuthFlow.setState({ successMessage: null })}
+              />
+            )}
+          </form>
         </section>
       </section>
 

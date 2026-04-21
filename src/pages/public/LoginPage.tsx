@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertMessageComponent, ButtonComponent, FooterComponent, GitHubLoginButtonComponent, InputComponent, ThemeToggle } from '@/components'
+import { AlertMessageComponent, ButtonComponent, CheckboxComponent, FooterComponent, GitHubLoginButtonComponent, InputComponent, ThemeToggle } from '@/components'
 import {
   AUTH_ROUTE_HOME,
   AUTH_ROUTE_LOGIN_CREDENTIALS,
@@ -79,28 +79,33 @@ export default function LoginPage() {
       <div className="fixed right-4 top-4 z-50">
         <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
       </div>
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(8,145,178,0.12),_transparent_45%),radial-gradient(circle_at_80%_20%,_rgba(14,116,144,0.1),_transparent_35%)] dark:bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_40%),radial-gradient(circle_at_80%_20%,_rgba(14,165,233,0.12),_transparent_35%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(8,145,178,0.08),_transparent_55%),radial-gradient(circle_at_80%_20%,_rgba(14,116,144,0.06),_transparent_45%)] dark:bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.12),_transparent_45%),radial-gradient(circle_at_80%_20%,_rgba(14,165,233,0.08),_transparent_40%)]" />
 
-      <section className="flex flex-1 items-center justify-center p-6">
-        <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-2xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-slate-900/75 dark:shadow-none">
+      <section className="flex flex-1 items-center justify-center px-6 py-12">
+        <section className="r-xl soft-ring w-full max-w-lg border border-slate-200/80 bg-white/95 px-10 py-12 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_20px_50px_-30px_rgba(15,23,42,0.15)] backdrop-blur-sm dark:border-white/10 dark:bg-slate-900/70 dark:shadow-none">
           <button
             type="button"
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 opacity-90 transition hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:text-slate-300 dark:focus-visible:ring-offset-slate-950"
+            className="num inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 transition hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-400)] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:focus-visible:ring-offset-slate-950"
             onClick={() => navigate(AUTH_ROUTE_HOME)}
           >
             <span aria-hidden="true">←</span>
-            Volver al inicio
+            VOLVER AL INICIO
           </button>
 
-          <div className="mt-4 text-center">
-            <h2 className="mt-4 text-balance text-2xl font-bold">Hola, inicia sesion</h2>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Ingresa tu correo para continuar</p>
-          </div>
+          <header className="mt-5">
+            <h1 className="display mt-4 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+              Hola,
+              <span className="display-it text-slate-500 dark:text-slate-400"> inicia sesión</span>
+            </h1>
+            <p className="mt-3 text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">
+              Ingresa tu correo para continuar con tu sesión.
+            </p>
+          </header>
 
-          <form className="mt-7 space-y-4" onSubmit={submitForm}>
+          <form className="mt-10 space-y-6" onSubmit={submitForm}>
             <InputComponent
               value={form.email}
-              label="Correo electronico"
+              label="Correo electrónico"
               type="text"
               autoComplete="username"
               placeholder="Ingresa tu correo"
@@ -114,12 +119,14 @@ export default function LoginPage() {
               {preLoginSubmitting ? 'Validando...' : 'Continuar'}
             </ButtonComponent>
 
-            <div className="relative py-1">
+            <div className="relative py-2">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-200 dark:border-slate-700" />
+                <span className="w-full border-t border-slate-200 dark:border-white/10" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-500 dark:bg-slate-900 dark:text-slate-400">o</span>
+              <div className="relative flex justify-center">
+                <span className="num bg-white px-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:bg-slate-900 dark:text-slate-500">
+                  o continúa con
+                </span>
               </div>
             </div>
 
@@ -130,22 +137,18 @@ export default function LoginPage() {
               loadingLabel="Conectando con GitHub..."
             />
 
-            <div className="flex items-center justify-between text-sm">
-              <label className="inline-flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={remindMe}
-                  onChange={(e) => setRemindMe(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-400"
-                />
-                <span className="text-slate-600 dark:text-slate-300">Recordarme</span>
-              </label>
+            <div className="flex flex-col gap-3 pt-2 text-[12.5px] sm:flex-row sm:items-center sm:justify-between">
+              <CheckboxComponent
+                label="Recordarme en este equipo"
+                checked={remindMe}
+                onCheckedChange={setRemindMe}
+              />
               <button
                 type="button"
-                className="font-semibold text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
+                className="num text-[11px] uppercase tracking-[0.16em] accent-text transition hover:opacity-80"
                 onClick={() => navigate(AUTH_ROUTE_RECOVERY)}
               >
-                ¿Olvidaste tu contraseña?
+                ¿Olvidaste tu contraseña? →
               </button>
             </div>
 
