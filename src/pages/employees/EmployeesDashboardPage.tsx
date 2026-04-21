@@ -499,9 +499,9 @@ export default function EmployeesDashboardPage() {
           />
           <ButtonComponent
             type="button"
-            variant="primary"
+            variant="success"
             disabled={loadingEmployees || loadingToggleStatus || loadingLinkUser}
-            className="flex-1 text-white md:flex-none dark:text-white"
+            className="flex-1 md:flex-none"
             label="Nuevo trabajador"
             onClick={() => navigate(AUTH_ROUTE_EMPLOYEES_CREATE)}
           />

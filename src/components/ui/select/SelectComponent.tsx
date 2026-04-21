@@ -54,7 +54,6 @@ export function SelectComponent({
     onSearch?.('')
   }, [onSearch])
 
-  // Dispara validación cada vez que el dropdown cierra (cuando el padre ya actualizó su estado)
   useEffect(() => {
     if (!open && wasOpenRef.current) {
       onValidation?.()
@@ -130,36 +129,39 @@ export function SelectComponent({
   const selectedOption = options.find((o) => o.value === value)
   const selectedOptions = options.filter((o) => values.includes(o.value))
 
-  const triggerClass = `flex min-h-[42px] w-full cursor-pointer items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm shadow-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-60 ${
+  const triggerClass = `r-md flex h-9 w-full cursor-pointer items-center justify-between gap-2 border px-2.5 text-[13px] outline-none transition disabled:cursor-not-allowed disabled:opacity-60 ${
     error
-      ? 'border-rose-400 bg-rose-50 text-rose-900 dark:border-rose-400 dark:bg-rose-950/20 dark:text-rose-200'
-      : 'border-slate-300 bg-slate-100 text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100'
+      ? 'border-rose-400 bg-rose-50/40 text-rose-900 dark:border-rose-500/60 dark:bg-rose-950/20 dark:text-rose-200'
+      : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300 dark:border-white/10 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:border-white/20'
   }`
 
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
         {label}
-        {required && <span className="ml-0.5 text-rose-500">*</span>}
+        {required && <span className="ml-0.5 accent-text">*</span>}
       </span>
 
       <div ref={containerRef} className="relative">
         <button type="button" disabled={disabled} onClick={handleToggle} className={triggerClass}>
-          <span className="flex min-w-0 flex-1 flex-wrap gap-1">
+          <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
             {multiple ? (
               selectedOptions.length > 0 ? (
                 selectedOptions.map((opt) => (
                   <span
                     key={opt.value}
-                    className="inline-flex items-center gap-1 rounded bg-cyan-100 px-2 py-0.5 text-xs text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-200"
+                    className="r-sm inline-flex items-center gap-1 accent-bg-soft accent-text px-1.5 py-0.5 text-[11px]"
                   >
                     {opt.label}
                     <span
                       role="button"
                       onClick={(e) => handleRemoveValue(opt.value, e)}
-                      className="leading-none hover:text-cyan-600 dark:hover:text-cyan-100"
+                      className="inline-flex h-3 w-3 items-center justify-center leading-none hover:opacity-70"
+                      aria-label="Eliminar"
                     >
-                      ✕
+                      <svg viewBox="0 0 10 10" className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M1 1 L9 9 M9 1 L1 9" strokeLinecap="round" />
+                      </svg>
                     </span>
                   </span>
                 ))
@@ -167,44 +169,54 @@ export function SelectComponent({
                 <span className="text-slate-400 dark:text-slate-500">{placeholder}</span>
               )
             ) : (
-              <span className={!selectedOption ? 'text-slate-400 dark:text-slate-500' : ''}>
+              <span className={`truncate ${!selectedOption ? 'text-slate-400 dark:text-slate-500' : ''}`}>
                 {selectedOption?.label ?? placeholder}
               </span>
             )}
           </span>
 
-          <span className="flex shrink-0 items-center gap-1 text-slate-400">
+          <span className="flex shrink-0 items-center gap-1 text-slate-400 dark:text-slate-500">
             {!multiple && value && (
               <span
                 role="button"
                 onClick={handleClearSingle}
-                className="hover:text-slate-600 dark:hover:text-slate-200"
+                aria-label="Limpiar"
+                className="inline-flex h-4 w-4 items-center justify-center hover:text-slate-700 dark:hover:text-slate-200"
               >
-                ✕
+                <svg viewBox="0 0 10 10" className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M1 1 L9 9 M9 1 L1 9" strokeLinecap="round" />
+                </svg>
               </span>
             )}
-            <span className={`text-xs transition-transform duration-150 ${open ? 'rotate-180' : ''}`}>▼</span>
+            <svg
+              viewBox="0 0 10 6"
+              className={`h-2 w-2.5 transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M0 0 L10 0 L5 6 Z" />
+            </svg>
           </span>
         </button>
 
         {open && (
-          <div className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
-            <div className="border-b border-slate-200 p-2 dark:border-slate-700">
+          <div className="soft-ring r-md absolute z-50 mt-1 w-full border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+            <div className="border-b border-slate-200 p-1.5 dark:border-white/10">
               <input
                 ref={searchRef}
                 type="text"
                 value={search}
                 onChange={handleSearchChange}
                 placeholder="Buscar..."
-                className="w-full rounded-md border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-sm outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-cyan-400 dark:focus:ring-cyan-400"
+                className="r-sm h-7 w-full border border-slate-200 bg-slate-50/70 px-2 text-[12px] outline-none transition placeholder:text-slate-400 focus:border-[var(--accent-500)] focus:ring-2 focus:ring-[var(--accent-400)]/30 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-100 dark:placeholder-slate-500"
               />
             </div>
 
-            <ul className="max-h-48 overflow-y-auto py-1">
+            <ul className="max-h-56 overflow-y-auto py-1">
               {loading ? (
-                <li className="px-3 py-2 text-sm text-slate-400 dark:text-slate-500">Cargando...</li>
+                <li className="px-3 py-2 text-[12px] text-slate-400 dark:text-slate-500">Cargando...</li>
               ) : options.length === 0 ? (
-                <li className="px-3 py-2 text-sm text-slate-400 dark:text-slate-500">Sin resultados</li>
+                <li className="px-3 py-2 text-[12px] text-slate-400 dark:text-slate-500">Sin resultados</li>
               ) : (
                 options.map((option) => {
                   const isSelected = multiple ? values.includes(option.value) : option.value === value
@@ -212,21 +224,25 @@ export function SelectComponent({
                     <li
                       key={option.value}
                       onClick={() => handleSelectOption(option)}
-                      className={`flex cursor-pointer items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 ${
+                      className={`flex cursor-pointer items-center gap-2 px-3 py-1.5 text-[12.5px] transition-colors hover:bg-slate-50 dark:hover:bg-white/5 ${
                         isSelected
-                          ? 'bg-cyan-50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300'
-                          : 'text-slate-800 dark:text-slate-200'
+                          ? 'accent-bg-soft accent-text'
+                          : 'text-slate-700 dark:text-slate-200'
                       }`}
                     >
                       {multiple && (
                         <span
-                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
+                          className={`r-sm flex h-3.5 w-3.5 shrink-0 items-center justify-center border text-[9px] ${
                             isSelected
-                              ? 'border-cyan-500 bg-cyan-500 text-white'
-                              : 'border-slate-400 dark:border-slate-500'
+                              ? 'accent-bg accent-border text-white'
+                              : 'border-slate-300 dark:border-slate-600'
                           }`}
                         >
-                          {isSelected && '✓'}
+                          {isSelected && (
+                            <svg viewBox="0 0 10 8" className="h-2 w-2.5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                              <path d="M1 4 L4 7 L9 1" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          )}
                         </span>
                       )}
                       {option.label}
@@ -239,8 +255,8 @@ export function SelectComponent({
         )}
       </div>
 
-      {!error && helperText && <p className="text-xs text-slate-500 dark:text-slate-400">{helperText}</p>}
-      {error && <p className="text-xs text-rose-500 dark:text-rose-400">{error}</p>}
+      {!error && helperText && <p className="text-[11px] text-slate-500 dark:text-slate-400">{helperText}</p>}
+      {error && <p className="num text-[11px] text-rose-500 dark:text-rose-400">{error}</p>}
     </div>
   )
 }
