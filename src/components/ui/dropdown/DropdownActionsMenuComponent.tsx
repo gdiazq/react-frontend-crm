@@ -92,7 +92,7 @@ export function DropdownActionsMenuComponent({
       const toneClass =
         action.tone === 'danger'
           ? 'text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-900/20'
-          : 'text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/60'
+          : 'text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5'
       return (
         <button
           key={action.id}
@@ -103,7 +103,7 @@ export function DropdownActionsMenuComponent({
             close()
             action.handler()
           }}
-          className={`block w-full px-3 py-2 text-left text-[12.5px] ${toneClass}`}
+          className={`flex w-full items-center r-sm px-2.5 py-1.5 text-left text-[12.5px] transition ${toneClass}`}
         >
           {action.label}
         </button>
@@ -134,7 +134,7 @@ export function DropdownActionsMenuComponent({
         {open && createPortal(
           <div
             role="menu"
-            className="fixed z-[70] w-56 overflow-hidden r-md border border-slate-200 bg-white py-1 shadow-xl dark:border-white/10 dark:bg-slate-900"
+            className="soft-ring fixed z-[70] w-56 r-md border border-slate-200 bg-white p-1.5 dark:border-white/10 dark:bg-slate-900"
             style={{
               top: portalPosition.top,
               left: portalPosition.left,
@@ -142,6 +142,9 @@ export function DropdownActionsMenuComponent({
             }}
             onClick={(event) => event.stopPropagation()}
           >
+            <div className="px-2 py-1 text-[9.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+              <span className="num accent-text">·</span> Acciones
+            </div>
             {renderMenuItems()}
           </div>,
           document.body,
@@ -165,8 +168,11 @@ export function DropdownActionsMenuComponent({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden r-md border border-slate-200 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-slate-900"
+          className="soft-ring absolute right-0 top-full z-20 mt-1 w-56 r-md border border-slate-200 bg-white p-1.5 dark:border-white/10 dark:bg-slate-900"
         >
+          <div className="px-2 py-1 text-[9.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+            <span className="num accent-text">·</span> Acciones
+          </div>
           {renderMenuItems()}
         </div>
       )}
