@@ -129,7 +129,11 @@ export function SelectComponent({
   const selectedOption = options.find((o) => o.value === value)
   const selectedOptions = options.filter((o) => values.includes(o.value))
 
-  const triggerClass = `r-md flex h-9 w-full cursor-pointer items-center justify-between gap-2 border px-2.5 text-[13px] outline-none transition disabled:cursor-not-allowed disabled:opacity-60 ${
+  const triggerClass = `r-md flex w-full cursor-pointer justify-between gap-2 border px-2.5 text-[13px] outline-none transition disabled:cursor-not-allowed disabled:opacity-60 ${
+    multiple
+      ? 'sidebar-scrollbar min-h-9 max-h-32 items-start overflow-y-auto py-1.5'
+      : 'h-9 items-center'
+  } ${
     error
       ? 'border-rose-400 bg-rose-50/40 text-rose-900 dark:border-rose-500/60 dark:bg-rose-950/20 dark:text-rose-200'
       : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300 dark:border-white/10 dark:bg-slate-900/40 dark:text-slate-100 dark:hover:border-white/20'
@@ -150,13 +154,13 @@ export function SelectComponent({
                 selectedOptions.map((opt) => (
                   <span
                     key={opt.value}
-                    className="r-sm inline-flex items-center gap-1 accent-bg-soft accent-text px-1.5 py-0.5 text-[11px]"
+                    className="r-sm inline-flex max-w-full min-w-0 items-center gap-1 accent-bg-soft accent-text px-1.5 py-0.5 text-[11px]"
                   >
-                    {opt.label}
+                    <span className="min-w-0 truncate">{opt.label}</span>
                     <span
                       role="button"
                       onClick={(e) => handleRemoveValue(opt.value, e)}
-                      className="inline-flex h-3 w-3 items-center justify-center leading-none hover:opacity-70"
+                      className="inline-flex h-3 w-3 shrink-0 items-center justify-center leading-none hover:opacity-70"
                       aria-label="Eliminar"
                     >
                       <svg viewBox="0 0 10 10" className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -212,7 +216,7 @@ export function SelectComponent({
               />
             </div>
 
-            <ul className="max-h-56 overflow-y-auto py-1">
+            <ul className="sidebar-scrollbar max-h-56 overflow-y-auto py-1">
               {loading ? (
                 <li className="px-3 py-2 text-[12px] text-slate-400 dark:text-slate-500">Cargando...</li>
               ) : options.length === 0 ? (
@@ -224,7 +228,7 @@ export function SelectComponent({
                     <li
                       key={option.value}
                       onClick={() => handleSelectOption(option)}
-                      className={`flex cursor-pointer items-center gap-2 px-3 py-1.5 text-[12.5px] transition-colors hover:bg-slate-50 dark:hover:bg-white/5 ${
+                      className={`flex min-w-0 cursor-pointer items-center gap-2 px-3 py-1.5 text-[12.5px] transition-colors hover:bg-slate-50 dark:hover:bg-white/5 ${
                         isSelected
                           ? 'accent-bg-soft accent-text'
                           : 'text-slate-700 dark:text-slate-200'
@@ -245,7 +249,7 @@ export function SelectComponent({
                           )}
                         </span>
                       )}
-                      {option.label}
+                      <span className="min-w-0 truncate">{option.label}</span>
                     </li>
                   )
                 })

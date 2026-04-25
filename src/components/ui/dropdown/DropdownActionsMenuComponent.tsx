@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { IconDots } from '@/components/ui/icons/IconDots'
 import type { DropdownAction } from '@/utils'
@@ -30,21 +30,22 @@ export function DropdownActionsMenuComponent({
   const [internalOpen, setInternalOpen] = useState(false)
   const open = isControlled ? controlledOpen : internalOpen
   const rootRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0 })
 
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     if (isControlled) onToggle?.()
     else setInternalOpen((prev) => !prev)
-  }
+  }, [isControlled, onToggle])
 
-  const close = () => {
+  const close = useCallback(() => {
     if (isControlled) {
       if (open) onToggle?.()
     } else {
       setInternalOpen(false)
     }
-  }
+  }, [isControlled, onToggle, open])
 
   useEffect(() => {
     if (!open) return
@@ -52,6 +53,7 @@ export function DropdownActionsMenuComponent({
       const target = event.target as Node | null
       if (!target) return
       if (rootRef.current?.contains(target)) return
+      if (menuRef.current?.contains(target)) return
       close()
     }
     const handleKey = (event: KeyboardEvent) => {
@@ -63,7 +65,7 @@ export function DropdownActionsMenuComponent({
       document.removeEventListener('mousedown', handleDocClick)
       document.removeEventListener('keydown', handleKey)
     }
-  }, [open])
+  }, [close, open])
 
   useEffect(() => {
     if (!open || variant !== 'portal') return
@@ -133,6 +135,7 @@ export function DropdownActionsMenuComponent({
         </button>
         {open && createPortal(
           <div
+            ref={menuRef}
             role="menu"
             className="soft-ring fixed z-[70] w-56 r-md border border-slate-200 bg-white p-1.5 dark:border-white/10 dark:bg-slate-900"
             style={{
@@ -167,6 +170,7 @@ export function DropdownActionsMenuComponent({
       </button>
       {open && (
         <div
+          ref={menuRef}
           role="menu"
           className="soft-ring absolute right-0 top-full z-20 mt-1 w-56 r-md border border-slate-200 bg-white p-1.5 dark:border-white/10 dark:bg-slate-900"
         >
