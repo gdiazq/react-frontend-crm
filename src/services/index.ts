@@ -1,3 +1,4 @@
+export { annexesService } from './annexes.service'
 export { authService } from './auth.service'
 export { contractSelectsService } from './contract-selects.service'
 export { contractsService } from './contracts.service'

@@ -253,6 +253,37 @@ export default {
       },
     },
   },
+  annexes: {
+    ui: {
+      statusActive: 'Activo',
+      statusInactive: 'Inactivo',
+      requireApprovalYes: 'Si',
+      requireApprovalNo: 'No',
+      actionViewDetail: 'Ver detalle',
+      updateAnnex: 'Editar anexo',
+      detailTitleFallback: 'Detalle de anexo',
+    },
+    status: {
+      success: {
+        createAnnexSuccess: 'Anexo creado correctamente.',
+        updateAnnexSuccess: 'Anexo actualizado correctamente.',
+        deleteDocumentSuccess: 'Documento eliminado correctamente.',
+        exportSuccess: 'CSV exportado correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de anexos.',
+        createAnnexError: 'No se pudo crear el anexo.',
+        updateAnnexError: 'No se pudo actualizar el anexo.',
+        detailLoadError: 'No se pudo cargar el detalle del anexo.',
+        detailInvalidAnnexId: 'Id de anexo invalido.',
+        deleteDocumentError: 'No se pudo eliminar el documento.',
+        exportError: 'No se pudo exportar el CSV de anexos.',
+        loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de anexo.',
+        filesMaxCountError: 'Puedes adjuntar un maximo de 5 archivos.',
+        filesMaxSizeError: 'Cada archivo debe tener un peso maximo de 10 MB.',
+      },
+    },
+  },
   contracts: {
     ui: {
       statusActive: 'Activo',

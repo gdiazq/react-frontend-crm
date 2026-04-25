@@ -13,6 +13,17 @@ export {
   mapperPreLoginPayload,
 } from './auth/pre-login.mapper'
 export { mapperLoginCredentialsPayload } from './auth/login-credentials.mapper'
+export {
+  mapperAnnexDetailToForm,
+  mapperAnnexDetailView,
+  mapperAnnexesPagination,
+  mapperAnnexesQueryParams,
+  mapperAnnexesRows,
+  mapperCreateAnnexFormData,
+  mapperCreateAnnexPayload,
+  mapperUpdateAnnexFormData,
+  mapperUpdateAnnexPayload,
+} from './annexes/annexes.mapper'
 export { mapperDashboardExample } from './dashboard/dashboard-example.mapper'
 export { mapperEmployeeSelectOptions } from './employee-selects/employee-selects.mapper'
 export { mapperContractSelectOptions } from './contract-selects/contract-selects.mapper'
