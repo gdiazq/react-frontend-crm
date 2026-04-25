@@ -69,6 +69,9 @@ export { EmployeeDetailComponent } from './employees/EmployeeDetailComponent'
 // Contracts Components
 export { ContractDetailComponent } from './contracts/ContractDetailComponent'
 
+// Annexes Components
+export { AnnexDetailComponent } from './annexes/AnnexDetailComponent'
+
 // Requests Components
 export { RequestDetailComponent } from './requests/RequestDetailComponent'
 
