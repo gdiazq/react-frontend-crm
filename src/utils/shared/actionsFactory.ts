@@ -328,3 +328,15 @@ export function createTransferActions() {
   return { actionViewDetail, actionUpdateTransfer }
 }
 
+export function createAnnexesActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.annexes.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateAnnex(handler: () => void): DropdownAction {
+    return { id: 'update-annex', label: messages.annexes.ui.updateAnnex, handler }
+  }
+
+  return { actionViewDetail, actionUpdateAnnex }
+}
+

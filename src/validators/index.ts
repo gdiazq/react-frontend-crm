@@ -10,6 +10,7 @@ export { settingsUpdateProfileValidationRules } from './settings.validators'
 export { usersCreateValidationRules } from './users.validators'
 export { employeesCreateValidationRules } from './employees.validators'
 export { contractsCreateValidationRules } from './contracts.validators'
+export { annexesCreateValidationRules } from './annexes.validators'
 export { projectsCreateValidationRules } from './projects.validators'
 export {
   rolesCreateValidationRules,
