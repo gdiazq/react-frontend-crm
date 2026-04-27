@@ -18,6 +18,8 @@ const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'))
 const UsersDashboardPage = lazy(() => import('@/pages/users/UsersDashboardPage'))
 const RequestsDashboardPage = lazy(() => import('@/pages/requests/RequestsDashboardPage'))
 const EmployeesDashboardPage = lazy(() => import('@/pages/employees/EmployeesDashboardPage'))
+const AnnexesDashboardPage = lazy(() => import('@/pages/annexes/AnnexesDashboardPage'))
+const AnnexesFormDashboardPage = lazy(() => import('@/pages/annexes/AnnexesFormDashboardPage'))
 const ContractsDashboardPage = lazy(() => import('@/pages/contracts/ContractsDashboardPage'))
 const TransfersDashboardPage = lazy(() => import('@/pages/transfers/TransfersDashboardPage'))
 const ProjectsDashboardPage = lazy(() => import('@/pages/projects/ProjectsDashboardPage'))
@@ -160,6 +162,30 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="EMPLOYEE" permissionType="canRead">
             <EmployeesDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/annexes',
+        element: (
+          <ProtectedRoute requiresPermissions module="ANNEX" permissionType="canRead">
+            <AnnexesDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/annexes/new',
+        element: (
+          <ProtectedRoute requiresPermissions module="ANNEX" permissionType="canCreate">
+            <AnnexesFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/annexes/:editId',
+        element: (
+          <ProtectedRoute requiresPermissions module="ANNEX" permissionType="canUpdate">
+            <AnnexesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
