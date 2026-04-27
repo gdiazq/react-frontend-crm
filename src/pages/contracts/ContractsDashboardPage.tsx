@@ -13,11 +13,11 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
+import { AUTH_ROUTE_ANNEXES, AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
 import { mapperContractDetailView } from '@/mappers'
 import { contractsService, storageService } from '@/services'
-import { useStoreContractSelects, useStoreContracts, useStoreEmployeeSelects } from '@/store'
+import { useStoreAnnexes, useStoreContractSelects, useStoreContracts, useStoreEmployeeSelects } from '@/store'
 import type { ContractTableRow, TableRow, TableSortState } from '@/types'
 import { createContractsActions, createContractsTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -73,6 +73,10 @@ export default function ContractsDashboardPage() {
   const approvalEmployeeStatusOptionsErrorMessage = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
   const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
   const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
+  const contractAnnexes = useStoreAnnexes((s) => s.contractAnnexes)
+  const loadingContractAnnexes = useStoreAnnexes((s) => s.loadingContractAnnexes)
+  const getAnnexesByContract = useStoreAnnexes((s) => s.getAnnexesByContract)
+  const clearContractAnnexes = useStoreAnnexes((s) => s.clearContractAnnexes)
   const { actionViewDetail, actionUpdateContract } = createContractsActions()
 
   // --- State ---
@@ -159,6 +163,7 @@ export default function ContractsDashboardPage() {
     setSelectedDetailName(String(row.values[CONTRACT_NAME_COLUMN_INDEX] ?? 'Contrato'))
     setDetailOpen(true)
     void getContractDetail(row.id)
+    void getAnnexesByContract(Number(row.id))
   }
 
   const handleCloseDetail = () => {
@@ -166,6 +171,7 @@ export default function ContractsDashboardPage() {
     setSelectedDetailRowId(null)
     setSelectedDetailName('')
     clearContractDetail()
+    clearContractAnnexes()
   }
 
   const handleRetryDetail = () => {
@@ -624,6 +630,9 @@ export default function ContractsDashboardPage() {
               ? () => navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${selectedDetailRowId}`)
               : undefined
           }
+          annexes={contractAnnexes}
+          loadingAnnexes={loadingContractAnnexes}
+          onGoAnnex={() => navigate(AUTH_ROUTE_ANNEXES)}
         />
       </DetailSidebarComponent>
     </section>

@@ -1,4 +1,5 @@
 import type {
+  AnnexByContractItem,
   AnnexCreatePayload,
   AnnexDetail,
   AnnexUpdatePayload,
@@ -13,6 +14,8 @@ import type { OperationKey, OperationStatus } from '../common'
 export interface AnnexesStore {
   annexesRows: AnnexTableRow[]
   annexDetail: AnnexDetail | null
+  contractAnnexes: AnnexByContractItem[]
+  loadingContractAnnexes: boolean
   pagination: AnnexesPagination
   queryParams: AnnexesQueryParams
   loadingAnnexes: boolean
@@ -45,6 +48,8 @@ export interface AnnexesStore {
   createAnnex: (payload: AnnexCreatePayload, files?: File[]) => Promise<boolean>
   updateAnnex: (payload: AnnexUpdatePayload, files?: File[]) => Promise<boolean>
   deleteAnnexDocument: (annexId: number, fileId: number, userId: number) => Promise<boolean>
+  getAnnexesByContract: (contractId: number) => Promise<void>
+  clearContractAnnexes: () => void
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void
 }

@@ -1,4 +1,5 @@
 export { useStoreAnnexes } from './annexes.store'
+export { useStoreAnnexSelects } from './annex-selects.store'
 export { useStoreAuth } from './auth.store'
 export { useStoreAuthFlow } from './auth-flow.store'
 export { useStoreContractSelects } from './contract-selects.store'

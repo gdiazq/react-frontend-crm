@@ -6,13 +6,14 @@ import {
   FileDropzoneComponent,
   InputComponent,
   SaveConfirmComponent,
+  SelectComponent,
 } from '@/components'
 import { AUTH_ROUTE_ANNEXES } from '@/constant'
 import { initialCreateAnnexForm, ANNEX_FILES_MAX_COUNT, ANNEX_FILE_MAX_SIZE_BYTES } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import { mapperAnnexDetailToForm, mapperCreateAnnexPayload, mapperUpdateAnnexPayload } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAnnexes } from '@/store'
+import { useStoreAnnexes, useStoreAnnexSelects } from '@/store'
 import type { AnnexCreatePayload, AnnexUpdatePayload } from '@/types'
 import { annexesCreateValidationRules } from '@/validators'
 
@@ -51,6 +52,12 @@ export default function AnnexesFormDashboardPage() {
   const createAnnex = useStoreAnnexes((s) => s.createAnnex)
   const updateAnnex = useStoreAnnexes((s) => s.updateAnnex)
 
+  const annexTypeOptions = useStoreAnnexSelects((s) => s.annexTypeOptions)
+  const loadingAnnexFormOptions = useStoreAnnexSelects((s) => s.loadingAnnexFormOptions)
+  const annexFormOptionsErrorMessage = useStoreAnnexSelects((s) => s.annexFormOptionsErrorMessage)
+  const getAnnexFormOptions = useStoreAnnexSelects((s) => s.getAnnexFormOptions)
+  const clearAnnexFormOptionsStatus = useStoreAnnexSelects((s) => s.clearAnnexFormOptionsStatus)
+
   const { errors, validateAll, onValidation } = useFormValidation(form, annexesCreateValidationRules)
 
   const saving = createAnnexSubmitting || updateAnnexSubmitting
@@ -62,6 +69,11 @@ export default function AnnexesFormDashboardPage() {
   const submitErrorMessage = activeStatus.error
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving
+  const annexTypeSelectOptions = annexTypeOptions.map((opt) => ({ label: opt.name, value: String(opt.id) }))
+
+  useEffect(() => {
+    void getAnnexFormOptions()
+  }, [getAnnexFormOptions])
 
   useEffect(() => {
     return () => {
@@ -69,8 +81,9 @@ export default function AnnexesFormDashboardPage() {
       clearOperationStatus('update')
       clearOperationStatus('detail')
       clearAnnexDetail()
+      clearAnnexFormOptionsStatus()
     }
-  }, [clearOperationStatus, clearAnnexDetail])
+  }, [clearOperationStatus, clearAnnexDetail, clearAnnexFormOptionsStatus])
 
   useEffect(() => {
     if (!isEditMode) return
@@ -183,6 +196,9 @@ export default function AnnexesFormDashboardPage() {
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{headerDescription}</p>
       </header>
 
+      {annexFormOptionsErrorMessage && (
+        <AlertMessageComponent message={annexFormOptionsErrorMessage} tone="error" onClose={clearAnnexFormOptionsStatus} />
+      )}
       {isEditMode && detailError && (
         <AlertMessageComponent message={detailError} tone="error" onClose={() => clearOperationStatus('detail')} />
       )}
@@ -225,14 +241,14 @@ export default function AnnexesFormDashboardPage() {
             onBlur={onValidation('contractId')}
             required
           />
-          <InputComponent
+          <SelectComponent
             value={form.annexTypeId}
-            label="ID Tipo de anexo"
-            type="text"
-            placeholder="ID del tipo de anexo"
+            label="Tipo de anexo"
+            options={annexTypeSelectOptions}
+            loading={loadingAnnexFormOptions}
             error={errors.annexTypeId}
             onValueChange={handleChangeField('annexTypeId')}
-            onBlur={onValidation('annexTypeId')}
+            onValidation={onValidation('annexTypeId')}
             required
           />
           <InputComponent

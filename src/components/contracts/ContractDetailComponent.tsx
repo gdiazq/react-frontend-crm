@@ -5,8 +5,8 @@ import { DetailSectionHeaderComponent } from '@/components/ui/detail/DetailSecti
 import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
 import { IconDownload } from '@/components/ui/icons/IconDownload'
 import { IconEdit } from '@/components/ui/icons/IconEdit'
-import type { ContractDetailView } from '@/types'
-import { resolveApprovalTone, resolveContractStatusTone } from '@/utils'
+import type { AnnexByContractItem, ContractDetailView } from '@/types'
+import { formatDate, resolveApprovalTone, resolveContractStatusTone } from '@/utils'
 
 interface ContractDetailComponentProps {
   detail: ContractDetailView | null
@@ -16,6 +16,9 @@ interface ContractDetailComponentProps {
   onEdit?: () => void
   onExport?: () => void
   onDownloadDocument?: (fileId: number) => void
+  annexes?: AnnexByContractItem[]
+  loadingAnnexes?: boolean
+  onGoAnnex?: (annexId: number) => void
 }
 
 export function ContractDetailComponent({
@@ -26,6 +29,9 @@ export function ContractDetailComponent({
   onEdit,
   onExport,
   onDownloadDocument,
+  annexes,
+  loadingAnnexes,
+  onGoAnnex,
 }: ContractDetailComponentProps) {
   return (
     <DetailStateWrapperComponent
@@ -42,6 +48,9 @@ export function ContractDetailComponent({
           onEdit={onEdit}
           onExport={onExport}
           onDownloadDocument={onDownloadDocument}
+          annexes={annexes}
+          loadingAnnexes={loadingAnnexes}
+          onGoAnnex={onGoAnnex}
         />
       )}
     </DetailStateWrapperComponent>
@@ -53,6 +62,9 @@ interface ContractDetailContentProps {
   onEdit?: () => void
   onExport?: () => void
   onDownloadDocument?: (fileId: number) => void
+  annexes?: AnnexByContractItem[]
+  loadingAnnexes?: boolean
+  onGoAnnex?: (annexId: number) => void
 }
 
 function ContractDetailContent({
@@ -60,6 +72,9 @@ function ContractDetailContent({
   onEdit,
   onExport,
   onDownloadDocument,
+  annexes,
+  loadingAnnexes,
+  onGoAnnex,
 }: ContractDetailContentProps) {
   const approvalTone = resolveApprovalTone(detail.approvalStatusName)
   const contractStatusTone = resolveContractStatusTone(detail.contractStatusName)
@@ -203,6 +218,42 @@ function ContractDetailContent({
             </div>
           </li>
         </ol>
+      </section>
+
+      <section>
+        <DetailSectionHeaderComponent number="07" title="Anexos" />
+        {loadingAnnexes ? (
+          <p className="text-[12.5px] text-slate-500 dark:text-slate-400">Cargando anexos...</p>
+        ) : !annexes || annexes.length === 0 ? (
+          <p className="text-[12.5px] text-slate-500 dark:text-slate-400">Sin anexos vinculados.</p>
+        ) : (
+          <ul className="space-y-2">
+            {annexes.map((annex) => (
+              <li
+                key={annex.id}
+                className="r-md flex items-center justify-between gap-3 border border-slate-200 px-3 py-2 dark:border-white/10"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-[13px] font-medium text-slate-800 dark:text-slate-100">
+                    {annex.annexTypeName}
+                  </p>
+                  <p className="num text-[11px] text-slate-500 dark:text-slate-400">
+                    {formatDate(annex.date)} · {annex.status} · {annex.documents.length} doc{annex.documents.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                {onGoAnnex && (
+                  <button
+                    type="button"
+                    onClick={() => onGoAnnex(annex.id)}
+                    className="inline-flex cursor-pointer items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/20"
+                  >
+                    Ver
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </section>
   )

@@ -60,6 +60,8 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
   return {
     annexesRows: [...initialAnnexesRows],
     annexDetail: null,
+    contractAnnexes: [],
+    loadingContractAnnexes: false,
     pagination: { ...initialAnnexesPagination },
     queryParams: { ...initialAnnexesQueryParams },
     loadingAnnexes: false,
@@ -272,6 +274,22 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
       } finally {
         set({ deletingAnnexDocument: false })
       }
+    },
+
+    getAnnexesByContract: async (contractId: number) => {
+      try {
+        set({ loadingContractAnnexes: true })
+        const data = await annexesService.getAnnexesByContract(contractId)
+        set({ contractAnnexes: data })
+      } catch {
+        set({ contractAnnexes: [] })
+      } finally {
+        set({ loadingContractAnnexes: false })
+      }
+    },
+
+    clearContractAnnexes: () => {
+      set({ contractAnnexes: [], loadingContractAnnexes: false })
     },
 
     clearOperationStatus: (key) => {

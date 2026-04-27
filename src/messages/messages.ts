@@ -272,6 +272,7 @@ export default {
       },
       errors: {
         loadError: 'No se pudo cargar la lista de anexos.',
+        loadByContractError: 'No se pudieron cargar los anexos del contrato.',
         createAnnexError: 'No se pudo crear el anexo.',
         updateAnnexError: 'No se pudo actualizar el anexo.',
         detailLoadError: 'No se pudo cargar el detalle del anexo.',
