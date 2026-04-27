@@ -13,20 +13,20 @@ import type {
 
 export const annexesService = {
   getAnnexes: async (queryParams: AnnexesQueryParams) => {
-    const { data } = await axiosInstance.get<AnnexPagedResponse>('/annexes/paged', {
+    const { data } = await axiosInstance.get<AnnexPagedResponse>('rrhh/annexes/paged', {
       params: mapperAnnexesQueryParams(queryParams),
     })
     return data
   },
 
   getAnnexDetail: async (annexId: number) => {
-    const { data } = await axiosInstance.get<AnnexDetail>(`/annexes/${annexId}`)
+    const { data } = await axiosInstance.get<AnnexDetail>(`rrhh/annexes/${annexId}`)
     return data
   },
 
   createAnnex: async (payload: AnnexCreatePayload, files: File[] = []) => {
     const formData = mapperCreateAnnexFormData(payload, files)
-    const { data } = await axiosInstance.post<AnnexCreateResponse>('/annexes/create', formData, {
+    const { data } = await axiosInstance.post<AnnexCreateResponse>('rrhh/annexes/create', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return data
@@ -34,26 +34,26 @@ export const annexesService = {
 
   updateAnnex: async (payload: AnnexUpdatePayload, files: File[] = []) => {
     const formData = mapperUpdateAnnexFormData(payload, files)
-    await axiosInstance.put('/annexes/update', formData, {
+    await axiosInstance.put('rrhh/annexes/update', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
 
   deleteAnnexDocument: async (annexId: number, fileId: number, userId: number) => {
-    await axiosInstance.delete(`/annexes/${annexId}/documents/${fileId}`, {
+    await axiosInstance.delete(`rrhh/annexes/${annexId}/documents/${fileId}`, {
       params: { userId },
     })
   },
 
   exportAnnexesCsv: async () => {
-    const { data } = await axiosInstance.get<Blob>('/annexes/export/csv', {
+    const { data } = await axiosInstance.get<Blob>('rrhh/annexes/export/csv', {
       responseType: 'blob',
     })
     return data
   },
 
   getAnnexesByContract: async (contractId: number) => {
-    const { data } = await axiosInstance.get<AnnexByContractItem[]>(`/annexes/select/by-contract/${contractId}`)
+    const { data } = await axiosInstance.get<AnnexByContractItem[]>(`rrhh/annexes/select/by-contract/${contractId}`)
     return data
   },
 

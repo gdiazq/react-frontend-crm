@@ -8,6 +8,7 @@ import {
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
+  SelectComponent,
   StatsOverviewCardsComponent,
   TableComponent,
   ToolbarActionsDropdownComponent,
@@ -267,7 +268,9 @@ export default function AnnexesDashboardPage() {
           />
           <ToolbarActionsDropdownComponent
             disabled={loadingAnnexes || downloadingReport}
+            showBulkUpload={false}
             onDownloadReport={() => { void handleDownloadReport() }}
+            onBulkUpload={() => {}}
           />
         </div>
       </form>
@@ -301,6 +304,13 @@ export default function AnnexesDashboardPage() {
 
       <RightSidebarComponent open={filtersOpen} title="Filtros" onClose={() => setFiltersOpen(false)}>
         <div className="space-y-4">
+          <SelectComponent
+            value={filters.statusId}
+            label="Estado de aprobacion"
+            options={statusSelectOptions}
+            loading={loadingApprovalEmployeeStatusOptions}
+            onValueChange={(v) => handleChangeFilter('statusId', v)}
+          />
           <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/20 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">Fecha del anexo</p>
             <div className="grid gap-2">
