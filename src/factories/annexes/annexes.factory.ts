@@ -65,7 +65,6 @@ export const initialAnnexesQueryParams: AnnexesQueryParams = {
 
 export const initialCreateAnnexForm: AnnexCreateForm = {
   employeeId: '',
-  contractId: '',
   annexTypeId: '',
   date: '',
   description: '',

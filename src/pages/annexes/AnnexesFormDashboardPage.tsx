@@ -59,6 +59,7 @@ export default function AnnexesFormDashboardPage() {
   const createAnnex = useStoreAnnexes((s) => s.createAnnex)
   const updateAnnex = useStoreAnnexes((s) => s.updateAnnex)
 
+  const employeeWithContractOptions = useStoreAnnexSelects((s) => s.employeeWithContractOptions)
   const annexTypeOptions = useStoreAnnexSelects((s) => s.annexTypeOptions)
   const loadingAnnexFormOptions = useStoreAnnexSelects((s) => s.loadingAnnexFormOptions)
   const annexFormOptionsErrorMessage = useStoreAnnexSelects((s) => s.annexFormOptionsErrorMessage)
@@ -76,6 +77,7 @@ export default function AnnexesFormDashboardPage() {
   const submitErrorMessage = activeStatus.error
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving
+  const employeeWithContractSelectOptions = employeeWithContractOptions.map((opt) => ({ label: opt.name, value: String(opt.id) }))
   const annexTypeSelectOptions = annexTypeOptions.map((opt) => ({ label: opt.name, value: String(opt.id) }))
 
   useEffect(() => {
@@ -243,27 +245,16 @@ export default function AnnexesFormDashboardPage() {
 
           <div className="space-y-3">
             <SubSectionLabel number="01.1" title="Relación contractual" />
-            <div className="grid gap-4 md:grid-cols-3">
-              <InputComponent
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectComponent
                 value={form.employeeId}
                 label="ID trabajador"
-                type="text"
-                placeholder="ID del trabajador"
+                options={employeeWithContractSelectOptions}
+                loading={loadingAnnexFormOptions}
                 error={errors.employeeId}
                 disabled={isEditMode}
                 onValueChange={handleChangeField('employeeId')}
-                onBlur={onValidation('employeeId')}
-                required
-              />
-              <InputComponent
-                value={form.contractId}
-                label="ID contrato"
-                type="text"
-                placeholder="ID del contrato"
-                error={errors.contractId}
-                disabled={isEditMode}
-                onValueChange={handleChangeField('contractId')}
-                onBlur={onValidation('contractId')}
+                onValidation={onValidation('employeeId')}
                 required
               />
               <SelectComponent

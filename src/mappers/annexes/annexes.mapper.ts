@@ -67,7 +67,6 @@ function mapperAnnexDocuments(documents: AnnexDetail['documents']): AnnexDetailD
 export function mapperCreateAnnexPayload(form: AnnexCreateForm): AnnexCreatePayload {
   return {
     employeeId: parseRequiredNumber(form.employeeId),
-    contractId: parseRequiredNumber(form.contractId),
     annexTypeId: parseRequiredNumber(form.annexTypeId),
     date: form.date.trim(),
     description: parseNullableString(form.description),
@@ -86,7 +85,6 @@ export function mapperUpdateAnnexPayload(annexId: number, form: AnnexCreateForm)
 export function mapperAnnexDetailToForm(detail: AnnexDetail): AnnexCreateForm {
   return {
     employeeId: String(detail.employeeId),
-    contractId: String(detail.contractId),
     annexTypeId: String(detail.annexTypeId),
     date: normalizeDateValue(detail.date),
     description: detail.description ?? '',

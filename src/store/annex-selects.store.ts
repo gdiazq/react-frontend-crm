@@ -5,6 +5,7 @@ import { annexSelectsService } from '@/services'
 import type { AnnexSelectsStore } from '@/types'
 
 export const useStoreAnnexSelects = create<AnnexSelectsStore>()((set) => ({
+  employeeWithContractOptions: [],
   annexTypeOptions: [],
   loadingAnnexFormOptions: false,
   annexFormOptionsErrorMessage: null,
@@ -13,8 +14,14 @@ export const useStoreAnnexSelects = create<AnnexSelectsStore>()((set) => ({
   getAnnexFormOptions: async () => {
     try {
       set({ loadingAnnexFormOptions: true, annexFormOptionsErrorMessage: null, errorBack: null })
-      const annexTypes = await annexSelectsService.getAnnexTypeOptions()
-      set({ annexTypeOptions: mapperAnnexSelectOptions(annexTypes) })
+      const [employeesWithContract, annexTypes] = await Promise.all([
+        annexSelectsService.getEmployeeWithContractOptions(),
+        annexSelectsService.getAnnexTypeOptions(),
+      ])
+      set({
+        employeeWithContractOptions: mapperAnnexSelectOptions(employeesWithContract),
+        annexTypeOptions: mapperAnnexSelectOptions(annexTypes),
+      })
     } catch (error) {
       if (annexSelectsService.isAxiosError(error)) {
         set({

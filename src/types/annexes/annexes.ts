@@ -44,7 +44,6 @@ export interface AnnexDetail {
 
 export interface AnnexCreateForm {
   employeeId: string
-  contractId: string
   annexTypeId: string
   date: string
   description: string
@@ -52,7 +51,6 @@ export interface AnnexCreateForm {
 
 export interface AnnexCreatePayload {
   employeeId: number
-  contractId: number
   annexTypeId: number
   date: string
   description: string | null
