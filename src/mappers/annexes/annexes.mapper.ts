@@ -24,7 +24,6 @@ export function mapperAnnexesRows(result: AnnexRaw[]): AnnexTableRow[] {
       item.employeeIdentification,
       item.employeeFullName,
       item.annexTypeName,
-      String(item.contractId),
       formatDate(item.date),
       item.status,
       formatDate(item.createdAt),

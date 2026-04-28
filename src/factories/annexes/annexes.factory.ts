@@ -10,27 +10,26 @@ export const annexesTableColumns: string[] = [
   'Identificacion', // 0
   'Trabajador',     // 1
   'Tipo anexo',     // 2
-  'Contrato',       // 3
-  'Fecha',          // 4
-  'Estado',         // 5
-  'Creado',         // 6
-  'Actualizado',    // 7
-  'Acciones',       // 8
+  'Fecha',          // 3
+  'Estado',         // 4
+  'Creado',         // 5
+  'Actualizado',    // 6
+  'Acciones',       // 7
 ]
 
 export const annexesTableColumnIndex = {
   identification: 0,
   employeeName: 1,
   annexType: 2,
-  status: 5,
+  status: 4,
 }
 
 export const annexesTableSortByColumn: Partial<Record<number, AnnexesSortBy>> = {
   0: 'identification',
   1: 'firstName',
-  4: 'date',
-  5: 'status',
-  6: 'createdAt',
+  3: 'date',
+  4: 'status',
+  5: 'createdAt',
 }
 
 export const initialAnnexesRows: AnnexTableRow[] = []

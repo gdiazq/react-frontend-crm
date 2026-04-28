@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DetailSectionHeaderComponent,
   FileDropzoneComponent,
   InputComponent,
   SaveConfirmComponent,
@@ -17,8 +18,14 @@ import { useStoreContractSelects, useStoreContracts } from '@/store'
 import type { ContractCreatePayload, ContractDocument, ContractSelectOption, ContractUpdatePayload } from '@/types'
 import { contractsCreateValidationRules } from '@/validators'
 
-function SectionTitle({ title }: { title: string }) {
-  return <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">{title}</h2>
+function SubSectionLabel({ number, title }: { number: string, title: string }) {
+  return (
+    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+      <span className="num accent-text">{number}</span>
+      <span>{title}</span>
+      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
+    </div>
+  )
 }
 
 const toSelectOptions = (options: ContractSelectOption[]) =>
@@ -280,12 +287,27 @@ export default function ContractsFormDashboardPage() {
   const confirmMessage = pendingAction?.mode === 'update'
     ? `¿Deseas guardar los cambios del contrato ${form.name}?`
     : `¿Deseas crear el contrato ${form.name}?`
+  const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'
+  const heroIdSuffix = isEditMode ? `#${editContractId}` : 'CTR-NEW'
+  const heroWords = headerTitle.trim().split(/\s+/).filter(Boolean)
+  const heroLeading = heroWords.slice(0, 2).join(' ')
+  const heroTrailing = heroWords.slice(2).join(' ')
 
   return (
-    <section className="space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">{headerTitle}</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+    <section className="space-y-6">
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">{heroEyebrow}</span>
+          <span className="h-px w-6 bg-slate-300 dark:bg-slate-700" />
+          <span className="num">{heroIdSuffix}</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          {heroLeading}
+          {heroTrailing && (
+            <span className="display-it text-slate-500 dark:text-slate-400"> {heroTrailing}</span>
+          )}
+        </h1>
+        <p className="mt-2 max-w-2xl text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">
           {headerDescription}
         </p>
       </header>
@@ -322,247 +344,277 @@ export default function ContractsFormDashboardPage() {
         />
       )}
 
-      <form
-        className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60"
-        onSubmit={handleSubmit}
-      >
+      <form className="space-y-10" onSubmit={handleSubmit}>
         {isEditMode && loadingContractDetail && (
-          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando datos del contrato...</p>
+          <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del contrato…</p>
         )}
 
-        <SectionTitle title="Datos base" />
-        <div className="grid gap-4 md:grid-cols-3">
-          <SelectComponent
-            value={form.employeeId}
-            label="Trabajador"
-            options={selectEmployees}
-            error={errors.employeeId}
-            disabled={isEditMode}
-            onValueChange={handleFieldValueChange('employeeId')}
-            onValidation={onValidation('employeeId')}
-            required
-          />
+        <section className="space-y-6">
+          <DetailSectionHeaderComponent number="01" title="Datos base" />
 
-          <InputComponent
-            value={form.name}
-            label="Nombre contrato"
-            type="text"
-            placeholder="Ingresa el nombre del contrato"
-            error={errors.name}
-            onValueChange={handleFieldValueChange('name')}
-            onBlur={onValidation('name')}
-            required
-          />
+          <div className="space-y-3">
+            <SubSectionLabel number="01.1" title="Trabajador y folio" />
+            <div className="grid gap-4 md:grid-cols-3">
+              <SelectComponent
+                value={form.employeeId}
+                label="Trabajador"
+                options={selectEmployees}
+                error={errors.employeeId}
+                disabled={isEditMode}
+                onValueChange={handleFieldValueChange('employeeId')}
+                onValidation={onValidation('employeeId')}
+                required
+              />
 
-          <InputComponent
-            value={form.contractNumber}
-            label="Numero contrato"
-            type="text"
-            placeholder="Ingresa el numero de contrato"
-            error={errors.contractNumber}
-            onValueChange={handleFieldValueChange('contractNumber')}
-            onBlur={onValidation('contractNumber')}
-            required
-          />
+              <InputComponent
+                value={form.name}
+                label="Nombre contrato"
+                type="text"
+                placeholder="Ingresa el nombre del contrato"
+                error={errors.name}
+                onValueChange={handleFieldValueChange('name')}
+                onBlur={onValidation('name')}
+                required
+              />
 
-          <SelectComponent
-            value={form.contractTypeId}
-            label="Tipo contrato"
-            options={selectContractTypes}
-            error={errors.contractTypeId}
-            onValueChange={handleFieldValueChange('contractTypeId')}
-            onValidation={onValidation('contractTypeId')}
-            required
-          />
+              <InputComponent
+                value={form.contractNumber}
+                label="Número contrato"
+                type="text"
+                placeholder="Ingresa el número de contrato"
+                error={errors.contractNumber}
+                onValueChange={handleFieldValueChange('contractNumber')}
+                onBlur={onValidation('contractNumber')}
+                required
+              />
+            </div>
+          </div>
 
-          <SelectComponent
-            value={form.safetyGroupId}
-            label="Agrupacion seguridad"
-            options={selectSafetyGroups}
-            error={errors.safetyGroupId}
-            onValueChange={handleFieldValueChange('safetyGroupId')}
-            onValidation={onValidation('safetyGroupId')}
-            required
-          />
-        </div>
+          <div className="space-y-3">
+            <SubSectionLabel number="01.2" title="Clasificación" />
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectComponent
+                value={form.contractTypeId}
+                label="Tipo contrato"
+                options={selectContractTypes}
+                error={errors.contractTypeId}
+                onValueChange={handleFieldValueChange('contractTypeId')}
+                onValidation={onValidation('contractTypeId')}
+                required
+              />
 
-        <SectionTitle title="Condiciones contractuales" />
-        <div className="grid gap-4 md:grid-cols-3">
-          <InputComponent
-            value={form.baseSalary}
-            label="Sueldo base"
-            type="text"
-            placeholder="Ingresa el sueldo base"
-            error={errors.baseSalary}
-            onValueChange={handleFieldValueChange('baseSalary')}
-            onBlur={onValidation('baseSalary')}
-            required
-          />
+              <SelectComponent
+                value={form.safetyGroupId}
+                label="Agrupación seguridad"
+                options={selectSafetyGroups}
+                error={errors.safetyGroupId}
+                onValueChange={handleFieldValueChange('safetyGroupId')}
+                onValidation={onValidation('safetyGroupId')}
+                required
+              />
+            </div>
+          </div>
+        </section>
 
-          <InputComponent
-            value={form.agreedSalary}
-            label="Sueldo acordado"
-            type="text"
-            placeholder="Ingresa el sueldo acordado"
-            error={errors.agreedSalary}
-            onValueChange={handleFieldValueChange('agreedSalary')}
-            onBlur={onValidation('agreedSalary')}
-            required
-          />
+        <section className="space-y-6">
+          <DetailSectionHeaderComponent number="02" title="Condiciones contractuales" />
 
-          <InputComponent
-            value={form.weeklyWorkHours}
-            label="Horas semanales"
-            type="text"
-            placeholder="Ingresa las horas semanales"
-            error={errors.weeklyWorkHours}
-            onValueChange={handleFieldValueChange('weeklyWorkHours')}
-            onBlur={onValidation('weeklyWorkHours')}
-            required
-          />
+          <div className="space-y-3">
+            <SubSectionLabel number="02.1" title="Remuneración" />
+            <div className="grid gap-4 md:grid-cols-2">
+              <InputComponent
+                value={form.baseSalary}
+                label="Sueldo base"
+                type="text"
+                placeholder="Ingresa el sueldo base"
+                error={errors.baseSalary}
+                onValueChange={handleFieldValueChange('baseSalary')}
+                onBlur={onValidation('baseSalary')}
+                required
+              />
 
-          <InputComponent
-            value={form.workDays}
-            label="Dias de trabajo"
-            type="text"
-            placeholder="Ingresa los dias de trabajo"
-            error={errors.workDays}
-            onValueChange={handleFieldValueChange('workDays')}
-            onBlur={onValidation('workDays')}
-            required
-          />
+              <InputComponent
+                value={form.agreedSalary}
+                label="Sueldo acordado"
+                type="text"
+                placeholder="Ingresa el sueldo acordado"
+                error={errors.agreedSalary}
+                onValueChange={handleFieldValueChange('agreedSalary')}
+                onBlur={onValidation('agreedSalary')}
+                required
+              />
+            </div>
+          </div>
 
-          <InputComponent
-            value={form.startDate}
-            label="Fecha inicio"
-            type="date"
-            error={errors.startDate}
-            onValueChange={handleFieldValueChange('startDate')}
-            onBlur={onValidation('startDate')}
-            required
-          />
+          <div className="space-y-3">
+            <SubSectionLabel number="02.2" title="Jornada y vigencia" />
+            <div className="grid gap-4 md:grid-cols-3">
+              <InputComponent
+                value={form.weeklyWorkHours}
+                label="Horas semanales"
+                type="text"
+                placeholder="Ingresa las horas semanales"
+                error={errors.weeklyWorkHours}
+                onValueChange={handleFieldValueChange('weeklyWorkHours')}
+                onBlur={onValidation('weeklyWorkHours')}
+                required
+              />
 
-          {!hideEndDate && (
-            <InputComponent
-              value={form.endDate}
-              label="Fecha termino"
-              type="date"
-              onValueChange={handleFieldValueChange('endDate')}
+              <InputComponent
+                value={form.workDays}
+                label="Días de trabajo"
+                type="text"
+                placeholder="Ingresa los días de trabajo"
+                error={errors.workDays}
+                onValueChange={handleFieldValueChange('workDays')}
+                onBlur={onValidation('workDays')}
+                required
+              />
+
+              <InputComponent
+                value={form.startDate}
+                label="Fecha inicio"
+                type="date"
+                error={errors.startDate}
+                onValueChange={handleFieldValueChange('startDate')}
+                onBlur={onValidation('startDate')}
+                required
+              />
+
+              {!hideEndDate && (
+                <InputComponent
+                  value={form.endDate}
+                  label="Fecha término"
+                  type="date"
+                  onValueChange={handleFieldValueChange('endDate')}
+                />
+              )}
+
+              <SelectComponent
+                value={form.mealTypeId}
+                label="Tipo colación"
+                options={selectMealTypes}
+                error={errors.mealTypeId}
+                onValueChange={handleFieldValueChange('mealTypeId')}
+                onValidation={onValidation('mealTypeId')}
+                required
+              />
+
+              <SelectComponent
+                value={form.transportTypeId}
+                label="Tipo movilización"
+                options={selectTransportTypes}
+                error={errors.transportTypeId}
+                onValueChange={handleFieldValueChange('transportTypeId')}
+                onValidation={onValidation('transportTypeId')}
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <DetailSectionHeaderComponent number="03" title="Organización y ubicación" />
+          <div className="grid gap-4 md:grid-cols-3">
+            <SelectComponent
+              value={form.companyId}
+              label="Empresa"
+              options={selectCompanies}
+              error={errors.companyId}
+              onValueChange={handleFieldValueChange('companyId')}
+              onValidation={onValidation('companyId')}
+              required
             />
-          )}
 
-          <SelectComponent
-            value={form.mealTypeId}
-            label="Tipo colacion"
-            options={selectMealTypes}
-            error={errors.mealTypeId}
-            onValueChange={handleFieldValueChange('mealTypeId')}
-            onValidation={onValidation('mealTypeId')}
-            required
+            <SelectComponent
+              value={form.zoneId}
+              label="Zona"
+              options={selectZones}
+              error={errors.zoneId}
+              onValueChange={handleFieldValueChange('zoneId')}
+              onValidation={onValidation('zoneId')}
+              required
+            />
+
+            <SelectComponent
+              value={form.jobTitleId}
+              label="Cargo"
+              options={selectJobTitles}
+              error={errors.jobTitleId}
+              onValueChange={handleFieldValueChange('jobTitleId')}
+              onValidation={onValidation('jobTitleId')}
+              required
+            />
+
+            <SelectComponent
+              value={form.siteId}
+              label="Sede"
+              options={selectSites}
+              error={errors.siteId}
+              onValueChange={handleFieldValueChange('siteId')}
+              onValidation={onValidation('siteId')}
+              required
+            />
+
+            <SelectComponent
+              value={form.laborUnionId}
+              label="Sindicato"
+              options={selectLaborUnions}
+              error={errors.laborUnionId}
+              onValueChange={handleFieldValueChange('laborUnionId')}
+              onValidation={onValidation('laborUnionId')}
+              required
+            />
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <DetailSectionHeaderComponent number="04" title="Detalle" />
+          <InputComponent
+            value={form.contractDetail}
+            label="Detalle del contrato"
+            type="text"
+            placeholder="Ingresa el detalle del contrato"
+            onValueChange={handleFieldValueChange('contractDetail')}
           />
+        </section>
 
-          <SelectComponent
-            value={form.transportTypeId}
-            label="Tipo movilizacion"
-            options={selectTransportTypes}
-            error={errors.transportTypeId}
-            onValueChange={handleFieldValueChange('transportTypeId')}
-            onValidation={onValidation('transportTypeId')}
-            required
-          />
-        </div>
-
-        <SectionTitle title="Organizacion y ubicacion" />
-        <div className="grid gap-4 md:grid-cols-3">
-          <SelectComponent
-            value={form.companyId}
-            label="Empresa"
-            options={selectCompanies}
-            error={errors.companyId}
-            onValueChange={handleFieldValueChange('companyId')}
-            onValidation={onValidation('companyId')}
-            required
-          />
-
-          <SelectComponent
-            value={form.zoneId}
-            label="Zona"
-            options={selectZones}
-            error={errors.zoneId}
-            onValueChange={handleFieldValueChange('zoneId')}
-            onValidation={onValidation('zoneId')}
-            required
-          />
-
-          <SelectComponent
-            value={form.jobTitleId}
-            label="Cargo"
-            options={selectJobTitles}
-            error={errors.jobTitleId}
-            onValueChange={handleFieldValueChange('jobTitleId')}
-            onValidation={onValidation('jobTitleId')}
-            required
-          />
-
-          <SelectComponent
-            value={form.siteId}
-            label="Sede"
-            options={selectSites}
-            error={errors.siteId}
-            onValueChange={handleFieldValueChange('siteId')}
-            onValidation={onValidation('siteId')}
-            required
-          />
-
-          <SelectComponent
-            value={form.laborUnionId}
-            label="Sindicato"
-            options={selectLaborUnions}
-            error={errors.laborUnionId}
-            onValueChange={handleFieldValueChange('laborUnionId')}
-            onValidation={onValidation('laborUnionId')}
-            required
-          />
-        </div>
-
-        <SectionTitle title="Detalle" />
-        <InputComponent
-          value={form.contractDetail}
-          label="Detalle del contrato"
-          type="text"
-          placeholder="Ingresa el detalle del contrato"
-          onValueChange={handleFieldValueChange('contractDetail')}
-        />
-
-        <SectionTitle title="Adjuntos" />
-        <FileDropzoneComponent
-          files={contractFiles}
-          existingFiles={existingDocuments}
-          error={filesError}
-          maxFiles={CONTRACT_FILES_MAX_COUNT}
-          disabled={saving}
-          helperText="Opcional. Maximo 5 archivos y 10 MB por archivo."
-          onAddFiles={handleAddFiles}
-          onRemoveFile={handleRemoveFile}
-          onRemoveExistingFile={handleRemoveExistingFile}
-          onClearFiles={handleClearFiles}
-          onClearExistingFiles={handleClearExistingFiles}
-        />
-
-        <div className="flex flex-wrap justify-end gap-2">
-          <ButtonComponent
-            type="button"
-            variant="outline"
+        <section className="space-y-4">
+          <DetailSectionHeaderComponent number="05" title="Adjuntos" />
+          <FileDropzoneComponent
+            files={contractFiles}
+            existingFiles={existingDocuments}
+            error={filesError}
+            maxFiles={CONTRACT_FILES_MAX_COUNT}
             disabled={saving}
-            label="Volver"
-            onClick={() => navigate(AUTH_ROUTE_CONTRACTS)}
+            helperText="Opcional. Máximo 5 archivos y 10 MB por archivo."
+            onAddFiles={handleAddFiles}
+            onRemoveFile={handleRemoveFile}
+            onRemoveExistingFile={handleRemoveExistingFile}
+            onClearFiles={handleClearFiles}
+            onClearExistingFiles={handleClearExistingFiles}
           />
-          <ButtonComponent
-            type="submit"
-            variant="primary"
-            disabled={!canSubmit}
-            label={saving ? submitLoadingLabel : submitLabel}
-          />
+        </section>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
+          <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+            FIN DEL REGISTRO · {new Date().toLocaleDateString('es-CL')}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <ButtonComponent
+              type="button"
+              variant="outline"
+              disabled={saving}
+              label="Volver"
+              onClick={() => navigate(AUTH_ROUTE_CONTRACTS)}
+            />
+            <ButtonComponent
+              type="submit"
+              variant="primary"
+              disabled={!canSubmit}
+              label={saving ? submitLoadingLabel : submitLabel}
+            />
+          </div>
         </div>
       </form>
 

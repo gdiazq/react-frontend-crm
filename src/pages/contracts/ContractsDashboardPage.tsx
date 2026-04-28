@@ -418,9 +418,9 @@ export default function ContractsDashboardPage() {
           />
           <ButtonComponent
             type="button"
-            variant="primary"
+            variant="success"
             disabled={loadingContracts}
-            className="flex-1 text-white md:flex-none dark:text-white"
+            className="flex-1 md:flex-none"
             label="Nuevo contrato"
             onClick={() => navigate(AUTH_ROUTE_CONTRACTS_CREATE)}
           />
