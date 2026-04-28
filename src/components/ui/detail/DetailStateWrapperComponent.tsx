@@ -27,10 +27,13 @@ export function DetailStateWrapperComponent({
 }: DetailStateWrapperComponentProps) {
   if (loading) {
     return (
-      <DetailSkeletonComponent
-        sections={skeletonSections}
-        fieldsPerSection={skeletonFieldsPerSection}
-      />
+      <div className="space-y-4">
+        <p className="num text-[12px] text-slate-500 dark:text-slate-400">{loadingText}</p>
+        <DetailSkeletonComponent
+          sections={skeletonSections}
+          fieldsPerSection={skeletonFieldsPerSection}
+        />
+      </div>
     )
   }
 

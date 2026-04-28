@@ -347,9 +347,9 @@ export default function TransfersDashboardPage() {
           {canCreateTransfer && (
             <ButtonComponent
               type="button"
-              variant="primary"
+              variant="success"
               disabled={loadingTransfers}
-              className="flex-1 text-white md:flex-none dark:text-white"
+              className="flex-1 md:flex-none"
               label="Nuevo traspaso"
               onClick={() => navigate(AUTH_ROUTE_TRANSFERS_CREATE)}
             />
