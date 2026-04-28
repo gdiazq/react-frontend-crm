@@ -260,9 +260,9 @@ export default function AnnexesDashboardPage() {
           />
           <ButtonComponent
             type="button"
-            variant="primary"
+            variant="success"
             disabled={loadingAnnexes}
-            className="flex-1 text-white md:flex-none dark:text-white"
+            className="flex-1 md:flex-none"
             label="Nuevo anexo"
             onClick={() => navigate(AUTH_ROUTE_ANNEXES_CREATE)}
           />

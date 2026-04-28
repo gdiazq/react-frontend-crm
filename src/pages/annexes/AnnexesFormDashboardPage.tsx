@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DetailSectionHeaderComponent,
   FileDropzoneComponent,
   InputComponent,
   SaveConfirmComponent,
@@ -17,8 +18,14 @@ import { useStoreAnnexes, useStoreAnnexSelects } from '@/store'
 import type { AnnexCreatePayload, AnnexUpdatePayload } from '@/types'
 import { annexesCreateValidationRules } from '@/validators'
 
-function SectionTitle({ title }: { title: string }) {
-  return <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">{title}</h2>
+function SubSectionLabel({ number, title }: { number: string, title: string }) {
+  return (
+    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+      <span className="num accent-text">{number}</span>
+      <span>{title}</span>
+      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
+    </div>
+  )
 }
 
 const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
@@ -188,12 +195,29 @@ export default function AnnexesFormDashboardPage() {
   const confirmMessage = pendingAction?.mode === 'update'
     ? '¿Deseas guardar los cambios del anexo?'
     : '¿Deseas crear el anexo?'
+  const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'
+  const heroIdSuffix = isEditMode ? `#${editAnnexId}` : 'ANX-NEW'
+  const heroWords = headerTitle.trim().split(/\s+/).filter(Boolean)
+  const heroLeading = heroWords.slice(0, 2).join(' ')
+  const heroTrailing = heroWords.slice(2).join(' ')
 
   return (
-    <section className="space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">{headerTitle}</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{headerDescription}</p>
+    <section className="space-y-6">
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">{heroEyebrow}</span>
+          <span className="h-px w-6 bg-slate-300 dark:bg-slate-700" />
+          <span className="num">{heroIdSuffix}</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          {heroLeading}
+          {heroTrailing && (
+            <span className="display-it text-slate-500 dark:text-slate-400"> {heroTrailing}</span>
+          )}
+        </h1>
+        <p className="mt-2 max-w-2xl text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">
+          {headerDescription}
+        </p>
       </header>
 
       {annexFormOptionsErrorMessage && (
@@ -209,81 +233,111 @@ export default function AnnexesFormDashboardPage() {
         <AlertMessageComponent message={submitSuccessMessage} tone="success" onClose={clearSubmitStatus} />
       )}
 
-      <form
-        className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60"
-        onSubmit={handleSubmit}
-      >
+      <form className="space-y-10" onSubmit={handleSubmit}>
         {isEditMode && loadingAnnexDetail && (
-          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando datos del anexo...</p>
+          <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del anexo…</p>
         )}
 
-        <SectionTitle title="Datos del anexo" />
-        <div className="grid gap-4 md:grid-cols-3">
-          <InputComponent
-            value={form.employeeId}
-            label="ID Trabajador"
-            type="text"
-            placeholder="ID del trabajador"
-            error={errors.employeeId}
-            disabled={isEditMode}
-            onValueChange={handleChangeField('employeeId')}
-            onBlur={onValidation('employeeId')}
-            required
-          />
-          <InputComponent
-            value={form.contractId}
-            label="ID Contrato"
-            type="text"
-            placeholder="ID del contrato"
-            error={errors.contractId}
-            disabled={isEditMode}
-            onValueChange={handleChangeField('contractId')}
-            onBlur={onValidation('contractId')}
-            required
-          />
-          <SelectComponent
-            value={form.annexTypeId}
-            label="Tipo de anexo"
-            options={annexTypeSelectOptions}
-            loading={loadingAnnexFormOptions}
-            error={errors.annexTypeId}
-            onValueChange={handleChangeField('annexTypeId')}
-            onValidation={onValidation('annexTypeId')}
-            required
-          />
-          <InputComponent
-            value={form.date}
-            label="Fecha"
-            type="date"
-            error={errors.date}
-            onValueChange={handleChangeField('date')}
-            onBlur={onValidation('date')}
-            required
-          />
-          <InputComponent
-            value={form.description}
-            label="Descripcion"
-            type="text"
-            placeholder="Descripcion opcional"
-            onValueChange={handleChangeField('description')}
-          />
-        </div>
+        <section className="space-y-6">
+          <DetailSectionHeaderComponent number="01" title="Datos del anexo" />
 
-        <SectionTitle title="Adjuntos" />
-        <FileDropzoneComponent
-          files={annexFiles}
-          error={filesError}
-          maxFiles={ANNEX_FILES_MAX_COUNT}
-          disabled={saving}
-          helperText="Opcional. Maximo 5 archivos y 10 MB por archivo."
-          onAddFiles={handleAddFiles}
-          onRemoveFile={handleRemoveFile}
-          onClearFiles={handleClearFiles}
-        />
+          <div className="space-y-3">
+            <SubSectionLabel number="01.1" title="Relación contractual" />
+            <div className="grid gap-4 md:grid-cols-3">
+              <InputComponent
+                value={form.employeeId}
+                label="ID trabajador"
+                type="text"
+                placeholder="ID del trabajador"
+                error={errors.employeeId}
+                disabled={isEditMode}
+                onValueChange={handleChangeField('employeeId')}
+                onBlur={onValidation('employeeId')}
+                required
+              />
+              <InputComponent
+                value={form.contractId}
+                label="ID contrato"
+                type="text"
+                placeholder="ID del contrato"
+                error={errors.contractId}
+                disabled={isEditMode}
+                onValueChange={handleChangeField('contractId')}
+                onBlur={onValidation('contractId')}
+                required
+              />
+              <SelectComponent
+                value={form.annexTypeId}
+                label="Tipo de anexo"
+                options={annexTypeSelectOptions}
+                loading={loadingAnnexFormOptions}
+                error={errors.annexTypeId}
+                onValueChange={handleChangeField('annexTypeId')}
+                onValidation={onValidation('annexTypeId')}
+                required
+              />
+            </div>
+          </div>
 
-        <div className="flex flex-wrap justify-end gap-2">
-          <ButtonComponent type="button" variant="outline" disabled={saving} label="Volver" onClick={() => navigate(AUTH_ROUTE_ANNEXES)} />
-          <ButtonComponent type="submit" variant="primary" disabled={!canSubmit} label={saving ? submitLoadingLabel : submitLabel} />
+          <div className="space-y-3">
+            <SubSectionLabel number="01.2" title="Vigencia y descripción" />
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+              <InputComponent
+                value={form.date}
+                label="Fecha"
+                type="date"
+                error={errors.date}
+                onValueChange={handleChangeField('date')}
+                onBlur={onValidation('date')}
+                required
+              />
+              <InputComponent
+                value={form.description}
+                label="Descripción"
+                type="text"
+                placeholder="Descripción opcional"
+                onValueChange={handleChangeField('description')}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <DetailSectionHeaderComponent number="02" title="Adjuntos" />
+          <div className="space-y-3">
+            <SubSectionLabel number="02.1" title="Documentos del anexo" />
+            <FileDropzoneComponent
+              files={annexFiles}
+              error={filesError}
+              maxFiles={ANNEX_FILES_MAX_COUNT}
+              disabled={saving}
+              helperText="Opcional. Máximo 5 archivos y 10 MB por archivo."
+              onAddFiles={handleAddFiles}
+              onRemoveFile={handleRemoveFile}
+              onClearFiles={handleClearFiles}
+            />
+          </div>
+        </section>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
+          <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+            FIN DEL REGISTRO · {new Date().toLocaleDateString('es-CL')}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <ButtonComponent
+              type="button"
+              variant="outline"
+              disabled={saving}
+              label="Volver"
+              onClick={() => navigate(AUTH_ROUTE_ANNEXES)}
+            />
+            <ButtonComponent
+              type="submit"
+              variant="primary"
+              disabled={!canSubmit}
+              label={saving ? submitLoadingLabel : submitLabel}
+            />
+          </div>
         </div>
       </form>
 

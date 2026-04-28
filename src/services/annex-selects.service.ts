@@ -6,7 +6,7 @@ const RRHH_SELECTS_BASE_PATH = '/rrhh/select'
 
 export const annexSelectsService = {
   getAnnexTypeOptions: async () => {
-    const { data } = await axiosInstance.get<AnnexSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/annex-types`)
+    const { data } = await axiosInstance.get<AnnexSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/contract-annex-types`)
     return data
   },
   isAxiosError: axios.isAxiosError,
