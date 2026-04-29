@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DetailSectionHeaderComponent,
   InputComponent,
   SaveConfirmComponent,
 } from '@/components'
@@ -22,6 +23,15 @@ type PendingAction =
   | { mode: 'create', payload: NoRehireCauseCreatePayload }
   | { mode: 'update', payload: NoRehireCauseUpdatePayload }
   | null
+
+function SubSectionLabel({ number, title }: { number: string, title: string }) {
+  return (
+    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+      <span className="num accent-text">{number}</span>
+      <span>{title}</span>
+    </div>
+  )
+}
 
 export default function NoRehireCauseFormDashboardPage() {
   const navigate = useNavigate()
@@ -50,10 +60,10 @@ export default function NoRehireCauseFormDashboardPage() {
 
   const saving = createNoRehireCauseSubmitting || updateNoRehireCauseSubmitting
 
-  const headerTitle = isEditMode ? 'Editar causa de no recontratacion' : 'Crear causa de no recontratacion'
+  const headerTitle = isEditMode ? 'Editar causa de no recontratación' : 'Crear causa de no recontratación'
   const headerDescription = isEditMode
-    ? 'Actualiza los datos de la causa de no recontratacion seleccionada.'
-    : 'Completa los datos para registrar una nueva causa de no recontratacion.'
+    ? 'Actualiza los datos de la causa de no recontratación seleccionada.'
+    : 'Completa los datos para registrar una nueva causa de no recontratación.'
   const submitLabel = isEditMode ? 'Guardar cambios' : 'Crear causa'
   const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : 'Creando causa...'
   const activeStatus = isEditMode ? updateStatus : createStatus
@@ -137,12 +147,22 @@ export default function NoRehireCauseFormDashboardPage() {
   const confirmMessage = pendingAction?.mode === 'update'
     ? `¿Deseas guardar los cambios de la causa ${form.name}?`
     : `¿Deseas crear la causa ${form.name}?`
+  const heroWords = headerTitle.trim().split(/\s+/).filter(Boolean)
+  const heroLeading = heroWords.slice(0, 2).join(' ')
+  const heroTrailing = heroWords.slice(2).join(' ')
 
   return (
-    <section className="space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">{headerTitle}</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{headerDescription}</p>
+    <section className="space-y-6">
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <h1 className="display text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          {heroLeading}
+          {heroTrailing && (
+            <span className="display-it text-slate-500 dark:text-slate-400"> {heroTrailing}</span>
+          )}
+        </h1>
+        <p className="mt-2 max-w-2xl text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">
+          {headerDescription}
+        </p>
       </header>
 
       {isEditMode && detailError && (
@@ -170,35 +190,52 @@ export default function NoRehireCauseFormDashboardPage() {
       )}
 
       <form
-        className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60"
+        className="space-y-10"
         onSubmit={handleSubmit}
       >
         {isEditMode && loadingNoRehireCauseDetail && (
-          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando datos de la causa de no recontratacion...</p>
+          <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos de la causa de no recontratación...</p>
         )}
 
-        <InputComponent
-          value={form.name}
-          label="Nombre causa de no recontratacion"
-          type="text"
-          placeholder="Ingresa el nombre de la causa de no recontratacion"
-          autoComplete="off"
-          error={errors.name}
-          onValueChange={handleNoRehireCauseNameChange}
-          onBlur={onValidation('name')}
-          required
-        />
+        <section className="space-y-6">
+          <DetailSectionHeaderComponent number="01" title="Datos de no recontratación" />
 
-        <InputComponent
-          value={form.description}
-          label="Descripcion"
-          type="text"
-          placeholder="Ingresa la descripcion de la causa de no recontratacion"
-          autoComplete="off"
-          onValueChange={handleNoRehireCauseDescriptionChange}
-        />
+          <div className="space-y-3">
+            <SubSectionLabel number="01.1" title="Identificación de la causa" />
+            <div className="grid gap-4 md:grid-cols-2">
+              <InputComponent
+                value={form.name}
+                label="Nombre causa de no recontratación"
+                type="text"
+                placeholder="Ingresa el nombre de la causa de no recontratación"
+                autoComplete="off"
+                error={errors.name}
+                onValueChange={handleNoRehireCauseNameChange}
+                onBlur={onValidation('name')}
+                required
+              />
+            </div>
+          </div>
 
-        <div className="flex flex-wrap justify-end gap-2">
+          <div className="space-y-3">
+            <SubSectionLabel number="01.2" title="Descripción operativa" />
+            <div className="space-y-1.5">
+              <label className="block text-[10.5px] font-medium uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+                Descripción
+              </label>
+              <textarea
+                value={form.description}
+                placeholder="Ingresa la descripción de la causa de no recontratación"
+                autoComplete="off"
+                rows={5}
+                className="r-md min-h-28 w-full resize-y border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[color:var(--accent-400)] focus:ring-2 focus:ring-[color:var(--accent-400)]/20 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-100 dark:placeholder:text-slate-500"
+                onChange={(event) => handleNoRehireCauseDescriptionChange(event.target.value)}
+              />
+            </div>
+          </div>
+        </section>
+
+        <div className="flex flex-wrap justify-end gap-2 border-t border-slate-200 pt-5 dark:border-white/10">
           <ButtonComponent
             type="button"
             variant="outline"
@@ -208,7 +245,7 @@ export default function NoRehireCauseFormDashboardPage() {
           />
           <ButtonComponent
             type="submit"
-            variant="primary"
+            variant="success"
             disabled={!canSubmit}
             label={saving ? submitLoadingLabel : submitLabel}
           />
@@ -217,7 +254,7 @@ export default function NoRehireCauseFormDashboardPage() {
 
       <SaveConfirmComponent
         open={confirmOpen}
-        title={isEditMode ? 'Confirmar actualizacion de causa' : 'Confirmar creacion de causa'}
+        title={isEditMode ? 'Confirmar actualización de causa' : 'Confirmar creación de causa'}
         message={confirmMessage}
         confirmLabel={submitLabel}
         cancelLabel="Cancelar"
