@@ -47,6 +47,7 @@ export function DetailHeroComponent({
   }
 
   const progressPct = stat?.progress != null ? Math.max(0, Math.min(100, stat.progress)) : null
+  const titleTopMargin = eyebrowParts.length > 0 ? 'mt-3' : ''
 
   return (
     <header className="flex flex-col gap-5 pb-2 md:flex-row md:items-end md:justify-between">
@@ -56,7 +57,7 @@ export function DetailHeroComponent({
             {eyebrowParts}
           </div>
         )}
-        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+        <h1 className={`display text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50 ${titleTopMargin}`.trim()}>
           {leading}
           {trailing && (
             <span className="display-it text-slate-500 dark:text-slate-400"> {trailing}</span>
