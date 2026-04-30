@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DetailSectionHeaderComponent,
   InputComponent,
   SaveConfirmComponent,
 } from '@/components'
@@ -18,6 +19,16 @@ type PendingAction =
   | { mode: 'create', payload: ProjectStatusCreatePayload }
   | { mode: 'update', payload: ProjectStatusUpdatePayload }
   | null
+
+function SubSectionLabel({ number, title }: { number: string, title: string }) {
+  return (
+    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+      <span className="num accent-text">{number}</span>
+      <span>{title}</span>
+      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
+    </div>
+  )
+}
 
 export default function ProjectStatusesFormDashboardPage() {
   const navigate = useNavigate()
@@ -137,12 +148,27 @@ export default function ProjectStatusesFormDashboardPage() {
   const confirmMessage = pendingAction?.mode === 'update'
     ? `¿Deseas guardar los cambios de la vigencia ${form.name}?`
     : `¿Deseas crear la vigencia ${form.name}?`
+  const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'
+  const heroIdSuffix = isEditMode ? `#${editProjectStatusId}` : 'VIG-NEW'
+  const heroWords = headerTitle.trim().split(/\s+/).filter(Boolean)
+  const heroLeading = heroWords.slice(0, 2).join(' ')
+  const heroTrailing = heroWords.slice(2).join(' ')
 
   return (
-    <section className="space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">{headerTitle}</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{headerDescription}</p>
+    <section className="space-y-6">
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">{heroEyebrow}</span>
+          <span className="h-px w-6 bg-slate-300 dark:bg-slate-700" />
+          <span className="num">{heroIdSuffix}</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          {heroLeading}
+          {heroTrailing && (
+            <span className="display-it text-slate-500 dark:text-slate-400"> {heroTrailing}</span>
+          )}
+        </h1>
+        <p className="mt-2 max-w-2xl text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">{headerDescription}</p>
       </header>
 
       {isEditMode && detailError && (
@@ -169,55 +195,65 @@ export default function ProjectStatusesFormDashboardPage() {
         />
       )}
 
-      <form
-        className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60"
-        onSubmit={handleSubmit}
-      >
+      <form className="space-y-10" onSubmit={handleSubmit}>
         {isEditMode && loadingProjectStatusDetail && (
-          <p className="text-sm text-slate-600 dark:text-slate-300">Cargando datos de la vigencia de proyecto...</p>
+          <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos de la vigencia de proyecto…</p>
         )}
 
-        <InputComponent
-          value={form.name}
-          label="Nombre vigencia proyecto"
-          type="text"
-          placeholder="Ingresa el nombre de la vigencia de proyecto"
-          autoComplete="off"
-          error={errors.name}
-          onValueChange={handleProjectStatusNameChange}
-          onBlur={onValidation('name')}
-          required
-        />
+        <section className="space-y-6">
+          <DetailSectionHeaderComponent number="01" title="Datos de la vigencia" />
+          <div className="space-y-3">
+            <SubSectionLabel number="01.1" title="Identificación" />
+            <div className="grid gap-4 md:grid-cols-2">
+              <InputComponent
+                value={form.name}
+                label="Nombre vigencia proyecto"
+                type="text"
+                placeholder="Ingresa el nombre de la vigencia de proyecto"
+                autoComplete="off"
+                error={errors.name}
+                onValueChange={handleProjectStatusNameChange}
+                onBlur={onValidation('name')}
+                required
+              />
 
-        <InputComponent
-          value={form.description}
-          label="Descripcion"
-          type="text"
-          placeholder="Ingresa la descripcion de la vigencia de proyecto"
-          autoComplete="off"
-          onValueChange={handleProjectStatusDescriptionChange}
-        />
+              <InputComponent
+                value={form.description}
+                label="Descripción"
+                type="text"
+                placeholder="Ingresa la descripción de la vigencia de proyecto"
+                autoComplete="off"
+                onValueChange={handleProjectStatusDescriptionChange}
+              />
+            </div>
+          </div>
+        </section>
 
-        <div className="flex flex-wrap justify-end gap-2">
-          <ButtonComponent
-            type="button"
-            variant="outline"
-            disabled={saving}
-            label="Volver"
-            onClick={() => navigate(AUTH_ROUTE_PROJECT_STATUSES)}
-          />
-          <ButtonComponent
-            type="submit"
-            variant="primary"
-            disabled={!canSubmit}
-            label={saving ? submitLoadingLabel : submitLabel}
-          />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
+          <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+            FIN DEL REGISTRO · {new Date().toLocaleDateString('es-CL')}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <ButtonComponent
+              type="button"
+              variant="outline"
+              disabled={saving}
+              label="Volver"
+              onClick={() => navigate(AUTH_ROUTE_PROJECT_STATUSES)}
+            />
+            <ButtonComponent
+              type="submit"
+              variant="primary"
+              disabled={!canSubmit}
+              label={saving ? submitLoadingLabel : submitLabel}
+            />
+          </div>
         </div>
       </form>
 
       <SaveConfirmComponent
         open={confirmOpen}
-        title={isEditMode ? 'Confirmar actualizacion de vigencia' : 'Confirmar creacion de vigencia'}
+        title={isEditMode ? 'Confirmar actualización de vigencia' : 'Confirmar creación de vigencia'}
         message={confirmMessage}
         confirmLabel={submitLabel}
         cancelLabel="Cancelar"
