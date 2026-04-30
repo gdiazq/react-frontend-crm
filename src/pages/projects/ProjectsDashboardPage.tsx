@@ -377,8 +377,14 @@ export default function ProjectsDashboardPage() {
 
   return (
     <section className="min-w-0 space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Dashboard de proyectos</h1>
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">ÍNDICE · PROYECTOS</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          Dashboard
+          <span className="display-it text-slate-500 dark:text-slate-400"> de proyectos</span>
+        </h1>
       </header>
 
       <StatsOverviewCardsComponent
@@ -450,7 +456,7 @@ export default function ProjectsDashboardPage() {
             <InputComponent
               value={queryParams.search}
               type="text"
-              placeholder="Buscar por nombre, descripcion o direccion"
+              placeholder="Buscar por nombre, descripción o dirección"
               onValueChange={setSearch}
             />
           </div>
@@ -466,9 +472,9 @@ export default function ProjectsDashboardPage() {
           />
           <ButtonComponent
             type="button"
-            variant="primary"
+            variant="success"
             disabled={loadingProjects || loadingToggleStatus || downloadingReport || uploadingBulk}
-            className="flex-1 text-white md:flex-none dark:text-white"
+            className="flex-1 md:flex-none"
             label="Nuevo proyecto"
             onClick={() => navigate(AUTH_ROUTE_PROJECTS_CREATE)}
           />
@@ -560,7 +566,7 @@ export default function ProjectsDashboardPage() {
 
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-              Fecha creacion
+              Fecha creación
             </p>
             <div className="grid gap-2">
               <InputComponent
@@ -568,7 +574,7 @@ export default function ProjectsDashboardPage() {
                 value={filters.createdFrom}
                 type="date"
                 label="Desde"
-                aria-label="Fecha creacion desde"
+                aria-label="Fecha creación desde"
                 onValueChange={handleCreatedFromFilterChange}
               />
               <InputComponent
@@ -576,7 +582,7 @@ export default function ProjectsDashboardPage() {
                 value={filters.createdTo}
                 type="date"
                 label="Hasta"
-                aria-label="Fecha creacion hasta"
+                aria-label="Fecha creación hasta"
                 onValueChange={handleCreatedToFilterChange}
               />
             </div>
@@ -584,7 +590,7 @@ export default function ProjectsDashboardPage() {
 
           <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/20 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">
-              Fecha actualizacion
+              Fecha actualización
             </p>
             <div className="grid gap-2">
               <InputComponent
@@ -592,7 +598,7 @@ export default function ProjectsDashboardPage() {
                 value={filters.updatedFrom}
                 type="date"
                 label="Desde"
-                aria-label="Fecha actualizacion desde"
+                aria-label="Fecha actualización desde"
                 onValueChange={handleUpdatedFromFilterChange}
               />
               <InputComponent
@@ -600,7 +606,7 @@ export default function ProjectsDashboardPage() {
                 value={filters.updatedTo}
                 type="date"
                 label="Hasta"
-                aria-label="Fecha actualizacion hasta"
+                aria-label="Fecha actualización hasta"
                 onValueChange={handleUpdatedToFilterChange}
               />
             </div>
@@ -641,6 +647,11 @@ export default function ProjectsDashboardPage() {
           loading={loadingProjectDetail}
           errorMessage={detailError}
           onRetry={handleRetryDetail}
+          onEdit={
+            canUpdateProject && selectedDetailRowId
+              ? () => navigate(`${AUTH_ROUTE_PROJECTS_EDIT}=${selectedDetailRowId}`)
+              : undefined
+          }
         />
       </DetailSidebarComponent>
 
