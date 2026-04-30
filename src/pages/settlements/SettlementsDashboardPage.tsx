@@ -309,8 +309,14 @@ export default function SettlementsDashboardPage() {
 
   return (
     <section className="min-w-0 space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Dashboard de finiquito</h1>
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">ÍNDICE · FINIQUITOS</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          Dashboard
+          <span className="display-it text-slate-500 dark:text-slate-400"> de finiquitos</span>
+        </h1>
       </header>
 
       <StatsOverviewCardsComponent
@@ -378,9 +384,9 @@ export default function SettlementsDashboardPage() {
           />
           <ButtonComponent
             type="button"
-            variant="primary"
+            variant="success"
             disabled={loadingSettlements}
-            className="flex-1 text-white md:flex-none dark:text-white"
+            className="flex-1 md:flex-none"
             label="Nuevo finiquito"
             onClick={() => navigate(AUTH_ROUTE_SETTLEMENTS_CREATE)}
           />
@@ -397,7 +403,7 @@ export default function SettlementsDashboardPage() {
         columns={settlementTableColumns}
         rows={settlementRows}
         loading={loadingSettlements}
-        emptyMessage="No hay acuerdos de termino registrados."
+        emptyMessage="No hay acuerdos de término registrados."
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,
@@ -448,7 +454,7 @@ export default function SettlementsDashboardPage() {
           />
           <SelectComponent
             value={filters.legalTerminationCauseId}
-            label="Causa terminacion"
+            label="Causa terminación"
             options={legalCauseSelectOptions}
             loading={loadingFilterOptions}
             onValueChange={handleLegalCauseIdFilterChange}
@@ -499,7 +505,7 @@ export default function SettlementsDashboardPage() {
           </div>
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-              Fecha creacion
+              Fecha creación
             </p>
             <div className="grid gap-2">
               <InputComponent
@@ -507,7 +513,7 @@ export default function SettlementsDashboardPage() {
                 value={filters.createdFrom}
                 label="Desde"
                 type="date"
-                aria-label="Fecha creacion desde"
+                aria-label="Fecha creación desde"
                 onValueChange={handleCreatedFromFilterChange}
               />
               <InputComponent
@@ -515,7 +521,7 @@ export default function SettlementsDashboardPage() {
                 value={filters.createdTo}
                 label="Hasta"
                 type="date"
-                aria-label="Fecha creacion hasta"
+                aria-label="Fecha creación hasta"
                 onValueChange={handleCreatedToFilterChange}
               />
             </div>
@@ -551,6 +557,11 @@ export default function SettlementsDashboardPage() {
           loading={loadingSettlementDetail}
           errorMessage={detailError}
           onRetry={handleRetryDetail}
+          onEdit={
+            selectedDetailRowId
+              ? () => navigate(`${AUTH_ROUTE_SETTLEMENTS_EDIT}=${selectedDetailRowId}`)
+              : undefined
+          }
           onDownloadDocument={handleDownloadDocument}
         />
       </DetailSidebarComponent>

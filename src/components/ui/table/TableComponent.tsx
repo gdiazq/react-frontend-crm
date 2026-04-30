@@ -20,6 +20,7 @@ export function TableComponent({
   loading = false,
   emptyMessage = 'Sin datos',
   scrollContainerClassName = '',
+  preserveHeaderCase = false,
   renderCell,
   customRenderer,
   actionsConfig,
@@ -89,7 +90,7 @@ export function TableComponent({
                   <th
                     key={column}
                     scope="col"
-                    className="sticky top-0 z-10 border-b border-slate-200 bg-slate-50/60 px-4 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.08em] text-slate-500 first:rounded-tl-lg last:rounded-tr-lg dark:border-white/10 dark:bg-slate-800/40 dark:text-slate-400"
+                    className={`sticky top-0 z-10 border-b border-slate-200 bg-slate-50/60 px-4 py-2.5 text-left text-[10.5px] font-semibold tracking-[0.08em] text-slate-500 first:rounded-tl-lg last:rounded-tr-lg dark:border-white/10 dark:bg-slate-800/40 dark:text-slate-400 ${preserveHeaderCase ? '' : 'uppercase'}`.trim()}
                   >
                     {isSortableColumn(columnIndex) ? (
                       <button

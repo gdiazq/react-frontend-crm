@@ -390,6 +390,7 @@ export default function TerminationQuizQuestionDashboardPage() {
         rows={terminationQuizQuestionRows}
         loading={loadingTerminationQuizQuestion}
         emptyMessage="No hay preguntas del quiz de salida registradas."
+        preserveHeaderCase
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,

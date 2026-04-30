@@ -18,6 +18,7 @@ export interface TableComponentProps {
   loading?: boolean
   emptyMessage?: string
   scrollContainerClassName?: string
+  preserveHeaderCase?: boolean
   renderCell?: (row: TableRow, value: string | ReactNode, columnIndex: number, rowIndex: number) => ReactNode
   sortableColumnIndexes?: number[]
   sortState?: TableSortState
