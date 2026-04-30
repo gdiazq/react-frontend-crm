@@ -118,6 +118,11 @@ export default function TerminationQuizQuestionDashboardPage() {
     label: option.name,
     value: String(option.id),
   }))
+  const resolvedQuestionGroupId = filters.questionGroupId || (
+    queryParams.questionGroup.trim().length > 0
+      ? String(quizQuestionGroupOptions.find((option) => option.name === queryParams.questionGroup)?.id ?? '')
+      : ''
+  )
   const employeeSelectOptions = employeeWithContractOptions.map((option) => ({
     label: option.name,
     value: String(option.id),
@@ -135,14 +140,6 @@ export default function TerminationQuizQuestionDashboardPage() {
     void getQuizQuestionGroupOptions()
     void getEmployeeWithContractOptions()
   }, [getTerminationQuizQuestion, getStatusOptions, getQuizQuestionGroupOptions, getEmployeeWithContractOptions])
-
-  useEffect(() => {
-    if (queryParams.questionGroup.trim().length === 0) return
-    if (filters.questionGroupId.length > 0) return
-    const selectedOption = quizQuestionGroupOptions.find((option) => option.name === queryParams.questionGroup)
-    if (!selectedOption) return
-    setFilters((prev) => ({ ...prev, questionGroupId: String(selectedOption.id) }))
-  }, [filters.questionGroupId, queryParams.questionGroup, quizQuestionGroupOptions])
 
   const handleViewDetail = (row: TerminationQuizQuestionTableRow) => {
     setSelectedDetailRowId(row.id)
@@ -226,7 +223,7 @@ export default function TerminationQuizQuestionDashboardPage() {
 
   const handleApplyFilters = async () => {
     const selectedStatus = statusOptions.find((option) => String(option.id) === filters.activeId)
-    const selectedQuestionGroup = quizQuestionGroupOptions.find((option) => String(option.id) === filters.questionGroupId)
+    const selectedQuestionGroup = quizQuestionGroupOptions.find((option) => String(option.id) === resolvedQuestionGroupId)
     setActiveFilter(selectedStatus ? String(selectedStatus.id) : '')
     setQuestionGroupFilter(selectedQuestionGroup ? selectedQuestionGroup.name : '')
     setEmployeeIdFilter(filters.employeeId.trim())
@@ -292,8 +289,14 @@ export default function TerminationQuizQuestionDashboardPage() {
 
   return (
     <section className="min-w-0 space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Dashboard de quiz de salida</h1>
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">ÍNDICE · QUIZ DE SALIDA</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          Dashboard
+          <span className="display-it text-slate-500 dark:text-slate-400"> de quiz de salida</span>
+        </h1>
       </header>
 
       <StatsOverviewCardsComponent
@@ -373,9 +376,9 @@ export default function TerminationQuizQuestionDashboardPage() {
           />
           <ButtonComponent
             type="button"
-            variant="primary"
+            variant="success"
             disabled={loadingTerminationQuizQuestion || loadingToggleStatus}
-            className="flex-1 text-white md:flex-none dark:text-white"
+            className="flex-1 md:flex-none"
             label="Nueva pregunta"
             onClick={() => navigate(AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION_CREATE)}
           />
@@ -429,7 +432,7 @@ export default function TerminationQuizQuestionDashboardPage() {
           />
 
           <SelectComponent
-            value={filters.questionGroupId}
+            value={resolvedQuestionGroupId}
             label="Grupo de pregunta"
             options={questionGroupSelectOptions}
             disabled={loadingQuizQuestionGroupOptions}
@@ -446,7 +449,7 @@ export default function TerminationQuizQuestionDashboardPage() {
 
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-              Fecha creacion
+              Fecha creación
             </p>
             <div className="grid gap-2">
               <InputComponent
@@ -454,7 +457,7 @@ export default function TerminationQuizQuestionDashboardPage() {
                 value={filters.createdFrom}
                 label="Desde"
                 type="date"
-                aria-label="Fecha creacion desde"
+                aria-label="Fecha creación desde"
                 onValueChange={handleCreatedFromFilterChange}
               />
               <InputComponent
@@ -462,7 +465,7 @@ export default function TerminationQuizQuestionDashboardPage() {
                 value={filters.createdTo}
                 label="Hasta"
                 type="date"
-                aria-label="Fecha creacion hasta"
+                aria-label="Fecha creación hasta"
                 onValueChange={handleCreatedToFilterChange}
               />
             </div>
@@ -470,7 +473,7 @@ export default function TerminationQuizQuestionDashboardPage() {
 
           <div className="space-y-3 rounded-xl border border-amber-500/35 bg-amber-50/15 p-3 dark:border-amber-400/25 dark:bg-amber-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
-              Fecha actualizacion
+              Fecha actualización
             </p>
             <div className="grid gap-2">
               <InputComponent
@@ -478,7 +481,7 @@ export default function TerminationQuizQuestionDashboardPage() {
                 value={filters.updatedFrom}
                 label="Desde"
                 type="date"
-                aria-label="Fecha actualizacion desde"
+                aria-label="Fecha actualización desde"
                 onValueChange={handleUpdatedFromFilterChange}
               />
               <InputComponent
@@ -486,7 +489,7 @@ export default function TerminationQuizQuestionDashboardPage() {
                 value={filters.updatedTo}
                 label="Hasta"
                 type="date"
-                aria-label="Fecha actualizacion hasta"
+                aria-label="Fecha actualización hasta"
                 onValueChange={handleUpdatedToFilterChange}
               />
             </div>
@@ -519,12 +522,17 @@ export default function TerminationQuizQuestionDashboardPage() {
           loading={loadingTerminationQuizQuestionDetail}
           errorMessage={detailError}
           onRetry={handleRetryDetail}
+          onEdit={
+            selectedDetailRowId
+              ? () => navigate(`${AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION_EDIT}=${selectedDetailRowId}`)
+              : undefined
+          }
         />
       </DetailSidebarComponent>
 
       <SaveConfirmComponent
         open={confirmOpen}
-        title="Confirmar actualizacion de estado"
+        title="Confirmar actualización de estado"
         message={confirmMessage}
         confirmLabel={pendingToggleRow?.active === true ? 'Deshabilitar' : 'Habilitar'}
         cancelLabel="Cancelar"
