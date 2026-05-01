@@ -130,6 +130,11 @@ export default function UsersDashboardPage() {
     navigate(`${AUTH_ROUTE_USERS_EDIT}=${row.id}`)
   }
 
+  const handleUpdateSelectedUser = () => {
+    if (!selectedDetailRowId) return
+    navigate(`${AUTH_ROUTE_USERS_EDIT}=${selectedDetailRowId}`)
+  }
+
   // --- Handlers: Toggle status ---
   const handleToggleStatus = async (row: UserTableRow) => {
     setPendingToggleRow(row)
@@ -299,8 +304,14 @@ export default function UsersDashboardPage() {
 
   return (
     <section className="min-w-0 space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Dashboard de usuarios</h1>
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">ÍNDICE · USUARIOS</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          Dashboard
+          <span className="display-it text-slate-500 dark:text-slate-400"> de usuarios</span>
+        </h1>
       </header>
 
       <StatsOverviewCardsComponent
@@ -364,9 +375,9 @@ export default function UsersDashboardPage() {
           />
           <ButtonComponent
             type="button"
-            variant="primary"
+            variant="success"
             disabled={loadingUsers || loadingToggleStatus}
-            className="flex-1 text-white md:flex-none dark:text-white"
+            className="flex-1 md:flex-none"
             label="Nuevo usuario"
             onClick={() => navigate(AUTH_ROUTE_USERS_CREATE)}
           />
@@ -483,6 +494,7 @@ export default function UsersDashboardPage() {
           loading={loadingUserDetail}
           errorMessage={detailError}
           onRetry={handleRetryDetail}
+          onEdit={handleUpdateSelectedUser}
         />
       </DetailSidebarComponent>
 

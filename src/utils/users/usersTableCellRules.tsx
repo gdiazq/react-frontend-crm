@@ -22,7 +22,7 @@ export function createUsersTableCustomRenderer({
       return (
         <button
           type="button"
-          className="text-cyan-700 transition hover:text-cyan-800 dark:text-cyan-300 dark:hover:text-cyan-200"
+          className="accent-text font-medium transition hover:opacity-80"
           onClick={() => onViewDetail(tableRow.id)}
         >
           {value}
