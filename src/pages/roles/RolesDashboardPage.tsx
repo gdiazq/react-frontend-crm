@@ -119,6 +119,11 @@ export default function RolesDashboardPage() {
     navigate(`${AUTH_ROUTE_ROLES_EDIT}=${row.id}`)
   }
 
+  const handleUpdateSelectedRole = () => {
+    if (!selectedDetailRowId) return
+    navigate(`${AUTH_ROUTE_ROLES_EDIT}=${selectedDetailRowId}`)
+  }
+
   // --- Handlers: Toggle status ---
   const handleToggleStatus = (row: RoleTableRow) => {
     setPendingToggleRow(row)
@@ -271,8 +276,14 @@ export default function RolesDashboardPage() {
 
   return (
     <section className="min-w-0 space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Dashboard de roles</h1>
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">ÍNDICE · ROLES</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          Dashboard
+          <span className="display-it text-slate-500 dark:text-slate-400"> de roles</span>
+        </h1>
       </header>
 
       <StatsOverviewCardsComponent
@@ -320,7 +331,7 @@ export default function RolesDashboardPage() {
             <InputComponent
               value={queryParams.search}
               type="text"
-              placeholder="Buscar por nombre o descripcion de rol"
+              placeholder="Buscar por nombre o descripción de rol"
               onValueChange={setSearch}
             />
           </div>
@@ -336,9 +347,9 @@ export default function RolesDashboardPage() {
           />
           <ButtonComponent
             type="button"
-            variant="primary"
+            variant="success"
             disabled={loadingRoles || loadingToggleStatus}
-            className="flex-1 text-white md:flex-none dark:text-white"
+            className="flex-1 md:flex-none"
             label="Nuevo rol"
             onClick={() => navigate(AUTH_ROUTE_ROLES_CREATE)}
           />
@@ -438,6 +449,7 @@ export default function RolesDashboardPage() {
           loading={loadingRoleDetail}
           errorMessage={detailError}
           onRetry={handleRetryDetail}
+          onEdit={handleUpdateSelectedRole}
         />
       </DetailSidebarComponent>
 
