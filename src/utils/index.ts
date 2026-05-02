@@ -36,6 +36,7 @@ export {
   createSettlementActions,
   createTransferActions,
   createAnnexesActions,
+  createLeavesActions,
 } from './shared/actionsFactory'
 export type { DropdownAction } from './shared/actionsFactory'
 export { downloadBlobFile, formatCsvImportSummary, resolveFileSize } from './file/fileUtils'
@@ -57,4 +58,5 @@ export { createTerminationQuizQuestionTableCustomRenderer } from './termination-
 export { createSettlementTableCustomRenderer } from './settlement/settlementTableCellRules'
 export { createTransferTableCustomRenderer } from './transfer/transferTableCellRules'
 export { createAnnexesTableCustomRenderer } from './annexes/annexesTableCellRules'
+export { createLeavesTableCustomRenderer } from './leaves/leavesTableCellRules'
 export { resolveApprovalTone, resolveContractStatusTone, buildTenureStat } from './detail/detailUtils'

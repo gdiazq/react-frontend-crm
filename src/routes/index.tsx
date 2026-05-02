@@ -21,6 +21,7 @@ const EmployeesDashboardPage = lazy(() => import('@/pages/employees/EmployeesDas
 const AnnexesDashboardPage = lazy(() => import('@/pages/annexes/AnnexesDashboardPage'))
 const AnnexesFormDashboardPage = lazy(() => import('@/pages/annexes/AnnexesFormDashboardPage'))
 const ContractsDashboardPage = lazy(() => import('@/pages/contracts/ContractsDashboardPage'))
+const LeavesDashboardPage = lazy(() => import('@/pages/leaves/LeavesDashboardPage'))
 const TransfersDashboardPage = lazy(() => import('@/pages/transfers/TransfersDashboardPage'))
 const ProjectsDashboardPage = lazy(() => import('@/pages/projects/ProjectsDashboardPage'))
 const ProjectStatusesDashboardPage = lazy(() => import('@/pages/projects/ProjectStatusesDashboardPage'))
@@ -194,6 +195,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canRead">
             <ContractsDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/leaves',
+        element: (
+          <ProtectedRoute requiresPermissions module="LEAVE" permissionType="canRead">
+            <LeavesDashboardPage />
           </ProtectedRoute>
         ),
       },

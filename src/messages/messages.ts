@@ -253,6 +253,39 @@ export default {
       },
     },
   },
+  leaves: {
+    ui: {
+      requireApprovalYes: 'Sí',
+      requireApprovalNo: 'No',
+      paidYes: 'Sí',
+      paidNo: 'No',
+      halfDayYes: 'Sí',
+      halfDayNo: 'No',
+      actionViewDetail: 'Ver detalle',
+      updateLeave: 'Editar permiso',
+      detailTitleFallback: 'Detalle de permiso',
+    },
+    status: {
+      success: {
+        createLeaveSuccess: 'Permiso creado correctamente.',
+        updateLeaveSuccess: 'Permiso actualizado correctamente.',
+        deleteDocumentSuccess: 'Documento eliminado correctamente.',
+        exportSuccess: 'CSV exportado correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de permisos.',
+        createLeaveError: 'No se pudo crear el permiso.',
+        updateLeaveError: 'No se pudo actualizar el permiso.',
+        detailLoadError: 'No se pudo cargar el detalle del permiso.',
+        detailInvalidLeaveId: 'Id de permiso inválido.',
+        deleteDocumentError: 'No se pudo eliminar el documento.',
+        exportError: 'No se pudo exportar el CSV de permisos.',
+        loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de permiso.',
+        filesMaxCountError: 'Puedes adjuntar un máximo de 5 archivos.',
+        filesMaxSizeError: 'Cada archivo debe tener un peso máximo de 10 MB.',
+      },
+    },
+  },
   annexes: {
     ui: {
       statusActive: 'Activo',

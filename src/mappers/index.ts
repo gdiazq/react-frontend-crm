@@ -49,6 +49,17 @@ export {
   mapperUpdateEmployeePayload,
 } from './employees/employees.mapper'
 export {
+  mapperCreateLeaveFormData,
+  mapperCreateLeavePayload,
+  mapperLeaveDetailToForm,
+  mapperLeaveDetailView,
+  mapperLeavesPagination,
+  mapperLeavesQueryParams,
+  mapperLeavesRows,
+  mapperUpdateLeaveFormData,
+  mapperUpdateLeavePayload,
+} from './leaves/leaves.mapper'
+export {
   mapperCreateProjectStatusPayload,
   mapperUpdateProjectStatusPayload,
   mapperProjectStatusDetailView,

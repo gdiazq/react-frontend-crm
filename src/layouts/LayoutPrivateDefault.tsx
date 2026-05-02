@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import {
   AUTH_ROUTE_ANNEXES,
   AUTH_ROUTE_CONTRACTS,
+  AUTH_ROUTE_LEAVES,
   AUTH_ROUTE_TRANSFERS,
   AUTH_ROUTE_DASHBOARD,
   AUTH_ROUTE_EMPLOYEES,
@@ -55,6 +56,7 @@ export function LayoutPrivateDefault() {
   const canReadRequests = hasPermission('HR_REQUEST', 'canRead')
   const canReadEmployees = hasPermission('EMPLOYEE', 'canRead')
   const canReadContracts = hasPermission('CONTRACT', 'canRead')
+  const canReadLeaves = hasPermission('LEAVE', 'canRead')
   const canReadAnnexes = hasPermission('ANNEX', 'canRead')
   const canReadTransfers = hasPermission('TRANSFER', 'canRead')
   const canReadProjects = hasPermission('PROJECT', 'canRead')
@@ -150,6 +152,16 @@ export function LayoutPrivateDefault() {
       return
     }
     navigate(AUTH_ROUTE_CONTRACTS)
+  }
+
+  const handleGoLeaves = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    if (!canReadLeaves) {
+      navigate('/unauthorized')
+      return
+    }
+    navigate(AUTH_ROUTE_LEAVES)
   }
 
   const handleGoAnnexes = () => {
@@ -306,6 +318,7 @@ export function LayoutPrivateDefault() {
         showRequests={canReadRequests}
         showEmployees={canReadEmployees}
         showContracts={canReadContracts}
+        showLeaves={canReadLeaves}
         showAnnexes={canReadAnnexes}
         showTransfers={canReadTransfers}
         showSettlements
@@ -321,6 +334,7 @@ export function LayoutPrivateDefault() {
         onGoRequests={handleGoRequests}
         onGoEmployees={handleGoEmployees}
         onGoContracts={handleGoContracts}
+        onGoLeaves={handleGoLeaves}
         onGoAnnexes={handleGoAnnexes}
         onGoTransfers={handleGoTransfers}
         onGoSettlements={handleGoSettlements}

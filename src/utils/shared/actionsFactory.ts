@@ -78,6 +78,18 @@ export function createContractsActions() {
   return { actionViewDetail, actionUpdateContract, actionToggleStatus }
 }
 
+export function createLeavesActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.leaves.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateLeave(handler: () => void): DropdownAction {
+    return { id: 'update-leave', label: messages.leaves.ui.updateLeave, handler }
+  }
+
+  return { actionViewDetail, actionUpdateLeave }
+}
+
 export function createRolesActions() {
   function actionViewDetail(handler: () => void): DropdownAction {
     return { id: 'view-detail', label: messages.roles.ui.actionViewDetail, handler }
@@ -339,4 +351,3 @@ export function createAnnexesActions() {
 
   return { actionViewDetail, actionUpdateAnnex }
 }
-
