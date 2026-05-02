@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertMessageComponent, ButtonComponent, FooterComponent, InputComponent, ThemeToggle } from '@/components'
-import { AUTH_ROUTE_HOME, AUTH_ROUTE_VERIFY_EMAIL } from '@/constant'
+import { AUTH_ROUTE_HOME, AUTH_ROUTE_LOGIN, AUTH_ROUTE_VERIFY_EMAIL } from '@/constant'
 import { initialRegisterForm } from '@/factories'
 import { registerValidationRules } from '@/validators'
 import { useDebounce, useFormValidation } from '@/hooks'
@@ -72,80 +72,109 @@ export default function RegisterPage() {
       <div className="fixed right-4 top-4 z-50">
         <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
       </div>
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(8,145,178,0.12),_transparent_45%),radial-gradient(circle_at_80%_20%,_rgba(14,116,144,0.1),_transparent_35%)] dark:bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.18),_transparent_40%),radial-gradient(circle_at_80%_20%,_rgba(14,165,233,0.12),_transparent_35%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(8,145,178,0.08),_transparent_55%),radial-gradient(circle_at_80%_20%,_rgba(14,116,144,0.06),_transparent_45%)] dark:bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.12),_transparent_45%),radial-gradient(circle_at_80%_20%,_rgba(14,165,233,0.08),_transparent_40%)]" />
 
-      <section className="flex flex-1 items-center justify-center p-6">
-        <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-2xl shadow-slate-200/70 backdrop-blur dark:border-white/10 dark:bg-slate-900/75 dark:shadow-none">
+      <section className="flex flex-1 items-center justify-center px-6 py-12">
+        <section className="r-xl soft-ring w-full max-w-lg border border-slate-200/80 bg-white/95 px-8 py-10 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_20px_50px_-30px_rgba(15,23,42,0.15)] backdrop-blur-sm sm:px-10 sm:py-12 dark:border-white/10 dark:bg-slate-900/70 dark:shadow-none">
           <button
             type="button"
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 opacity-90 transition hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:text-slate-300 dark:focus-visible:ring-offset-slate-950"
+            className="num inline-flex items-center gap-2 r-full border border-[color:var(--accent-500)]/20 accent-bg-soft px-3 py-1.5 text-[10.5px] uppercase tracking-[0.16em] accent-text shadow-sm transition hover:-translate-y-0.5 hover:border-[color:var(--accent-500)]/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-400)] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:border-[color:var(--accent-400)]/25 dark:focus-visible:ring-offset-slate-950"
             onClick={() => navigate(AUTH_ROUTE_HOME)}
           >
-            <span aria-hidden="true">←</span>
-            Volver al inicio
+            <span aria-hidden="true" className="inline-flex h-4 w-4 items-center justify-center r-full bg-white/70 text-[12px] dark:bg-slate-950/40">←</span>
+            VOLVER AL INICIO
           </button>
-          <h1 className="mt-4 text-balance text-2xl font-bold">Crea tu cuenta</h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Registra tu acceso para usar el CRM.</p>
 
-          <form className="mt-7 space-y-4" onSubmit={submitForm}>
-            <InputComponent
-              value={form.username}
-              label="Usuario"
-              type="text"
-              autoComplete="username"
-              placeholder="Ingresa tu usuario"
-              error={errors.username}
-              onValueChange={handleFormFieldChange('username')}
-              required
-            />
+          <header className="mt-5">
+            <h1 className="display text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+              Crea tu
+              <span className="display-it text-slate-500 dark:text-slate-400"> cuenta</span>
+            </h1>
+            <p className="mt-3 max-w-xl text-[12.5px] leading-relaxed text-slate-600 dark:text-slate-300">
+              Registra tus datos para crear el acceso al CRM. Luego validaremos tu correo para activar la cuenta.
+            </p>
+          </header>
 
-            <InputComponent
-              value={form.firstName}
-              label="Nombre"
-              type="text"
-              autoComplete="given-name"
-              placeholder="Ingresa tu nombre"
-              error={errors.firstName}
-              onValueChange={handleFormFieldChange('firstName')}
-              required
-            />
+          <form className="mt-10 space-y-6" onSubmit={submitForm}>
+            <div className="space-y-4">
+              <InputComponent
+                value={form.username}
+                label="Usuario"
+                type="text"
+                autoComplete="username"
+                placeholder="Ingresa tu usuario"
+                error={errors.username}
+                onValueChange={handleFormFieldChange('username')}
+                required
+              />
 
-            <InputComponent
-              value={form.lastName}
-              label="Apellido"
-              type="text"
-              autoComplete="family-name"
-              placeholder="Ingresa tu apellido"
-              error={errors.lastName}
-              onValueChange={handleFormFieldChange('lastName')}
-              required
-            />
+              <InputComponent
+                value={form.firstName}
+                label="Nombre"
+                type="text"
+                autoComplete="given-name"
+                placeholder="Ingresa tu nombre"
+                error={errors.firstName}
+                onValueChange={handleFormFieldChange('firstName')}
+                required
+              />
 
-            <InputComponent
-              value={form.email}
-              label="Correo"
-              type="email"
-              autoComplete="email"
-              placeholder="Ingresa tu correo"
-              error={errors.email}
-              onValueChange={handleEmailValue}
-              required
-            />
+              <InputComponent
+                value={form.lastName}
+                label="Apellido"
+                type="text"
+                autoComplete="family-name"
+                placeholder="Ingresa tu apellido"
+                error={errors.lastName}
+                onValueChange={handleFormFieldChange('lastName')}
+                required
+              />
 
-            <InputComponent
-              value={form.phoneNumber}
-              label="Telefono"
-              type="tel"
-              autoComplete="tel"
-              placeholder="Ingresa tu telefono"
-              error={errors.phoneNumber}
-              onValueChange={handleFormFieldChange('phoneNumber')}
-              required
-            />
+              <InputComponent
+                value={form.email}
+                label="Correo electrónico"
+                type="email"
+                autoComplete="email"
+                placeholder="Ingresa tu correo"
+                error={errors.email}
+                onValueChange={handleEmailValue}
+                required
+              />
+
+              <InputComponent
+                value={form.phoneNumber}
+                label="Teléfono"
+                type="tel"
+                autoComplete="tel"
+                placeholder="Ingresa tu teléfono"
+                error={errors.phoneNumber}
+                onValueChange={handleFormFieldChange('phoneNumber')}
+                required
+              />
+            </div>
 
             <ButtonComponent type="submit" variant="solid" disabled={registerSubmitting || checkEmailSubmitting || !canSubmit} className="w-full">
               {registerSubmitting ? 'Registrando...' : 'Registrar cuenta'}
             </ButtonComponent>
+
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200 dark:border-white/10" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="num bg-white px-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:bg-slate-900 dark:text-slate-500">
+                  ¿ya tienes cuenta?
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="num block w-full text-center text-[11px] uppercase tracking-[0.16em] accent-text transition hover:opacity-80"
+              onClick={() => navigate(AUTH_ROUTE_LOGIN)}
+            >
+              Inicia sesión aquí →
+            </button>
           </form>
 
           {checkEmailSubmitting && (

@@ -85,10 +85,10 @@ export default function LoginPage() {
         <section className="r-xl soft-ring w-full max-w-lg border border-slate-200/80 bg-white/95 px-10 py-12 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_20px_50px_-30px_rgba(15,23,42,0.15)] backdrop-blur-sm dark:border-white/10 dark:bg-slate-900/70 dark:shadow-none">
           <button
             type="button"
-            className="num inline-flex items-center gap-2 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 transition hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-400)] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:focus-visible:ring-offset-slate-950"
+            className="num inline-flex items-center gap-2 r-full border border-[color:var(--accent-500)]/20 accent-bg-soft px-3 py-1.5 text-[10.5px] uppercase tracking-[0.16em] accent-text shadow-sm transition hover:-translate-y-0.5 hover:border-[color:var(--accent-500)]/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-400)] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:border-[color:var(--accent-400)]/25 dark:focus-visible:ring-offset-slate-950"
             onClick={() => navigate(AUTH_ROUTE_HOME)}
           >
-            <span aria-hidden="true">←</span>
+            <span aria-hidden="true" className="inline-flex h-4 w-4 items-center justify-center r-full bg-white/70 text-[12px] dark:bg-slate-950/40">←</span>
             VOLVER AL INICIO
           </button>
 
