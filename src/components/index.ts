@@ -72,6 +72,9 @@ export { ContractDetailComponent } from './contracts/ContractDetailComponent'
 // Annexes Components
 export { AnnexDetailComponent } from './annexes/AnnexDetailComponent'
 
+// Leaves Components
+export { LeaveDetailComponent } from './leaves/LeaveDetailComponent'
+
 // Requests Components
 export { RequestDetailComponent } from './requests/RequestDetailComponent'
 

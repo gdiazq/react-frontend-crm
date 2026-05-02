@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DetailSidebarComponent,
   InputComponent,
+  LeaveDetailComponent,
   PaginationComponent,
   RightSidebarComponent,
   SelectComponent,
@@ -11,27 +13,39 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_LEAVES_CREATE } from '@/constant'
+import { AUTH_ROUTE_LEAVES_CREATE, AUTH_ROUTE_LEAVES_EDIT } from '@/constant'
 import { leaveStatusFilterOptions, leavesTableColumns, leavesTableColumnIndex, leavesTableSortByColumn } from '@/factories'
-import { leavesService } from '@/services'
-import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
-import type { TableSortState } from '@/components'
-import { createLeavesTableCustomRenderer, downloadBlobFile } from '@/utils'
+import { mapperLeaveDetailView } from '@/mappers'
+import messages from '@/messages/messages'
+import { leavesService, storageService } from '@/services'
+import { useStoreAuth, useStoreLeaveSelects, useStoreLeaves } from '@/store'
+import type { TableRow, TableSortState } from '@/components'
+import type { LeaveTableRow } from '@/types'
+import { createLeavesActions, createLeavesTableCustomRenderer, downloadBlobFile } from '@/utils'
+import type { DropdownAction } from '@/utils'
 
 const LEAVE_EMPLOYEE_NAME_COLUMN_INDEX = leavesTableColumnIndex.employeeName
 const LEAVE_STATUS_COLUMN_INDEX = leavesTableColumnIndex.status
+const ACTIONS_COLUMN_INDEX = leavesTableColumns.length - 1
 const LEAVES_SORTABLE_COLUMNS = Object.keys(leavesTableSortByColumn).map((index) => Number(index))
 
 export default function LeavesDashboardPage() {
   const navigate = useNavigate()
 
   const leavesRows = useStoreLeaves((s) => s.leavesRows)
+  const leaveDetail = useStoreLeaves((s) => s.leaveDetail)
   const pagination = useStoreLeaves((s) => s.pagination)
   const queryParams = useStoreLeaves((s) => s.queryParams)
   const loadingLeaves = useStoreLeaves((s) => s.loadingLeaves)
+  const loadingLeaveDetail = useStoreLeaves((s) => s.loadingLeaveDetail)
   const listError = useStoreLeaves((s) => s.operationStatus.list.error)
+  const detailError = useStoreLeaves((s) => s.operationStatus.detail.error)
+  const deleteDocumentError = useStoreLeaves((s) => s.operationStatus.toggle.error)
   const clearOperationStatus = useStoreLeaves((s) => s.clearOperationStatus)
   const getLeaves = useStoreLeaves((s) => s.getLeaves)
+  const getLeaveDetail = useStoreLeaves((s) => s.getLeaveDetail)
+  const clearLeaveDetail = useStoreLeaves((s) => s.clearLeaveDetail)
+  const deleteLeaveDocument = useStoreLeaves((s) => s.deleteLeaveDocument)
   const sortLeaves = useStoreLeaves((s) => s.sortLeaves)
   const goToPage = useStoreLeaves((s) => s.goToPage)
   const setSearch = useStoreLeaves((s) => s.setSearch)
@@ -57,6 +71,7 @@ export default function LeavesDashboardPage() {
   const leaveFormOptionsErrorMessage = useStoreLeaveSelects((s) => s.leaveFormOptionsErrorMessage)
   const getLeaveFormOptions = useStoreLeaveSelects((s) => s.getLeaveFormOptions)
   const clearLeaveFormOptionsStatus = useStoreLeaveSelects((s) => s.clearLeaveFormOptionsStatus)
+  const currentUser = useStoreAuth((s) => s.user)
 
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
@@ -73,7 +88,12 @@ export default function LeavesDashboardPage() {
   }))
   const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
+  const [selectedDetailName, setSelectedDetailName] = useState('')
+  const { actionViewDetail, actionUpdateLeave } = createLeavesActions()
 
+  const leaveDetailView = mapperLeaveDetailView(leaveDetail)
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
   const totalItems = pagination.totalElements
@@ -85,6 +105,11 @@ export default function LeavesDashboardPage() {
   }
   const employeeSelectOptions = employeeWithContractOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const leaveTypeSelectOptions = leaveTypeOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const detailTitle = leaveDetailView
+    ? `Detalle de ${leaveDetailView.leaveTypeName}`
+    : selectedDetailName
+      ? `Detalle de ${selectedDetailName}`
+      : 'Detalle de permiso'
 
   useEffect(() => {
     void getLeaves()
@@ -117,10 +142,67 @@ export default function LeavesDashboardPage() {
     queryParams.updatedTo,
   ])
 
+  const handleViewDetail = (row: LeaveTableRow) => {
+    setSelectedDetailRowId(row.id)
+    setSelectedDetailName(String(row.values[LEAVE_EMPLOYEE_NAME_COLUMN_INDEX] ?? 'Permiso'))
+    setDetailOpen(true)
+    void getLeaveDetail(row.id)
+  }
+
+  const handleCloseDetail = () => {
+    setDetailOpen(false)
+    setSelectedDetailRowId(null)
+    setSelectedDetailName('')
+    clearLeaveDetail()
+  }
+
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getLeaveDetail(selectedDetailRowId)
+  }
+
+  const handleUpdateLeave = (rowOrId: LeaveTableRow | string) => {
+    const rowId = typeof rowOrId === 'string' ? rowOrId : rowOrId.id
+    navigate(`${AUTH_ROUTE_LEAVES_EDIT}=${rowId}`)
+  }
+
+  const resolveRowActions = (row: LeaveTableRow): DropdownAction[] => [
+    actionViewDetail(() => handleViewDetail(row)),
+    actionUpdateLeave(() => handleUpdateLeave(row)),
+  ]
+
+  const findLeaveRowById = (rowId: string) => leavesRows.find((row) => row.id === rowId) ?? null
+
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const leaveRow = findLeaveRowById(tableRow.id)
+    if (!leaveRow) return []
+    return resolveRowActions(leaveRow)
+  }
+
   const renderCustomCell = createLeavesTableCustomRenderer({
     employeeNameColumnIndex: LEAVE_EMPLOYEE_NAME_COLUMN_INDEX,
     statusColumnIndex: LEAVE_STATUS_COLUMN_INDEX,
+    onViewDetail: (rowId) => {
+      const leaveRow = findLeaveRowById(rowId)
+      if (!leaveRow) return
+      handleViewDetail(leaveRow)
+    },
   })
+
+  const handleDownloadDocument = (fileId: number) => {
+    window.open(storageService.getDownloadUrl(fileId), '_blank', 'noopener,noreferrer')
+  }
+
+  const handleDeleteDocument = async (fileId: number) => {
+    const parsedLeaveId = Number(selectedDetailRowId)
+    const userId = currentUser?.id
+    if (!Number.isInteger(parsedLeaveId) || parsedLeaveId <= 0 || !userId) {
+      setActionsMessage('No se pudo eliminar el documento.')
+      return
+    }
+    const success = await deleteLeaveDocument(parsedLeaveId, fileId, userId)
+    if (success) setActionsMessage(messages.leaves.status.success.deleteDocumentSuccess)
+  }
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = leavesTableSortByColumn[columnIndex]
@@ -204,8 +286,15 @@ export default function LeavesDashboardPage() {
         pending={pagination.pending}
       />
 
-      {listError && (
-        <AlertMessageComponent message={listError} tone="error" onClose={() => clearOperationStatus('list')} />
+      {(listError || deleteDocumentError) && (
+        <AlertMessageComponent
+          message={(listError || deleteDocumentError)!}
+          tone="error"
+          onClose={() => {
+            if (listError) clearOperationStatus('list')
+            if (deleteDocumentError) clearOperationStatus('toggle')
+          }}
+        />
       )}
 
       {leaveFormOptionsErrorMessage && (
@@ -253,6 +342,13 @@ export default function LeavesDashboardPage() {
         loading={loadingLeaves}
         emptyMessage="No hay permisos registrados."
         customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          resolveOpenDirection: (activeRowIndex, rowsLength) => (
+            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
+          ),
+        }}
         sortableColumnIndexes={LEAVES_SORTABLE_COLUMNS}
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}
@@ -307,6 +403,19 @@ export default function LeavesDashboardPage() {
           </div>
         </div>
       </RightSidebarComponent>
+
+      <DetailSidebarComponent open={detailOpen} title={detailTitle} onClose={handleCloseDetail}>
+        <LeaveDetailComponent
+          key={selectedDetailRowId ?? 'empty-leave-detail'}
+          detail={leaveDetailView}
+          loading={loadingLeaveDetail}
+          errorMessage={detailError}
+          onRetry={handleRetryDetail}
+          onEdit={selectedDetailRowId ? () => handleUpdateLeave(selectedDetailRowId) : undefined}
+          onDownloadDocument={handleDownloadDocument}
+          onDeleteDocument={handleDeleteDocument}
+        />
+      </DetailSidebarComponent>
     </section>
   )
 }
