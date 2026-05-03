@@ -36,16 +36,11 @@ export function PricingSection({ plans, onSelectPlan }: PricingSectionProps) {
                     : 'border-slate-200 bg-white/80 dark:border-white/10 dark:bg-slate-950/80'
                 }`}
               >
-                <div className="flex items-start justify-between gap-3">
+                <div>
                   <div>
                     <p className="num text-[10px] uppercase tracking-[0.18em] text-slate-400">{plan.priceMonthly}</p>
                     <h3 className="display mt-2 text-[30px] leading-none text-slate-950 dark:text-slate-50">{plan.name}</h3>
                   </div>
-                  {isHighlighted && (
-                    <span className="r-full bg-cyan-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white dark:bg-cyan-400 dark:text-slate-950">
-                      Principal
-                    </span>
-                  )}
                 </div>
                 <p className="mt-4 min-h-12 text-sm leading-6 text-slate-600 dark:text-slate-300">{plan.description}</p>
 

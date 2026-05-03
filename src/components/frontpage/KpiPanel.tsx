@@ -20,7 +20,6 @@ export function KpiPanel({ stats, stages }: KpiPanelProps) {
               <span className="display-it text-cyan-200"> unificada</span>
             </h2>
           </div>
-          <span className="r-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-cyan-100">Live</span>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
