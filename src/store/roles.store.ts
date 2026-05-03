@@ -11,7 +11,7 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { rolesService } from '@/services'
-import type { RolesStore } from '@/types'
+import type { RoleDetail, RolesStore } from '@/types'
 import type { OperationKey, OperationStatus } from '@/types'
 import { formatRoleLabel } from '@/utils'
 
@@ -25,6 +25,7 @@ const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () =
 
 export const useStoreRoles = create<RolesStore>()((set, get) => {
   let latestRoleDetailRequestId = 0
+  const inflightRoleDetailById = new Map<number, Promise<RoleDetail | null>>()
 
   const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
     set((state) => ({
@@ -100,24 +101,37 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
       set({ roleDetail: null })
       return null
     }
+
+    const existing = inflightRoleDetailById.get(parsedRoleId)
+    if (existing) {
+      set({ loadingRoleDetail: true })
+      return existing
+    }
+
     const requestId = ++latestRoleDetailRequestId
 
-    try {
-      set({ loadingRoleDetail: true, roleDetail: null })
-      clearOp('detail')
-      const data = await rolesService.getRoleDetail(parsedRoleId)
-      if (requestId !== latestRoleDetailRequestId) return null
-      set({ roleDetail: data })
-      return data
-    } catch (error) {
-      if (requestId !== latestRoleDetailRequestId) return null
-      setOpError('detail', resolveErrorMessage(error, messages.roles.status.errors.detailLoadError), error)
-      return null
-    } finally {
-      if (requestId === latestRoleDetailRequestId) {
-        set({ loadingRoleDetail: false })
+    const promise = (async () => {
+      try {
+        set({ loadingRoleDetail: true, roleDetail: null })
+        clearOp('detail')
+        const data = await rolesService.getRoleDetail(parsedRoleId)
+        if (requestId !== latestRoleDetailRequestId) return null
+        set({ roleDetail: data })
+        return data
+      } catch (error) {
+        if (requestId !== latestRoleDetailRequestId) return null
+        setOpError('detail', resolveErrorMessage(error, messages.roles.status.errors.detailLoadError), error)
+        return null
+      } finally {
+        if (requestId === latestRoleDetailRequestId) {
+          set({ loadingRoleDetail: false })
+        }
+        inflightRoleDetailById.delete(parsedRoleId)
       }
-    }
+    })()
+
+    inflightRoleDetailById.set(parsedRoleId, promise)
+    return promise
   },
 
   goToPage: async (page: number) => {
@@ -293,7 +307,9 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   },
 
   clearRoleDetail: () => {
-    latestRoleDetailRequestId += 1
+    if (inflightRoleDetailById.size === 0) {
+      latestRoleDetailRequestId += 1
+    }
     set({ roleDetail: null, loadingRoleDetail: false })
     clearOp('detail')
   },

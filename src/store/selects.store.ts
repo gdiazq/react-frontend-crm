@@ -16,6 +16,8 @@ import messages from '@/messages/messages'
 import { selectsService } from '@/services'
 import type { SelectsStore } from '@/types'
 
+let inflightPermissionOptions: Promise<void> | null = null
+
 export const useStoreSelects = create<SelectsStore>()((set) => ({
   roleOptions: [],
   permissionOptions: [],
@@ -81,29 +83,36 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   },
 
   getPermissionOptions: async () => {
-    try {
-      set({
-        loadingPermissionOptions: true,
-        permissionOptionsErrorMessage: null,
-        errorBack: null,
-      })
-      const data = await selectsService.getPermissionOptions()
-      set({ permissionOptions: mapperSelectPermissionOptions(data) })
-    } catch (error) {
-      if (selectsService.isAxiosError(error)) {
+    if (inflightPermissionOptions) return inflightPermissionOptions
+
+    inflightPermissionOptions = (async () => {
+      try {
         set({
-          permissionOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadPermissionsError,
-          errorBack: error,
+          loadingPermissionOptions: true,
+          permissionOptionsErrorMessage: null,
+          errorBack: null,
         })
-      } else {
-        set({
-          permissionOptionsErrorMessage: messages.selects.status.errors.loadPermissionsError,
-          errorBack: error,
-        })
+        const data = await selectsService.getPermissionOptions()
+        set({ permissionOptions: mapperSelectPermissionOptions(data) })
+      } catch (error) {
+        if (selectsService.isAxiosError(error)) {
+          set({
+            permissionOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadPermissionsError,
+            errorBack: error,
+          })
+        } else {
+          set({
+            permissionOptionsErrorMessage: messages.selects.status.errors.loadPermissionsError,
+            errorBack: error,
+          })
+        }
+      } finally {
+        set({ loadingPermissionOptions: false })
+        inflightPermissionOptions = null
       }
-    } finally {
-      set({ loadingPermissionOptions: false })
-    }
+    })()
+
+    return inflightPermissionOptions
   },
 
   clearPermissionOptionsStatus: () => {
