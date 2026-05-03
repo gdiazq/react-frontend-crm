@@ -1,11 +1,13 @@
 import axios from 'axios'
 
 import { APP_URL } from '@/constant'
+import { createDeviceIdService } from '@/utils/auth/deviceId'
 
 type PendingRequestResolver = (success: boolean) => void
 
 let isRefreshingToken = false
 let pendingRequests: PendingRequestResolver[] = []
+const { getDeviceId } = createDeviceIdService()
 
 const shouldSkipRefresh = (url?: string) => {
   if (!url) return false
@@ -27,6 +29,11 @@ export const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
+})
+
+axiosInstance.interceptors.request.use((config) => {
+  config.headers.set('X-Device-Id', getDeviceId())
+  return config
 })
 
 // Response interceptor
@@ -65,6 +72,7 @@ axiosInstance.interceptors.response.use(function (response) {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
+        'X-Device-Id': getDeviceId(),
       },
     })
     resolvePendingRequests(true)
@@ -76,5 +84,4 @@ axiosInstance.interceptors.response.use(function (response) {
     isRefreshingToken = false
   }
 })
-
 
