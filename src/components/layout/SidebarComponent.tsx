@@ -477,7 +477,7 @@ export function SidebarComponent({
   const hasAdministrationItems = visibleAdmin.length > 0
 
   return (
-    <div className="lg:flex lg:shrink-0 lg:flex-col">
+    <div className="lg:sticky lg:top-0 lg:flex lg:h-screen lg:shrink-0 lg:flex-col">
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-slate-950/50 lg:hidden"
@@ -486,7 +486,7 @@ export function SidebarComponent({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200 bg-white px-3 pb-3 pt-4 transition-all duration-200 dark:border-white/10 dark:bg-slate-950 lg:static lg:z-auto lg:flex-1 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-dvh flex-col overflow-hidden border-r border-slate-200 bg-white px-3 pb-3 pt-4 transition-all duration-200 dark:border-white/10 dark:bg-slate-950 lg:static lg:z-auto lg:h-screen lg:flex-1 lg:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } ${collapsed ? 'w-72 lg:w-20' : 'w-72'}`}
       >
@@ -530,7 +530,7 @@ export function SidebarComponent({
           </div>
         </div>
 
-        <nav className="flex-1 space-y-5">
+        <nav className={`sidebar-scrollbar min-h-0 flex-1 space-y-5 overflow-x-hidden overflow-y-auto ${collapsed ? 'pr-0' : 'pr-1'}`}>
           <div className="space-y-0.5">
             <NavItemButton item={dashboardItem} collapsed={collapsed} />
           </div>
