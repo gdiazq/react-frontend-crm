@@ -26,6 +26,7 @@ const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () =
 export const useStoreRoles = create<RolesStore>()((set, get) => {
   let latestRoleDetailRequestId = 0
   const inflightRoleDetailById = new Map<number, Promise<RoleDetail | null>>()
+  const inflightRolesByParams = new Map<string, Promise<void>>()
 
   const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
     set((state) => ({
@@ -75,23 +76,46 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   operationStatus: initialOperationStatus(),
 
   getRoles: async () => {
-    try {
-      set({ loadingRoles: true })
-      clearOp('list')
-      const data = await rolesService.getRoles(get().queryParams)
-      const pagination = mapperRolesPagination(data)
+    const params = get().queryParams
+    const paramsKey = JSON.stringify(params)
 
-      set({
-        rolesRaw: data.content,
-        rolesRows: mapperRolesRows(data.content),
-        pagination,
-        queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
-      })
-    } catch (error) {
-      setOpError('list', resolveErrorMessage(error, messages.roles.status.errors.loadError), error)
-    } finally {
-      set({ loadingRoles: false })
+    const existing = inflightRolesByParams.get(paramsKey)
+    if (existing) {
+      return existing
     }
+
+    const promise = (async () => {
+      let appliedCurrentResponse = false
+
+      try {
+        set({ loadingRoles: true })
+        clearOp('list')
+        const data = await rolesService.getRoles(params)
+        const pagination = mapperRolesPagination(data)
+
+        if (JSON.stringify(get().queryParams) !== paramsKey) return
+
+        appliedCurrentResponse = true
+        set({
+          rolesRaw: data.content,
+          rolesRows: mapperRolesRows(data.content),
+          pagination,
+          queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
+        })
+      } catch (error) {
+        if (JSON.stringify(get().queryParams) !== paramsKey) return
+        appliedCurrentResponse = true
+        setOpError('list', resolveErrorMessage(error, messages.roles.status.errors.loadError), error)
+      } finally {
+        inflightRolesByParams.delete(paramsKey)
+        if (appliedCurrentResponse || JSON.stringify(get().queryParams) === paramsKey || inflightRolesByParams.size === 0) {
+          set({ loadingRoles: false })
+        }
+      }
+    })()
+
+    inflightRolesByParams.set(paramsKey, promise)
+    return promise
   },
 
   getRoleDetail: async (roleId: string) => {
@@ -307,9 +331,8 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   },
 
   clearRoleDetail: () => {
-    if (inflightRoleDetailById.size === 0) {
-      latestRoleDetailRequestId += 1
-    }
+    latestRoleDetailRequestId += 1
+    inflightRoleDetailById.clear()
     set({ roleDetail: null, loadingRoleDetail: false })
     clearOp('detail')
   },
