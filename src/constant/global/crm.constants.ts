@@ -1,76 +1,72 @@
 import type { CrmFeature, CrmPricingPlan, CrmStage, CrmStat } from '@/types'
 
 export const CRM_STATS: CrmStat[] = [
-  { label: 'Leads activos', value: '1,284', trend: '+12% esta semana', trendClass: 'text-emerald-400' },
-  { label: 'Conversion', value: '34.8%', trend: '+3.2 puntos', trendClass: 'text-emerald-400' },
-  { label: 'Tickets SLA', value: '96%', trend: 'Objetivo 98%', trendClass: 'text-amber-400' },
+  { label: 'Modulos RRHH', value: '8', trend: 'Trabajadores a finiquitos', trendClass: 'text-cyan-200' },
+  { label: 'Flujos clave', value: '5', trend: 'Contratos, permisos y anexos', trendClass: 'text-emerald-200' },
+  { label: 'Control acceso', value: '100%', trend: 'Roles y permisos', trendClass: 'text-amber-200' },
 ]
 
 export const CRM_STAGES: CrmStage[] = [
-  { label: 'Prospectos', width: '85%', barClass: 'bg-cyan-400' },
-  { label: 'Calificados', width: '62%', barClass: 'bg-sky-400' },
-  { label: 'Negociacion', width: '45%', barClass: 'bg-indigo-400' },
-  { label: 'Cierre', width: '28%', barClass: 'bg-emerald-400' },
+  { label: 'Ingreso', width: '90%', barClass: 'bg-cyan-400' },
+  { label: 'Contrato', width: '76%', barClass: 'bg-emerald-400' },
+  { label: 'Operacion', width: '64%', barClass: 'bg-sky-400' },
+  { label: 'Cierre', width: '42%', barClass: 'bg-amber-400' },
 ]
 
 export const CRM_FEATURES: CrmFeature[] = [
   {
-    title: 'Automatizaciones',
-    description: 'Flujos para asignar leads, disparar correos y generar tareas de seguimiento.',
+    title: 'RRHH conectado',
+    description: 'Trabajadores, contratos, anexos, permisos, traspasos y finiquitos comparten una misma estructura visual y operativa.',
   },
   {
-    title: 'Vista 360 del cliente',
-    description: 'Historial comercial, soporte y facturacion en una sola ficha unificada.',
+    title: 'Proyectos con contexto',
+    description: 'Tipos, especialidades, vigencias y proyectos se consultan desde el mismo sistema sin romper el flujo de trabajo.',
   },
   {
-    title: 'Reportes en tiempo real',
-    description: 'KPIs de ventas y atencion con filtros por equipo, canal y etapa del pipeline.',
+    title: 'Acceso gobernado',
+    description: 'Usuarios, roles, permisos y sesiones quedan ordenados para administrar seguridad sin perder trazabilidad.',
   },
 ]
 
 export const CRM_PRICING_PLANS: CrmPricingPlan[] = [
   {
     id: 'starter',
-    name: 'Starter',
-    description: 'Para equipos pequenos que necesitan orden comercial rapido.',
-    priceMonthly: '$29',
-    billingLabel: 'por usuario/mes',
-    ctaLabel: 'Empezar ahora',
+    name: 'Crear acceso',
+    description: 'Para usuarios nuevos que necesitan registrar su cuenta y entrar al sistema.',
+    priceMonthly: 'Cuenta',
+    billingLabel: 'Registro inicial',
+    ctaLabel: 'Registrarme',
     features: [
-      'Hasta 3 usuarios',
-      'Pipeline de ventas basico',
-      'Recordatorios y tareas',
-      'Soporte por correo',
+      'Registro con validacion de correo',
+      'Ingreso protegido al sistema',
+      'Perfil listo para asignacion de permisos',
     ],
   },
   {
     id: 'growth',
-    name: 'Growth',
-    description: 'Escala operaciones de ventas y soporte con automatizaciones.',
-    priceMonthly: '$79',
-    billingLabel: 'por usuario/mes',
-    ctaLabel: 'Probar Growth',
+    name: 'Ingresar al sistema',
+    description: 'Acceso directo para equipos que ya tienen usuario activo y permisos configurados.',
+    priceMonthly: 'Sistema',
+    billingLabel: 'Acceso operativo',
+    ctaLabel: 'Iniciar sesion',
     highlighted: true,
     features: [
-      'Hasta 25 usuarios',
-      'Automatizaciones avanzadas',
-      'Reportes en tiempo real',
-      'Integraciones con email y WhatsApp',
-      'Soporte prioritario',
+      'Panel privado con navegacion por modulos',
+      'Sesion identificada por dispositivo',
+      'Experiencia adaptada a roles y permisos',
     ],
   },
   {
     id: 'enterprise',
-    name: 'Enterprise',
-    description: 'Control, seguridad y personalizacion para operaciones complejas.',
-    priceMonthly: 'Custom',
-    billingLabel: 'precio a medida',
-    ctaLabel: 'Hablar con ventas',
+    name: 'Coordinar implementacion',
+    description: 'Para preparar roles, modulos y reglas internas antes de operar con el equipo completo.',
+    priceMonthly: 'Setup',
+    billingLabel: 'Configuracion guiada',
+    ctaLabel: 'Contactar equipo',
     features: [
-      'Usuarios ilimitados',
-      'SSO y politicas de seguridad',
-      'Entornos y flujos personalizados',
-      'SLA dedicado',
+      'Revision de estructura operativa',
+      'Asignacion inicial de permisos',
+      'Acompanamiento en adopcion del flujo',
     ],
   },
 ]

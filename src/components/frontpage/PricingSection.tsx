@@ -9,51 +9,50 @@ interface PricingSectionProps {
 export function PricingSection({ plans, onSelectPlan }: PricingSectionProps) {
   return (
     <section className="relative isolate overflow-hidden border-y border-slate-200 py-16 dark:border-white/10">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_0%,_rgba(8,145,178,0.12),_transparent_40%),radial-gradient(circle_at_80%_100%,_rgba(14,165,233,0.12),_transparent_45%)] dark:bg-[radial-gradient(circle_at_20%_0%,_rgba(56,189,248,0.2),_transparent_42%),radial-gradient(circle_at_80%_100%,_rgba(14,165,233,0.18),_transparent_48%)]" />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(135deg,rgba(236,254,255,0.86),transparent_45%),radial-gradient(circle_at_85%_10%,rgba(8,145,178,0.14),transparent_35%),radial-gradient(circle_at_10%_90%,rgba(16,185,129,0.12),transparent_36%)] dark:bg-[linear-gradient(135deg,rgba(8,47,73,0.34),transparent_44%),radial-gradient(circle_at_85%_10%,rgba(34,211,238,0.12),transparent_36%),radial-gradient(circle_at_10%_90%,rgba(16,185,129,0.1),transparent_36%)]" />
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <header className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-600 dark:text-cyan-300">
-            Precios
+          <p className="num text-[10.5px] uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-300">
+            ACCESO · OPERACION
           </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Un plan para cada etapa de tu operacion
+          <h2 className="display mt-3 text-[42px] leading-none text-slate-950 dark:text-slate-50 sm:text-[52px]">
+            Entra por el flujo
+            <span className="display-it text-slate-500 dark:text-slate-400"> que necesitas resolver</span>
           </h2>
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
-            Empieza simple, escala sin migraciones y mantén el control comercial desde el primer día.
+          <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            La bienvenida debe orientar rapido: crear acceso, revisar una demo o coordinar una configuracion inicial con el equipo.
           </p>
         </header>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {plans.map((plan) => {
             const isHighlighted = plan.highlighted === true
             return (
               <article
                 key={plan.id}
-                className={`rounded-2xl border p-6 shadow-sm transition ${
+                className={`r-2xl border p-6 soft-ring transition hover:-translate-y-0.5 ${
                   isHighlighted
-                    ? 'border-cyan-300 bg-cyan-50/70 shadow-cyan-200/60 dark:border-cyan-400/40 dark:bg-cyan-900/15 dark:shadow-none'
-                    : 'border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900/70'
+                    ? 'border-cyan-300 bg-white shadow-cyan-200/60 dark:border-cyan-300/35 dark:bg-slate-950'
+                    : 'border-slate-200 bg-white/80 dark:border-white/10 dark:bg-slate-950/80'
                 }`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold">{plan.name}</h3>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="num text-[10px] uppercase tracking-[0.18em] text-slate-400">{plan.priceMonthly}</p>
+                    <h3 className="display mt-2 text-[30px] leading-none text-slate-950 dark:text-slate-50">{plan.name}</h3>
+                  </div>
                   {isHighlighted && (
-                    <span className="rounded-full bg-cyan-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-                      Recomendado
+                    <span className="r-full bg-cyan-600 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white dark:bg-cyan-400 dark:text-slate-950">
+                      Principal
                     </span>
                   )}
                 </div>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{plan.description}</p>
-
-                <div className="mt-5">
-                  <p className="text-3xl font-bold">{plan.priceMonthly}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{plan.billingLabel}</p>
-                </div>
+                <p className="mt-4 min-h-12 text-sm leading-6 text-slate-600 dark:text-slate-300">{plan.description}</p>
 
                 <ul className="mt-6 space-y-2.5 text-sm">
                   {plan.features.map((feature) => (
                     <li key={`${plan.id}-${feature}`} className="flex items-start gap-2">
-                      <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-cyan-600/15 text-cyan-700 dark:text-cyan-300">
+                      <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-cyan-600/15 text-[10px] text-cyan-700 dark:text-cyan-300">
                         ✓
                       </span>
                       <span className="text-slate-700 dark:text-slate-200">{feature}</span>
@@ -65,12 +64,13 @@ export function PricingSection({ plans, onSelectPlan }: PricingSectionProps) {
                   <ButtonComponent
                     type="button"
                     variant={isHighlighted ? 'solid' : 'outline'}
-                    className={`w-full ${isHighlighted ? 'bg-cyan-600 text-white hover:bg-cyan-700 dark:bg-cyan-500 dark:text-white dark:hover:bg-cyan-400' : ''}`}
+                    className={`w-full ${isHighlighted ? 'bg-cyan-600 text-white hover:bg-cyan-700 dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300' : 'bg-white/80'}`}
                     onClick={() => onSelectPlan(plan.id)}
                   >
                     {plan.ctaLabel}
                   </ButtonComponent>
                 </div>
+                <p className="mt-3 text-center text-[11px] text-slate-400">{plan.billingLabel}</p>
               </article>
             )
           })}
