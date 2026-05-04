@@ -55,6 +55,11 @@ export { SaveConfirmComponent } from './dialog/SaveConfirmComponent'
 // Dashboard Components
 export { SellerDashboardMainComponent } from './dashboard/SellerDashboardMainComponent'
 export { SellerDashboardSideComponent } from './dashboard/SellerDashboardSideComponent'
+export { DashboardHeroComponent } from './dashboard/DashboardHeroComponent'
+export { DashboardFocusPanelComponent } from './dashboard/DashboardFocusPanelComponent'
+export { DashboardSummaryCardsComponent } from './dashboard/DashboardSummaryCardsComponent'
+export { DashboardModulesGridComponent } from './dashboard/DashboardModulesGridComponent'
+export { dashboardModules } from './dashboard/dashboard.constants'
 
 // Frontpage Components
 export { HeroHeader } from './frontpage/HeroHeader'
