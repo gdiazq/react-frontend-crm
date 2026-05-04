@@ -98,6 +98,17 @@ export default function TransfersDashboardPage() {
   const [deletingDocumentId, setDeletingDocumentId] = useState<number | null>(null)
   const [exportingCsv, setExportingCsv] = useState(false)
 
+  const getFiltersFromQueryParams = () => ({
+    status: queryParams.status,
+    toCostCenter: queryParams.toCostCenter,
+    effectiveDateFrom: queryParams.effectiveDateFrom,
+    effectiveDateTo: queryParams.effectiveDateTo,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    updatedFrom: queryParams.updatedFrom,
+    updatedTo: queryParams.updatedTo,
+  })
+
   const transferDetailView = mapperTransferDetailView(transferDetail)
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -123,28 +134,6 @@ export default function TransfersDashboardPage() {
     void getApprovalEmployeeStatusOptions()
     void getTransferToCostCenterOptions()
   }, [getTransfers, getApprovalEmployeeStatusOptions, getTransferToCostCenterOptions])
-
-  useEffect(() => {
-    setFilters({
-      status: queryParams.status,
-      toCostCenter: queryParams.toCostCenter,
-      effectiveDateFrom: queryParams.effectiveDateFrom,
-      effectiveDateTo: queryParams.effectiveDateTo,
-      createdFrom: queryParams.createdFrom,
-      createdTo: queryParams.createdTo,
-      updatedFrom: queryParams.updatedFrom,
-      updatedTo: queryParams.updatedTo,
-    })
-  }, [
-    queryParams.status,
-    queryParams.toCostCenter,
-    queryParams.effectiveDateFrom,
-    queryParams.effectiveDateTo,
-    queryParams.createdFrom,
-    queryParams.createdTo,
-    queryParams.updatedFrom,
-    queryParams.updatedTo,
-  ])
 
   const handleViewDetail = (row: TransferTableRow) => {
     setSelectedDetailRowId(row.id)
@@ -218,6 +207,10 @@ export default function TransfersDashboardPage() {
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
+  const handleOpenFilters = () => {
+    setFilters(getFiltersFromQueryParams())
+    setFiltersOpen(true)
+  }
   const handleStatusFilterChange = (value: string) => handleChangeFilter('status', value)
   const handleToCostCenterFilterChange = (value: string) => handleChangeFilter('toCostCenter', value)
   const handleEffectiveDateFromFilterChange = (value: string) => handleChangeFilter('effectiveDateFrom', value)
@@ -277,8 +270,14 @@ export default function TransfersDashboardPage() {
 
   return (
     <section className="min-w-0 space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Dashboard de traspasos</h1>
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">ÍNDICE · TRASPASOS</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          Dashboard
+          <span className="display-it text-slate-500 dark:text-slate-400"> de traspasos</span>
+        </h1>
       </header>
 
       <StatsOverviewCardsComponent
@@ -325,7 +324,7 @@ export default function TransfersDashboardPage() {
             variant="outline"
             disabled={loadingTransfers}
             label="Filtro"
-            onClick={() => setFiltersOpen(true)}
+            onClick={handleOpenFilters}
           />
           <div className="min-w-0 flex-1">
             <InputComponent

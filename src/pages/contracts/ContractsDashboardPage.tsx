@@ -349,8 +349,14 @@ export default function ContractsDashboardPage() {
 
   return (
     <section className="min-w-0 space-y-4">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900/60">
-        <h1 className="text-2xl font-bold">Dashboard de contratos</h1>
+      <header className="border-b border-slate-200 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+          <span className="num">ÍNDICE · CONTRATOS</span>
+        </div>
+        <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
+          Dashboard
+          <span className="display-it text-slate-500 dark:text-slate-400"> de contratos</span>
+        </h1>
       </header>
 
       <StatsOverviewCardsComponent
