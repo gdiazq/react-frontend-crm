@@ -49,12 +49,6 @@ export const leavesService = {
     return data
   },
 
-  deleteLeaveDocument: async (leaveId: number, fileId: number, userId: number) => {
-    await axiosInstance.delete(`/rrhh/leaves/${leaveId}/documents/${fileId}`, {
-      params: { userId },
-    })
-  },
-
   exportLeavesCsv: async () => {
     const { data } = await axiosInstance.get<Blob>('/rrhh/leaves/export/csv', {
       responseType: 'blob',

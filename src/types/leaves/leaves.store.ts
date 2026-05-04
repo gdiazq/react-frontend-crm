@@ -21,7 +21,6 @@ export interface LeavesStore {
   loadingLeaveDetail: boolean
   createLeaveSubmitting: boolean
   updateLeaveSubmitting: boolean
-  deletingLeaveDocument: boolean
   operationStatus: Record<OperationKey, OperationStatus>
   getLeaves: () => Promise<void>
   getLeaveDetail: (leaveId: string) => Promise<LeaveDetail | null>
@@ -33,22 +32,21 @@ export interface LeavesStore {
   setStatusFilter: (status: string) => void
   setLeaveTypeFilter: (leaveTypeId: string) => void
   setEmployeeFilter: (employeeId: string) => void
-  setContractFilter: (contractId: string) => void
   setStartDateRange: (payload: { startFrom: string, startTo: string }) => void
+  setEndDateRange: (payload: { endFrom: string, endTo: string }) => void
   setCreatedDateRange: (payload: { createdFrom: string, createdTo: string }) => void
   setUpdatedDateRange: (payload: { updatedFrom: string, updatedTo: string }) => void
   clearStatusFilter: () => void
   clearLeaveTypeFilter: () => void
   clearEmployeeFilter: () => void
-  clearContractFilter: () => void
   clearStartDateRange: () => void
+  clearEndDateRange: () => void
   clearCreatedDateRange: () => void
   clearUpdatedDateRange: () => void
   searchLeaves: () => Promise<void>
   sortLeaves: (sortBy: LeavesSortBy, sortDir: LeavesSortDir) => Promise<void>
   createLeave: (payload: LeaveCreatePayload, files?: File[]) => Promise<boolean>
   updateLeave: (payload: LeaveUpdatePayload, files?: File[]) => Promise<boolean>
-  deleteLeaveDocument: (leaveId: number, fileId: number, userId: number) => Promise<boolean>
   getLeavesByEmployee: (employeeId: number) => Promise<void>
   clearEmployeeLeaves: () => void
   clearOperationStatus: (key: OperationKey) => void

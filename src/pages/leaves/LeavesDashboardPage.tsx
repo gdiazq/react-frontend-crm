@@ -16,9 +16,8 @@ import {
 import { AUTH_ROUTE_LEAVES_CREATE, AUTH_ROUTE_LEAVES_EDIT } from '@/constant'
 import { leaveStatusFilterOptions, leavesTableColumns, leavesTableColumnIndex, leavesTableSortByColumn } from '@/factories'
 import { mapperLeaveDetailView } from '@/mappers'
-import messages from '@/messages/messages'
 import { leavesService, storageService } from '@/services'
-import { useStoreAuth, useStoreLeaveSelects, useStoreLeaves } from '@/store'
+import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
 import type { TableRow, TableSortState } from '@/components'
 import type { LeaveTableRow } from '@/types'
 import { createLeavesActions, createLeavesTableCustomRenderer, downloadBlobFile } from '@/utils'
@@ -40,27 +39,25 @@ export default function LeavesDashboardPage() {
   const loadingLeaveDetail = useStoreLeaves((s) => s.loadingLeaveDetail)
   const listError = useStoreLeaves((s) => s.operationStatus.list.error)
   const detailError = useStoreLeaves((s) => s.operationStatus.detail.error)
-  const deleteDocumentError = useStoreLeaves((s) => s.operationStatus.toggle.error)
   const clearOperationStatus = useStoreLeaves((s) => s.clearOperationStatus)
   const getLeaves = useStoreLeaves((s) => s.getLeaves)
   const getLeaveDetail = useStoreLeaves((s) => s.getLeaveDetail)
   const clearLeaveDetail = useStoreLeaves((s) => s.clearLeaveDetail)
-  const deleteLeaveDocument = useStoreLeaves((s) => s.deleteLeaveDocument)
   const sortLeaves = useStoreLeaves((s) => s.sortLeaves)
   const goToPage = useStoreLeaves((s) => s.goToPage)
   const setSearch = useStoreLeaves((s) => s.setSearch)
   const setStatusFilter = useStoreLeaves((s) => s.setStatusFilter)
   const setLeaveTypeFilter = useStoreLeaves((s) => s.setLeaveTypeFilter)
   const setEmployeeFilter = useStoreLeaves((s) => s.setEmployeeFilter)
-  const setContractFilter = useStoreLeaves((s) => s.setContractFilter)
   const setStartDateRange = useStoreLeaves((s) => s.setStartDateRange)
+  const setEndDateRange = useStoreLeaves((s) => s.setEndDateRange)
   const setCreatedDateRange = useStoreLeaves((s) => s.setCreatedDateRange)
   const setUpdatedDateRange = useStoreLeaves((s) => s.setUpdatedDateRange)
   const clearStatusFilter = useStoreLeaves((s) => s.clearStatusFilter)
   const clearLeaveTypeFilter = useStoreLeaves((s) => s.clearLeaveTypeFilter)
   const clearEmployeeFilter = useStoreLeaves((s) => s.clearEmployeeFilter)
-  const clearContractFilter = useStoreLeaves((s) => s.clearContractFilter)
   const clearStartDateRange = useStoreLeaves((s) => s.clearStartDateRange)
+  const clearEndDateRange = useStoreLeaves((s) => s.clearEndDateRange)
   const clearCreatedDateRange = useStoreLeaves((s) => s.clearCreatedDateRange)
   const clearUpdatedDateRange = useStoreLeaves((s) => s.clearUpdatedDateRange)
   const searchLeaves = useStoreLeaves((s) => s.searchLeaves)
@@ -71,16 +68,16 @@ export default function LeavesDashboardPage() {
   const leaveFormOptionsErrorMessage = useStoreLeaveSelects((s) => s.leaveFormOptionsErrorMessage)
   const getLeaveFormOptions = useStoreLeaveSelects((s) => s.getLeaveFormOptions)
   const clearLeaveFormOptionsStatus = useStoreLeaveSelects((s) => s.clearLeaveFormOptionsStatus)
-  const currentUser = useStoreAuth((s) => s.user)
 
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
     status: queryParams.status,
     leaveTypeId: queryParams.leaveTypeId,
     employeeId: queryParams.employeeId,
-    contractId: queryParams.contractId,
     startFrom: queryParams.startFrom,
     startTo: queryParams.startTo,
+    endFrom: queryParams.endFrom,
+    endTo: queryParams.endTo,
     createdFrom: queryParams.createdFrom,
     createdTo: queryParams.createdTo,
     updatedFrom: queryParams.updatedFrom,
@@ -121,9 +118,10 @@ export default function LeavesDashboardPage() {
       status: queryParams.status,
       leaveTypeId: queryParams.leaveTypeId,
       employeeId: queryParams.employeeId,
-      contractId: queryParams.contractId,
       startFrom: queryParams.startFrom,
       startTo: queryParams.startTo,
+      endFrom: queryParams.endFrom,
+      endTo: queryParams.endTo,
       createdFrom: queryParams.createdFrom,
       createdTo: queryParams.createdTo,
       updatedFrom: queryParams.updatedFrom,
@@ -133,9 +131,10 @@ export default function LeavesDashboardPage() {
     queryParams.status,
     queryParams.leaveTypeId,
     queryParams.employeeId,
-    queryParams.contractId,
     queryParams.startFrom,
     queryParams.startTo,
+    queryParams.endFrom,
+    queryParams.endTo,
     queryParams.createdFrom,
     queryParams.createdTo,
     queryParams.updatedFrom,
@@ -193,17 +192,6 @@ export default function LeavesDashboardPage() {
     window.open(storageService.getDownloadUrl(fileId), '_blank', 'noopener,noreferrer')
   }
 
-  const handleDeleteDocument = async (fileId: number) => {
-    const parsedLeaveId = Number(selectedDetailRowId)
-    const userId = currentUser?.id
-    if (!Number.isInteger(parsedLeaveId) || parsedLeaveId <= 0 || !userId) {
-      setActionsMessage('No se pudo eliminar el documento.')
-      return
-    }
-    const success = await deleteLeaveDocument(parsedLeaveId, fileId, userId)
-    if (success) setActionsMessage(messages.leaves.status.success.deleteDocumentSuccess)
-  }
-
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = leavesTableSortByColumn[columnIndex]
     if (!sortBy) return
@@ -219,8 +207,8 @@ export default function LeavesDashboardPage() {
     setStatusFilter(filters.status.trim())
     setLeaveTypeFilter(filters.leaveTypeId)
     setEmployeeFilter(filters.employeeId)
-    setContractFilter(filters.contractId)
     setStartDateRange({ startFrom: filters.startFrom.trim(), startTo: filters.startTo.trim() })
+    setEndDateRange({ endFrom: filters.endFrom.trim(), endTo: filters.endTo.trim() })
     setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
     setUpdatedDateRange({ updatedFrom: filters.updatedFrom.trim(), updatedTo: filters.updatedTo.trim() })
     await searchLeaves()
@@ -232,9 +220,10 @@ export default function LeavesDashboardPage() {
       status: '',
       leaveTypeId: '',
       employeeId: '',
-      contractId: '',
       startFrom: '',
       startTo: '',
+      endFrom: '',
+      endTo: '',
       createdFrom: '',
       createdTo: '',
       updatedFrom: '',
@@ -243,8 +232,8 @@ export default function LeavesDashboardPage() {
     clearStatusFilter()
     clearLeaveTypeFilter()
     clearEmployeeFilter()
-    clearContractFilter()
     clearStartDateRange()
+    clearEndDateRange()
     clearCreatedDateRange()
     clearUpdatedDateRange()
     await searchLeaves()
@@ -286,13 +275,12 @@ export default function LeavesDashboardPage() {
         pending={pagination.pending}
       />
 
-      {(listError || deleteDocumentError) && (
+      {listError && (
         <AlertMessageComponent
-          message={(listError || deleteDocumentError)!}
+          message={listError}
           tone="error"
           onClose={() => {
-            if (listError) clearOperationStatus('list')
-            if (deleteDocumentError) clearOperationStatus('toggle')
+            clearOperationStatus('list')
           }}
         />
       )}
@@ -374,13 +362,19 @@ export default function LeavesDashboardPage() {
           <SelectComponent value={filters.status} label="Estado" options={leaveStatusFilterOptions} onValueChange={(v) => handleChangeFilter('status', v)} />
           <SelectComponent value={filters.leaveTypeId} label="Tipo de permiso" options={leaveTypeSelectOptions} loading={loadingLeaveFormOptions} onValueChange={(v) => handleChangeFilter('leaveTypeId', v)} />
           <SelectComponent value={filters.employeeId} label="Trabajador" options={employeeSelectOptions} loading={loadingLeaveFormOptions} onValueChange={(v) => handleChangeFilter('employeeId', v)} />
-          <InputComponent value={filters.contractId} label="Contrato" type="number" placeholder="ID contrato" onValueChange={(v) => handleChangeFilter('contractId', v)} />
 
           <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/20 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">Inicio del permiso</p>
             <div className="grid gap-2">
               <InputComponent id="leaves-start-from" value={filters.startFrom} label="Desde" type="date" onValueChange={(v) => handleChangeFilter('startFrom', v)} />
               <InputComponent id="leaves-start-to" value={filters.startTo} label="Hasta" type="date" onValueChange={(v) => handleChangeFilter('startTo', v)} />
+            </div>
+          </div>
+          <div className="space-y-3 rounded-xl border border-sky-500/35 bg-sky-50/20 p-3 dark:border-sky-400/25 dark:bg-sky-950/10">
+            <p className="text-xs font-semibold uppercase tracking-wide text-sky-700 dark:text-sky-300">Fin del permiso</p>
+            <div className="grid gap-2">
+              <InputComponent id="leaves-end-from" value={filters.endFrom} label="Desde" type="date" onValueChange={(v) => handleChangeFilter('endFrom', v)} />
+              <InputComponent id="leaves-end-to" value={filters.endTo} label="Hasta" type="date" onValueChange={(v) => handleChangeFilter('endTo', v)} />
             </div>
           </div>
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
@@ -413,7 +407,6 @@ export default function LeavesDashboardPage() {
           onRetry={handleRetryDetail}
           onEdit={selectedDetailRowId ? () => handleUpdateLeave(selectedDetailRowId) : undefined}
           onDownloadDocument={handleDownloadDocument}
-          onDeleteDocument={handleDeleteDocument}
         />
       </DetailSidebarComponent>
     </section>

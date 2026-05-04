@@ -68,7 +68,6 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
     loadingLeaveDetail: false,
     createLeaveSubmitting: false,
     updateLeaveSubmitting: false,
-    deletingLeaveDocument: false,
     operationStatus: initialOperationStatus(),
 
     getLeaves: async () => {
@@ -160,12 +159,12 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
       set((state) => ({ queryParams: { ...state.queryParams, employeeId } }))
     },
 
-    setContractFilter: (contractId: string) => {
-      set((state) => ({ queryParams: { ...state.queryParams, contractId } }))
-    },
-
     setStartDateRange: ({ startFrom, startTo }) => {
       set((state) => ({ queryParams: { ...state.queryParams, startFrom, startTo } }))
+    },
+
+    setEndDateRange: ({ endFrom, endTo }) => {
+      set((state) => ({ queryParams: { ...state.queryParams, endFrom, endTo } }))
     },
 
     setCreatedDateRange: ({ createdFrom, createdTo }) => {
@@ -188,12 +187,12 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
       set((state) => ({ queryParams: { ...state.queryParams, employeeId: '' } }))
     },
 
-    clearContractFilter: () => {
-      set((state) => ({ queryParams: { ...state.queryParams, contractId: '' } }))
-    },
-
     clearStartDateRange: () => {
       set((state) => ({ queryParams: { ...state.queryParams, startFrom: '', startTo: '' } }))
+    },
+
+    clearEndDateRange: () => {
+      set((state) => ({ queryParams: { ...state.queryParams, endFrom: '', endTo: '' } }))
     },
 
     clearCreatedDateRange: () => {
@@ -252,35 +251,6 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
         return false
       } finally {
         set({ updateLeaveSubmitting: false })
-      }
-    },
-
-    deleteLeaveDocument: async (leaveId: number, fileId: number, userId: number) => {
-      if (!Number.isInteger(leaveId) || leaveId <= 0 || !Number.isInteger(fileId) || fileId <= 0) {
-        setOpError('toggle', messages.leaves.status.errors.deleteDocumentError)
-        return false
-      }
-
-      try {
-        set({ deletingLeaveDocument: true })
-        clearOp('toggle')
-        await leavesService.deleteLeaveDocument(leaveId, fileId, userId)
-        set((state) => {
-          if (!state.leaveDetail || state.leaveDetail.id !== leaveId) return {}
-          return {
-            leaveDetail: {
-              ...state.leaveDetail,
-              documents: (state.leaveDetail.documents ?? []).filter((doc) => doc.id !== fileId),
-            },
-          }
-        })
-        setOpSuccess('toggle', messages.leaves.status.success.deleteDocumentSuccess)
-        return true
-      } catch (error) {
-        setOpError('toggle', resolveErrorMessage(error, messages.leaves.status.errors.deleteDocumentError), error)
-        return false
-      } finally {
-        set({ deletingLeaveDocument: false })
       }
     },
 

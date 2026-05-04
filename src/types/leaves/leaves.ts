@@ -81,7 +81,6 @@ export interface LeaveDetailView {
   employeeId: number
   employeeName: string
   employeeIdentification: string
-  contractId: number
   leaveTypeId: number
   leaveTypeName: string
   paid: boolean
@@ -97,7 +96,6 @@ export interface LeaveDetailView {
   totalDaysDisplay: string
   reasonText: string
   documents: LeaveDetailDocumentView[]
-  hrRequestId: number | null
   createdAtDisplay: string
   updatedAtDisplay: string
 }
@@ -132,9 +130,10 @@ export interface LeavesQueryParams {
   status: string
   leaveTypeId: string
   employeeId: string
-  contractId: string
   startFrom: string
   startTo: string
+  endFrom: string
+  endTo: string
   createdFrom: string
   createdTo: string
   updatedFrom: string

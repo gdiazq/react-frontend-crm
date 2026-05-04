@@ -14,7 +14,6 @@ interface LeaveDetailComponentProps {
   onRetry?: () => void
   onEdit?: () => void
   onDownloadDocument?: (fileId: number) => void
-  onDeleteDocument?: (fileId: number) => void
 }
 
 export function LeaveDetailComponent({
@@ -24,7 +23,6 @@ export function LeaveDetailComponent({
   onRetry,
   onEdit,
   onDownloadDocument,
-  onDeleteDocument,
 }: LeaveDetailComponentProps) {
   return (
     <DetailStateWrapperComponent
@@ -40,7 +38,6 @@ export function LeaveDetailComponent({
           detail={detail}
           onEdit={onEdit}
           onDownloadDocument={onDownloadDocument}
-          onDeleteDocument={onDeleteDocument}
         />
       )}
     </DetailStateWrapperComponent>
@@ -51,10 +48,9 @@ interface LeaveDetailContentProps {
   detail: LeaveDetailView
   onEdit?: () => void
   onDownloadDocument?: (fileId: number) => void
-  onDeleteDocument?: (fileId: number) => void
 }
 
-function LeaveDetailContent({ detail, onEdit, onDownloadDocument, onDeleteDocument }: LeaveDetailContentProps) {
+function LeaveDetailContent({ detail, onEdit, onDownloadDocument }: LeaveDetailContentProps) {
   const approvalTone = resolveApprovalTone(detail.statusName)
   const documentsStat: DetailHeroStat = {
     label: 'Adjuntos',
@@ -65,8 +61,7 @@ function LeaveDetailContent({ detail, onEdit, onDownloadDocument, onDeleteDocume
   const description = (
     <>
       Permiso <span className="num">{detail.leaveTypeName || '—'}</span> para{' '}
-      <span className="num">{detail.employeeName || '—'}</span>, contrato N°{' '}
-      <span className="num">{detail.contractId || '—'}</span>.
+      <span className="num">{detail.employeeName || '—'}</span>.
     </>
   )
 
@@ -95,7 +90,6 @@ function LeaveDetailContent({ detail, onEdit, onDownloadDocument, onDeleteDocume
       <section>
         <DetailSectionHeaderComponent number="01" title="Datos generales" />
         <div className="grid gap-x-10 md:grid-cols-2">
-          <DetailFieldCardComponent title="ID permiso" value={String(detail.id)} mono />
           <DetailFieldCardComponent title="Tipo permiso" value={detail.leaveTypeName} />
           <DetailFieldCardComponent title="Estado" value={detail.statusName} />
           <DetailFieldCardComponent title="Días totales" value={detail.totalDaysDisplay} mono />
@@ -114,8 +108,6 @@ function LeaveDetailContent({ detail, onEdit, onDownloadDocument, onDeleteDocume
         <div className="grid gap-x-10 md:grid-cols-2">
           <DetailFieldCardComponent title="Nombre" value={detail.employeeName} />
           <DetailFieldCardComponent title="Identificación" value={detail.employeeIdentification} mono />
-          <DetailFieldCardComponent title="ID trabajador" value={String(detail.employeeId)} mono />
-          <DetailFieldCardComponent title="ID contrato" value={String(detail.contractId)} mono />
         </div>
       </section>
 
@@ -155,15 +147,6 @@ function LeaveDetailContent({ detail, onEdit, onDownloadDocument, onDeleteDocume
                   >
                     Descargar
                   </button>
-                  {onDeleteDocument && (
-                    <button
-                      type="button"
-                      onClick={() => onDeleteDocument(file.id)}
-                      className="inline-flex cursor-pointer items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-700 hover:bg-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:hover:bg-rose-900/50"
-                    >
-                      Eliminar
-                    </button>
-                  )}
                 </div>
               </li>
             ))}
@@ -174,7 +157,6 @@ function LeaveDetailContent({ detail, onEdit, onDownloadDocument, onDeleteDocume
       <section>
         <DetailSectionHeaderComponent number="05" title="Solicitud RRHH vinculada" />
         <div className="grid gap-x-10 md:grid-cols-2">
-          <DetailFieldCardComponent title="ID solicitud" value={detail.hrRequestId != null ? String(detail.hrRequestId) : '—'} mono />
           <DetailFieldCardComponent title="Requiere aprobación" value={detail.requireApprovalDisplay} />
           <DetailFieldCardComponent title="Requiere documento" value={detail.requiresDocumentDisplay} />
         </div>

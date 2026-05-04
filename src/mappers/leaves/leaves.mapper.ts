@@ -47,9 +47,10 @@ export function mapperLeavesQueryParams(result: LeavesQueryParams): Record<strin
   appendString(params, 'status', result.status)
   appendParsedId(params, 'leaveTypeId', result.leaveTypeId)
   appendParsedId(params, 'employeeId', result.employeeId)
-  appendParsedId(params, 'contractId', result.contractId)
   appendString(params, 'startFrom', result.startFrom)
   appendString(params, 'startTo', result.startTo)
+  appendString(params, 'endFrom', result.endFrom)
+  appendString(params, 'endTo', result.endTo)
   appendString(params, 'createdFrom', result.createdFrom)
   appendString(params, 'createdTo', result.createdTo)
   appendString(params, 'updatedFrom', result.updatedFrom)
@@ -112,7 +113,6 @@ export function mapperLeaveDetailView(detail: LeaveDetail | null): LeaveDetailVi
     employeeId: detail.employeeId,
     employeeName: detail.employeeFullName || '',
     employeeIdentification: detail.employeeIdentification || '',
-    contractId: detail.contractId,
     leaveTypeId: detail.leaveTypeId,
     leaveTypeName: detail.leaveTypeName || '',
     paid: detail.paid,
@@ -128,7 +128,6 @@ export function mapperLeaveDetailView(detail: LeaveDetail | null): LeaveDetailVi
     totalDaysDisplay: formatNumber(detail.totalDays),
     reasonText: detail.reason || '',
     documents: mapperLeaveDocuments(detail.documents),
-    hrRequestId: detail.hrRequestId ?? null,
     createdAtDisplay: formatDateTime(detail.createdAt || '', 'Sin registro'),
     updatedAtDisplay: formatDateTime(detail.updatedAt || '', 'Sin registro'),
   }

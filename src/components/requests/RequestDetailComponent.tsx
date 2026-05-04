@@ -90,7 +90,6 @@ function RequestDetailContent({ detail, onApprove, onReject, moreActions }: Requ
         <div className="grid gap-x-10 md:grid-cols-2">
           <DetailFieldCardComponent title="Tipo de solicitud" value={detail.requestTypeName} />
           <DetailFieldCardComponent title="Operación" value={detail.actionDisplay} />
-          <DetailFieldCardComponent title="Módulo" value={detail.moduleDisplay} />
           <DetailFieldCardComponent title="Requiere aprobación" value={detail.requireApprovalLabel} />
         </div>
       </section>
