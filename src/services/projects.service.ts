@@ -1,8 +1,10 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
-import { mapperProjectsQueryParams } from '@/mappers'
+import { mapperProjectCostCenterEmployeesQueryParams, mapperProjectsQueryParams } from '@/mappers'
 import type {
   CsvImportResponse,
+  ProjectCostCenterEmployeesPagedResponse,
+  ProjectCostCenterEmployeesQueryParams,
   ProjectCreatePayload,
   ProjectCreateResponse,
   ProjectDetail,
@@ -27,6 +29,14 @@ export const projectsService = {
 
   getProjectDetail: async (projectId: number) => {
     const { data } = await axiosInstance.get<ProjectDetail>(`/project/project/${projectId}`)
+    return data
+  },
+
+  getCostCenterEmployees: async (costCenter: number, queryParams: ProjectCostCenterEmployeesQueryParams) => {
+    const { data } = await axiosInstance.get<ProjectCostCenterEmployeesPagedResponse>(
+      `/project/project/cost-center/${costCenter}/employees/paged`,
+      { params: mapperProjectCostCenterEmployeesQueryParams(queryParams) },
+    )
     return data
   },
 

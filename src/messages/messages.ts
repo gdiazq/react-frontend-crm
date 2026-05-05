@@ -473,6 +473,7 @@ export default {
       },
       errors: {
         loadError: 'No se pudo cargar la lista de proyectos.',
+        loadCostCenterEmployeesError: 'No se pudo cargar la lista de trabajadores del centro de costo.',
         detailLoadError: 'No se pudo cargar el detalle del proyecto.',
         detailInvalidProjectId: 'Id de proyecto invalido para ver detalle.',
         createProjectError: 'No se pudo crear el proyecto.',

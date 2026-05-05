@@ -6,12 +6,14 @@ import {
   DetailSidebarComponent,
   InputComponent,
   PaginationComponent,
+  ProjectCostCenterEmployeesTabComponent,
   ProjectDetailComponent,
   RightSidebarComponent,
   SaveConfirmComponent,
   SelectComponent,
   StatsOverviewCardsComponent,
   TableComponent,
+  TabsComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_PROJECTS, AUTH_ROUTE_PROJECTS_CREATE, AUTH_ROUTE_PROJECTS_EDIT } from '@/constant'
@@ -31,6 +33,12 @@ const PROJECT_ACTIVE_COLUMN_INDEX = projectsTableColumnIndex.active
 const PROJECT_NAME_COLUMN_INDEX = projectsTableColumnIndex.name
 const ACTIONS_COLUMN_INDEX = projectsTableColumns.length - 1
 const PROJECTS_SORTABLE_COLUMNS = Object.keys(projectsTableSortByColumn).map((index) => Number(index))
+type ProjectDetailTabKey = 'detail' | 'employees'
+
+const projectDetailTabs: { key: ProjectDetailTabKey, label: string }[] = [
+  { key: 'detail', label: 'Detalle' },
+  { key: 'employees', label: 'Trabajadores' },
+]
 
 export default function ProjectsDashboardPage() {
   const navigate = useNavigate()
@@ -105,6 +113,7 @@ export default function ProjectsDashboardPage() {
     updatedTo: queryParams.updatedTo,
   }))
   const [detailOpen, setDetailOpen] = useState(false)
+  const [detailTab, setDetailTab] = useState<ProjectDetailTabKey>('detail')
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -123,11 +132,6 @@ export default function ProjectsDashboardPage() {
   const projectStatusSelectOptions = projectStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const projectSpecialtySelectOptions = projectSpecialtyOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const projectDetailView = mapperProjectDetailView(projectDetail)
-  const detailTitle = projectDetailView
-    ? `Detalle de ${projectDetailView.projectName}`
-    : selectedDetailName
-      ? `Detalle de ${selectedDetailName}`
-      : 'Detalle de proyecto'
   const activeSortColumn = PROJECTS_SORTABLE_COLUMNS.find((index) => projectsTableSortByColumn[index] === queryParams.sortBy) ?? null
   const sortState: TableSortState = {
     columnIndex: activeSortColumn,
@@ -145,12 +149,14 @@ export default function ProjectsDashboardPage() {
   const handleViewDetail = (row: ProjectTableRow) => {
     setSelectedDetailRowId(row.id)
     setSelectedDetailName(String(row.values[PROJECT_NAME_COLUMN_INDEX] ?? 'Proyecto'))
+    setDetailTab('detail')
     setDetailOpen(true)
     void getProjectDetail(row.id)
   }
 
   const handleCloseDetail = () => {
     setDetailOpen(false)
+    setDetailTab('detail')
     setSelectedDetailRowId(null)
     setSelectedDetailName('')
     clearProjectDetail()
@@ -638,21 +644,31 @@ export default function ProjectsDashboardPage() {
 
       <DetailSidebarComponent
         open={detailOpen}
-        title={detailTitle}
+        title=""
+        size={detailTab === 'employees' ? 'wide' : 'default'}
+        headerContent={<TabsComponent tabs={projectDetailTabs} activeTab={detailTab} onTabChange={setDetailTab} />}
         onClose={handleCloseDetail}
       >
-        <ProjectDetailComponent
-          key={selectedDetailRowId ?? 'empty-project-detail'}
-          detail={projectDetailView}
-          loading={loadingProjectDetail}
-          errorMessage={detailError}
-          onRetry={handleRetryDetail}
-          onEdit={
-            canUpdateProject && selectedDetailRowId
-              ? () => navigate(`${AUTH_ROUTE_PROJECTS_EDIT}=${selectedDetailRowId}`)
-              : undefined
-          }
-        />
+        {detailTab === 'detail' ? (
+          <ProjectDetailComponent
+            key={selectedDetailRowId ?? 'empty-project-detail'}
+            detail={projectDetailView}
+            loading={loadingProjectDetail}
+            errorMessage={detailError}
+            onRetry={handleRetryDetail}
+            onEdit={
+              canUpdateProject && selectedDetailRowId
+                ? () => navigate(`${AUTH_ROUTE_PROJECTS_EDIT}=${selectedDetailRowId}`)
+                : undefined
+            }
+          />
+        ) : (
+          <ProjectCostCenterEmployeesTabComponent
+            active={detailTab === 'employees'}
+            costCenter={projectDetailView?.costCenter ?? null}
+            projectName={projectDetailView?.projectName ?? selectedDetailName}
+          />
+        )}
       </DetailSidebarComponent>
 
       <SaveConfirmComponent

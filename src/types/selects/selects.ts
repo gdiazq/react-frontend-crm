@@ -18,6 +18,11 @@ export interface SelectStatusOption {
   name: string
 }
 
+export interface SelectEmployeeStatusOption {
+  id: number
+  name: string
+}
+
 export interface SelectPermissionOption {
   id: number
   name: string

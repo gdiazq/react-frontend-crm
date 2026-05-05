@@ -52,6 +52,7 @@ export interface ProjectDetail {
 
 export interface ProjectDetailView {
   projectName: string
+  costCenter: number
   costCenterDisplay: string
   typeName: string
   statusName: string
@@ -123,6 +124,58 @@ export interface ProjectPagedResponse {
   total?: number
   active?: number
   totalActive?: number
+  first?: boolean
+  last?: boolean
+}
+
+export interface ProjectCostCenterEmployeeRaw {
+  id: number
+  userId?: number | null
+  identification: string
+  firstName: string
+  paternalLastName: string
+  maternalLastName: string
+  corporateEmail?: string | null
+  phone?: string | null
+  statusName?: string | null
+  costCenter: number
+  projectName?: string | null
+  active: boolean
+  rehireEligible: boolean
+  hasContract: boolean
+  createdAt: string
+  updatedAt?: string | null
+}
+
+export type ProjectCostCenterEmployeesSortBy =
+  | 'createdAt'
+  | 'updatedAt'
+  | 'identification'
+  | 'firstName'
+  | 'statusName'
+
+export type ProjectCostCenterEmployeesSortDir = 'asc' | 'desc'
+
+export interface ProjectCostCenterEmployeesQueryParams {
+  page: number
+  size: number
+  search: string
+  active: string
+  statusId: string
+  sortBy: ProjectCostCenterEmployeesSortBy
+  sortDir: ProjectCostCenterEmployeesSortDir
+}
+
+export interface ProjectCostCenterEmployeesPagedResponse {
+  content: ProjectCostCenterEmployeeRaw[]
+  page?: number
+  number?: number
+  size?: number
+  totalElements?: number
+  totalPages?: number
+  total?: number
+  active?: number
+  pending?: number
   first?: boolean
   last?: boolean
 }

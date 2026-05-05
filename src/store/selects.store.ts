@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import {
   mapperSelectCompanyRepresentativeOptions,
+  mapperSelectEmployeeStatusOptions,
   mapperSelectPermissionOptions,
   mapperSelectProjectTypeOptions,
   mapperSelectProjectSpecialtyOptions,
@@ -27,9 +28,11 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   userNameOptions: [],
   userEmailOptions: [],
   statusOptions: [],
+  employeeStatusOptions: [],
   loadingRoleOptions: false,
   loadingPermissionOptions: false,
   loadingStatusOptions: false,
+  loadingEmployeeStatusOptions: false,
   loadingUsersFilterOptions: false,
   loadingProjectTypeOptions: false,
   loadingProjectSpecialtyOptions: false,
@@ -46,6 +49,7 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   roleOptionsErrorMessage: null,
   permissionOptionsErrorMessage: null,
   statusOptionsErrorMessage: null,
+  employeeStatusOptionsErrorMessage: null,
   usersFilterOptionsErrorMessage: null,
   projectTypeOptionsErrorMessage: null,
   projectSpecialtyOptionsErrorMessage: null,
@@ -147,6 +151,36 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
 
   clearStatusOptionsStatus: () => {
     set({ statusOptionsErrorMessage: null })
+  },
+
+  getEmployeeStatusOptions: async () => {
+    try {
+      set({
+        loadingEmployeeStatusOptions: true,
+        employeeStatusOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await selectsService.getEmployeeStatusOptions()
+      set({ employeeStatusOptions: mapperSelectEmployeeStatusOptions(data) })
+    } catch (error) {
+      if (selectsService.isAxiosError(error)) {
+        set({
+          employeeStatusOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadStatusError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          employeeStatusOptionsErrorMessage: messages.selects.status.errors.loadStatusError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingEmployeeStatusOptions: false })
+    }
+  },
+
+  clearEmployeeStatusOptionsStatus: () => {
+    set({ employeeStatusOptionsErrorMessage: null })
   },
 
   getUsersFilterOptions: async () => {

@@ -1,6 +1,9 @@
 import messages from '@/messages/messages'
 import type {
   ProjectCreateForm,
+  ProjectCostCenterEmployeeRaw,
+  ProjectCostCenterEmployeesPagedResponse,
+  ProjectCostCenterEmployeesQueryParams,
   ProjectCreatePayload,
   ProjectDetail,
   ProjectDetailView,
@@ -10,6 +13,7 @@ import type {
   ProjectsPagination,
   ProjectsQueryParams,
   ProjectTableRow,
+  TableRow,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendBooleanString, appendParsedId } from '../shared/queryParams.mapper'
@@ -43,6 +47,40 @@ export function mapperProjectsRows(result: ProjectRaw[]): ProjectTableRow[] {
 
 export function mapperProjectsPagination(result: ProjectPagedResponse): ProjectsPagination {
   return mapperPagination({ ...result, active: result.totalActive ?? result.active })
+}
+
+export function mapperProjectCostCenterEmployeesQueryParams(
+  result: ProjectCostCenterEmployeesQueryParams,
+): Record<string, number | string> {
+  const params = buildQueryParams(result)
+  appendString(params, 'search', result.search)
+  appendBooleanString(params, 'active', result.active)
+  appendParsedId(params, 'statusId', result.statusId)
+  return params
+}
+
+export function mapperProjectCostCenterEmployeesPagination(result: ProjectCostCenterEmployeesPagedResponse): ProjectsPagination {
+  return mapperPagination(result)
+}
+
+function resolveEmployeeFullName(item: ProjectCostCenterEmployeeRaw): string {
+  return [item.firstName, item.paternalLastName, item.maternalLastName].filter(Boolean).join(' ').trim() || '-'
+}
+
+export function mapperProjectCostCenterEmployeesRows(result: ProjectCostCenterEmployeeRaw[]): TableRow[] {
+  return result.map((item) => ({
+    id: String(item.id),
+    values: [
+      item.identification || '-',
+      resolveEmployeeFullName(item),
+      item.corporateEmail || '-',
+      item.phone || '-',
+      item.statusName || '-',
+      item.active ? messages.projects.ui.statusActive : messages.projects.ui.statusInactive,
+      item.hasContract ? 'Sí' : 'No',
+      formatDate(item.createdAt, '-'),
+    ],
+  }))
 }
 
 export function mapperProjectsQueryParams(result: ProjectsQueryParams): Record<string, number | string> {
@@ -148,6 +186,7 @@ export function mapperProjectDetailView(detail: ProjectDetail | null): ProjectDe
 
   return {
     projectName: detail.name,
+    costCenter: detail.costCenter,
     costCenterDisplay: String(detail.costCenter),
     typeName: detail.typeName ?? '',
     statusName: detail.statusName ?? '',

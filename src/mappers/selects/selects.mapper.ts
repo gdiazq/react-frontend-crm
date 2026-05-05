@@ -1,5 +1,6 @@
 import type {
   SelectCompanyRepresentativeOption,
+  SelectEmployeeStatusOption,
   SelectPermissionOption,
   SelectProjectTypeOption,
   SelectProjectSpecialtyOption,
@@ -33,6 +34,12 @@ export function mapperSelectUserEmailOptions(response: SelectUserEmailOption[]):
 
 export function mapperSelectStatusOptions(response: SelectStatusOption[]): SelectStatusOption[] {
   return response.map((status) => ({ id: status.id, name: status.name.trim() }))
+}
+
+export function mapperSelectEmployeeStatusOptions(response: SelectEmployeeStatusOption[]): SelectEmployeeStatusOption[] {
+  return response
+    .map((status) => ({ id: status.id, name: status.name.trim() }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
 }
 
 export function mapperSelectPermissionOptions(response: SelectPermissionOption[]): SelectPermissionOption[] {

@@ -1,5 +1,6 @@
 import type {
   SelectCompanyRepresentativeOption,
+  SelectEmployeeStatusOption,
   SelectPermissionOption,
   SelectProjectTypeOption,
   SelectProjectSpecialtyOption,
@@ -21,12 +22,14 @@ export interface SelectsStore {
   userNameOptions: SelectUserNameOption[]
   userEmailOptions: SelectUserEmailOption[]
   statusOptions: SelectStatusOption[]
+  employeeStatusOptions: SelectEmployeeStatusOption[]
   visitorOptions: SelectVisitorOption[]
   supervisorOptions: SelectSupervisorOption[]
   companyRepresentativeOptions: SelectCompanyRepresentativeOption[]
   loadingRoleOptions: boolean
   loadingPermissionOptions: boolean
   loadingStatusOptions: boolean
+  loadingEmployeeStatusOptions: boolean
   loadingUsersFilterOptions: boolean
   loadingProjectTypeOptions: boolean
   loadingProjectSpecialtyOptions: boolean
@@ -37,6 +40,7 @@ export interface SelectsStore {
   roleOptionsErrorMessage: string | null
   permissionOptionsErrorMessage: string | null
   statusOptionsErrorMessage: string | null
+  employeeStatusOptionsErrorMessage: string | null
   usersFilterOptionsErrorMessage: string | null
   projectTypeOptionsErrorMessage: string | null
   projectSpecialtyOptionsErrorMessage: string | null
@@ -48,6 +52,7 @@ export interface SelectsStore {
   getRoleOptions: () => Promise<void>
   getPermissionOptions: () => Promise<void>
   getStatusOptions: () => Promise<void>
+  getEmployeeStatusOptions: () => Promise<void>
   getUsersFilterOptions: () => Promise<void>
   getProjectTypeOptions: () => Promise<void>
   getProjectSpecialtyOptions: () => Promise<void>
@@ -58,6 +63,7 @@ export interface SelectsStore {
   clearRoleOptionsStatus: () => void
   clearPermissionOptionsStatus: () => void
   clearStatusOptionsStatus: () => void
+  clearEmployeeStatusOptionsStatus: () => void
   clearUsersFilterOptionsStatus: () => void
   clearProjectTypeOptionsStatus: () => void
   clearProjectSpecialtyOptionsStatus: () => void
