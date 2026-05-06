@@ -9,6 +9,7 @@ import {
   AUTH_ROUTE_EMPLOYEES,
   AUTH_ROUTE_LOGIN,
   AUTH_ROUTE_LOGOUT,
+  AUTH_ROUTE_PROJECT_ASSIGNMENTS,
   AUTH_ROUTE_PROJECTS,
   AUTH_ROUTE_PROJECT_STATUSES,
   AUTH_ROUTE_PROJECT_SPECIALTIES,
@@ -230,6 +231,16 @@ export function LayoutPrivateDefault() {
     navigate(AUTH_ROUTE_PROJECTS)
   }
 
+  const handleGoProjectAssignments = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    if (!canReadProjects) {
+      navigate('/unauthorized')
+      return
+    }
+    navigate(AUTH_ROUTE_PROJECT_ASSIGNMENTS)
+  }
+
   const handleGoProjectTypes = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
@@ -323,6 +334,7 @@ export function LayoutPrivateDefault() {
         showTransfers={canReadTransfers}
         showSettlements
         showProjects={canReadProjects}
+        showProjectAssignments={canReadProjects}
         showProjectTypes={canReadProjectTypes}
         showProjectSpecialties={canReadProjectSpecialties}
         showProjectStatuses={canReadProjectStatuses}
@@ -344,6 +356,7 @@ export function LayoutPrivateDefault() {
         onGoSettlementsNoRehireCause={handleGoSettlementsNoRehireCause}
         onGoSettlementsTerminationQuizQuestion={handleGoSettlementsTerminationQuizQuestion}
         onGoProjects={handleGoProjects}
+        onGoProjectAssignments={handleGoProjectAssignments}
         onGoProjectTypes={handleGoProjectTypes}
         onGoProjectSpecialties={handleGoProjectSpecialties}
         onGoProjectStatuses={handleGoProjectStatuses}

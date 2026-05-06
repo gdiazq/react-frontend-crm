@@ -28,6 +28,7 @@ export {
   createProjectSpecialtiesActions,
   createProjectTypesActions,
   createProjectsActions,
+  createProjectAssignmentsActions,
   createLegalTerminationCausesActions,
   createQualityOfWorkActions,
   createSafetyComplianceActions,
@@ -50,6 +51,7 @@ export { createProjectStatusesTableCustomRenderer } from './project-statuses/pro
 export { createProjectSpecialtiesTableCustomRenderer } from './project-specialties/projectSpecialtiesTableCellRules'
 export { createProjectTypesTableCustomRenderer } from './project-types/projectTypesTableCellRules'
 export { createProjectsTableCustomRenderer } from './projects/projectsTableCellRules'
+export { createProjectAssignmentsTableCustomRenderer } from './project-assignments/projectAssignmentsTableCellRules'
 export { createLegalTerminationCausesTableCustomRenderer } from './legal-termination-causes/legalTerminationCausesTableCellRules'
 export { createQualityOfWorkTableCustomRenderer } from './quality-of-work/qualityOfWorkTableCellRules'
 export { createSafetyComplianceTableCustomRenderer } from './safety-compliance/safetyComplianceTableCellRules'

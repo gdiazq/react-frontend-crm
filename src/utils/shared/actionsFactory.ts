@@ -211,6 +211,18 @@ export function createProjectsActions() {
   return { actionViewDetail, actionUpdateProject, actionToggleStatus }
 }
 
+export function createProjectAssignmentsActions() {
+  function actionViewEmployeeDetail(handler: () => void): DropdownAction {
+    return { id: 'view-employee-detail', label: messages.projectAssignments.ui.actionViewEmployeeDetail, handler }
+  }
+
+  function actionViewCostCenterDetail(handler: () => void): DropdownAction {
+    return { id: 'view-cost-center-detail', label: messages.projectAssignments.ui.actionViewCostCenterDetail, handler }
+  }
+
+  return { actionViewEmployeeDetail, actionViewCostCenterDetail }
+}
+
 export function createLegalTerminationCausesActions() {
   function actionViewDetail(handler: () => void): DropdownAction {
     return { id: 'view-detail', label: messages.legalTerminationCauses.ui.actionViewDetail, handler }

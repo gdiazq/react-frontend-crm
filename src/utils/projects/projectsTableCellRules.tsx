@@ -1,6 +1,6 @@
 import { StatusBadgeComponent } from '@/components'
 import type { TableCellCustomRenderer } from '@/components'
-import type { TableRow } from '@/types'
+import type { ProjectTableRow, SelectProjectSpecialtyOption, SelectProjectStatusOption, SelectProjectTypeOption, TableRow } from '@/types'
 
 interface CreateProjectsTableCustomRendererParams {
   nameColumnIndex: number
@@ -9,10 +9,15 @@ interface CreateProjectsTableCustomRendererParams {
   specialtyColumnIndex: number
   activeColumnIndex: number
   onViewDetail: (rowId: string) => void
-  getTypeName: (rowId: string) => string
-  getStatusName: (rowId: string) => string
-  getSpecialtyName: (rowId: string) => string
+  projectTypeOptions: SelectProjectTypeOption[]
+  projectStatusOptions: SelectProjectStatusOption[]
+  projectSpecialtyOptions: SelectProjectSpecialtyOption[]
   getActive: (rowId: string) => boolean
+}
+
+function resolveOptionName(options: { id: number, name: string }[], optionId?: number | null): string {
+  if (!optionId) return '-'
+  return options.find((option) => option.id === optionId)?.name || '-'
 }
 
 export function createProjectsTableCustomRenderer({
@@ -22,13 +27,14 @@ export function createProjectsTableCustomRenderer({
   specialtyColumnIndex,
   activeColumnIndex,
   onViewDetail,
-  getTypeName,
-  getStatusName,
-  getSpecialtyName,
+  projectTypeOptions,
+  projectStatusOptions,
+  projectSpecialtyOptions,
   getActive,
 }: CreateProjectsTableCustomRendererParams): TableCellCustomRenderer {
   return ({ row, value, columnIndex }) => {
     const tableRow: TableRow = row
+    const projectRow = row as ProjectTableRow
 
     if (columnIndex == nameColumnIndex) {
       return (
@@ -43,15 +49,15 @@ export function createProjectsTableCustomRenderer({
     }
 
     if (columnIndex == typeColumnIndex) {
-      return getTypeName(tableRow.id)
+      return resolveOptionName(projectTypeOptions, projectRow.typeId)
     }
 
     if (columnIndex == statusColumnIndex) {
-      return getStatusName(tableRow.id)
+      return resolveOptionName(projectStatusOptions, projectRow.statusId)
     }
 
     if (columnIndex == specialtyColumnIndex) {
-      return getSpecialtyName(tableRow.id)
+      return resolveOptionName(projectSpecialtyOptions, projectRow.specialtyId)
     }
 
     if (columnIndex == activeColumnIndex) {

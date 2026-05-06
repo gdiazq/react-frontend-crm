@@ -14,6 +14,7 @@ interface SidebarComponentProps {
   showTransfers?: boolean
   showSettlements?: boolean
   showProjects?: boolean
+  showProjectAssignments?: boolean
   showProjectTypes?: boolean
   showProjectSpecialties?: boolean
   showProjectStatuses?: boolean
@@ -35,6 +36,7 @@ interface SidebarComponentProps {
   onGoSettlementsNoRehireCause: () => void
   onGoSettlementsTerminationQuizQuestion: () => void
   onGoProjects: () => void
+  onGoProjectAssignments: () => void
   onGoProjectTypes: () => void
   onGoProjectSpecialties: () => void
   onGoProjectStatuses: () => void
@@ -130,6 +132,7 @@ export function SidebarComponent({
   showTransfers = true,
   showSettlements = true,
   showProjects = true,
+  showProjectAssignments = true,
   showProjectTypes = true,
   showProjectSpecialties = true,
   showProjectStatuses = true,
@@ -151,6 +154,7 @@ export function SidebarComponent({
   onGoSettlementsNoRehireCause,
   onGoSettlementsTerminationQuizQuestion,
   onGoProjects,
+  onGoProjectAssignments,
   onGoProjectTypes,
   onGoProjectSpecialties,
   onGoProjectStatuses,
@@ -175,11 +179,13 @@ export function SidebarComponent({
   const isProjectsActive = useMemo(() => {
     const path = location.pathname
     if (path === '/projects' || path === '/projects/new') return true
+    if (path.startsWith('/projects/history')) return false
     if (path.startsWith('/projects/types')) return false
     if (path.startsWith('/projects/specialties')) return false
     if (path.startsWith('/projects/statuses')) return false
     return path.startsWith('/projects/')
   }, [location.pathname])
+  const isProjectAssignmentsActive = useMemo(() => location.pathname.startsWith('/projects/history'), [location.pathname])
   const isProjectTypesActive = useMemo(() => location.pathname.startsWith('/projects/types'), [location.pathname])
   const isProjectSpecialtiesActive = useMemo(() => location.pathname.startsWith('/projects/specialties'), [location.pathname])
   const isProjectStatusesActive = useMemo(() => location.pathname.startsWith('/projects/statuses'), [location.pathname])
@@ -377,6 +383,23 @@ export function SidebarComponent({
   ]
 
   const proyectosMainItems: NavItem[] = [
+    {
+      show: showProjectAssignments,
+      active: isProjectAssignmentsActive,
+      label: 'Histórico',
+      tooltip: 'Histórico',
+      icon: (
+        <svg {...baseIconProps} className={iconClass}>
+          <path d="M3 5h18" />
+          <path d="M7 5v14" />
+          <path d="M17 5v14" />
+          <path d="M3 19h18" />
+          <path d="M9 10h6" />
+          <path d="M9 14h4" />
+        </svg>
+      ),
+      onClick: onGoProjectAssignments,
+    },
     {
       show: showProjects,
       active: isProjectsActive,
