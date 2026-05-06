@@ -284,6 +284,21 @@ export default {
       },
     },
   },
+  projectAssignments: {
+    ui: {
+      actionViewEmployeeDetail: 'Ver trabajador',
+      actionViewCostCenterDetail: 'Ver proyecto',
+      detailTitleFallback: 'Detalle de histórico',
+    },
+    status: {
+      success: {},
+      errors: {
+        loadError: 'No se pudo cargar el histórico de asignaciones.',
+        detailLoadError: 'No se pudo cargar el detalle del histórico.',
+        detailInvalidId: 'Id de histórico inválido.',
+      },
+    },
+  },
   annexes: {
     ui: {
       statusActive: 'Activo',

@@ -1,0 +1,198 @@
+import { create } from 'zustand'
+import {
+  initialProjectAssignmentsPagination,
+  initialProjectAssignmentsQueryParams,
+  initialProjectAssignmentsRows,
+} from '@/factories'
+import { mapperProjectAssignmentsPagination, mapperProjectAssignmentsRows } from '@/mappers'
+import messages from '@/messages/messages'
+import { projectAssignmentsService } from '@/services'
+import type {
+  OperationKey,
+  OperationStatus,
+  ProjectAssignmentsSortBy,
+  ProjectAssignmentsSortDir,
+  ProjectAssignmentsStore,
+} from '@/types'
+
+const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
+  list: { error: null, success: null, errorBack: null },
+  detail: { error: null, success: null, errorBack: null },
+  create: { error: null, success: null, errorBack: null },
+  update: { error: null, success: null, errorBack: null },
+  toggle: { error: null, success: null, errorBack: null },
+})
+
+export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set, get) => {
+  let latestEmployeeProjectAssignmentsRequestId = 0
+  let latestCostCenterProjectAssignmentsRequestId = 0
+
+  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error, success: null, errorBack: errorBack ?? null },
+      },
+    }))
+  }
+
+  const clearOp = (key: OperationKey) => {
+    set((state) => ({
+      operationStatus: {
+        ...state.operationStatus,
+        [key]: { error: null, success: null, errorBack: null },
+      },
+    }))
+  }
+
+  const resolveErrorMessage = (error: unknown, fallback: string): string => {
+    if (projectAssignmentsService.isAxiosError(error)) {
+      return error.response?.data?.message || fallback
+    }
+    return fallback
+  }
+
+  return {
+    projectAssignmentsRows: [...initialProjectAssignmentsRows],
+    employeeProjectAssignments: [],
+    costCenterProjectAssignments: [],
+    pagination: { ...initialProjectAssignmentsPagination },
+    queryParams: { ...initialProjectAssignmentsQueryParams },
+    loadingProjectAssignments: false,
+    loadingEmployeeProjectAssignments: false,
+    loadingCostCenterProjectAssignments: false,
+    operationStatus: initialOperationStatus(),
+
+    getProjectAssignments: async () => {
+      try {
+        set({ loadingProjectAssignments: true })
+        clearOp('list')
+        const data = await projectAssignmentsService.getProjectAssignments(get().queryParams)
+        const pagination = mapperProjectAssignmentsPagination(data)
+        set({
+          projectAssignmentsRows: mapperProjectAssignmentsRows(data.content),
+          pagination,
+          queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
+        })
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.projectAssignments.status.errors.loadError), error)
+      } finally {
+        set({ loadingProjectAssignments: false })
+      }
+    },
+
+    getProjectAssignmentsByEmployee: async (employeeId: number) => {
+      if (!Number.isInteger(employeeId) || employeeId <= 0) {
+        setOpError('detail', messages.projectAssignments.status.errors.detailInvalidId)
+        set({ employeeProjectAssignments: [] })
+        return
+      }
+      const requestId = ++latestEmployeeProjectAssignmentsRequestId
+
+      try {
+        set({ loadingEmployeeProjectAssignments: true, employeeProjectAssignments: [] })
+        clearOp('detail')
+        const data = await projectAssignmentsService.getProjectAssignmentsByEmployee(employeeId)
+        if (requestId !== latestEmployeeProjectAssignmentsRequestId) return
+        set({ employeeProjectAssignments: data })
+      } catch (error) {
+        if (requestId !== latestEmployeeProjectAssignmentsRequestId) return
+        setOpError('detail', resolveErrorMessage(error, messages.projectAssignments.status.errors.detailLoadError), error)
+      } finally {
+        if (requestId === latestEmployeeProjectAssignmentsRequestId) {
+          set({ loadingEmployeeProjectAssignments: false })
+        }
+      }
+    },
+
+    getProjectAssignmentsByCostCenter: async (costCenter: number) => {
+      if (!Number.isInteger(costCenter) || costCenter <= 0) {
+        setOpError('detail', messages.projectAssignments.status.errors.detailInvalidId)
+        set({ costCenterProjectAssignments: [] })
+        return
+      }
+      const requestId = ++latestCostCenterProjectAssignmentsRequestId
+
+      try {
+        set({ loadingCostCenterProjectAssignments: true, costCenterProjectAssignments: [] })
+        clearOp('detail')
+        const data = await projectAssignmentsService.getProjectAssignmentsByCostCenter(costCenter)
+        if (requestId !== latestCostCenterProjectAssignmentsRequestId) return
+        set({ costCenterProjectAssignments: data })
+      } catch (error) {
+        if (requestId !== latestCostCenterProjectAssignmentsRequestId) return
+        setOpError('detail', resolveErrorMessage(error, messages.projectAssignments.status.errors.detailLoadError), error)
+      } finally {
+        if (requestId === latestCostCenterProjectAssignmentsRequestId) {
+          set({ loadingCostCenterProjectAssignments: false })
+        }
+      }
+    },
+
+    clearEmployeeProjectAssignments: () => {
+      latestEmployeeProjectAssignmentsRequestId += 1
+      set({ employeeProjectAssignments: [], loadingEmployeeProjectAssignments: false })
+      clearOp('detail')
+    },
+
+    clearCostCenterProjectAssignments: () => {
+      latestCostCenterProjectAssignmentsRequestId += 1
+      set({ costCenterProjectAssignments: [], loadingCostCenterProjectAssignments: false })
+      clearOp('detail')
+    },
+
+    goToPage: async (page: number) => {
+      const { pagination } = get()
+      const lastPageIndex = pagination.totalPages - 1
+      if (page < 0 || page > lastPageIndex) return
+      set((state) => ({
+        pagination: { ...state.pagination, page },
+        queryParams: { ...state.queryParams, page },
+      }))
+      await get().getProjectAssignments()
+    },
+
+    nextPage: async () => {
+      if (get().pagination.last) return
+      await get().goToPage(get().pagination.page + 1)
+    },
+
+    previousPage: async () => {
+      if (get().pagination.first) return
+      await get().goToPage(get().pagination.page - 1)
+    },
+
+    setSearch: (value: string) => set((state) => ({ queryParams: { ...state.queryParams, search: value } })),
+    setEmployeeFilter: (employeeId: string) => set((state) => ({ queryParams: { ...state.queryParams, employeeId } })),
+    setCostCenterFilter: (costCenter: string) => set((state) => ({ queryParams: { ...state.queryParams, costCenter } })),
+    setActiveFilter: (active: string) => set((state) => ({ queryParams: { ...state.queryParams, active } })),
+    setAssignmentDateRange: ({ dateFrom, dateTo }) => set((state) => ({ queryParams: { ...state.queryParams, dateFrom, dateTo } })),
+    setCreatedDateRange: ({ createdFrom, createdTo }) => set((state) => ({ queryParams: { ...state.queryParams, createdFrom, createdTo } })),
+    setUpdatedDateRange: ({ updatedFrom, updatedTo }) => set((state) => ({ queryParams: { ...state.queryParams, updatedFrom, updatedTo } })),
+    clearEmployeeFilter: () => set((state) => ({ queryParams: { ...state.queryParams, employeeId: '' } })),
+    clearCostCenterFilter: () => set((state) => ({ queryParams: { ...state.queryParams, costCenter: '' } })),
+    clearActiveFilter: () => set((state) => ({ queryParams: { ...state.queryParams, active: '' } })),
+    clearAssignmentDateRange: () => set((state) => ({ queryParams: { ...state.queryParams, dateFrom: '', dateTo: '' } })),
+    clearCreatedDateRange: () => set((state) => ({ queryParams: { ...state.queryParams, createdFrom: '', createdTo: '' } })),
+    clearUpdatedDateRange: () => set((state) => ({ queryParams: { ...state.queryParams, updatedFrom: '', updatedTo: '' } })),
+
+    searchProjectAssignments: async () => {
+      set((state) => ({
+        pagination: { ...state.pagination, page: 0 },
+        queryParams: { ...state.queryParams, page: 0 },
+      }))
+      await get().getProjectAssignments()
+    },
+
+    sortProjectAssignments: async (sortBy: ProjectAssignmentsSortBy, sortDir: ProjectAssignmentsSortDir) => {
+      set((state) => ({
+        pagination: { ...state.pagination, page: 0 },
+        queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
+      }))
+      await get().getProjectAssignments()
+    },
+
+    clearOperationStatus: (key) => clearOp(key),
+    clearAllOperationStatus: () => set({ operationStatus: initialOperationStatus() }),
+  }
+})

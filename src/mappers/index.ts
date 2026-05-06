@@ -108,6 +108,13 @@ export {
   mapperProjectsQueryParams,
 } from './projects/projects.mapper'
 export {
+  mapperProjectAssignmentDetailView,
+  mapperProjectAssignmentDetailViews,
+  mapperProjectAssignmentsPagination,
+  mapperProjectAssignmentsQueryParams,
+  mapperProjectAssignmentsRows,
+} from './project-assignments/project-assignments.mapper'
+export {
   mapperCreateUserPayload,
   mapperUpdateUserPayload,
   mapperUsersRows,
