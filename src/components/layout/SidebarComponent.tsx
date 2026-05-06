@@ -10,6 +10,7 @@ interface SidebarComponentProps {
   showEmployees?: boolean
   showContracts?: boolean
   showLeaves?: boolean
+  showAttendance?: boolean
   showAnnexes?: boolean
   showTransfers?: boolean
   showSettlements?: boolean
@@ -27,6 +28,7 @@ interface SidebarComponentProps {
   onGoEmployees: () => void
   onGoContracts: () => void
   onGoLeaves: () => void
+  onGoAttendance: () => void
   onGoAnnexes: () => void
   onGoTransfers: () => void
   onGoSettlements: () => void
@@ -128,6 +130,7 @@ export function SidebarComponent({
   showEmployees = true,
   showContracts = true,
   showLeaves = true,
+  showAttendance = true,
   showAnnexes = true,
   showTransfers = true,
   showSettlements = true,
@@ -145,6 +148,7 @@ export function SidebarComponent({
   onGoEmployees,
   onGoContracts,
   onGoLeaves,
+  onGoAttendance,
   onGoAnnexes,
   onGoTransfers,
   onGoSettlements,
@@ -168,6 +172,7 @@ export function SidebarComponent({
   const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
   const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
   const isLeavesActive = useMemo(() => location.pathname.startsWith('/leaves'), [location.pathname])
+  const isAttendanceActive = useMemo(() => location.pathname.startsWith('/attendance'), [location.pathname])
   const isAnnexesActive = useMemo(() => location.pathname.startsWith('/annexes'), [location.pathname])
   const isTransfersActive = useMemo(() => location.pathname.startsWith('/transfers'), [location.pathname])
   const isSettlementsActive = useMemo(() => location.pathname === '/settlements', [location.pathname])
@@ -269,6 +274,20 @@ export function SidebarComponent({
         </svg>
       ),
       onClick: onGoLeaves,
+    },
+    {
+      show: showAttendance,
+      active: isAttendanceActive,
+      label: 'Asistencia',
+      tooltip: 'Asistencia',
+      icon: (
+        <svg {...baseIconProps} className={iconClass}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+          <path d="M7 18h10" />
+        </svg>
+      ),
+      onClick: onGoAttendance,
     },
     {
       show: showAnnexes,

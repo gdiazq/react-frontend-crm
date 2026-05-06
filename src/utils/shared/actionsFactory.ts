@@ -90,6 +90,22 @@ export function createLeavesActions() {
   return { actionViewDetail, actionUpdateLeave }
 }
 
+export function createAttendanceActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.attendance.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateAttendance(handler: () => void): DropdownAction {
+    return { id: 'update-attendance', label: messages.attendance.ui.updateAttendance, handler }
+  }
+
+  function actionDeleteAttendance(handler: () => void): DropdownAction {
+    return { id: 'delete-attendance', label: messages.attendance.ui.deleteAttendance, tone: 'danger', handler }
+  }
+
+  return { actionViewDetail, actionUpdateAttendance, actionDeleteAttendance }
+}
+
 export function createRolesActions() {
   function actionViewDetail(handler: () => void): DropdownAction {
     return { id: 'view-detail', label: messages.roles.ui.actionViewDetail, handler }

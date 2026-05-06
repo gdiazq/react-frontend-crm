@@ -23,6 +23,8 @@ const AnnexesFormDashboardPage = lazy(() => import('@/pages/annexes/AnnexesFormD
 const ContractsDashboardPage = lazy(() => import('@/pages/contracts/ContractsDashboardPage'))
 const LeavesDashboardPage = lazy(() => import('@/pages/leaves/LeavesDashboardPage'))
 const LeavesFormDashboardPage = lazy(() => import('@/pages/leaves/LeavesFormDashboardPage'))
+const AttendanceDashboardPage = lazy(() => import('@/pages/attendance/AttendanceDashboardPage'))
+const AttendanceFormDashboardPage = lazy(() => import('@/pages/attendance/AttendanceFormDashboardPage'))
 const TransfersDashboardPage = lazy(() => import('@/pages/transfers/TransfersDashboardPage'))
 const ProjectsDashboardPage = lazy(() => import('@/pages/projects/ProjectsDashboardPage'))
 const ProjectAssignmentsDashboardPage = lazy(() => import('@/pages/projects/ProjectAssignmentsDashboardPage'))
@@ -221,6 +223,30 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="LEAVE" permissionType="canUpdate">
             <LeavesFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/attendance',
+        element: (
+          <ProtectedRoute requiresPermissions module="ATTENDANCE" permissionType="canRead">
+            <AttendanceDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/attendance/new',
+        element: (
+          <ProtectedRoute requiresPermissions module="ATTENDANCE" permissionType="canCreate">
+            <AttendanceFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/attendance/:editId',
+        element: (
+          <ProtectedRoute requiresPermissions module="ATTENDANCE" permissionType="canUpdate">
+            <AttendanceFormDashboardPage />
           </ProtectedRoute>
         ),
       },
