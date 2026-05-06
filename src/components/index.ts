@@ -94,7 +94,6 @@ export { ProjectStatusDetailComponent } from './project-statuses/ProjectStatusDe
 export { ProjectTypeDetailComponent } from './project-types/ProjectTypeDetailComponent'
 export { ProjectSpecialtyDetailComponent } from './project-specialties/ProjectSpecialtyDetailComponent'
 export { ProjectDetailComponent } from './projects/ProjectDetailComponent'
-export { ProjectCostCenterEmployeesTabComponent } from './projects/ProjectCostCenterEmployeesTabComponent'
 export { LegalTerminationCauseDetailComponent } from './legal-termination-causes/LegalTerminationCauseDetailComponent'
 export { QualityOfWorkDetailComponent } from './quality-of-work/QualityOfWorkDetailComponent'
 export { SafetyComplianceDetailComponent } from './safety-compliance/SafetyComplianceDetailComponent'

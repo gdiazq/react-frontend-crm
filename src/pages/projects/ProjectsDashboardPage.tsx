@@ -6,7 +6,6 @@ import {
   DetailSidebarComponent,
   InputComponent,
   PaginationComponent,
-  ProjectCostCenterEmployeesTabComponent,
   ProjectDetailComponent,
   RightSidebarComponent,
   SaveConfirmComponent,
@@ -16,6 +15,7 @@ import {
   TabsComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
+import { ProjectCostCenterEmployeesTabComponent } from '@/components/projects/ProjectCostCenterEmployeesTabComponent'
 import { AUTH_ROUTE_PROJECTS, AUTH_ROUTE_PROJECTS_CREATE, AUTH_ROUTE_PROJECTS_EDIT } from '@/constant'
 import { projectsTableColumns, projectsTableColumnIndex, projectsTableSortByColumn } from '@/factories'
 import { mapperProjectDetailView } from '@/mappers'
@@ -102,16 +102,6 @@ export default function ProjectsDashboardPage() {
   const { actionViewDetail, actionUpdateProject, actionToggleStatus } = createProjectsActions()
 
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [filters, setFilters] = useState(() => ({
-    activeId: queryParams.active,
-    typeId: queryParams.typeId,
-    statusId: queryParams.statusId,
-    specialtyId: queryParams.specialtyId,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    updatedFrom: queryParams.updatedFrom,
-    updatedTo: queryParams.updatedTo,
-  }))
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailTab, setDetailTab] = useState<ProjectDetailTabKey>('detail')
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
@@ -122,6 +112,17 @@ export default function ProjectsDashboardPage() {
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [uploadingBulk, setUploadingBulk] = useState(false)
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
+
+  const [filters, setFilters] = useState(() => ({
+    activeId: queryParams.active,
+    typeId: queryParams.typeId,
+    statusId: queryParams.statusId,
+    specialtyId: queryParams.specialtyId,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    updatedFrom: queryParams.updatedFrom,
+    updatedTo: queryParams.updatedTo,
+  }))
 
   const currentPage = pagination.page + 1
   const totalPages = pagination.totalPages
@@ -174,24 +175,6 @@ export default function ProjectsDashboardPage() {
     handleViewDetail(projectRow)
   }
 
-  const getProjectTypeName = (rowId: string) => {
-    const row = findProjectRowById(rowId)
-    if (!row || !row.typeId) return '-'
-    return projectTypeOptions.find((option) => option.id === row.typeId)?.name || '-'
-  }
-
-  const getProjectStatusName = (rowId: string) => {
-    const row = findProjectRowById(rowId)
-    if (!row || !row.statusId) return '-'
-    return projectStatusOptions.find((option) => option.id === row.statusId)?.name || '-'
-  }
-
-  const getProjectSpecialtyName = (rowId: string) => {
-    const row = findProjectRowById(rowId)
-    if (!row || !row.specialtyId) return '-'
-    return projectSpecialtyOptions.find((option) => option.id === row.specialtyId)?.name || '-'
-  }
-
   const getProjectActive = (rowId: string) => Boolean(findProjectRowById(rowId)?.active)
 
   const handleUpdateProject = (row: ProjectTableRow) => {
@@ -233,9 +216,9 @@ export default function ProjectsDashboardPage() {
     specialtyColumnIndex: PROJECT_SPECIALTY_COLUMN_INDEX,
     activeColumnIndex: PROJECT_ACTIVE_COLUMN_INDEX,
     onViewDetail: handleViewDetailById,
-    getTypeName: getProjectTypeName,
-    getStatusName: getProjectStatusName,
-    getSpecialtyName: getProjectSpecialtyName,
+    projectTypeOptions,
+    projectStatusOptions,
+    projectSpecialtyOptions,
     getActive: getProjectActive,
   })
 
