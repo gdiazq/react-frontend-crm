@@ -1,5 +1,6 @@
 export * from './annexes'
 export * from './auth'
+export * from './attendance'
 export * from './common'
 export * from './contracts'
 export * from './dashboard'

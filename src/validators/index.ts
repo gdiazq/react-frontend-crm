@@ -12,6 +12,7 @@ export { employeesCreateValidationRules } from './employees.validators'
 export { contractsCreateValidationRules } from './contracts.validators'
 export { annexesCreateValidationRules } from './annexes.validators'
 export { leavesCreateValidationRules } from './leaves.validators'
+export { attendanceCreateValidationRules, attendanceMarkCreateValidationRules } from './attendance.validators'
 export { projectsCreateValidationRules } from './projects.validators'
 export {
   rolesCreateValidationRules,

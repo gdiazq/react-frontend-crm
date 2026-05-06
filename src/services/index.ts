@@ -1,5 +1,8 @@
 export { annexesService } from './annexes.service'
 export { annexSelectsService } from './annex-selects.service'
+export { attendanceService } from './attendance.service'
+export { attendanceMarksService } from './attendance-marks.service'
+export { attendanceSelectsService } from './attendance-selects.service'
 export { authService } from './auth.service'
 export { contractSelectsService } from './contract-selects.service'
 export { contractsService } from './contracts.service'

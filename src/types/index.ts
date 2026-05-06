@@ -1,5 +1,7 @@
 export * from './annex-selects'
 export * from './auth'
+export * from './attendance'
+export * from './attendance-selects'
 export * from './annexes'
 export * from './common'
 export * from './contract-selects'

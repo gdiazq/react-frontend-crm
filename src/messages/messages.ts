@@ -284,6 +284,39 @@ export default {
       },
     },
   },
+  attendance: {
+    ui: {
+      actionViewDetail: 'Ver detalle',
+      updateAttendance: 'Editar asistencia',
+      deleteAttendance: 'Eliminar asistencia',
+      detailTitleFallback: 'Detalle de asistencia',
+    },
+    status: {
+      success: {
+        createAttendanceSuccess: 'Asistencia creada correctamente.',
+        updateAttendanceSuccess: 'Asistencia actualizada correctamente.',
+        deleteAttendanceSuccess: 'Asistencia eliminada correctamente.',
+        createAttendanceMarkSuccess: 'Marca creada correctamente.',
+        updateAttendanceMarkSuccess: 'Marca actualizada correctamente.',
+        exportSuccess: 'CSV exportado correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de asistencia.',
+        createAttendanceError: 'No se pudo crear la asistencia.',
+        updateAttendanceError: 'No se pudo actualizar la asistencia.',
+        deleteAttendanceError: 'No se pudo eliminar la asistencia.',
+        detailLoadError: 'No se pudo cargar el detalle de asistencia.',
+        detailInvalidAttendanceId: 'Id de asistencia inválido.',
+        detailInvalidAttendanceMarkId: 'Id de marca inválido.',
+        createAttendanceMarkError: 'No se pudo crear la marca.',
+        updateAttendanceMarkError: 'No se pudo actualizar la marca.',
+        loadAttendanceMarksError: 'No se pudieron cargar las marcas de asistencia.',
+        loadMarkTypeOptionsError: 'No se pudieron cargar los tipos de marca.',
+        exportError: 'No se pudo exportar el CSV de asistencia.',
+        loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de asistencia.',
+      },
+    },
+  },
   projectAssignments: {
     ui: {
       actionViewEmployeeDetail: 'Ver trabajador',

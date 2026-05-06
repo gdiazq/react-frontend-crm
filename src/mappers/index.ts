@@ -60,6 +60,19 @@ export {
   mapperUpdateLeavePayload,
 } from './leaves/leaves.mapper'
 export {
+  mapperAttendanceDetailToForm,
+  mapperAttendanceDetailView,
+  mapperAttendanceExportQueryParams,
+  mapperAttendanceMarkToForm,
+  mapperAttendancePagination,
+  mapperAttendanceQueryParams,
+  mapperAttendanceRows,
+  mapperCreateAttendanceMarkPayload,
+  mapperCreateAttendancePayload,
+  mapperUpdateAttendanceMarkPayload,
+  mapperUpdateAttendancePayload,
+} from './attendance/attendance.mapper'
+export {
   mapperCreateProjectStatusPayload,
   mapperUpdateProjectStatusPayload,
   mapperProjectStatusDetailView,
