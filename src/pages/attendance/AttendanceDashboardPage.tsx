@@ -7,7 +7,6 @@ import {
   InputComponent,
   PaginationComponent,
   RightSidebarComponent,
-  SaveConfirmComponent,
   SelectComponent,
   StatsOverviewCardsComponent,
   TableComponent,
@@ -39,11 +38,8 @@ export default function AttendanceDashboardPage() {
   const queryParams = useStoreAttendance((s) => s.queryParams)
   const loadingAttendance = useStoreAttendance((s) => s.loadingAttendance)
   const loadingAttendanceDetail = useStoreAttendance((s) => s.loadingAttendanceDetail)
-  const deleteAttendanceSubmitting = useStoreAttendance((s) => s.deleteAttendanceSubmitting)
   const listError = useStoreAttendance((s) => s.operationStatus.list.error)
   const detailError = useStoreAttendance((s) => s.operationStatus.detail.error)
-  const deleteError = useStoreAttendance((s) => s.operationStatus.toggle.error)
-  const deleteSuccess = useStoreAttendance((s) => s.operationStatus.toggle.success)
   const clearOperationStatus = useStoreAttendance((s) => s.clearOperationStatus)
   const getAttendance = useStoreAttendance((s) => s.getAttendance)
   const getAttendanceDetail = useStoreAttendance((s) => s.getAttendanceDetail)
@@ -64,7 +60,6 @@ export default function AttendanceDashboardPage() {
   const clearCreatedDateRange = useStoreAttendance((s) => s.clearCreatedDateRange)
   const clearUpdatedDateRange = useStoreAttendance((s) => s.clearUpdatedDateRange)
   const searchAttendance = useStoreAttendance((s) => s.searchAttendance)
-  const deleteAttendance = useStoreAttendance((s) => s.deleteAttendance)
 
   const employeeWithContractOptions = useStoreAttendanceSelects((s) => s.employeeWithContractOptions)
   const attendanceStatusOptions = useStoreAttendanceSelects((s) => s.attendanceStatusOptions)
@@ -96,12 +91,9 @@ export default function AttendanceDashboardPage() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
-  const [pendingDeleteRow, setPendingDeleteRow] = useState<AttendanceTableRow | null>(null)
-  const { actionViewDetail, actionUpdateAttendance, actionDeleteAttendance } = createAttendanceActions()
+  const { actionViewDetail, actionUpdateAttendance } = createAttendanceActions()
   const canCreateAttendance = hasPermission('ATTENDANCE', 'canCreate')
   const canUpdateAttendance = hasPermission('ATTENDANCE', 'canUpdate')
-  const canDeleteAttendance = hasPermission('ATTENDANCE', 'canDelete')
 
   const attendanceDetailView = mapperAttendanceDetailView(attendanceDetail)
   const currentPage = pagination.page + 1
@@ -176,31 +168,9 @@ export default function AttendanceDashboardPage() {
     navigate(`${AUTH_ROUTE_ATTENDANCE_EDIT}=${rowId}`)
   }
 
-  const handleAskDeleteAttendance = (row: AttendanceTableRow) => {
-    setPendingDeleteRow(row)
-    setDeleteConfirmOpen(true)
-  }
-
-  const handleCloseDeleteConfirm = () => {
-    if (deleteAttendanceSubmitting) return
-    setDeleteConfirmOpen(false)
-    setPendingDeleteRow(null)
-  }
-
-  const handleConfirmDeleteAttendance = async () => {
-    if (!pendingDeleteRow || deleteAttendanceSubmitting) return
-    const success = await deleteAttendance(pendingDeleteRow.id)
-    if (success) {
-      setDeleteConfirmOpen(false)
-      setPendingDeleteRow(null)
-      if (selectedDetailRowId === pendingDeleteRow.id) handleCloseDetail()
-    }
-  }
-
   const resolveRowActions = (row: AttendanceTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [actionViewDetail(() => handleViewDetail(row))]
     if (canUpdateAttendance) actions.push(actionUpdateAttendance(() => handleUpdateAttendance(row)))
-    if (canDeleteAttendance) actions.push(actionDeleteAttendance(() => handleAskDeleteAttendance(row)))
     return actions
   }
 
@@ -280,10 +250,6 @@ export default function AttendanceDashboardPage() {
     }
   }
 
-  const deleteConfirmMessage = pendingDeleteRow
-    ? `¿Deseas eliminar la asistencia de ${pendingDeleteRow.values[ATTENDANCE_EMPLOYEE_NAME_COLUMN_INDEX]}?`
-    : '¿Deseas eliminar esta asistencia?'
-
   return (
     <section className="min-w-0 space-y-4">
       <header className="border-b border-slate-200 pb-5 dark:border-white/10">
@@ -315,14 +281,6 @@ export default function AttendanceDashboardPage() {
 
       {costCenterOptionsErrorMessage && (
         <AlertMessageComponent message={costCenterOptionsErrorMessage} tone="error" onClose={clearCostCenterOptionsStatus} />
-      )}
-
-      {deleteError && (
-        <AlertMessageComponent message={deleteError} tone="error" onClose={() => clearOperationStatus('toggle')} />
-      )}
-
-      {deleteSuccess && (
-        <AlertMessageComponent message={deleteSuccess} tone="success" onClose={() => clearOperationStatus('toggle')} />
       )}
 
       <form
@@ -440,16 +398,6 @@ export default function AttendanceDashboardPage() {
         />
       </DetailSidebarComponent>
 
-      <SaveConfirmComponent
-        open={deleteConfirmOpen}
-        title="Confirmar eliminación de asistencia"
-        message={deleteConfirmMessage}
-        confirmLabel="Eliminar"
-        cancelLabel="Cancelar"
-        loading={deleteAttendanceSubmitting}
-        onClose={handleCloseDeleteConfirm}
-        onConfirm={() => { void handleConfirmDeleteAttendance() }}
-      />
     </section>
   )
 }
