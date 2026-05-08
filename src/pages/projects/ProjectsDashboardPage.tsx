@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DateRangePickerComponent,
   DetailSidebarComponent,
   InputComponent,
   PaginationComponent,
@@ -311,11 +312,6 @@ export default function ProjectsDashboardPage() {
   const handleTypeFilterChange = (value: string) => handleChangeFilter('typeId', value)
   const handleStatusFilterChange = (value: string) => handleChangeFilter('statusId', value)
   const handleSpecialtyFilterChange = (value: string) => handleChangeFilter('specialtyId', value)
-  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
-  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
-  const handleUpdatedFromFilterChange = (value: string) => handleChangeFilter('updatedFrom', value)
-  const handleUpdatedToFilterChange = (value: string) => handleChangeFilter('updatedTo', value)
-
   const handleApplyFilters = async () => {
     const selectedStatus = statusOptions.find((option) => String(option.id) === filters.activeId)
     const selectedType = projectTypeOptions.find((option) => String(option.id) === filters.typeId)
@@ -557,48 +553,28 @@ export default function ProjectsDashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               Fecha creación
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="projects-created-from"
-                value={filters.createdFrom}
-                type="date"
-                label="Desde"
-                aria-label="Fecha creación desde"
-                onValueChange={handleCreatedFromFilterChange}
-              />
-              <InputComponent
-                id="projects-created-to"
-                value={filters.createdTo}
-                type="date"
-                label="Hasta"
-                aria-label="Fecha creación hasta"
-                onValueChange={handleCreatedToFilterChange}
-              />
-            </div>
+            <DateRangePickerComponent
+              fromValue={filters.createdFrom}
+              toValue={filters.createdTo}
+              label="Rango de creación"
+              onRangeChange={({ from, to }) => {
+                setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
+              }}
+            />
           </div>
 
           <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/20 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">
               Fecha actualización
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="projects-updated-from"
-                value={filters.updatedFrom}
-                type="date"
-                label="Desde"
-                aria-label="Fecha actualización desde"
-                onValueChange={handleUpdatedFromFilterChange}
-              />
-              <InputComponent
-                id="projects-updated-to"
-                value={filters.updatedTo}
-                type="date"
-                label="Hasta"
-                aria-label="Fecha actualización hasta"
-                onValueChange={handleUpdatedToFilterChange}
-              />
-            </div>
+            <DateRangePickerComponent
+              fromValue={filters.updatedFrom}
+              toValue={filters.updatedTo}
+              label="Rango de actualización"
+              onRangeChange={({ from, to }) => {
+                setFilters((prev) => ({ ...prev, updatedFrom: from, updatedTo: to }))
+              }}
+            />
           </div>
 
           <div className="flex flex-wrap justify-end gap-2 pt-2">

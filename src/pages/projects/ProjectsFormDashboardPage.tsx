@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DatePickerComponent,
   DetailSectionHeaderComponent,
   InputComponent,
   SaveConfirmComponent,
@@ -400,28 +401,24 @@ export default function ProjectsFormDashboardPage() {
         <section className="space-y-4">
           <DetailSectionHeaderComponent number="04" title="Fechas" />
           <div className="grid gap-4 md:grid-cols-2">
-            <InputComponent
+            <DatePickerComponent
               value={form.startDate}
               label="Fecha inicio"
-              type="date"
               onValueChange={handleFieldValueChange('startDate')}
             />
-            <InputComponent
+            <DatePickerComponent
               value={form.realStartDate}
               label="Fecha inicio real"
-              type="date"
               onValueChange={handleFieldValueChange('realStartDate')}
             />
-            <InputComponent
+            <DatePickerComponent
               value={form.endDate}
               label="Fecha fin"
-              type="date"
               onValueChange={handleFieldValueChange('endDate')}
             />
-            <InputComponent
+            <DatePickerComponent
               value={form.realEndDate}
               label="Fecha fin real"
-              type="date"
               onValueChange={handleFieldValueChange('realEndDate')}
             />
           </div>

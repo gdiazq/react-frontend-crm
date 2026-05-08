@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DateRangePickerComponent,
   DetailSidebarComponent,
   InputComponent,
   PaginationComponent,
@@ -308,24 +309,36 @@ export default function ProjectAssignmentsDashboardPage() {
 
           <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/20 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">Vigencia</p>
-            <div className="grid gap-2">
-              <InputComponent id="project-assignments-date-from" value={filters.dateFrom} label="Desde" type="date" onValueChange={(v) => handleChangeFilter('dateFrom', v)} />
-              <InputComponent id="project-assignments-date-to" value={filters.dateTo} label="Hasta" type="date" onValueChange={(v) => handleChangeFilter('dateTo', v)} />
-            </div>
+            <DateRangePickerComponent
+              fromValue={filters.dateFrom}
+              toValue={filters.dateTo}
+              label="Rango de vigencia"
+              onRangeChange={({ from, to }) => {
+                setFilters((prev) => ({ ...prev, dateFrom: from, dateTo: to }))
+              }}
+            />
           </div>
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Fecha creación</p>
-            <div className="grid gap-2">
-              <InputComponent id="project-assignments-created-from" value={filters.createdFrom} label="Desde" type="date" onValueChange={(v) => handleChangeFilter('createdFrom', v)} />
-              <InputComponent id="project-assignments-created-to" value={filters.createdTo} label="Hasta" type="date" onValueChange={(v) => handleChangeFilter('createdTo', v)} />
-            </div>
+            <DateRangePickerComponent
+              fromValue={filters.createdFrom}
+              toValue={filters.createdTo}
+              label="Rango de creación"
+              onRangeChange={({ from, to }) => {
+                setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
+              }}
+            />
           </div>
           <div className="space-y-3 rounded-xl border border-amber-500/35 bg-amber-50/15 p-3 dark:border-amber-400/25 dark:bg-amber-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">Fecha actualización</p>
-            <div className="grid gap-2">
-              <InputComponent id="project-assignments-updated-from" value={filters.updatedFrom} label="Desde" type="date" onValueChange={(v) => handleChangeFilter('updatedFrom', v)} />
-              <InputComponent id="project-assignments-updated-to" value={filters.updatedTo} label="Hasta" type="date" onValueChange={(v) => handleChangeFilter('updatedTo', v)} />
-            </div>
+            <DateRangePickerComponent
+              fromValue={filters.updatedFrom}
+              toValue={filters.updatedTo}
+              label="Rango de actualización"
+              onRangeChange={({ from, to }) => {
+                setFilters((prev) => ({ ...prev, updatedFrom: from, updatedTo: to }))
+              }}
+            />
           </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent type="button" variant="outline" disabled={loadingProjectAssignments} label="Limpiar" onClick={() => { void handleClearFilters() }} />
