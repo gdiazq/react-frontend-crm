@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import {
   AUTH_ROUTE_ANNEXES,
@@ -27,7 +27,7 @@ import {
   AUTH_ROUTE_USERS,
 } from '@/constant'
 import { NavbarComponent, NotificationPanel, SidebarComponent } from '@/components'
-import { useStoreAuth, useStoreNotification, useStoreTheme } from '@/store'
+import { useStoreAuth, useStoreCalendar, useStoreNotification, useStoreTheme } from '@/store'
 import { selectFilterNotifications, selectUnreadCount } from '@/store/notification.store'
 
 export function LayoutPrivateDefault() {
@@ -37,6 +37,10 @@ export function LayoutPrivateDefault() {
   const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
+  const calendarEvents = useStoreCalendar((s) => s.events)
+  const loadingCalendarEvents = useStoreCalendar((s) => s.loadingEvents)
+  const calendarEventsErrorMessage = useStoreCalendar((s) => s.eventsErrorMessage)
+  const getCalendarEvents = useStoreCalendar((s) => s.getCalendarEvents)
   const notifications = useStoreNotification(selectFilterNotifications)
   const unreadCount = useStoreNotification(selectUnreadCount)
   const markAllAsRead = useStoreNotification((s) => s.markAllAsRead)
@@ -52,6 +56,7 @@ export function LayoutPrivateDefault() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [settingsDropdownOpen, setSettingsDropdownOpen] = useState(false)
+  const [calendarOpen, setCalendarOpen] = useState(false)
   const disconnectRef = useRef(disconnect)
   disconnectRef.current = disconnect
   const canReadUsers = hasPermission('USER', 'canRead')
@@ -104,12 +109,14 @@ export function LayoutPrivateDefault() {
   const handleGoDashboard = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     navigate(AUTH_ROUTE_DASHBOARD)
   }
 
   const handleGoUsers = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadUsers) {
       navigate('/unauthorized')
       return
@@ -120,6 +127,7 @@ export function LayoutPrivateDefault() {
   const handleGoRequests = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadRequests) {
       navigate('/unauthorized')
       return
@@ -130,6 +138,7 @@ export function LayoutPrivateDefault() {
   const handleGoRoles = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadRoles) {
       navigate('/unauthorized')
       return
@@ -140,6 +149,7 @@ export function LayoutPrivateDefault() {
   const handleGoEmployees = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadEmployees) {
       navigate('/unauthorized')
       return
@@ -150,6 +160,7 @@ export function LayoutPrivateDefault() {
   const handleGoContracts = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadContracts) {
       navigate('/unauthorized')
       return
@@ -160,6 +171,7 @@ export function LayoutPrivateDefault() {
   const handleGoLeaves = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadLeaves) {
       navigate('/unauthorized')
       return
@@ -170,6 +182,7 @@ export function LayoutPrivateDefault() {
   const handleGoAttendance = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadAttendance) {
       navigate('/unauthorized')
       return
@@ -180,6 +193,7 @@ export function LayoutPrivateDefault() {
   const handleGoAnnexes = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadAnnexes) {
       navigate('/unauthorized')
       return
@@ -190,6 +204,7 @@ export function LayoutPrivateDefault() {
   const handleGoTransfers = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadTransfers) {
       navigate('/unauthorized')
       return
@@ -200,42 +215,49 @@ export function LayoutPrivateDefault() {
   const handleGoSettlements = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     navigate(AUTH_ROUTE_SETTLEMENTS)
   }
 
   const handleGoSettlementsTerminationCauses = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     navigate(AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES)
   }
 
   const handleGoSettlementsWorkQuality = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     navigate(AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY)
   }
 
   const handleGoSettlementsSafetyCompliance = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     navigate(AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE)
   }
 
   const handleGoSettlementsNoRehireCause = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     navigate(AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE)
   }
 
   const handleGoSettlementsTerminationQuizQuestion = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     navigate(AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION)
   }
 
   const handleGoProjects = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadProjects) {
       navigate('/unauthorized')
       return
@@ -246,6 +268,7 @@ export function LayoutPrivateDefault() {
   const handleGoProjectAssignments = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadProjects) {
       navigate('/unauthorized')
       return
@@ -256,6 +279,7 @@ export function LayoutPrivateDefault() {
   const handleGoProjectTypes = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadProjectTypes) {
       navigate('/unauthorized')
       return
@@ -266,6 +290,7 @@ export function LayoutPrivateDefault() {
   const handleGoProjectSpecialties = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadProjectSpecialties) {
       navigate('/unauthorized')
       return
@@ -276,6 +301,7 @@ export function LayoutPrivateDefault() {
   const handleGoProjectStatuses = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     if (!canReadProjectStatuses) {
       navigate('/unauthorized')
       return
@@ -286,24 +312,44 @@ export function LayoutPrivateDefault() {
   const handleGoSettings = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     navigate(AUTH_ROUTE_SETTINGS)
   }
 
   const handleGoLogout = () => {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
     navigate(AUTH_ROUTE_LOGOUT)
   }
 
   const handleToggleNotifications = () => {
     setNotificationsOpen((v) => !v)
-    if (!notificationsOpen) setSettingsDropdownOpen(false)
+    if (!notificationsOpen) {
+      setSettingsDropdownOpen(false)
+      setCalendarOpen(false)
+    }
   }
 
   const handleToggleSettings = () => {
     setSettingsDropdownOpen((v) => !v)
-    if (!settingsDropdownOpen) setNotificationsOpen(false)
+    if (!settingsDropdownOpen) {
+      setNotificationsOpen(false)
+      setCalendarOpen(false)
+    }
   }
+
+  const handleToggleCalendar = () => {
+    setCalendarOpen((v) => !v)
+    if (!calendarOpen) {
+      setNotificationsOpen(false)
+      setSettingsDropdownOpen(false)
+    }
+  }
+
+  const handleCalendarVisibleRangeChange = useCallback((range: { from: string, to: string }) => {
+    void getCalendarEvents(range)
+  }, [getCalendarEvents])
 
   const handleMarkAllRead = () => {
     markAllAsRead()
@@ -387,8 +433,15 @@ export function LayoutPrivateDefault() {
           isDark={isDark}
           onGoDashboard={handleGoDashboard}
           settingsDropdownOpen={settingsDropdownOpen}
+          calendarOpen={calendarOpen}
           onToggleSettingsDropdown={handleToggleSettings}
           onCloseSettingsDropdown={() => setSettingsDropdownOpen(false)}
+          onToggleCalendar={handleToggleCalendar}
+          onCloseCalendar={() => setCalendarOpen(false)}
+          calendarEvents={calendarEvents}
+          calendarLoading={loadingCalendarEvents}
+          calendarErrorMessage={calendarEventsErrorMessage}
+          onCalendarVisibleRangeChange={handleCalendarVisibleRangeChange}
           onToggleSidebar={() => setMobileSidebarOpen((v) => !v)}
           onGoSettings={handleGoSettings}
           onGoLogout={handleGoLogout}

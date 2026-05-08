@@ -25,6 +25,10 @@ export {
   mapperUpdateAnnexPayload,
 } from './annexes/annexes.mapper'
 export { mapperDashboardExample } from './dashboard/dashboard-example.mapper'
+export {
+  mapperCalendarEvents,
+  mapperCalendarEventsQueryParams,
+} from './calendar/calendar.mapper'
 export { mapperEmployeeSelectOptions } from './employee-selects/employee-selects.mapper'
 export { mapperAnnexSelectOptions } from './annex-selects/annex-selects.mapper'
 export { mapperContractSelectOptions } from './contract-selects/contract-selects.mapper'
