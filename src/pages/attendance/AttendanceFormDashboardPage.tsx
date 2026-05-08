@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DatePickerComponent,
   DetailSectionHeaderComponent,
   InputComponent,
   SaveConfirmComponent,
@@ -425,13 +426,12 @@ export default function AttendanceFormDashboardPage() {
           <div className="space-y-3">
             <SubSectionLabel number="02.1" title="Jornada" />
             <div className="grid gap-4 md:grid-cols-2">
-              <InputComponent
+              <DatePickerComponent
                 value={form.date}
                 label="Fecha"
-                type="date"
                 error={errors.date}
                 onValueChange={handleChangeField('date')}
-                onBlur={onValidation('date')}
+                onValidation={onValidation('date')}
                 disabled={!form.markType}
                 required
               />
