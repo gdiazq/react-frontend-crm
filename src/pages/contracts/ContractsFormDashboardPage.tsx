@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DatePickerComponent,
   DetailSectionHeaderComponent,
   FileDropzoneComponent,
   InputComponent,
@@ -471,21 +472,19 @@ export default function ContractsFormDashboardPage() {
                 required
               />
 
-              <InputComponent
+              <DatePickerComponent
                 value={form.startDate}
                 label="Fecha inicio"
-                type="date"
                 error={errors.startDate}
                 onValueChange={handleFieldValueChange('startDate')}
-                onBlur={onValidation('startDate')}
+                onValidation={onValidation('startDate')}
                 required
               />
 
               {!hideEndDate && (
-                <InputComponent
+                <DatePickerComponent
                   value={form.endDate}
                   label="Fecha término"
-                  type="date"
                   onValueChange={handleFieldValueChange('endDate')}
                 />
               )}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DateRangePickerComponent,
   DetailSidebarComponent,
   InputComponent,
   PaginationComponent,
@@ -213,12 +214,6 @@ export default function TransfersDashboardPage() {
   }
   const handleStatusFilterChange = (value: string) => handleChangeFilter('status', value)
   const handleToCostCenterFilterChange = (value: string) => handleChangeFilter('toCostCenter', value)
-  const handleEffectiveDateFromFilterChange = (value: string) => handleChangeFilter('effectiveDateFrom', value)
-  const handleEffectiveDateToFilterChange = (value: string) => handleChangeFilter('effectiveDateTo', value)
-  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
-  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
-  const handleUpdatedFromFilterChange = (value: string) => handleChangeFilter('updatedFrom', value)
-  const handleUpdatedToFilterChange = (value: string) => handleChangeFilter('updatedTo', value)
 
   const handleApplyFilters = async () => {
     setStatusFilter(filters.status.trim())
@@ -412,70 +407,40 @@ export default function TransfersDashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">
               Fecha efectiva
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="transfers-effective-date-from"
-                value={filters.effectiveDateFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha efectiva desde"
-                onValueChange={handleEffectiveDateFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.effectiveDateFrom}
+                toValue={filters.effectiveDateTo}
+                label="Rango de fecha"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, effectiveDateFrom: from, effectiveDateTo: to }))
+                }}
               />
-              <InputComponent
-                id="transfers-effective-date-to"
-                value={filters.effectiveDateTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha efectiva hasta"
-                onValueChange={handleEffectiveDateToFilterChange}
-              />
-            </div>
           </div>
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               Fecha creacion
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="transfers-created-from"
-                value={filters.createdFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha creacion desde"
-                onValueChange={handleCreatedFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.createdFrom}
+                toValue={filters.createdTo}
+                label="Rango de creación"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
+                }}
               />
-              <InputComponent
-                id="transfers-created-to"
-                value={filters.createdTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha creacion hasta"
-                onValueChange={handleCreatedToFilterChange}
-              />
-            </div>
           </div>
           <div className="space-y-3 rounded-xl border border-amber-500/35 bg-amber-50/15 p-3 dark:border-amber-400/25 dark:bg-amber-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
               Fecha actualizacion
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="transfers-updated-from"
-                value={filters.updatedFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha actualizacion desde"
-                onValueChange={handleUpdatedFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.updatedFrom}
+                toValue={filters.updatedTo}
+                label="Rango de actualización"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, updatedFrom: from, updatedTo: to }))
+                }}
               />
-              <InputComponent
-                id="transfers-updated-to"
-                value={filters.updatedTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha actualizacion hasta"
-                onValueChange={handleUpdatedToFilterChange}
-              />
-            </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent

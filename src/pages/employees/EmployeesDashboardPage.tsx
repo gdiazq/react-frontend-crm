@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DateRangePickerComponent,
   DetailSidebarComponent,
   EmployeeDetailComponent,
   InputComponent,
@@ -246,8 +247,6 @@ export default function EmployeesDashboardPage() {
   }
   const handleActiveFilterChange = (value: string) => handleChangeFilter('activeId', value)
   const handleApprovalStatusFilterChange = (value: string) => handleChangeFilter('approvalStatusId', value)
-  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
-  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
 
   const handleApplyFilters = async () => {
     const selectedStatus = statusOptions.find((option) => String(option.id) === filters.activeId)
@@ -583,22 +582,14 @@ export default function EmployeesDashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               Fecha creacion
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                value={filters.createdFrom}
-                type="date"
-                label="Desde"
-                aria-label="Fecha creacion desde"
-                onValueChange={handleCreatedFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.createdFrom}
+                toValue={filters.createdTo}
+                label="Rango de creación"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
+                }}
               />
-              <InputComponent
-                value={filters.createdTo}
-                type="date"
-                label="Hasta"
-                aria-label="Fecha creacion hasta"
-                onValueChange={handleCreatedToFilterChange}
-              />
-            </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent

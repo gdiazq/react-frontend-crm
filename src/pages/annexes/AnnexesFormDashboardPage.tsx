@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DatePickerComponent,
   DetailSectionHeaderComponent,
   FileDropzoneComponent,
   InputComponent,
@@ -273,13 +274,13 @@ export default function AnnexesFormDashboardPage() {
           <div className="space-y-3">
             <SubSectionLabel number="01.2" title="Vigencia y descripción" />
             <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-              <InputComponent
+              <DatePickerComponent
                 value={form.date}
                 label="Fecha"
-                type="date"
+                
                 error={errors.date}
                 onValueChange={handleChangeField('date')}
-                onBlur={onValidation('date')}
+                onValidation={onValidation('date')}
                 required
               />
               <InputComponent

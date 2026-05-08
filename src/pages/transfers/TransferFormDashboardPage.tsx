@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DatePickerComponent,
   DetailSectionHeaderComponent,
   FileDropzoneComponent,
-  InputComponent,
   SaveConfirmComponent,
   SelectComponent,
 } from '@/components'
@@ -400,13 +400,13 @@ export default function TransferFormDashboardPage() {
                 required
               />
 
-              <InputComponent
+              <DatePickerComponent
                 value={form.effectiveDate}
                 label="Fecha efectiva"
-                type="date"
+                
                 error={errors.effectiveDate}
                 onValueChange={handleFieldValueChange('effectiveDate')}
-                onBlur={onValidation('effectiveDate')}
+                onValidation={onValidation('effectiveDate')}
                 required
               />
             </div>

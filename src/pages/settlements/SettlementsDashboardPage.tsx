@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DateRangePickerComponent,
   DetailSidebarComponent,
   InputComponent,
   PaginationComponent,
@@ -232,10 +233,6 @@ export default function SettlementsDashboardPage() {
   const handleSafetyComplianceIdFilterChange = (value: string) => handleChangeFilter('safetyComplianceId', value)
   const handleNoReHiredCauseIdFilterChange = (value: string) => handleChangeFilter('noReHiredCauseId', value)
   const handleRehireEligibleFilterChange = (value: string) => handleChangeFilter('rehireEligible', value)
-  const handleEndDateFromFilterChange = (value: string) => handleChangeFilter('endDateFrom', value)
-  const handleEndDateToFilterChange = (value: string) => handleChangeFilter('endDateTo', value)
-  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
-  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
 
   const handleApplyFilters = async () => {
     const selectedStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.statusId)
@@ -484,47 +481,27 @@ export default function SettlementsDashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-fuchsia-700 dark:text-fuchsia-300">
               Fecha fin
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="termination-end-date-from"
-                value={filters.endDateFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha fin desde"
-                onValueChange={handleEndDateFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.endDateFrom}
+                toValue={filters.endDateTo}
+                label="Rango de término"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, endDateFrom: from, endDateTo: to }))
+                }}
               />
-              <InputComponent
-                id="termination-end-date-to"
-                value={filters.endDateTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha fin hasta"
-                onValueChange={handleEndDateToFilterChange}
-              />
-            </div>
           </div>
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               Fecha creación
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="termination-created-from"
-                value={filters.createdFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha creación desde"
-                onValueChange={handleCreatedFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.createdFrom}
+                toValue={filters.createdTo}
+                label="Rango de creación"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
+                }}
               />
-              <InputComponent
-                id="termination-created-to"
-                value={filters.createdTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha creación hasta"
-                onValueChange={handleCreatedToFilterChange}
-              />
-            </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent

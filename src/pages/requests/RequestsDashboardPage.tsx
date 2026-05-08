@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DateRangePickerComponent,
   DetailSidebarComponent,
   InputComponent,
   PaginationComponent,
@@ -197,10 +198,6 @@ export default function RequestsDashboardPage() {
   }
   const handleStatusFilterChange = (value: string) => handleChangeFilter('statusId', value)
   const handleModuleFilterChange = (value: string) => handleChangeFilter('moduleId', value)
-  const handleApprovalFromFilterChange = (value: string) => handleChangeFilter('approvalFrom', value)
-  const handleApprovalToFilterChange = (value: string) => handleChangeFilter('approvalTo', value)
-  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
-  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
 
   const handleApplyFilters = async () => {
     const selectedStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.statusId)
@@ -457,47 +454,27 @@ export default function RequestsDashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">
               Fecha aprobacion
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="requests-approval-from"
-                value={filters.approvalFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha aprobacion desde"
-                onValueChange={handleApprovalFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.approvalFrom}
+                toValue={filters.approvalTo}
+                label="Rango de fechas"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, approvalFrom: from, approvalTo: to }))
+                }}
               />
-              <InputComponent
-                id="requests-approval-to"
-                value={filters.approvalTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha aprobacion hasta"
-                onValueChange={handleApprovalToFilterChange}
-              />
-            </div>
           </div>
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               Fecha creacion
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="requests-created-from"
-                value={filters.createdFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha creacion desde"
-                onValueChange={handleCreatedFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.createdFrom}
+                toValue={filters.createdTo}
+                label="Rango de creación"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
+                }}
               />
-              <InputComponent
-                id="requests-created-to"
-                value={filters.createdTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha creacion hasta"
-                onValueChange={handleCreatedToFilterChange}
-              />
-            </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent

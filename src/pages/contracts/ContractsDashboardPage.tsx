@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DateRangePickerComponent,
   ContractDetailComponent,
   DetailSidebarComponent,
   InputComponent,
@@ -235,14 +236,6 @@ export default function ContractsDashboardPage() {
   const handleStatusFilterChange = (value: string) => handleChangeFilter('statusId', value)
   const handleContractStatusFilterChange = (value: string) => handleChangeFilter('contractStatusId', value)
   const handleContractTypeFilterChange = (value: string) => handleChangeFilter('contractTypeId', value)
-  const handleCreatedFromFilterChange = (value: string) => handleChangeFilter('createdFrom', value)
-  const handleCreatedToFilterChange = (value: string) => handleChangeFilter('createdTo', value)
-  const handleStartDateFromFilterChange = (value: string) => handleChangeFilter('startDateFrom', value)
-  const handleStartDateToFilterChange = (value: string) => handleChangeFilter('startDateTo', value)
-  const handleEndDateFromFilterChange = (value: string) => handleChangeFilter('endDateFrom', value)
-  const handleEndDateToFilterChange = (value: string) => handleChangeFilter('endDateTo', value)
-  const handleUpdatedFromFilterChange = (value: string) => handleChangeFilter('updatedFrom', value)
-  const handleUpdatedToFilterChange = (value: string) => handleChangeFilter('updatedTo', value)
 
   const handleApplyFilters = async () => {
     const selectedStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.statusId)
@@ -511,93 +504,53 @@ export default function ContractsDashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">
               Fecha inicio contrato
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="contracts-start-date-from"
-                value={filters.startDateFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha inicio contrato desde"
-                onValueChange={handleStartDateFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.startDateFrom}
+                toValue={filters.startDateTo}
+                label="Rango de inicio"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, startDateFrom: from, startDateTo: to }))
+                }}
               />
-              <InputComponent
-                id="contracts-start-date-to"
-                value={filters.startDateTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha inicio contrato hasta"
-                onValueChange={handleStartDateToFilterChange}
-              />
-            </div>
           </div>
           <div className="space-y-3 rounded-xl border border-fuchsia-500/35 bg-fuchsia-50/15 p-3 dark:border-fuchsia-400/25 dark:bg-fuchsia-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-fuchsia-700 dark:text-fuchsia-300">
               Fecha fin contrato
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="contracts-end-date-from"
-                value={filters.endDateFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha fin contrato desde"
-                onValueChange={handleEndDateFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.endDateFrom}
+                toValue={filters.endDateTo}
+                label="Rango de término"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, endDateFrom: from, endDateTo: to }))
+                }}
               />
-              <InputComponent
-                id="contracts-end-date-to"
-                value={filters.endDateTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha fin contrato hasta"
-                onValueChange={handleEndDateToFilterChange}
-              />
-            </div>
           </div>
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               Fecha creacion
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="contracts-created-from"
-                value={filters.createdFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha creacion desde"
-                onValueChange={handleCreatedFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.createdFrom}
+                toValue={filters.createdTo}
+                label="Rango de creación"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
+                }}
               />
-              <InputComponent
-                id="contracts-created-to"
-                value={filters.createdTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha creacion hasta"
-                onValueChange={handleCreatedToFilterChange}
-              />
-            </div>
           </div>
           <div className="space-y-3 rounded-xl border border-amber-500/35 bg-amber-50/15 p-3 dark:border-amber-400/25 dark:bg-amber-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
               Fecha actualizacion
             </p>
-            <div className="grid gap-2">
-              <InputComponent
-                id="contracts-updated-from"
-                value={filters.updatedFrom}
-                label="Desde"
-                type="date"
-                aria-label="Fecha actualizacion desde"
-                onValueChange={handleUpdatedFromFilterChange}
+            <DateRangePickerComponent
+                fromValue={filters.updatedFrom}
+                toValue={filters.updatedTo}
+                label="Rango de actualización"
+                onRangeChange={({ from, to }) => {
+                  setFilters((prev) => ({ ...prev, updatedFrom: from, updatedTo: to }))
+                }}
               />
-              <InputComponent
-                id="contracts-updated-to"
-                value={filters.updatedTo}
-                label="Hasta"
-                type="date"
-                aria-label="Fecha actualizacion hasta"
-                onValueChange={handleUpdatedToFilterChange}
-              />
-            </div>
           </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent

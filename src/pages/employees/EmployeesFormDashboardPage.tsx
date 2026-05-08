@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DatePickerComponent,
   DetailSectionHeaderComponent,
   InputComponent,
   SaveConfirmComponent,
@@ -431,13 +432,12 @@ export default function EmployeesFormDashboardPage() {
                 onBlur={onValidation('identification')}
                 required
               />
-              <InputComponent
+              <DatePickerComponent
                 value={form.birthDate}
                 label="Fecha nacimiento"
-                type="date"
                 error={errors.birthDate}
                 onValueChange={handleFieldValueChange('birthDate')}
-                onBlur={onValidation('birthDate')}
+                onValidation={onValidation('birthDate')}
                 required
               />
             </div>
