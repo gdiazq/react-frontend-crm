@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DatePickerComponent,
   DetailSectionHeaderComponent,
   FileDropzoneComponent,
   InputComponent,
@@ -299,22 +300,20 @@ export default function LeavesFormDashboardPage() {
           <div className="space-y-3">
             <SubSectionLabel number="01.2" title="Vigencia" />
             <div className="grid gap-4 md:grid-cols-3">
-              <InputComponent
+              <DatePickerComponent
                 value={form.startDate}
                 label="Inicio"
-                type="date"
                 error={errors.startDate || dateRangeError}
                 onValueChange={handleChangeField('startDate')}
-                onBlur={onValidation('startDate')}
+                onValidation={onValidation('startDate')}
                 required
               />
-              <InputComponent
+              <DatePickerComponent
                 value={form.endDate}
                 label="Fin"
-                type="date"
                 error={errors.endDate || dateRangeError}
                 onValueChange={handleChangeField('endDate')}
-                onBlur={onValidation('endDate')}
+                onValidation={onValidation('endDate')}
                 required
               />
               <SelectComponent

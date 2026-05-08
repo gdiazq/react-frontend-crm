@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  DateRangePickerComponent,
   DetailSidebarComponent,
   InputComponent,
   LeaveDetailComponent,
@@ -365,31 +366,47 @@ export default function LeavesDashboardPage() {
 
           <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/20 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">Inicio del permiso</p>
-            <div className="grid gap-2">
-              <InputComponent id="leaves-start-from" value={filters.startFrom} label="Desde" type="date" onValueChange={(v) => handleChangeFilter('startFrom', v)} />
-              <InputComponent id="leaves-start-to" value={filters.startTo} label="Hasta" type="date" onValueChange={(v) => handleChangeFilter('startTo', v)} />
-            </div>
+            <DateRangePickerComponent
+              fromValue={filters.startFrom}
+              toValue={filters.startTo}
+              label="Rango de inicio"
+              onRangeChange={({ from, to }) => {
+                setFilters((prev) => ({ ...prev, startFrom: from, startTo: to }))
+              }}
+            />
           </div>
           <div className="space-y-3 rounded-xl border border-sky-500/35 bg-sky-50/20 p-3 dark:border-sky-400/25 dark:bg-sky-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-sky-700 dark:text-sky-300">Fin del permiso</p>
-            <div className="grid gap-2">
-              <InputComponent id="leaves-end-from" value={filters.endFrom} label="Desde" type="date" onValueChange={(v) => handleChangeFilter('endFrom', v)} />
-              <InputComponent id="leaves-end-to" value={filters.endTo} label="Hasta" type="date" onValueChange={(v) => handleChangeFilter('endTo', v)} />
-            </div>
+            <DateRangePickerComponent
+              fromValue={filters.endFrom}
+              toValue={filters.endTo}
+              label="Rango de fin"
+              onRangeChange={({ from, to }) => {
+                setFilters((prev) => ({ ...prev, endFrom: from, endTo: to }))
+              }}
+            />
           </div>
           <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Fecha creación</p>
-            <div className="grid gap-2">
-              <InputComponent id="leaves-created-from" value={filters.createdFrom} label="Desde" type="date" onValueChange={(v) => handleChangeFilter('createdFrom', v)} />
-              <InputComponent id="leaves-created-to" value={filters.createdTo} label="Hasta" type="date" onValueChange={(v) => handleChangeFilter('createdTo', v)} />
-            </div>
+            <DateRangePickerComponent
+              fromValue={filters.createdFrom}
+              toValue={filters.createdTo}
+              label="Rango de creación"
+              onRangeChange={({ from, to }) => {
+                setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
+              }}
+            />
           </div>
           <div className="space-y-3 rounded-xl border border-amber-500/35 bg-amber-50/15 p-3 dark:border-amber-400/25 dark:bg-amber-950/10">
             <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">Fecha actualización</p>
-            <div className="grid gap-2">
-              <InputComponent id="leaves-updated-from" value={filters.updatedFrom} label="Desde" type="date" onValueChange={(v) => handleChangeFilter('updatedFrom', v)} />
-              <InputComponent id="leaves-updated-to" value={filters.updatedTo} label="Hasta" type="date" onValueChange={(v) => handleChangeFilter('updatedTo', v)} />
-            </div>
+            <DateRangePickerComponent
+              fromValue={filters.updatedFrom}
+              toValue={filters.updatedTo}
+              label="Rango de actualización"
+              onRangeChange={({ from, to }) => {
+                setFilters((prev) => ({ ...prev, updatedFrom: from, updatedTo: to }))
+              }}
+            />
           </div>
           <div className="flex flex-wrap justify-end gap-2 pt-2">
             <ButtonComponent type="button" variant="outline" disabled={loadingLeaves || loadingLeaveFormOptions} label="Limpiar" onClick={() => { void handleClearFilters() }} />
