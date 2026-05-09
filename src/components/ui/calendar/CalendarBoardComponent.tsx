@@ -134,7 +134,8 @@ export function CalendarBoardComponent({
 
   const handleSelectDate = (date: string) => {
     const parsedDate = parseDateValue(date)
-    if (parsedDate && isBeforeDay(parsedDate, today)) return
+    const hasEvents = (eventsByDate.get(date)?.length ?? 0) > 0
+    if (parsedDate && isBeforeDay(parsedDate, today) && !hasEvents) return
     setInternalSelectedDate(date)
     onDateSelect?.(date)
   }
@@ -231,7 +232,8 @@ export function CalendarBoardComponent({
               const dayEvents = eventsByDate.get(day.value) ?? []
               const selected = day.value === activeSelectedDate
               const isToday = isSameDay(day.date, today)
-              const disabled = isBeforeDay(day.date, today)
+              const hasEvents = dayEvents.length > 0
+              const disabled = isBeforeDay(day.date, today) && !hasEvents
 
               return (
                 <button
