@@ -110,6 +110,7 @@ export interface OvertimePagination extends Pagination {
 export interface OvertimeQueryParams {
   page: number
   size: number
+  search: string
   employeeId: string
   costCenter: string
   statusId: string

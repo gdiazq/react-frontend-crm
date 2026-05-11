@@ -18,7 +18,7 @@ const userHeader = (userId: number) => ({
 
 export const overtimeService = {
   getOvertime: async (queryParams: OvertimeQueryParams) => {
-    const { data } = await axiosInstance.get<OvertimePagedResponse>('/rrhh/overtime', {
+    const { data } = await axiosInstance.get<OvertimePagedResponse>('/rrhh/overtime/paged', {
       params: mapperOvertimeQueryParams(queryParams),
     })
     return data

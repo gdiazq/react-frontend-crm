@@ -44,6 +44,10 @@ export function DatePickerComponent({
     onValidation?.()
   }, [onValidation])
 
+  const validateAfterValueChange = useCallback(() => {
+    window.setTimeout(() => onValidation?.(), 0)
+  }, [onValidation])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!open || !containerRef.current) return
@@ -65,17 +69,20 @@ export function DatePickerComponent({
 
   const handleSelectDate = (date?: Date) => {
     onValueChange?.(formatDateValue(date))
-    closeDropdown()
+    setOpen(false)
+    validateAfterValueChange()
   }
 
   const handleToday = () => {
     onValueChange?.(formatDateValue(new Date()))
-    closeDropdown()
+    setOpen(false)
+    validateAfterValueChange()
   }
 
   const handleClear = () => {
     onValueChange?.('')
-    closeDropdown()
+    setOpen(false)
+    validateAfterValueChange()
   }
 
   return (

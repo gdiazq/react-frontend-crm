@@ -30,6 +30,7 @@ export interface OvertimeStore {
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
+  setSearch: (value: string) => void
   setEmployeeFilter: (employeeId: string) => void
   setCostCenterFilter: (costCenter: string) => void
   setStatusFilter: (statusId: string) => void

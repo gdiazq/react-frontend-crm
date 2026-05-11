@@ -159,6 +159,10 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
       await get().goToPage(get().pagination.page - 1)
     },
 
+    setSearch: (value: string) => {
+      set((state) => ({ queryParams: { ...state.queryParams, search: value } }))
+    },
+
     setEmployeeFilter: (employeeId: string) => {
       set((state) => ({ queryParams: { ...state.queryParams, employeeId } }))
     },

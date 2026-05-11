@@ -125,6 +125,7 @@ export function mapperOvertimePagination(result: OvertimePagedResponse): Overtim
 
 export function mapperOvertimeQueryParams(result: OvertimeQueryParams): Record<string, number | string> {
   const params = buildQueryParams(result)
+  appendString(params, 'search', result.search)
   appendParsedId(params, 'employeeId', result.employeeId)
   appendParsedId(params, 'costCenter', result.costCenter)
   appendParsedId(params, 'statusId', result.statusId)

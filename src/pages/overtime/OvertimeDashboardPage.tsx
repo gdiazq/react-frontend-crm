@@ -5,6 +5,7 @@ import {
   ButtonComponent,
   DateRangePickerComponent,
   DetailSidebarComponent,
+  InputComponent,
   PaginationComponent,
   RightSidebarComponent,
   SelectComponent,
@@ -50,6 +51,7 @@ export default function OvertimeDashboardPage() {
   const setStatusFilter = useStoreOvertime((s) => s.setStatusFilter)
   const setDateRange = useStoreOvertime((s) => s.setDateRange)
   const setOvertimeTypeFilter = useStoreOvertime((s) => s.setOvertimeTypeFilter)
+  const setSearch = useStoreOvertime((s) => s.setSearch)
   const clearEmployeeFilter = useStoreOvertime((s) => s.clearEmployeeFilter)
   const clearCostCenterFilter = useStoreOvertime((s) => s.clearCostCenterFilter)
   const clearStatusFilter = useStoreOvertime((s) => s.clearStatusFilter)
@@ -236,18 +238,23 @@ export default function OvertimeDashboardPage() {
         <AlertMessageComponent message={costCenterOptionsErrorMessage} tone="error" onClose={clearCostCenterOptionsStatus} />
       )}
 
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+      <form
+        className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
+        onSubmit={(event) => { event.preventDefault(); void searchOvertime() }}
+      >
         <div className="flex items-center gap-2 md:col-start-1 md:row-start-1">
           <ButtonComponent type="button" variant="outline" disabled={loadingOvertime} label="Filtro" onClick={() => setFiltersOpen(true)} />
+          <div className="min-w-0 flex-1">
+            <InputComponent value={queryParams.search} type="text" placeholder="Buscar por trabajador, proyecto, tipo o motivo" onValueChange={setSearch} />
+          </div>
         </div>
         <div className="flex items-center gap-2 md:col-start-2 md:row-start-1 md:justify-end">
           <ButtonComponent
-            type="button"
+            type="submit"
             variant="primary"
             disabled={loadingOvertime}
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
-            label={loadingOvertime ? 'Actualizando...' : 'Actualizar'}
-            onClick={() => { void getOvertime() }}
+            label={loadingOvertime ? 'Buscando...' : 'Buscar'}
           />
           {canCreateOvertime && (
             <ButtonComponent
@@ -260,13 +267,14 @@ export default function OvertimeDashboardPage() {
             />
           )}
         </div>
-      </div>
+      </form>
 
       <TableComponent
         columns={overtimeTableColumns}
         rows={overtimeRows}
         loading={loadingOvertime}
         emptyMessage="No hay registros de horas extras."
+        preserveHeaderCase
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,

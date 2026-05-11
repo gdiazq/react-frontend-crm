@@ -51,6 +51,7 @@ export const initialOvertimePagination: OvertimePagination = {
 export const initialOvertimeQueryParams: OvertimeQueryParams = {
   page: 0,
   size: 8,
+  search: '',
   employeeId: '',
   costCenter: '',
   statusId: '',
