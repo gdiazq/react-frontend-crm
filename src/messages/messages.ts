@@ -336,6 +336,7 @@ export default {
         detailLoadError: 'No se pudo cargar el detalle de hora extra.',
         detailInvalidOvertimeId: 'Id de hora extra inválido.',
         loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de horas extras.',
+        invalidCurrentUser: 'No se encontró usuario autenticado para enviar la solicitud.',
       },
     },
   },

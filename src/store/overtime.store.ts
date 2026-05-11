@@ -22,6 +22,7 @@ const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () =
 
 export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
   let latestOvertimeRequestId = 0
+  let latestOvertimeDetailRequestId = 0
   let latestOvertimeTypesRequestId = 0
 
   const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
@@ -51,11 +52,15 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
 
   return {
     overtimeRows: [...initialOvertimeRows],
+    overtimeDetail: null,
     overtimeTypes: [],
     pagination: { ...initialOvertimePagination },
     queryParams: { ...initialOvertimeQueryParams },
     loadingOvertime: false,
+    loadingOvertimeDetail: false,
     loadingOvertimeTypes: false,
+    createOvertimeSubmitting: false,
+    updateOvertimeSubmitting: false,
     operationStatus: initialOperationStatus(),
 
     getOvertime: async () => {
@@ -79,6 +84,39 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
           set({ loadingOvertime: false })
         }
       }
+    },
+
+    getOvertimeDetail: async (overtimeId: string) => {
+      const parsedOvertimeId = Number(overtimeId)
+      if (!Number.isInteger(parsedOvertimeId) || parsedOvertimeId <= 0) {
+        setOpError('detail', messages.overtime.status.errors.detailInvalidOvertimeId)
+        set({ overtimeDetail: null })
+        return null
+      }
+      const requestId = ++latestOvertimeDetailRequestId
+
+      try {
+        set({ loadingOvertimeDetail: true, overtimeDetail: null })
+        clearOp('detail')
+        const data = await overtimeService.getOvertimeDetail(parsedOvertimeId)
+        if (requestId !== latestOvertimeDetailRequestId) return null
+        set({ overtimeDetail: data })
+        return data
+      } catch (error) {
+        if (requestId !== latestOvertimeDetailRequestId) return null
+        setOpError('detail', resolveErrorMessage(error, messages.overtime.status.errors.detailLoadError), error)
+        return null
+      } finally {
+        if (requestId === latestOvertimeDetailRequestId) {
+          set({ loadingOvertimeDetail: false })
+        }
+      }
+    },
+
+    clearOvertimeDetail: () => {
+      latestOvertimeDetailRequestId += 1
+      set({ overtimeDetail: null, loadingOvertimeDetail: false })
+      clearOp('detail')
     },
 
     getOvertimeTypes: async () => {
@@ -175,6 +213,59 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
         queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
       }))
       await get().getOvertime()
+    },
+
+    createOvertime: async (payload, userId) => {
+      if (!Number.isInteger(userId) || userId <= 0) {
+        setOpError('create', messages.overtime.status.errors.invalidCurrentUser)
+        return false
+      }
+      try {
+        set({ createOvertimeSubmitting: true })
+        clearOp('create')
+        await overtimeService.createOvertime(payload, userId)
+        set((state) => ({
+          operationStatus: {
+            ...state.operationStatus,
+            create: { error: null, success: messages.overtime.status.success.createOvertimeSuccess, errorBack: null },
+          },
+        }))
+        return true
+      } catch (error) {
+        setOpError('create', resolveErrorMessage(error, messages.overtime.status.errors.createOvertimeError), error)
+        return false
+      } finally {
+        set({ createOvertimeSubmitting: false })
+      }
+    },
+
+    updateOvertime: async (payload, userId) => {
+      if (!Number.isInteger(payload.id) || payload.id <= 0) {
+        setOpError('update', messages.overtime.status.errors.detailInvalidOvertimeId)
+        return false
+      }
+      if (!Number.isInteger(userId) || userId <= 0) {
+        setOpError('update', messages.overtime.status.errors.invalidCurrentUser)
+        return false
+      }
+
+      try {
+        set({ updateOvertimeSubmitting: true })
+        clearOp('update')
+        await overtimeService.updateOvertime(payload, userId)
+        set((state) => ({
+          operationStatus: {
+            ...state.operationStatus,
+            update: { error: null, success: messages.overtime.status.success.updateOvertimeSuccess, errorBack: null },
+          },
+        }))
+        return true
+      } catch (error) {
+        setOpError('update', resolveErrorMessage(error, messages.overtime.status.errors.updateOvertimeError), error)
+        return false
+      } finally {
+        set({ updateOvertimeSubmitting: false })
+      }
     },
 
     clearOperationStatus: (key) => {

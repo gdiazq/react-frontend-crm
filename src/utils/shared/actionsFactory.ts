@@ -106,6 +106,18 @@ export function createAttendanceActions() {
   return { actionViewDetail, actionUpdateAttendance, actionDeleteAttendance }
 }
 
+export function createOvertimeActions() {
+  function actionViewDetail(handler: () => void): DropdownAction {
+    return { id: 'view-detail', label: messages.overtime.ui.actionViewDetail, handler }
+  }
+
+  function actionUpdateOvertime(handler: () => void): DropdownAction {
+    return { id: 'update-overtime', label: messages.overtime.ui.updateOvertime, handler }
+  }
+
+  return { actionViewDetail, actionUpdateOvertime }
+}
+
 export function createRolesActions() {
   function actionViewDetail(handler: () => void): DropdownAction {
     return { id: 'view-detail', label: messages.roles.ui.actionViewDetail, handler }

@@ -1,22 +1,31 @@
 import type {
+  OvertimeCreatePayload,
+  OvertimeDetail,
   OvertimePagination,
   OvertimeQueryParams,
   OvertimeSortBy,
   OvertimeSortDir,
   OvertimeTableRow,
   OvertimeTypeRaw,
+  OvertimeUpdatePayload,
 } from './overtime'
 import type { OperationKey, OperationStatus } from '../common'
 
 export interface OvertimeStore {
   overtimeRows: OvertimeTableRow[]
+  overtimeDetail: OvertimeDetail | null
   overtimeTypes: OvertimeTypeRaw[]
   pagination: OvertimePagination
   queryParams: OvertimeQueryParams
   loadingOvertime: boolean
+  loadingOvertimeDetail: boolean
   loadingOvertimeTypes: boolean
+  createOvertimeSubmitting: boolean
+  updateOvertimeSubmitting: boolean
   operationStatus: Record<OperationKey, OperationStatus>
   getOvertime: () => Promise<void>
+  getOvertimeDetail: (overtimeId: string) => Promise<OvertimeDetail | null>
+  clearOvertimeDetail: () => void
   getOvertimeTypes: () => Promise<void>
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
@@ -33,6 +42,8 @@ export interface OvertimeStore {
   clearOvertimeTypeFilter: () => void
   searchOvertime: () => Promise<void>
   sortOvertime: (sortBy: OvertimeSortBy, sortDir: OvertimeSortDir) => Promise<void>
+  createOvertime: (payload: OvertimeCreatePayload, userId: number) => Promise<boolean>
+  updateOvertime: (payload: OvertimeUpdatePayload, userId: number) => Promise<boolean>
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void
 }

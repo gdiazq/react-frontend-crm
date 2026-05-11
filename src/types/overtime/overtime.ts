@@ -21,6 +21,8 @@ export interface OvertimeRaw {
   updatedAt?: string | null
 }
 
+export type OvertimeDetail = OvertimeRaw
+
 export interface OvertimeTypeRaw {
   id: number
   name: string
@@ -30,6 +32,35 @@ export interface OvertimeTypeRaw {
   holiday?: boolean | null
   active?: boolean | null
 }
+
+export interface OvertimeCreateForm {
+  employeeId: string
+  overtimeTypeId: string
+  date: string
+  startTime: string
+  endTime: string
+  reason: string
+}
+
+export interface OvertimeCreatePayload {
+  employeeId: number
+  overtimeTypeId: number
+  date: string
+  startTime: string
+  endTime: string
+  reason: string
+}
+
+export interface OvertimeUpdatePayload {
+  id: number
+  overtimeTypeId: number
+  startTime: string
+  endTime: string
+  reason: string
+}
+
+export type OvertimeCreateResponse = OvertimeDetail
+export type OvertimeUpdateResponse = OvertimeDetail
 
 export interface OvertimeTableRow {
   id: string

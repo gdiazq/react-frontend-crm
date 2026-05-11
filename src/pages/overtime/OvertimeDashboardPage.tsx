@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
@@ -9,16 +10,21 @@ import {
   StatsOverviewCardsComponent,
   TableComponent,
 } from '@/components'
+import { AUTH_ROUTE_OVERTIME_CREATE, AUTH_ROUTE_OVERTIME_EDIT } from '@/constant'
 import { overtimeTableColumns, overtimeTableColumnIndex, overtimeTableSortByColumn } from '@/factories'
-import { useStoreAttendanceSelects, useStoreEmployeeSelects, useStoreOvertime } from '@/store'
+import { useStoreAttendanceSelects, useStoreAuth, useStoreEmployeeSelects, useStoreOvertime } from '@/store'
 import type { TableSortState } from '@/components'
-import { createOvertimeTableCustomRenderer } from '@/utils'
+import type { TableRow } from '@/types'
+import { createOvertimeActions, createOvertimeTableCustomRenderer } from '@/utils'
+import type { DropdownAction } from '@/utils'
 
 const OVERTIME_EMPLOYEE_NAME_COLUMN_INDEX = overtimeTableColumnIndex.employeeName
 const OVERTIME_STATUS_COLUMN_INDEX = overtimeTableColumnIndex.status
+const ACTIONS_COLUMN_INDEX = overtimeTableColumns.length - 1
 const OVERTIME_SORTABLE_COLUMNS = Object.keys(overtimeTableSortByColumn).map((index) => Number(index))
 
 export default function OvertimeDashboardPage() {
+  const navigate = useNavigate()
   const overtimeRows = useStoreOvertime((s) => s.overtimeRows)
   const overtimeTypes = useStoreOvertime((s) => s.overtimeTypes)
   const pagination = useStoreOvertime((s) => s.pagination)
@@ -53,6 +59,7 @@ export default function OvertimeDashboardPage() {
   const costCenterOptionsErrorMessage = useStoreEmployeeSelects((s) => s.formOptionsErrorMessage)
   const getCostCenterFormOptions = useStoreEmployeeSelects((s) => s.getFormOptions)
   const clearCostCenterOptionsStatus = useStoreEmployeeSelects((s) => s.clearFormOptionsStatus)
+  const hasPermission = useStoreAuth((s) => s.hasPermission)
 
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [filters, setFilters] = useState(() => ({
@@ -79,6 +86,9 @@ export default function OvertimeDashboardPage() {
     label: option.surchargePercent != null ? `${option.name} · ${option.surchargePercent}%` : option.name,
     value: String(option.id),
   }))
+  const { actionUpdateOvertime } = createOvertimeActions()
+  const canCreateOvertime = hasPermission('OVERTIME', 'canCreate')
+  const canUpdateOvertime = hasPermission('OVERTIME', 'canUpdate')
 
   useEffect(() => {
     void getOvertime()
@@ -91,6 +101,19 @@ export default function OvertimeDashboardPage() {
     employeeNameColumnIndex: OVERTIME_EMPLOYEE_NAME_COLUMN_INDEX,
     statusColumnIndex: OVERTIME_STATUS_COLUMN_INDEX,
   })
+
+  const handleUpdateOvertime = (rowOrId: { id: string } | string) => {
+    const rowId = typeof rowOrId === 'string' ? rowOrId : rowOrId.id
+    navigate(`${AUTH_ROUTE_OVERTIME_EDIT}=${rowId}`)
+  }
+
+  const resolveRowActions = (row: { id: string }): DropdownAction[] => {
+    const actions: DropdownAction[] = []
+    if (canUpdateOvertime) actions.push(actionUpdateOvertime(() => handleUpdateOvertime(row)))
+    return actions
+  }
+
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => resolveRowActions(tableRow)
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = overtimeTableSortByColumn[columnIndex]
@@ -179,6 +202,16 @@ export default function OvertimeDashboardPage() {
             label={loadingOvertime ? 'Actualizando...' : 'Actualizar'}
             onClick={() => { void getOvertime() }}
           />
+          {canCreateOvertime && (
+            <ButtonComponent
+              type="button"
+              variant="success"
+              disabled={loadingOvertime}
+              className="flex-1 md:flex-none"
+              label="Nueva hora extra"
+              onClick={() => navigate(AUTH_ROUTE_OVERTIME_CREATE)}
+            />
+          )}
         </div>
       </div>
 
@@ -188,6 +221,13 @@ export default function OvertimeDashboardPage() {
         loading={loadingOvertime}
         emptyMessage="No hay registros de horas extras."
         customRenderer={renderCustomCell}
+        actionsConfig={{
+          columnIndex: ACTIONS_COLUMN_INDEX,
+          resolveRowActions: resolveRowActionsFromTableRow,
+          resolveOpenDirection: (activeRowIndex, rowsLength) => (
+            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
+          ),
+        }}
         sortableColumnIndexes={OVERTIME_SORTABLE_COLUMNS}
         sortState={sortState}
         onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}

@@ -1,4 +1,4 @@
-import type { OvertimePagination, OvertimeQueryParams, OvertimeSortBy, OvertimeTableRow } from '@/types'
+import type { OvertimeCreateForm, OvertimePagination, OvertimeQueryParams, OvertimeSortBy, OvertimeTableRow } from '@/types'
 
 export const overtimeTableColumns: string[] = [
   'Trabajador',     // 0
@@ -11,6 +11,7 @@ export const overtimeTableColumns: string[] = [
   'Término',        // 7
   'Horas',          // 8
   'Estado',         // 9
+  'Acciones',       // 10
 ]
 
 export const overtimeTableColumnIndex = {
@@ -58,4 +59,13 @@ export const initialOvertimeQueryParams: OvertimeQueryParams = {
   overtimeTypeId: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
+}
+
+export const initialOvertimeForm: OvertimeCreateForm = {
+  employeeId: '',
+  overtimeTypeId: '',
+  date: '',
+  startTime: '',
+  endTime: '',
+  reason: '',
 }
