@@ -19,7 +19,7 @@ interface DatePickerComponentProps {
   min?: string
   max?: string
   onValueChange?: (value: string) => void
-  onValidation?: () => void
+  onValidation?: (value?: string) => void
 }
 
 export function DatePickerComponent({
@@ -44,8 +44,8 @@ export function DatePickerComponent({
     onValidation?.()
   }, [onValidation])
 
-  const validateAfterValueChange = useCallback(() => {
-    window.setTimeout(() => onValidation?.(), 0)
+  const validateAfterValueChange = useCallback((nextValue: string) => {
+    window.setTimeout(() => onValidation?.(nextValue), 0)
   }, [onValidation])
 
   useEffect(() => {
@@ -68,21 +68,23 @@ export function DatePickerComponent({
   }, [closeDropdown, open])
 
   const handleSelectDate = (date?: Date) => {
-    onValueChange?.(formatDateValue(date))
+    const nextValue = formatDateValue(date)
+    onValueChange?.(nextValue)
     setOpen(false)
-    validateAfterValueChange()
+    validateAfterValueChange(nextValue)
   }
 
   const handleToday = () => {
-    onValueChange?.(formatDateValue(new Date()))
+    const nextValue = formatDateValue(new Date())
+    onValueChange?.(nextValue)
     setOpen(false)
-    validateAfterValueChange()
+    validateAfterValueChange(nextValue)
   }
 
   const handleClear = () => {
     onValueChange?.('')
     setOpen(false)
-    validateAfterValueChange()
+    validateAfterValueChange('')
   }
 
   return (

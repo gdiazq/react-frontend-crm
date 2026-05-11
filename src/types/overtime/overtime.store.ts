@@ -43,8 +43,8 @@ export interface OvertimeStore {
   clearOvertimeTypeFilter: () => void
   searchOvertime: () => Promise<void>
   sortOvertime: (sortBy: OvertimeSortBy, sortDir: OvertimeSortDir) => Promise<void>
-  createOvertime: (payload: OvertimeCreatePayload, userId: number) => Promise<boolean>
-  updateOvertime: (payload: OvertimeUpdatePayload, userId: number) => Promise<boolean>
+  createOvertime: (payload: OvertimeCreatePayload) => Promise<boolean>
+  updateOvertime: (payload: OvertimeUpdatePayload) => Promise<boolean>
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void
 }

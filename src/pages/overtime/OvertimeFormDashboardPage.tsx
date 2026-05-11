@@ -13,7 +13,7 @@ import { AUTH_ROUTE_OVERTIME } from '@/constant'
 import { initialOvertimeForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import { mapperCreateOvertimePayload, mapperOvertimeDetailToForm, mapperUpdateOvertimePayload } from '@/mappers'
-import { useStoreAttendanceSelects, useStoreAuth, useStoreOvertime } from '@/store'
+import { useStoreAttendanceSelects, useStoreOvertime } from '@/store'
 import type { OvertimeCreatePayload, OvertimeUpdatePayload } from '@/types'
 import { overtimeCreateValidationRules } from '@/validators'
 
@@ -75,7 +75,6 @@ export default function OvertimeFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const currentUserId = useStoreAuth((s) => s.user?.id ?? 0)
   const overtimeDetail = useStoreOvertime((s) => s.overtimeDetail)
   const overtimeTypes = useStoreOvertime((s) => s.overtimeTypes)
   const loadingOvertimeDetail = useStoreOvertime((s) => s.loadingOvertimeDetail)
@@ -191,8 +190,8 @@ export default function OvertimeFormDashboardPage() {
   const handleConfirmSave = async () => {
     if (!pendingAction || saving) return
     const success = pendingAction.mode === 'create'
-      ? await createOvertime(pendingAction.payload, currentUserId)
-      : await updateOvertime(pendingAction.payload, currentUserId)
+      ? await createOvertime(pendingAction.payload)
+      : await updateOvertime(pendingAction.payload)
     if (success) {
       navigate(AUTH_ROUTE_OVERTIME)
       return

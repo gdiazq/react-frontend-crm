@@ -26,6 +26,17 @@ export function useFormValidation(
     return error === null
   }, [form, rules])
 
+  const validateFieldValue = useCallback((name: string, value: string): boolean => {
+    const rule = rules[name]
+    if (!rule) {
+      setErrors((prev) => ({ ...prev, [name]: null }))
+      return true
+    }
+    const error = mapperValidateField(value, rule)
+    setErrors((prev) => ({ ...prev, [name]: error }))
+    return error === null
+  }, [rules])
+
   const validateAll = useCallback((): boolean => {
     let valid = true
     const newErrors: Record<string, string | null> = {}
@@ -46,10 +57,15 @@ export function useFormValidation(
   const isValid = useMemo(() => mapperIsFormValid(form, rules), [form, rules])
 
   const onValidation = useCallback((name: string) => {
-    return () => {
-      if (trigger === 'validacion') validateField(name)
+    return (valueOrEvent?: unknown) => {
+      if (trigger !== 'validacion') return
+      if (typeof valueOrEvent === 'string') {
+        validateFieldValue(name, valueOrEvent)
+        return
+      }
+      validateField(name)
     }
-  }, [trigger, validateField])
+  }, [trigger, validateField, validateFieldValue])
 
   const setFieldError = useCallback((name: string, error: string | null) => {
     setErrors((prev) => ({ ...prev, [name]: error }))
@@ -59,6 +75,7 @@ export function useFormValidation(
     errors,
     isValid,
     validateField,
+    validateFieldValue,
     validateAll,
     onValidation,
     setFieldError,

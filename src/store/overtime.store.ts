@@ -219,15 +219,11 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
       await get().getOvertime()
     },
 
-    createOvertime: async (payload, userId) => {
-      if (!Number.isInteger(userId) || userId <= 0) {
-        setOpError('create', messages.overtime.status.errors.invalidCurrentUser)
-        return false
-      }
+    createOvertime: async (payload) => {
       try {
         set({ createOvertimeSubmitting: true })
         clearOp('create')
-        await overtimeService.createOvertime(payload, userId)
+        await overtimeService.createOvertime(payload)
         set((state) => ({
           operationStatus: {
             ...state.operationStatus,
@@ -243,20 +239,16 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
       }
     },
 
-    updateOvertime: async (payload, userId) => {
+    updateOvertime: async (payload) => {
       if (!Number.isInteger(payload.id) || payload.id <= 0) {
         setOpError('update', messages.overtime.status.errors.detailInvalidOvertimeId)
-        return false
-      }
-      if (!Number.isInteger(userId) || userId <= 0) {
-        setOpError('update', messages.overtime.status.errors.invalidCurrentUser)
         return false
       }
 
       try {
         set({ updateOvertimeSubmitting: true })
         clearOp('update')
-        await overtimeService.updateOvertime(payload, userId)
+        await overtimeService.updateOvertime(payload)
         set((state) => ({
           operationStatus: {
             ...state.operationStatus,

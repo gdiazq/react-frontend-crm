@@ -12,10 +12,6 @@ import type {
   OvertimeUpdateResponse,
 } from '@/types'
 
-const userHeader = (userId: number) => ({
-  headers: { 'X-User-Id': String(userId) },
-})
-
 export const overtimeService = {
   getOvertime: async (queryParams: OvertimeQueryParams) => {
     const { data } = await axiosInstance.get<OvertimePagedResponse>('/rrhh/overtime/paged', {
@@ -34,13 +30,13 @@ export const overtimeService = {
     return data
   },
 
-  createOvertime: async (payload: OvertimeCreatePayload, userId: number) => {
-    const { data } = await axiosInstance.post<OvertimeCreateResponse>('/rrhh/overtime/create', payload, userHeader(userId))
+  createOvertime: async (payload: OvertimeCreatePayload) => {
+    const { data } = await axiosInstance.post<OvertimeCreateResponse>('/rrhh/overtime/create', payload)
     return data
   },
 
-  updateOvertime: async (payload: OvertimeUpdatePayload, userId: number) => {
-    const { data } = await axiosInstance.put<OvertimeUpdateResponse>('/rrhh/overtime/update', payload, userHeader(userId))
+  updateOvertime: async (payload: OvertimeUpdatePayload) => {
+    const { data } = await axiosInstance.put<OvertimeUpdateResponse>('/rrhh/overtime/update', payload)
     return data
   },
 
