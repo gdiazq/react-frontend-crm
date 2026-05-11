@@ -25,6 +25,7 @@ const LeavesDashboardPage = lazy(() => import('@/pages/leaves/LeavesDashboardPag
 const LeavesFormDashboardPage = lazy(() => import('@/pages/leaves/LeavesFormDashboardPage'))
 const AttendanceDashboardPage = lazy(() => import('@/pages/attendance/AttendanceDashboardPage'))
 const AttendanceFormDashboardPage = lazy(() => import('@/pages/attendance/AttendanceFormDashboardPage'))
+const OvertimeDashboardPage = lazy(() => import('@/pages/overtime/OvertimeDashboardPage'))
 const TransfersDashboardPage = lazy(() => import('@/pages/transfers/TransfersDashboardPage'))
 const ProjectsDashboardPage = lazy(() => import('@/pages/projects/ProjectsDashboardPage'))
 const ProjectAssignmentsDashboardPage = lazy(() => import('@/pages/projects/ProjectAssignmentsDashboardPage'))
@@ -247,6 +248,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requiresPermissions module="ATTENDANCE" permissionType="canUpdate">
             <AttendanceFormDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/overtime',
+        element: (
+          <ProtectedRoute requiresPermissions module="OVERTIME" permissionType="canRead">
+            <OvertimeDashboardPage />
           </ProtectedRoute>
         ),
       },

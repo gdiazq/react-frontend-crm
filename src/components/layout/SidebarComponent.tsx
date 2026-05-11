@@ -11,6 +11,7 @@ interface SidebarComponentProps {
   showContracts?: boolean
   showLeaves?: boolean
   showAttendance?: boolean
+  showOvertime?: boolean
   showAnnexes?: boolean
   showTransfers?: boolean
   showSettlements?: boolean
@@ -29,6 +30,7 @@ interface SidebarComponentProps {
   onGoContracts: () => void
   onGoLeaves: () => void
   onGoAttendance: () => void
+  onGoOvertime: () => void
   onGoAnnexes: () => void
   onGoTransfers: () => void
   onGoSettlements: () => void
@@ -131,6 +133,7 @@ export function SidebarComponent({
   showContracts = true,
   showLeaves = true,
   showAttendance = true,
+  showOvertime = true,
   showAnnexes = true,
   showTransfers = true,
   showSettlements = true,
@@ -149,6 +152,7 @@ export function SidebarComponent({
   onGoContracts,
   onGoLeaves,
   onGoAttendance,
+  onGoOvertime,
   onGoAnnexes,
   onGoTransfers,
   onGoSettlements,
@@ -173,6 +177,7 @@ export function SidebarComponent({
   const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
   const isLeavesActive = useMemo(() => location.pathname.startsWith('/leaves'), [location.pathname])
   const isAttendanceActive = useMemo(() => location.pathname.startsWith('/attendance'), [location.pathname])
+  const isOvertimeActive = useMemo(() => location.pathname.startsWith('/overtime'), [location.pathname])
   const isAnnexesActive = useMemo(() => location.pathname.startsWith('/annexes'), [location.pathname])
   const isTransfersActive = useMemo(() => location.pathname.startsWith('/transfers'), [location.pathname])
   const isSettlementsActive = useMemo(() => location.pathname === '/settlements', [location.pathname])
@@ -288,6 +293,21 @@ export function SidebarComponent({
         </svg>
       ),
       onClick: onGoAttendance,
+    },
+    {
+      show: showOvertime,
+      active: isOvertimeActive,
+      label: 'Horas extras',
+      tooltip: 'Horas extras',
+      icon: (
+        <svg {...baseIconProps} className={iconClass}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 6v6l4 2" />
+          <path d="M7 3.8L5.5 2.3" />
+          <path d="M17 3.8l1.5-1.5" />
+        </svg>
+      ),
+      onClick: onGoOvertime,
     },
     {
       show: showAnnexes,

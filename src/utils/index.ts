@@ -63,4 +63,5 @@ export { createTransferTableCustomRenderer } from './transfer/transferTableCellR
 export { createAnnexesTableCustomRenderer } from './annexes/annexesTableCellRules'
 export { createLeavesTableCustomRenderer } from './leaves/leavesTableCellRules'
 export { createAttendanceTableCustomRenderer } from './attendance/attendanceTableCellRules'
+export { createOvertimeTableCustomRenderer } from './overtime/overtimeTableCellRules'
 export { resolveApprovalTone, resolveContractStatusTone, buildTenureStat } from './detail/detailUtils'

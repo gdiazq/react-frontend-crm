@@ -317,6 +317,28 @@ export default {
       },
     },
   },
+  overtime: {
+    ui: {
+      actionViewDetail: 'Ver detalle',
+      updateOvertime: 'Editar hora extra',
+      detailTitleFallback: 'Detalle de hora extra',
+    },
+    status: {
+      success: {
+        createOvertimeSuccess: 'Hora extra creada correctamente.',
+        updateOvertimeSuccess: 'Hora extra actualizada correctamente.',
+      },
+      errors: {
+        loadError: 'No se pudo cargar la lista de horas extras.',
+        loadTypesError: 'No se pudieron cargar los tipos de horas extras.',
+        createOvertimeError: 'No se pudo crear la hora extra.',
+        updateOvertimeError: 'No se pudo actualizar la hora extra.',
+        detailLoadError: 'No se pudo cargar el detalle de hora extra.',
+        detailInvalidOvertimeId: 'Id de hora extra inválido.',
+        loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de horas extras.',
+      },
+    },
+  },
   projectAssignments: {
     ui: {
       actionViewEmployeeDetail: 'Ver trabajador',

@@ -5,6 +5,7 @@ import {
   AUTH_ROUTE_ATTENDANCE,
   AUTH_ROUTE_CONTRACTS,
   AUTH_ROUTE_LEAVES,
+  AUTH_ROUTE_OVERTIME,
   AUTH_ROUTE_TRANSFERS,
   AUTH_ROUTE_DASHBOARD,
   AUTH_ROUTE_EMPLOYEES,
@@ -65,6 +66,7 @@ export function LayoutPrivateDefault() {
   const canReadContracts = hasPermission('CONTRACT', 'canRead')
   const canReadLeaves = hasPermission('LEAVE', 'canRead')
   const canReadAttendance = hasPermission('ATTENDANCE', 'canRead')
+  const canReadOvertime = hasPermission('OVERTIME', 'canRead')
   const canReadAnnexes = hasPermission('ANNEX', 'canRead')
   const canReadTransfers = hasPermission('TRANSFER', 'canRead')
   const canReadProjects = hasPermission('PROJECT', 'canRead')
@@ -188,6 +190,17 @@ export function LayoutPrivateDefault() {
       return
     }
     navigate(AUTH_ROUTE_ATTENDANCE)
+  }
+
+  const handleGoOvertime = () => {
+    setMobileSidebarOpen(false)
+    setSettingsDropdownOpen(false)
+    setCalendarOpen(false)
+    if (!canReadOvertime) {
+      navigate('/unauthorized')
+      return
+    }
+    navigate(AUTH_ROUTE_OVERTIME)
   }
 
   const handleGoAnnexes = () => {
@@ -389,6 +402,7 @@ export function LayoutPrivateDefault() {
         showContracts={canReadContracts}
         showLeaves={canReadLeaves}
         showAttendance={canReadAttendance}
+        showOvertime={canReadOvertime}
         showAnnexes={canReadAnnexes}
         showTransfers={canReadTransfers}
         showSettlements
@@ -407,6 +421,7 @@ export function LayoutPrivateDefault() {
         onGoContracts={handleGoContracts}
         onGoLeaves={handleGoLeaves}
         onGoAttendance={handleGoAttendance}
+        onGoOvertime={handleGoOvertime}
         onGoAnnexes={handleGoAnnexes}
         onGoTransfers={handleGoTransfers}
         onGoSettlements={handleGoSettlements}
