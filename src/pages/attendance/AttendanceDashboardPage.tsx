@@ -265,7 +265,7 @@ export default function AttendanceDashboardPage() {
 
       <StatsOverviewCardsComponent
         totalLabel="Total registros"
-        activeLabel="Registros activos"
+        activeLabel="Presentes"
         pendingLabel="Pendientes"
         total={pagination.total}
         active={pagination.active}

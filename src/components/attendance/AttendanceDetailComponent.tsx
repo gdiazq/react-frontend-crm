@@ -51,8 +51,7 @@ function AttendanceDetailContent({ detail, onEdit }: AttendanceDetailContentProp
   }
   const description = (
     <>
-      Registro de asistencia de <span className="num">{detail.employeeName || '—'}</span> para{' '}
-      <span className="num">{detail.dateDisplay}</span>.
+      Registro de asistencia de <span className="num">{detail.employeeName || '—'}</span>.
     </>
   )
 
@@ -81,10 +80,11 @@ function AttendanceDetailContent({ detail, onEdit }: AttendanceDetailContentProp
       <section>
         <DetailSectionHeaderComponent number="01" title="Jornada" />
         <div className="grid gap-x-10 md:grid-cols-2">
-          <DetailFieldCardComponent title="Fecha" value={detail.dateDisplay} mono />
+          <DetailFieldCardComponent title="Fecha entrada" value={detail.checkInDateDisplay} mono />
+          <DetailFieldCardComponent title="Hora entrada" value={detail.checkInTimeDisplay} mono />
+          <DetailFieldCardComponent title="Fecha salida" value={detail.checkOutDateDisplay} mono />
+          <DetailFieldCardComponent title="Hora salida" value={detail.checkOutTimeDisplay} mono />
           <DetailFieldCardComponent title="Estado" value={detail.statusName} />
-          <DetailFieldCardComponent title="Entrada" value={detail.checkInTimeDisplay} mono />
-          <DetailFieldCardComponent title="Salida" value={detail.checkOutTimeDisplay} mono />
           <DetailFieldCardComponent title="Horas totales" value={detail.totalHoursDisplay} mono />
           <DetailFieldCardComponent title="Código estado" value={detail.statusCode} mono />
         </div>

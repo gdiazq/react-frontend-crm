@@ -9,8 +9,9 @@ export interface AttendanceRaw {
   projectAssignmentId?: number | null
   costCenter?: number | null
   projectName?: string | null
-  date: string
+  checkInDate?: string | null
   checkInTime?: string | null
+  checkOutDate?: string | null
   checkOutTime?: string | null
   totalHours?: number | null
   statusId: number
@@ -59,8 +60,9 @@ export interface AttendanceDetailView {
   employeeIdentification: string
   costCenterDisplay: string
   projectName: string
-  dateDisplay: string
+  checkInDateDisplay: string
   checkInTimeDisplay: string
+  checkOutDateDisplay: string
   checkOutTimeDisplay: string
   totalHoursDisplay: string
   statusId: number
@@ -89,7 +91,8 @@ export type AttendanceSortBy =
   | 'employeeIdentification'
   | 'costCenter'
   | 'projectName'
-  | 'date'
+  | 'checkInDate'
+  | 'checkOutDate'
   | 'checkInTime'
   | 'checkOutTime'
   | 'totalHours'

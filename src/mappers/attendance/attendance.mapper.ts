@@ -21,19 +21,35 @@ import { appendParsedId, appendString, buildQueryParams } from '../shared/queryP
 import { normalizeDateValue, parseNullableNumber, parseNullableString, parseRequiredNumber } from '../shared/form.mapper'
 import { formatDate, formatDateTime, formatNumber } from '@/utils'
 
-function formatAttendanceTime(value?: string | null): string {
+function formatAttendanceDate(value?: string | null): string {
   const normalized = (value ?? '').trim()
   if (!normalized) return 'Sin registro'
 
-  const date = new Date(normalized)
-  if (!Number.isNaN(date.getTime())) {
-    return date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
+  const dateOnlyMatch = normalized.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch
+    return `${day}-${month}-${year}`
   }
 
-  return normalized.length >= 5 ? normalized.slice(0, 5) : normalized
+  return formatDate(normalized, 'Sin registro')
 }
 
-function normalizeTimeValue(value?: string | null): string {
+function formatAttendanceTime(value?: string | null): string {
+  const normalizedTime = (value ?? '').trim()
+  return normalizedTime || 'Sin registro'
+}
+
+function resolveEditableAttendanceDate(detail: AttendanceDetail): string {
+  return detail.checkInDate || detail.checkOutDate || ''
+}
+
+function normalizeEditableTimeValue(value?: string | null): string {
+  const normalizedTime = (value ?? '').trim()
+  if (!normalizedTime) return ''
+  return normalizedTime.length >= 5 ? normalizedTime.slice(0, 5) : normalizedTime
+}
+
+function normalizeMarkTimeValue(value?: string | null): string {
   const normalized = (value ?? '').trim()
   if (!normalized) return ''
 
@@ -106,8 +122,9 @@ export function mapperAttendanceRows(result: AttendanceRaw[]): AttendanceTableRo
       item.employeeFullName || '-',
       formatOptionalNumber(item.costCenter),
       item.projectName || '-',
-      formatDate(item.date, 'Sin registro'),
+      formatAttendanceDate(item.checkInDate),
       formatAttendanceTime(item.checkInTime),
+      formatAttendanceDate(item.checkOutDate),
       formatAttendanceTime(item.checkOutTime),
       formatOptionalDecimal(item.totalHours),
       item.statusName || '-',
@@ -172,9 +189,9 @@ export function mapperAttendanceDetailToForm(detail: AttendanceDetail): Attendan
   return {
     employeeId: String(detail.employeeId),
     costCenter: detail.costCenter ? String(detail.costCenter) : '',
-    date: normalizeDateValue(detail.date),
-    checkInTime: normalizeTimeValue(detail.checkInTime),
-    checkOutTime: normalizeTimeValue(detail.checkOutTime),
+    date: normalizeDateValue(resolveEditableAttendanceDate(detail)),
+    checkInTime: normalizeEditableTimeValue(detail.checkInTime),
+    checkOutTime: normalizeEditableTimeValue(detail.checkOutTime),
     statusId: String(detail.statusId),
     notes: detail.notes ?? '',
   }
@@ -217,7 +234,7 @@ export function mapperAttendanceMarkToForm(mark: AttendanceMarkRaw): AttendanceM
     statusId: '',
     costCenter: mark.costCenter != null ? String(mark.costCenter) : '',
     date: normalizeDateValue(mark.date),
-    markTime: normalizeTimeValue(mark.markTime),
+    markTime: normalizeMarkTimeValue(mark.markTime),
     notes: mark.notes ?? '',
   }
 }
@@ -231,8 +248,9 @@ export function mapperAttendanceDetailView(detail: AttendanceDetail | null): Att
     employeeIdentification: detail.employeeIdentification || '',
     costCenterDisplay: formatOptionalNumber(detail.costCenter),
     projectName: detail.projectName || '',
-    dateDisplay: formatDate(detail.date, 'Sin registro'),
+    checkInDateDisplay: formatAttendanceDate(detail.checkInDate),
     checkInTimeDisplay: formatAttendanceTime(detail.checkInTime),
+    checkOutDateDisplay: formatAttendanceDate(detail.checkOutDate),
     checkOutTimeDisplay: formatAttendanceTime(detail.checkOutTime),
     totalHoursDisplay: formatOptionalDecimal(detail.totalHours),
     statusId: detail.statusId,

@@ -12,12 +12,13 @@ export const attendanceTableColumns: string[] = [
   'Trabajador',     // 1
   'Centro costo',   // 2
   'Proyecto',       // 3
-  'Fecha',          // 4
-  'Entrada',        // 5
-  'Salida',         // 6
-  'Horas',          // 7
-  'Estado',         // 8
-  'Acciones',       // 9
+  'Fecha entrada',  // 4
+  'Hora entrada',   // 5
+  'Fecha salida',   // 6
+  'Hora salida',    // 7
+  'Horas',          // 8
+  'Estado',         // 9
+  'Acciones',       // 10
 ]
 
 export const attendanceTableColumnIndex = {
@@ -25,8 +26,11 @@ export const attendanceTableColumnIndex = {
   employeeName: 1,
   costCenter: 2,
   projectName: 3,
-  date: 4,
-  status: 8,
+  checkInDate: 4,
+  checkInTime: 5,
+  checkOutDate: 6,
+  checkOutTime: 7,
+  status: 9,
 }
 
 export const attendanceTableSortByColumn: Partial<Record<number, AttendanceSortBy>> = {
@@ -34,11 +38,12 @@ export const attendanceTableSortByColumn: Partial<Record<number, AttendanceSortB
   1: 'employeeFullName',
   2: 'costCenter',
   3: 'projectName',
-  4: 'date',
+  4: 'checkInDate',
   5: 'checkInTime',
-  6: 'checkOutTime',
-  7: 'totalHours',
-  8: 'statusName',
+  6: 'checkOutDate',
+  7: 'checkOutTime',
+  8: 'totalHours',
+  9: 'statusName',
 }
 
 export const initialAttendanceRows: AttendanceTableRow[] = []
@@ -68,7 +73,7 @@ export const initialAttendanceQueryParams: AttendanceQueryParams = {
   createdTo: '',
   updatedFrom: '',
   updatedTo: '',
-  sortBy: 'date',
+  sortBy: 'checkInDate',
   sortDir: 'desc',
 }
 
