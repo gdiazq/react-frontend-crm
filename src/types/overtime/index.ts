@@ -3,6 +3,7 @@ export type {
   OvertimeCreatePayload,
   OvertimeCreateResponse,
   OvertimeDetail,
+  OvertimeDetailView,
   OvertimePagedResponse,
   OvertimePagination,
   OvertimeQueryParams,

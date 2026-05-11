@@ -62,6 +62,24 @@ export interface OvertimeUpdatePayload {
 export type OvertimeCreateResponse = OvertimeDetail
 export type OvertimeUpdateResponse = OvertimeDetail
 
+export interface OvertimeDetailView {
+  id: number
+  employeeName: string
+  costCenterDisplay: string
+  projectName: string
+  overtimeTypeName: string
+  surchargePercentDisplay: string
+  attendanceDisplay: string
+  dateDisplay: string
+  startTimeDisplay: string
+  endTimeDisplay: string
+  hoursDisplay: string
+  reasonText: string
+  statusName: string
+  createdAtDisplay: string
+  updatedAtDisplay: string
+}
+
 export interface OvertimeTableRow {
   id: string
   employeeId: number

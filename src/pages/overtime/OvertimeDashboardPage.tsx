@@ -4,17 +4,20 @@ import {
   AlertMessageComponent,
   ButtonComponent,
   DateRangePickerComponent,
+  DetailSidebarComponent,
   PaginationComponent,
   RightSidebarComponent,
   SelectComponent,
   StatsOverviewCardsComponent,
   TableComponent,
 } from '@/components'
+import { OvertimeDetailComponent } from '@/components/overtime/OvertimeDetailComponent'
 import { AUTH_ROUTE_OVERTIME_CREATE, AUTH_ROUTE_OVERTIME_EDIT } from '@/constant'
 import { overtimeTableColumns, overtimeTableColumnIndex, overtimeTableSortByColumn } from '@/factories'
+import { mapperOvertimeDetailView } from '@/mappers'
 import { useStoreAttendanceSelects, useStoreAuth, useStoreEmployeeSelects, useStoreOvertime } from '@/store'
 import type { TableSortState } from '@/components'
-import type { TableRow } from '@/types'
+import type { OvertimeTableRow, TableRow } from '@/types'
 import { createOvertimeActions, createOvertimeTableCustomRenderer } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -26,14 +29,19 @@ const OVERTIME_SORTABLE_COLUMNS = Object.keys(overtimeTableSortByColumn).map((in
 export default function OvertimeDashboardPage() {
   const navigate = useNavigate()
   const overtimeRows = useStoreOvertime((s) => s.overtimeRows)
+  const overtimeDetail = useStoreOvertime((s) => s.overtimeDetail)
   const overtimeTypes = useStoreOvertime((s) => s.overtimeTypes)
   const pagination = useStoreOvertime((s) => s.pagination)
   const queryParams = useStoreOvertime((s) => s.queryParams)
   const loadingOvertime = useStoreOvertime((s) => s.loadingOvertime)
+  const loadingOvertimeDetail = useStoreOvertime((s) => s.loadingOvertimeDetail)
   const loadingOvertimeTypes = useStoreOvertime((s) => s.loadingOvertimeTypes)
   const listError = useStoreOvertime((s) => s.operationStatus.list.error)
+  const detailError = useStoreOvertime((s) => s.operationStatus.detail.error)
   const clearOperationStatus = useStoreOvertime((s) => s.clearOperationStatus)
   const getOvertime = useStoreOvertime((s) => s.getOvertime)
+  const getOvertimeDetail = useStoreOvertime((s) => s.getOvertimeDetail)
+  const clearOvertimeDetail = useStoreOvertime((s) => s.clearOvertimeDetail)
   const getOvertimeTypes = useStoreOvertime((s) => s.getOvertimeTypes)
   const sortOvertime = useStoreOvertime((s) => s.sortOvertime)
   const goToPage = useStoreOvertime((s) => s.goToPage)
@@ -62,6 +70,9 @@ export default function OvertimeDashboardPage() {
   const hasPermission = useStoreAuth((s) => s.hasPermission)
 
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
+  const [selectedDetailName, setSelectedDetailName] = useState('')
   const [filters, setFilters] = useState(() => ({
     employeeId: queryParams.employeeId,
     costCenter: queryParams.costCenter,
@@ -86,9 +97,15 @@ export default function OvertimeDashboardPage() {
     label: option.surchargePercent != null ? `${option.name} · ${option.surchargePercent}%` : option.name,
     value: String(option.id),
   }))
-  const { actionUpdateOvertime } = createOvertimeActions()
+  const { actionViewDetail, actionUpdateOvertime } = createOvertimeActions()
   const canCreateOvertime = hasPermission('OVERTIME', 'canCreate')
   const canUpdateOvertime = hasPermission('OVERTIME', 'canUpdate')
+  const overtimeDetailView = mapperOvertimeDetailView(overtimeDetail)
+  const detailTitle = overtimeDetailView
+    ? `Detalle de ${overtimeDetailView.employeeName}`
+    : selectedDetailName
+      ? `Detalle de ${selectedDetailName}`
+      : 'Detalle de hora extra'
 
   useEffect(() => {
     void getOvertime()
@@ -100,20 +117,50 @@ export default function OvertimeDashboardPage() {
   const renderCustomCell = createOvertimeTableCustomRenderer({
     employeeNameColumnIndex: OVERTIME_EMPLOYEE_NAME_COLUMN_INDEX,
     statusColumnIndex: OVERTIME_STATUS_COLUMN_INDEX,
+    onViewDetail: (rowId) => {
+      const overtimeRow = findOvertimeRowById(rowId)
+      if (!overtimeRow) return
+      handleViewDetail(overtimeRow)
+    },
   })
+
+  const handleViewDetail = (row: OvertimeTableRow) => {
+    setSelectedDetailRowId(row.id)
+    setSelectedDetailName(String(row.values[OVERTIME_EMPLOYEE_NAME_COLUMN_INDEX] ?? 'Hora extra'))
+    setDetailOpen(true)
+    void getOvertimeDetail(row.id)
+  }
+
+  const handleCloseDetail = () => {
+    setDetailOpen(false)
+    setSelectedDetailRowId(null)
+    setSelectedDetailName('')
+    clearOvertimeDetail()
+  }
+
+  const handleRetryDetail = () => {
+    if (!selectedDetailRowId) return
+    void getOvertimeDetail(selectedDetailRowId)
+  }
 
   const handleUpdateOvertime = (rowOrId: { id: string } | string) => {
     const rowId = typeof rowOrId === 'string' ? rowOrId : rowOrId.id
     navigate(`${AUTH_ROUTE_OVERTIME_EDIT}=${rowId}`)
   }
 
-  const resolveRowActions = (row: { id: string }): DropdownAction[] => {
-    const actions: DropdownAction[] = []
+  const resolveRowActions = (row: OvertimeTableRow): DropdownAction[] => {
+    const actions: DropdownAction[] = [actionViewDetail(() => handleViewDetail(row))]
     if (canUpdateOvertime) actions.push(actionUpdateOvertime(() => handleUpdateOvertime(row)))
     return actions
   }
 
-  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => resolveRowActions(tableRow)
+  const findOvertimeRowById = (rowId: string) => overtimeRows.find((row) => row.id === rowId) ?? null
+
+  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
+    const overtimeRow = findOvertimeRowById(tableRow.id)
+    if (!overtimeRow) return []
+    return resolveRowActions(overtimeRow)
+  }
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = overtimeTableSortByColumn[columnIndex]
@@ -268,6 +315,17 @@ export default function OvertimeDashboardPage() {
           </div>
         </div>
       </RightSidebarComponent>
+
+      <DetailSidebarComponent open={detailOpen} title={detailTitle} onClose={handleCloseDetail}>
+        <OvertimeDetailComponent
+          key={selectedDetailRowId ?? 'empty-overtime-detail'}
+          detail={overtimeDetailView}
+          loading={loadingOvertimeDetail}
+          errorMessage={detailError}
+          onRetry={handleRetryDetail}
+          onEdit={canUpdateOvertime && selectedDetailRowId ? () => handleUpdateOvertime(selectedDetailRowId) : undefined}
+        />
+      </DetailSidebarComponent>
     </section>
   )
 }

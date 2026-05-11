@@ -84,6 +84,9 @@ export { AnnexDetailComponent } from './annexes/AnnexDetailComponent'
 // Leaves Components
 export { LeaveDetailComponent } from './leaves/LeaveDetailComponent'
 
+// Overtime Components
+export { OvertimeDetailComponent } from './overtime/OvertimeDetailComponent'
+
 // Requests Components
 export { RequestDetailComponent } from './requests/RequestDetailComponent'
 

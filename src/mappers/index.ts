@@ -79,6 +79,7 @@ export {
 export {
   mapperCreateOvertimePayload,
   mapperOvertimeDetailToForm,
+  mapperOvertimeDetailView,
   mapperOvertimePagination,
   mapperOvertimeQueryParams,
   mapperOvertimeRows,

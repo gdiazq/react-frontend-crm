@@ -2,6 +2,7 @@ import type {
   OvertimeCreateForm,
   OvertimeCreatePayload,
   OvertimeDetail,
+  OvertimeDetailView,
   OvertimePagedResponse,
   OvertimePagination,
   OvertimeQueryParams,
@@ -9,7 +10,7 @@ import type {
   OvertimeTableRow,
   OvertimeUpdatePayload,
 } from '@/types'
-import { formatDate, formatNumber } from '@/utils'
+import { formatDate, formatDateTime, formatNumber } from '@/utils'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { appendParsedId, appendString, buildQueryParams } from '../shared/queryParams.mapper'
 import { normalizeDateValue, parseRequiredNumber } from '../shared/form.mapper'
@@ -162,5 +163,27 @@ export function mapperOvertimeDetailToForm(detail: OvertimeDetail): OvertimeCrea
     startTime: normalizeTimeValue(detail.startTime),
     endTime: normalizeTimeValue(detail.endTime),
     reason: detail.reason ?? '',
+  }
+}
+
+export function mapperOvertimeDetailView(detail: OvertimeDetail | null): OvertimeDetailView | null {
+  if (!detail) return null
+
+  return {
+    id: detail.id,
+    employeeName: detail.employeeName || '',
+    costCenterDisplay: formatOptionalNumber(detail.costCenter),
+    projectName: detail.projectName || '',
+    overtimeTypeName: detail.overtimeTypeName || '',
+    surchargePercentDisplay: formatPercent(detail.surchargePercent),
+    attendanceDisplay: detail.attendanceId ? 'Vinculada' : 'Sin asistencia vinculada',
+    dateDisplay: formatDate(detail.date, 'Sin registro'),
+    startTimeDisplay: formatOvertimeTime(detail.startTime),
+    endTimeDisplay: formatOvertimeTime(detail.endTime),
+    hoursDisplay: formatOptionalDecimal(detail.hours),
+    reasonText: detail.reason || '',
+    statusName: detail.currentStatusName || '',
+    createdAtDisplay: formatDateTime(detail.createdAt || '', 'Sin registro'),
+    updatedAtDisplay: formatDateTime(detail.updatedAt || '', 'Sin registro'),
   }
 }
