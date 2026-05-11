@@ -1,8 +1,10 @@
 import {
   AUTH_ROUTE_ANNEXES,
+  AUTH_ROUTE_ATTENDANCE,
   AUTH_ROUTE_CONTRACTS,
   AUTH_ROUTE_EMPLOYEES,
   AUTH_ROUTE_LEAVES,
+  AUTH_ROUTE_OVERTIME,
   AUTH_ROUTE_PROJECTS,
   AUTH_ROUTE_REQUESTS,
   AUTH_ROUTE_ROLES,
@@ -79,6 +81,36 @@ export const dashboardModules: DashboardModule[] = [
       <svg {...baseIconProps}>
         <path d="M8 3h8l4 4v14H4V3z" />
         <path d="M16 3v4h4M8 12h8M8 16h5" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Asistencia',
+    eyebrow: 'Jornada',
+    description: 'Consulta marcas, estados diarios, centros de costo y trazabilidad laboral.',
+    route: AUTH_ROUTE_ATTENDANCE,
+    permissionModules: ['ATTENDANCE'],
+    accent: 'from-cyan-500 to-teal-500',
+    icon: (
+      <svg {...baseIconProps}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+        <path d="M7 18h10" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Horas extras',
+    eyebrow: 'Extensión',
+    description: 'Registra y revisa bloques extra, recargos, aprobaciones y motivos.',
+    route: AUTH_ROUTE_OVERTIME,
+    permissionModules: ['OVERTIME'],
+    accent: 'from-orange-500 to-amber-500',
+    icon: (
+      <svg {...baseIconProps}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 6v6l4 2" />
+        <path d="M7 3.8L5.5 2.3M17 3.8l1.5-1.5" />
       </svg>
     ),
   },

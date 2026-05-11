@@ -9,7 +9,7 @@ import {
 import { AUTH_ROUTE_SETTINGS } from '@/constant'
 import { useStoreAuth } from '@/store'
 
-const RRHH_MODULE_LABELS = ['Solicitudes', 'Trabajadores', 'Contratos', 'Permisos', 'Anexos', 'Traspasos', 'Finiquitos']
+const RRHH_MODULE_LABELS = ['Solicitudes', 'Trabajadores', 'Contratos', 'Permisos', 'Asistencia', 'Horas extras', 'Anexos', 'Traspasos', 'Finiquitos']
 const ADMIN_MODULE_LABELS = ['Usuarios', 'Roles']
 
 export default function DashboardPage() {
