@@ -17,7 +17,6 @@ interface AnnexDetailComponentProps {
   onEdit?: () => void
   onExport?: () => void
   onDownloadDocument?: (fileId: number) => void
-  onDeleteDocument?: (fileId: number) => void
   moreActions?: DropdownAction[]
 }
 
@@ -29,7 +28,6 @@ export function AnnexDetailComponent({
   onEdit,
   onExport,
   onDownloadDocument,
-  onDeleteDocument,
   moreActions,
 }: AnnexDetailComponentProps) {
   return (
@@ -47,7 +45,6 @@ export function AnnexDetailComponent({
           onEdit={onEdit}
           onExport={onExport}
           onDownloadDocument={onDownloadDocument}
-          onDeleteDocument={onDeleteDocument}
           moreActions={moreActions}
         />
       )}
@@ -60,7 +57,6 @@ interface AnnexDetailContentProps {
   onEdit?: () => void
   onExport?: () => void
   onDownloadDocument?: (fileId: number) => void
-  onDeleteDocument?: (fileId: number) => void
   moreActions?: DropdownAction[]
 }
 
@@ -69,7 +65,6 @@ function AnnexDetailContent({
   onEdit,
   onExport,
   onDownloadDocument,
-  onDeleteDocument,
   moreActions,
 }: AnnexDetailContentProps) {
   const approvalTone = resolveApprovalTone(detail.statusName)
@@ -161,25 +156,14 @@ function AnnexDetailContent({
                     {file.uploadedAtDisplay}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={!onDownloadDocument}
-                    onClick={() => onDownloadDocument?.(file.id)}
-                    className="inline-flex cursor-pointer items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
-                  >
-                    Descargar
-                  </button>
-                  {onDeleteDocument && (
-                    <button
-                      type="button"
-                      onClick={() => onDeleteDocument(file.id)}
-                      className="inline-flex cursor-pointer items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-700 hover:bg-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:hover:bg-rose-900/50"
-                    >
-                      Eliminar
-                    </button>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  disabled={!onDownloadDocument}
+                  onClick={() => onDownloadDocument?.(file.id)}
+                  className="inline-flex cursor-pointer items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-200 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+                >
+                  Descargar
+                </button>
               </li>
             ))}
           </ul>

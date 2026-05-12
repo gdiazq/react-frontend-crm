@@ -39,12 +39,6 @@ export const annexesService = {
     })
   },
 
-  deleteAnnexDocument: async (annexId: number, fileId: number, userId: number) => {
-    await axiosInstance.delete(`rrhh/annexes/${annexId}/documents/${fileId}`, {
-      params: { userId },
-    })
-  },
-
   exportAnnexesCsv: async () => {
     const { data } = await axiosInstance.get<Blob>('rrhh/annexes/export/csv', {
       responseType: 'blob',

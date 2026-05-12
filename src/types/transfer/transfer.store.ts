@@ -21,14 +21,12 @@ export interface TransferStore {
   loadingTransferDetail: boolean
   createTransferSubmitting: boolean
   updateTransferSubmitting: boolean
-  loadingDeleteDocument: boolean
   operationStatus: Record<OperationKey, OperationStatus>
 
   getTransfers: () => Promise<void>
   getTransferDetail: (id: string) => Promise<TransferDetail | null>
   createTransfer: (payload: TransferCreatePayload, files?: File[]) => Promise<boolean>
   updateTransfer: (payload: TransferUpdatePayload, files?: File[]) => Promise<boolean>
-  deleteTransferDocument: (transferId: number, fileId: number) => Promise<boolean>
   exportTransfersCsv: () => Promise<void>
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>

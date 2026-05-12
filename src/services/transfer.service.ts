@@ -38,12 +38,6 @@ export const transferService = {
     })
   },
 
-  deleteTransferDocument: async (transferId: number, fileId: number, userId: number) => {
-    await axiosInstance.delete(`/rrhh/transfers/${transferId}/documents/${fileId}`, {
-      params: { userId },
-    })
-  },
-
   exportTransfersCsv: async () => {
     const { data } = await axiosInstance.get<Blob>('/rrhh/transfers/export/csv', {
       responseType: 'blob',

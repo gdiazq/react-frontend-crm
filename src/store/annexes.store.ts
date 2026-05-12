@@ -68,7 +68,6 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
     loadingAnnexDetail: false,
     createAnnexSubmitting: false,
     updateAnnexSubmitting: false,
-    deletingAnnexDocument: false,
     operationStatus: initialOperationStatus(),
 
     getAnnexes: async () => {
@@ -244,35 +243,6 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
         return false
       } finally {
         set({ updateAnnexSubmitting: false })
-      }
-    },
-
-    deleteAnnexDocument: async (annexId: number, fileId: number, userId: number) => {
-      if (!Number.isInteger(annexId) || annexId <= 0 || !Number.isInteger(fileId) || fileId <= 0) {
-        setOpError('toggle', messages.annexes.status.errors.deleteDocumentError)
-        return false
-      }
-
-      try {
-        set({ deletingAnnexDocument: true })
-        clearOp('toggle')
-        await annexesService.deleteAnnexDocument(annexId, fileId, userId)
-        set((state) => {
-          if (!state.annexDetail || state.annexDetail.id !== annexId) return {}
-          return {
-            annexDetail: {
-              ...state.annexDetail,
-              documents: (state.annexDetail.documents ?? []).filter((doc) => doc.id !== fileId),
-            },
-          }
-        })
-        setOpSuccess('toggle', messages.annexes.status.success.deleteDocumentSuccess)
-        return true
-      } catch (error) {
-        setOpError('toggle', resolveErrorMessage(error, messages.annexes.status.errors.deleteDocumentError), error)
-        return false
-      } finally {
-        set({ deletingAnnexDocument: false })
       }
     },
 

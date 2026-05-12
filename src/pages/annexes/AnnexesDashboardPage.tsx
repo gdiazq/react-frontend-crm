@@ -17,7 +17,7 @@ import {
 import { AUTH_ROUTE_ANNEXES_CREATE, AUTH_ROUTE_ANNEXES_EDIT } from '@/constant'
 import { annexesTableColumns, annexesTableColumnIndex, annexesTableSortByColumn } from '@/factories'
 import { mapperAnnexDetailView } from '@/mappers'
-import { annexesService } from '@/services'
+import { annexesService, storageService } from '@/services'
 import { useStoreAnnexes } from '@/store'
 import { useStoreEmployeeSelects } from '@/store'
 import type { AnnexTableRow, TableRow, TableSortState } from '@/types'
@@ -220,6 +220,10 @@ export default function AnnexesDashboardPage() {
     }
   }
 
+  const handleDownloadDocument = (fileId: number) => {
+    window.open(storageService.getDownloadUrl(fileId), '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <section className="min-w-0 space-y-4">
       <header className="border-b border-slate-200 pb-5 dark:border-white/10">
@@ -366,6 +370,7 @@ export default function AnnexesDashboardPage() {
           errorMessage={detailError}
           onRetry={handleRetryDetail}
           onEdit={selectedDetailRowId ? () => navigate(`${AUTH_ROUTE_ANNEXES_EDIT}=${selectedDetailRowId}`) : undefined}
+          onDownloadDocument={handleDownloadDocument}
         />
       </DetailSidebarComponent>
     </section>

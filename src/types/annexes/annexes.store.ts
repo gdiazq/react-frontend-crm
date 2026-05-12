@@ -22,7 +22,6 @@ export interface AnnexesStore {
   loadingAnnexDetail: boolean
   createAnnexSubmitting: boolean
   updateAnnexSubmitting: boolean
-  deletingAnnexDocument: boolean
   operationStatus: Record<OperationKey, OperationStatus>
   getAnnexes: () => Promise<void>
   getAnnexDetail: (annexId: string) => Promise<AnnexDetail | null>
@@ -47,7 +46,6 @@ export interface AnnexesStore {
   sortAnnexes: (sortBy: AnnexesSortBy, sortDir: AnnexesSortDir) => Promise<void>
   createAnnex: (payload: AnnexCreatePayload, files?: File[]) => Promise<boolean>
   updateAnnex: (payload: AnnexUpdatePayload, files?: File[]) => Promise<boolean>
-  deleteAnnexDocument: (annexId: number, fileId: number, userId: number) => Promise<boolean>
   getAnnexesByContract: (contractId: number) => Promise<void>
   clearContractAnnexes: () => void
   clearOperationStatus: (key: OperationKey) => void

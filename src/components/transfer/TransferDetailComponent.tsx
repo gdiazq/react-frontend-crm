@@ -13,9 +13,8 @@ interface TransferDetailComponentProps {
   detail: TransferDetailView | null
   loading: boolean
   errorMessage: string | null
-  deletingDocumentId: number | null
   onRetry?: () => void
-  onDeleteDocument: (fileId: number) => void
+  onDownloadDocument?: (fileId: number) => void
   onEdit?: () => void
   moreActions?: DropdownAction[]
 }
@@ -24,9 +23,8 @@ export function TransferDetailComponent({
   detail,
   loading,
   errorMessage,
-  deletingDocumentId,
   onRetry,
-  onDeleteDocument,
+  onDownloadDocument,
   onEdit,
   moreActions,
 }: TransferDetailComponentProps) {
@@ -42,8 +40,7 @@ export function TransferDetailComponent({
       {detail && (
         <TransferDetailContent
           detail={detail}
-          deletingDocumentId={deletingDocumentId}
-          onDeleteDocument={onDeleteDocument}
+          onDownloadDocument={onDownloadDocument}
           onEdit={onEdit}
           moreActions={moreActions}
         />
@@ -54,16 +51,14 @@ export function TransferDetailComponent({
 
 interface TransferDetailContentProps {
   detail: TransferDetailView
-  deletingDocumentId: number | null
-  onDeleteDocument: (fileId: number) => void
+  onDownloadDocument?: (fileId: number) => void
   onEdit?: () => void
   moreActions?: DropdownAction[]
 }
 
 function TransferDetailContent({
   detail,
-  deletingDocumentId,
-  onDeleteDocument,
+  onDownloadDocument,
   onEdit,
   moreActions,
 }: TransferDetailContentProps) {
@@ -136,11 +131,11 @@ function TransferDetailContent({
                 <div className="flex shrink-0 items-center gap-3">
                   <button
                     type="button"
-                    disabled={deletingDocumentId === file.id}
-                    onClick={() => onDeleteDocument(file.id)}
-                    className="text-[12px] font-semibold text-rose-600 hover:text-rose-700 disabled:opacity-50 dark:text-rose-400 dark:hover:text-rose-300"
+                    disabled={!onDownloadDocument}
+                    onClick={() => onDownloadDocument?.(file.id)}
+                    className="text-[12px] font-semibold text-emerald-700 hover:text-emerald-800 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-300 dark:hover:text-emerald-200"
                   >
-                    {deletingDocumentId === file.id ? 'Eliminando...' : 'Eliminar'}
+                    Descargar
                   </button>
                 </div>
               </li>

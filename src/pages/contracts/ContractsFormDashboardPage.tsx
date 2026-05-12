@@ -16,7 +16,7 @@ import { useFormValidation } from '@/hooks'
 import { mapperContractDetailToForm, mapperCreateContractPayload, mapperUpdateContractPayload } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreContractSelects, useStoreContracts } from '@/store'
-import type { ContractCreatePayload, ContractDocument, ContractSelectOption, ContractUpdatePayload } from '@/types'
+import type { ContractCreatePayload, ContractSelectOption, ContractUpdatePayload } from '@/types'
 import { contractsCreateValidationRules } from '@/validators'
 
 function SubSectionLabel({ number, title }: { number: string, title: string }) {
@@ -54,7 +54,6 @@ export default function ContractsFormDashboardPage() {
   const isEditMode = Number.isInteger(editContractId) && editContractId > 0
   const [form, setForm] = useState({ ...initialCreateContractForm })
   const [editEmployeeLabel, setEditEmployeeLabel] = useState('')
-  const [existingDocuments, setExistingDocuments] = useState<ContractDocument[]>([])
   const [contractFiles, setContractFiles] = useState<File[]>([])
   const [filesError, setFilesError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -148,7 +147,6 @@ export default function ContractsFormDashboardPage() {
 
       setForm(mapperContractDetailToForm(detail))
       setEditEmployeeLabel((detail.employeeName ?? '').trim())
-      setExistingDocuments(detail.documents ?? [])
       setContractFiles([])
     }
 
@@ -218,11 +216,7 @@ export default function ContractsFormDashboardPage() {
   }
 
   const handleAddFiles = (incomingFiles: File[]) => {
-    const maxNewFiles = Math.max(0, CONTRACT_FILES_MAX_COUNT - existingDocuments.length)
-    if (maxNewFiles === 0) {
-      setFilesError(messages.contracts.status.errors.filesMaxCountError)
-      return
-    }
+    const maxNewFiles = CONTRACT_FILES_MAX_COUNT
 
     const nextFiles: File[] = []
     const existingKeys = new Set<string>()
@@ -269,18 +263,6 @@ export default function ContractsFormDashboardPage() {
 
   const handleClearFiles = () => {
     setContractFiles([])
-    setFilesError(null)
-    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
-  }
-
-  const handleRemoveExistingFile = (index: number) => {
-    setExistingDocuments((prev) => prev.filter((_, currentIndex) => currentIndex !== index))
-    setFilesError(null)
-    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
-  }
-
-  const handleClearExistingFiles = () => {
-    setExistingDocuments([])
     setFilesError(null)
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
@@ -582,16 +564,13 @@ export default function ContractsFormDashboardPage() {
           <DetailSectionHeaderComponent number="05" title="Adjuntos" />
           <FileDropzoneComponent
             files={contractFiles}
-            existingFiles={existingDocuments}
             error={filesError}
             maxFiles={CONTRACT_FILES_MAX_COUNT}
             disabled={saving}
             helperText="Opcional. Máximo 5 archivos y 10 MB por archivo."
             onAddFiles={handleAddFiles}
             onRemoveFile={handleRemoveFile}
-            onRemoveExistingFile={handleRemoveExistingFile}
             onClearFiles={handleClearFiles}
-            onClearExistingFiles={handleClearExistingFiles}
           />
         </section>
 

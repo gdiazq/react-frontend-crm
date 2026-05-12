@@ -21,6 +21,7 @@ import {
 } from '@/factories'
 import { mapperTransferDetailView } from '@/mappers'
 import messages from '@/messages/messages'
+import { storageService } from '@/services'
 import { useStoreAuth, useStoreEmployeeSelects, useStoreTransfer } from '@/store'
 import type { TransferTableRow, TableRow, TableSortState } from '@/types'
 import { createTransferActions, createTransferTableCustomRenderer } from '@/utils'
@@ -43,8 +44,6 @@ export default function TransfersDashboardPage() {
   const loadingTransferDetail = useStoreTransfer((s) => s.loadingTransferDetail)
   const listError = useStoreTransfer((s) => s.operationStatus.list.error)
   const detailError = useStoreTransfer((s) => s.operationStatus.detail.error)
-  const toggleError = useStoreTransfer((s) => s.operationStatus.toggle.error)
-  const toggleSuccess = useStoreTransfer((s) => s.operationStatus.toggle.success)
   const clearOperationStatus = useStoreTransfer((s) => s.clearOperationStatus)
   const getTransfers = useStoreTransfer((s) => s.getTransfers)
   const getTransferDetail = useStoreTransfer((s) => s.getTransferDetail)
@@ -62,7 +61,6 @@ export default function TransfersDashboardPage() {
   const clearEffectiveDateRange = useStoreTransfer((s) => s.clearEffectiveDateRange)
   const clearCreatedDateRange = useStoreTransfer((s) => s.clearCreatedDateRange)
   const clearUpdatedDateRange = useStoreTransfer((s) => s.clearUpdatedDateRange)
-  const deleteTransferDocument = useStoreTransfer((s) => s.deleteTransferDocument)
   const exportTransfersCsv = useStoreTransfer((s) => s.exportTransfersCsv)
   const clearTransferDetail = useStoreTransfer((s) => s.clearTransferDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
@@ -96,7 +94,6 @@ export default function TransfersDashboardPage() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
-  const [deletingDocumentId, setDeletingDocumentId] = useState<number | null>(null)
   const [exportingCsv, setExportingCsv] = useState(false)
 
   const getFiltersFromQueryParams = () => ({
@@ -149,7 +146,6 @@ export default function TransfersDashboardPage() {
     setSelectedDetailName('')
     clearTransferDetail()
     clearOperationStatus('detail')
-    clearOperationStatus('toggle')
   }
 
   const handleRetryDetail = () => {
@@ -157,11 +153,8 @@ export default function TransfersDashboardPage() {
     void getTransferDetail(selectedDetailRowId)
   }
 
-  const handleDeleteDocument = async (fileId: number) => {
-    if (!selectedDetailRowId) return
-    setDeletingDocumentId(fileId)
-    await deleteTransferDocument(Number(selectedDetailRowId), fileId)
-    setDeletingDocumentId(null)
+  const handleDownloadDocument = (fileId: number) => {
+    window.open(storageService.getDownloadUrl(fileId), '_blank', 'noopener,noreferrer')
   }
 
   const resolveRowActions = (row: TransferTableRow): DropdownAction[] => {
@@ -467,28 +460,13 @@ export default function TransfersDashboardPage() {
         title={detailTitle}
         onClose={handleCloseDetail}
       >
-        {toggleSuccess && (
-          <AlertMessageComponent
-            message={toggleSuccess}
-            tone="success"
-            onClose={() => clearOperationStatus('toggle')}
-          />
-        )}
-        {toggleError && (
-          <AlertMessageComponent
-            message={toggleError}
-            tone="error"
-            onClose={() => clearOperationStatus('toggle')}
-          />
-        )}
         <TransferDetailComponent
           key={selectedDetailRowId ?? 'empty-transfer-detail'}
           detail={transferDetailView}
           loading={loadingTransferDetail}
           errorMessage={detailError}
-          deletingDocumentId={deletingDocumentId}
           onRetry={handleRetryDetail}
-          onDeleteDocument={(fileId) => { void handleDeleteDocument(fileId) }}
+          onDownloadDocument={handleDownloadDocument}
           onEdit={
             selectedDetailRowId && canUpdateTransfer
               ? () => navigate(`${AUTH_ROUTE_TRANSFERS_EDIT}=${selectedDetailRowId}`)

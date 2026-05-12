@@ -10,7 +10,6 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { transferService } from '@/services'
-import { useStoreAuth } from './auth.store'
 import { downloadBlobFile } from '@/utils'
 import type { OperationKey, OperationStatus, TransferStore } from '@/types'
 
@@ -69,7 +68,6 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
     loadingTransferDetail: false,
     createTransferSubmitting: false,
     updateTransferSubmitting: false,
-    loadingDeleteDocument: false,
     operationStatus: initialOperationStatus(),
 
     getTransfers: async () => {
@@ -234,32 +232,6 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
         return false
       } finally {
         set({ updateTransferSubmitting: false })
-      }
-    },
-
-    deleteTransferDocument: async (transferId: number, fileId: number) => {
-      const userId = useStoreAuth.getState().user?.id
-      if (!userId) return false
-      try {
-        set({ loadingDeleteDocument: true })
-        clearOp('toggle')
-        await transferService.deleteTransferDocument(transferId, fileId, userId)
-        set((state) => {
-          if (!state.transferDetail) return {}
-          return {
-            transferDetail: {
-              ...state.transferDetail,
-              documents: state.transferDetail.documents.filter((doc) => doc.id !== fileId),
-            },
-          }
-        })
-        setOpSuccess('toggle', messages.transfer.status.success.deleteDocumentSuccess)
-        return true
-      } catch (error) {
-        setOpError('toggle', resolveErrorMessage(error, messages.transfer.status.errors.deleteDocumentError), error)
-        return false
-      } finally {
-        set({ loadingDeleteDocument: false })
       }
     },
 

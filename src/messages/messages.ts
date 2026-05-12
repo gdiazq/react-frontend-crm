@@ -369,7 +369,6 @@ export default {
       success: {
         createAnnexSuccess: 'Anexo creado correctamente.',
         updateAnnexSuccess: 'Anexo actualizado correctamente.',
-        deleteDocumentSuccess: 'Documento eliminado correctamente.',
         exportSuccess: 'CSV exportado correctamente.',
       },
       errors: {
@@ -379,7 +378,6 @@ export default {
         updateAnnexError: 'No se pudo actualizar el anexo.',
         detailLoadError: 'No se pudo cargar el detalle del anexo.',
         detailInvalidAnnexId: 'Id de anexo invalido.',
-        deleteDocumentError: 'No se pudo eliminar el documento.',
         exportError: 'No se pudo exportar el CSV de anexos.',
         loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de anexo.',
         filesMaxCountError: 'Puedes adjuntar un maximo de 5 archivos.',
@@ -794,7 +792,6 @@ export default {
       success: {
         createSuccess: 'Traspaso creado correctamente.',
         updateSuccess: 'Traspaso actualizado correctamente.',
-        deleteDocumentSuccess: 'Documento eliminado correctamente.',
         exportSuccess: 'CSV exportado correctamente.',
       },
       errors: {
@@ -804,7 +801,6 @@ export default {
         createError: 'No se pudo crear el traspaso.',
         updateError: 'No se pudo actualizar el traspaso.',
         updateInvalidId: 'El id del traspaso no es valido.',
-        deleteDocumentError: 'No se pudo eliminar el documento.',
         exportError: 'No se pudo exportar el CSV de traspasos.',
         filesMaxCountError: 'No se pueden adjuntar mas de 5 archivos.',
         filesMaxSizeError: 'Uno o mas archivos superan el tamano maximo de 10 MB.',
