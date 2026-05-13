@@ -60,15 +60,11 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
   return {
     attendanceRows: [...initialAttendanceRows],
     attendanceDetail: null,
-    employeeAttendance: [],
-    costCenterAttendance: [],
     attendanceMarks: [],
     pagination: { ...initialAttendancePagination },
     queryParams: { ...initialAttendanceQueryParams },
     loadingAttendance: false,
     loadingAttendanceDetail: false,
-    loadingEmployeeAttendance: false,
-    loadingCostCenterAttendance: false,
     loadingAttendanceMarks: false,
     createAttendanceSubmitting: false,
     updateAttendanceSubmitting: false,
@@ -273,38 +269,6 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
       } finally {
         set({ deleteAttendanceSubmitting: false })
       }
-    },
-
-    getAttendanceByEmployee: async (employeeId: number) => {
-      try {
-        set({ loadingEmployeeAttendance: true })
-        const data = await attendanceService.getAttendanceByEmployee(employeeId)
-        set({ employeeAttendance: data })
-      } catch {
-        set({ employeeAttendance: [] })
-      } finally {
-        set({ loadingEmployeeAttendance: false })
-      }
-    },
-
-    getAttendanceByCostCenter: async (costCenter: number) => {
-      try {
-        set({ loadingCostCenterAttendance: true })
-        const data = await attendanceService.getAttendanceByCostCenter(costCenter)
-        set({ costCenterAttendance: data })
-      } catch {
-        set({ costCenterAttendance: [] })
-      } finally {
-        set({ loadingCostCenterAttendance: false })
-      }
-    },
-
-    clearEmployeeAttendance: () => {
-      set({ employeeAttendance: [], loadingEmployeeAttendance: false })
-    },
-
-    clearCostCenterAttendance: () => {
-      set({ costCenterAttendance: [], loadingCostCenterAttendance: false })
     },
 
     getAttendanceMarksByAttendance: async (attendanceId: number) => {

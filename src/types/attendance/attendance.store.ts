@@ -16,15 +16,11 @@ import type { OperationKey, OperationStatus } from '../common'
 export interface AttendanceStore {
   attendanceRows: AttendanceTableRow[]
   attendanceDetail: AttendanceDetail | null
-  employeeAttendance: AttendanceDetail[]
-  costCenterAttendance: AttendanceDetail[]
   attendanceMarks: AttendanceMarkRaw[]
   pagination: AttendancePagination
   queryParams: AttendanceQueryParams
   loadingAttendance: boolean
   loadingAttendanceDetail: boolean
-  loadingEmployeeAttendance: boolean
-  loadingCostCenterAttendance: boolean
   loadingAttendanceMarks: boolean
   createAttendanceSubmitting: boolean
   updateAttendanceSubmitting: boolean
@@ -56,10 +52,6 @@ export interface AttendanceStore {
   createAttendance: (payload: AttendanceCreatePayload) => Promise<boolean>
   updateAttendance: (payload: AttendanceUpdatePayload) => Promise<boolean>
   deleteAttendance: (attendanceId: string) => Promise<boolean>
-  getAttendanceByEmployee: (employeeId: number) => Promise<void>
-  getAttendanceByCostCenter: (costCenter: number) => Promise<void>
-  clearEmployeeAttendance: () => void
-  clearCostCenterAttendance: () => void
   getAttendanceMarksByAttendance: (attendanceId: number) => Promise<AttendanceMarkRaw[]>
   clearAttendanceMarks: () => void
   createAttendanceMark: (payload: AttendanceMarkCreatePayload) => Promise<boolean>

@@ -38,16 +38,6 @@ export const attendanceService = {
     await axiosInstance.delete(`/rrhh/attendance/${attendanceId}`)
   },
 
-  getAttendanceByEmployee: async (employeeId: number) => {
-    const { data } = await axiosInstance.get<AttendanceDetail[]>(`/rrhh/attendance/select/by-employee/${employeeId}`)
-    return data
-  },
-
-  getAttendanceByCostCenter: async (costCenter: number) => {
-    const { data } = await axiosInstance.get<AttendanceDetail[]>(`/rrhh/attendance/select/by-cost-center/${costCenter}`)
-    return data
-  },
-
   exportAttendanceCsv: async (queryParams: AttendanceQueryParams) => {
     const { data } = await axiosInstance.get<Blob>('/rrhh/attendance/export/csv', {
       params: mapperAttendanceExportQueryParams(queryParams),
