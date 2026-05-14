@@ -10,52 +10,19 @@ import {
   mapperLeavesRows,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import type { LeavesSortBy, LeavesSortDir, LeavesStore, OperationKey, OperationStatus } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import type { LeavesSortBy, LeavesSortDir, LeavesStore } from '@/types'
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreLeaves = create<LeavesStore>()((set, get) => {
+  let latestLeavesRequestId = 0
   let latestLeaveDetailRequestId = 0
+  let latestEmployeeLeavesRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (leavesService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
     leavesRows: [...initialLeavesRows],
@@ -71,10 +38,12 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
     operationStatus: initialOperationStatus(),
 
     getLeaves: async () => {
+      const requestId = ++latestLeavesRequestId
       try {
         set({ loadingLeaves: true })
         clearOp('list')
         const data = await leavesService.getLeaves(get().queryParams)
+        if (requestId !== latestLeavesRequestId) return
         const pagination = mapperLeavesPagination(data)
         set({
           leavesRows: mapperLeavesRows(data.content),
@@ -82,9 +51,12 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestLeavesRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.leaves.status.errors.loadError), error)
       } finally {
-        set({ loadingLeaves: false })
+        if (requestId === latestLeavesRequestId) {
+          set({ loadingLeaves: false })
+        }
       }
     },
 
@@ -255,14 +227,19 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
     },
 
     getLeavesByEmployee: async (employeeId: number) => {
+      const requestId = ++latestEmployeeLeavesRequestId
       try {
         set({ loadingEmployeeLeaves: true })
         const data = await leavesService.getLeavesByEmployee(employeeId)
+        if (requestId !== latestEmployeeLeavesRequestId) return
         set({ employeeLeaves: data })
       } catch {
+        if (requestId !== latestEmployeeLeavesRequestId) return
         set({ employeeLeaves: [] })
       } finally {
-        set({ loadingEmployeeLeaves: false })
+        if (requestId === latestEmployeeLeavesRequestId) {
+          set({ loadingEmployeeLeaves: false })
+        }
       }
     },
 

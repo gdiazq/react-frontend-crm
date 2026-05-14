@@ -11,54 +11,29 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import type { EmployeeOperationKey, EmployeesSortBy, EmployeesSortDir, EmployeesStore } from '@/types'
-import type { OperationStatus } from '@/types'
+import {
+  buildInitialOperationStatus,
+  createOperationStatusHelpers,
+  resolveErrorMessage,
+} from '@/utils'
 
-const initialOperationStatus: () => Record<EmployeeOperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-  link: { error: null, success: null, errorBack: null },
-})
+const initialOperationStatus = () =>
+  buildInitialOperationStatus<EmployeeOperationKey>([
+    'list',
+    'detail',
+    'create',
+    'update',
+    'toggle',
+    'link',
+  ])
 
 export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
+  let latestEmployeesRequestId = 0
   let latestEmployeeDetailRequestId = 0
   let latestAvailableUsersRequestId = 0
 
-  const setOpError = (key: EmployeeOperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: EmployeeOperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: EmployeeOperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (employeesService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } =
+    createOperationStatusHelpers<EmployeeOperationKey, EmployeesStore>(set)
 
   return {
   employeesRows: [...initialEmployeesRows],
@@ -109,10 +84,12 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
   },
 
   getEmployees: async () => {
+    const requestId = ++latestEmployeesRequestId
     try {
       set({ loadingEmployees: true })
       clearOp('list')
       const data = await employeesService.getEmployees(get().queryParams)
+      if (requestId !== latestEmployeesRequestId) return
       const pagination = mapperEmployeesPagination(data)
       set({
         employeesRows: mapperEmployeesRows(data.content),
@@ -120,9 +97,12 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
       })
     } catch (error) {
+      if (requestId !== latestEmployeesRequestId) return
       setOpError('list', resolveErrorMessage(error, messages.employees.status.errors.loadError), error)
     } finally {
-      set({ loadingEmployees: false })
+      if (requestId === latestEmployeesRequestId) {
+        set({ loadingEmployees: false })
+      }
     }
   },
 

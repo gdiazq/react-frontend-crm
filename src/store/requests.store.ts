@@ -11,43 +11,17 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import type { RequestsSortBy, RequestsSortDir, RequestsStore } from '@/types'
-import type { OperationKey, OperationStatus } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreRequests = create<RequestsStore>()((set, get) => {
+  let latestRequestsRequestId = 0
   let latestRequestDetailRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (requestsService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, clearOp } = createOperationStatusHelpers(set)
 
   return {
   requestsRows: [...initialRequestsRows],
@@ -61,10 +35,12 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
   operationStatus: initialOperationStatus(),
 
   getRequests: async () => {
+    const requestId = ++latestRequestsRequestId
     try {
       set({ loadingRequests: true })
       clearOp('list')
       const data = await requestsService.getRequests(get().queryParams)
+      if (requestId !== latestRequestsRequestId) return
       const pagination = mapperRequestsPagination(data)
       set({
         requestsRows: mapperRequestsRows(data.content),
@@ -72,9 +48,12 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
       })
     } catch (error) {
+      if (requestId !== latestRequestsRequestId) return
       setOpError('list', resolveErrorMessage(error, messages.requests.status.errors.loadError), error)
     } finally {
-      set({ loadingRequests: false })
+      if (requestId === latestRequestsRequestId) {
+        set({ loadingRequests: false })
+      }
     }
   },
 
