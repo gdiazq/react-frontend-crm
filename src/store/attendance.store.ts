@@ -10,52 +10,19 @@ import {
   mapperAttendanceRows,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import type { AttendanceSortBy, AttendanceSortDir, AttendanceStore, OperationKey, OperationStatus } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import type { AttendanceSortBy, AttendanceSortDir, AttendanceStore } from '@/types'
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
+  let latestAttendanceRequestId = 0
   let latestAttendanceDetailRequestId = 0
+  let latestAttendanceMarksRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (attendanceService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
     attendanceRows: [...initialAttendanceRows],
@@ -74,10 +41,12 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
     operationStatus: initialOperationStatus(),
 
     getAttendance: async () => {
+      const requestId = ++latestAttendanceRequestId
       try {
         set({ loadingAttendance: true })
         clearOp('list')
         const data = await attendanceService.getAttendance(get().queryParams)
+        if (requestId !== latestAttendanceRequestId) return
         const pagination = mapperAttendancePagination(data)
         set({
           attendanceRows: mapperAttendanceRows(data.content),
@@ -85,9 +54,12 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestAttendanceRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.attendance.status.errors.loadError), error)
       } finally {
-        set({ loadingAttendance: false })
+        if (requestId === latestAttendanceRequestId) {
+          set({ loadingAttendance: false })
+        }
       }
     },
 
@@ -272,22 +244,23 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
     },
 
     getAttendanceMarksByAttendance: async (attendanceId: number) => {
+      const requestId = ++latestAttendanceMarksRequestId
       try {
         set({ loadingAttendanceMarks: true })
         clearOp('detail')
         const data = await attendanceMarksService.getAttendanceMarksByAttendance(attendanceId)
+        if (requestId !== latestAttendanceMarksRequestId) return []
         set({ attendanceMarks: data })
         return data
       } catch (error) {
-        const fallback = messages.attendance.status.errors.loadAttendanceMarksError
-        const message = attendanceMarksService.isAxiosError(error)
-          ? error.response?.data?.message || fallback
-          : fallback
-        setOpError('detail', message, error)
+        if (requestId !== latestAttendanceMarksRequestId) return []
+        setOpError('detail', resolveErrorMessage(error, messages.attendance.status.errors.loadAttendanceMarksError), error)
         set({ attendanceMarks: [] })
         return []
       } finally {
-        set({ loadingAttendanceMarks: false })
+        if (requestId === latestAttendanceMarksRequestId) {
+          set({ loadingAttendanceMarks: false })
+        }
       }
     },
 
@@ -303,11 +276,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
         setOpSuccess('create', messages.attendance.status.success.createAttendanceMarkSuccess)
         return true
       } catch (error) {
-        const fallback = messages.attendance.status.errors.createAttendanceMarkError
-        const message = attendanceMarksService.isAxiosError(error)
-          ? error.response?.data?.message || fallback
-          : fallback
-        setOpError('create', message, error)
+        setOpError('create', resolveErrorMessage(error, messages.attendance.status.errors.createAttendanceMarkError), error)
         return false
       } finally {
         set({ createAttendanceMarkSubmitting: false })
@@ -326,11 +295,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
         setOpSuccess('update', messages.attendance.status.success.updateAttendanceMarkSuccess)
         return true
       } catch (error) {
-        const fallback = messages.attendance.status.errors.updateAttendanceMarkError
-        const message = attendanceMarksService.isAxiosError(error)
-          ? error.response?.data?.message || fallback
-          : fallback
-        setOpError('update', message, error)
+        setOpError('update', resolveErrorMessage(error, messages.attendance.status.errors.updateAttendanceMarkError), error)
         return false
       } finally {
         set({ updateAttendanceMarkSubmitting: false })

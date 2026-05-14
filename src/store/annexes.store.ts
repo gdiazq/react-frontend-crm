@@ -10,52 +10,19 @@ import {
   mapperAnnexesRows,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import type { AnnexesSortBy, AnnexesSortDir, AnnexesStore, OperationKey, OperationStatus } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import type { AnnexesSortBy, AnnexesSortDir, AnnexesStore } from '@/types'
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
+  let latestAnnexesRequestId = 0
   let latestAnnexDetailRequestId = 0
+  let latestContractAnnexesRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (annexesService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
     annexesRows: [...initialAnnexesRows],
@@ -71,10 +38,12 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
     operationStatus: initialOperationStatus(),
 
     getAnnexes: async () => {
+      const requestId = ++latestAnnexesRequestId
       try {
         set({ loadingAnnexes: true })
         clearOp('list')
         const data = await annexesService.getAnnexes(get().queryParams)
+        if (requestId !== latestAnnexesRequestId) return
         const pagination = mapperAnnexesPagination(data)
         set({
           annexesRows: mapperAnnexesRows(data.content),
@@ -82,9 +51,12 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestAnnexesRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.annexes.status.errors.loadError), error)
       } finally {
-        set({ loadingAnnexes: false })
+        if (requestId === latestAnnexesRequestId) {
+          set({ loadingAnnexes: false })
+        }
       }
     },
 
@@ -247,14 +219,19 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
     },
 
     getAnnexesByContract: async (contractId: number) => {
+      const requestId = ++latestContractAnnexesRequestId
       try {
         set({ loadingContractAnnexes: true })
         const data = await annexesService.getAnnexesByContract(contractId)
+        if (requestId !== latestContractAnnexesRequestId) return
         set({ contractAnnexes: data })
       } catch {
+        if (requestId !== latestContractAnnexesRequestId) return
         set({ contractAnnexes: [] })
       } finally {
-        set({ loadingContractAnnexes: false })
+        if (requestId === latestContractAnnexesRequestId) {
+          set({ loadingContractAnnexes: false })
+        }
       }
     },
 

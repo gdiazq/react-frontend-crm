@@ -11,52 +11,17 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import type { ContractsSortBy, ContractsSortDir, ContractsStore } from '@/types'
-import type { OperationKey, OperationStatus } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreContracts = create<ContractsStore>()((set, get) => {
+  let latestContractsRequestId = 0
   let latestContractDetailRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (contractsService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
   contractsRows: [...initialContractsRows],
@@ -71,10 +36,12 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
   operationStatus: initialOperationStatus(),
 
   getContracts: async () => {
+    const requestId = ++latestContractsRequestId
     try {
       set({ loadingContracts: true })
       clearOp('list')
       const data = await contractsService.getContracts(get().queryParams)
+      if (requestId !== latestContractsRequestId) return
       const pagination = mapperContractsPagination(data)
       set({
         contractsRows: mapperContractsRows(data.content),
@@ -82,9 +49,12 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
         queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
       })
     } catch (error) {
+      if (requestId !== latestContractsRequestId) return
       setOpError('list', resolveErrorMessage(error, messages.contracts.status.errors.loadError), error)
     } finally {
-      set({ loadingContracts: false })
+      if (requestId === latestContractsRequestId) {
+        set({ loadingContracts: false })
+      }
     }
   },
 
