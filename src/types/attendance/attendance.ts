@@ -1,3 +1,4 @@
+import type { AttendanceMarkTypeValue, SortDirectionValue } from '@/constant'
 import type { Pagination } from '../common'
 
 export interface AttendanceRaw {
@@ -98,7 +99,7 @@ export type AttendanceSortBy =
   | 'totalHours'
   | 'statusName'
 
-export type AttendanceSortDir = 'asc' | 'desc'
+export type AttendanceSortDir = SortDirectionValue
 
 export interface AttendancePagination extends Pagination {
   pending: number
@@ -140,7 +141,7 @@ export interface AttendancePagedResponse {
   last?: boolean
 }
 
-export type AttendanceMarkType = 'CHECK_IN' | 'CHECK_OUT'
+export type AttendanceMarkType = AttendanceMarkTypeValue
 
 export interface AttendanceMarkRaw {
   id: number

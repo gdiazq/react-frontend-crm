@@ -1,8 +1,9 @@
+import type { PermissionActionValue, PermissionModuleValue } from '@/constant'
 import type { AlertsCore, ModulePermission } from '../common/common'
 import type { AuthUser } from './auth'
 import type { AuthLoginPayload } from './auth.payload'
 
-export type PermissionType = 'canRead' | 'canCreate' | 'canUpdate' | 'canDelete'
+export type PermissionType = PermissionActionValue
 
 export interface AuthStore {
   // State
@@ -28,5 +29,5 @@ export interface AuthStore {
   logout: () => Promise<void>
   reset: () => void
   clearMfaRequired: () => void
-  hasPermission: (moduleName: string, permissionType: PermissionType) => boolean
+  hasPermission: (moduleName: PermissionModuleValue | string, permissionType: PermissionType) => boolean
 }

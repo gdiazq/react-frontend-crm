@@ -1,5 +1,7 @@
-export type CalendarModule = 'ATTENDANCE' | 'LEAVE' | 'CONTRACT' | 'ANNEX' | 'TRANSFER' | 'SETTLEMENT' | 'PROJECT'
-export type CalendarEventTone = 'cyan' | 'emerald' | 'amber' | 'rose' | 'slate'
+import type { CalendarEventToneValue, CalendarModuleValue } from '@/constant'
+
+export type CalendarModule = CalendarModuleValue
+export type CalendarEventTone = CalendarEventToneValue
 
 export interface CalendarEventRaw {
   id: string

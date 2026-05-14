@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react'
+import type { PermissionModuleValue } from '@/constant'
 
 export type DashboardModule = {
   label: string
   eyebrow: string
   description: string
   route: string
-  permissionModules: string[]
+  permissionModules: PermissionModuleValue[]
   accent: string
   icon: ReactNode
 }

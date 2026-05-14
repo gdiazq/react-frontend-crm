@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react'
+import type { SortDirectionValue } from '@/constant'
 
 export interface TableRow {
   id: string
   values: (string | ReactNode)[]
 }
 
-export type TableSortDirection = 'asc' | 'desc'
+export type TableSortDirection = SortDirectionValue
 
 export interface TableSortState {
   columnIndex: number | null
