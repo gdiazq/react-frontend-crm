@@ -169,37 +169,37 @@ export function SidebarComponent({
   onGoRoles,
   onGoLogout,
 }: SidebarComponentProps) {
-  const location = useLocation()
-  const isDashboardActive = useMemo(() => location.pathname === '/dashboard', [location.pathname])
-  const isUsersActive = useMemo(() => location.pathname.startsWith('/users'), [location.pathname])
-  const isRequestsActive = useMemo(() => location.pathname.startsWith('/requests'), [location.pathname])
-  const isEmployeesActive = useMemo(() => location.pathname.startsWith('/employees'), [location.pathname])
-  const isContractsActive = useMemo(() => location.pathname.startsWith('/contracts'), [location.pathname])
-  const isLeavesActive = useMemo(() => location.pathname.startsWith('/leaves'), [location.pathname])
-  const isAttendanceActive = useMemo(() => location.pathname.startsWith('/attendance'), [location.pathname])
-  const isOvertimeActive = useMemo(() => location.pathname.startsWith('/overtime'), [location.pathname])
-  const isAnnexesActive = useMemo(() => location.pathname.startsWith('/annexes'), [location.pathname])
-  const isTransfersActive = useMemo(() => location.pathname.startsWith('/transfers'), [location.pathname])
-  const isSettlementsActive = useMemo(() => location.pathname === '/settlements', [location.pathname])
-  const isSettlementsTerminationCausesActive = useMemo(() => location.pathname === '/settlements/termination-causes', [location.pathname])
-  const isSettlementsWorkQualityActive = useMemo(() => location.pathname === '/settlements/work-quality', [location.pathname])
-  const isSettlementsSafetyComplianceActive = useMemo(() => location.pathname === '/settlements/safety-compliance', [location.pathname])
-  const isSettlementsNoRehireCauseActive = useMemo(() => location.pathname === '/settlements/no-rehire-cause', [location.pathname])
-  const isSettlementsTerminationQuizQuestionActive = useMemo(() => location.pathname === '/settlements/termination-quiz-question', [location.pathname])
+  const { pathname } = useLocation()
+  const isDashboardActive = useMemo(() => pathname === '/dashboard', [pathname])
+  const isUsersActive = useMemo(() => pathname.startsWith('/users'), [pathname])
+  const isRequestsActive = useMemo(() => pathname.startsWith('/requests'), [pathname])
+  const isEmployeesActive = useMemo(() => pathname.startsWith('/employees'), [pathname])
+  const isContractsActive = useMemo(() => pathname.startsWith('/contracts'), [pathname])
+  const isLeavesActive = useMemo(() => pathname.startsWith('/leaves'), [pathname])
+  const isAttendanceActive = useMemo(() => pathname.startsWith('/attendance'), [pathname])
+  const isOvertimeActive = useMemo(() => pathname.startsWith('/overtime'), [pathname])
+  const isAnnexesActive = useMemo(() => pathname.startsWith('/annexes'), [pathname])
+  const isTransfersActive = useMemo(() => pathname.startsWith('/transfers'), [pathname])
+  const isSettlementsActive = useMemo(() => pathname === '/settlements', [pathname])
+  const isSettlementsTerminationCausesActive = useMemo(() => pathname === '/settlements/termination-causes', [pathname])
+  const isSettlementsWorkQualityActive = useMemo(() => pathname === '/settlements/work-quality', [pathname])
+  const isSettlementsSafetyComplianceActive = useMemo(() => pathname === '/settlements/safety-compliance', [pathname])
+  const isSettlementsNoRehireCauseActive = useMemo(() => pathname === '/settlements/no-rehire-cause', [pathname])
+  const isSettlementsTerminationQuizQuestionActive = useMemo(() => pathname === '/settlements/termination-quiz-question', [pathname])
   const isProjectsActive = useMemo(() => {
-    const path = location.pathname
+    const path = pathname
     if (path === '/projects' || path === '/projects/new') return true
     if (path.startsWith('/projects/history')) return false
     if (path.startsWith('/projects/types')) return false
     if (path.startsWith('/projects/specialties')) return false
     if (path.startsWith('/projects/statuses')) return false
     return path.startsWith('/projects/')
-  }, [location.pathname])
-  const isProjectAssignmentsActive = useMemo(() => location.pathname.startsWith('/projects/history'), [location.pathname])
-  const isProjectTypesActive = useMemo(() => location.pathname.startsWith('/projects/types'), [location.pathname])
-  const isProjectSpecialtiesActive = useMemo(() => location.pathname.startsWith('/projects/specialties'), [location.pathname])
-  const isProjectStatusesActive = useMemo(() => location.pathname.startsWith('/projects/statuses'), [location.pathname])
-  const isRolesActive = useMemo(() => location.pathname.startsWith('/roles'), [location.pathname])
+  }, [pathname])
+  const isProjectAssignmentsActive = useMemo(() => pathname.startsWith('/projects/history'), [pathname])
+  const isProjectTypesActive = useMemo(() => pathname.startsWith('/projects/types'), [pathname])
+  const isProjectSpecialtiesActive = useMemo(() => pathname.startsWith('/projects/specialties'), [pathname])
+  const isProjectStatusesActive = useMemo(() => pathname.startsWith('/projects/statuses'), [pathname])
+  const isRolesActive = useMemo(() => pathname.startsWith('/roles'), [pathname])
 
   const dashboardItem: NavItem = {
     show: true,
