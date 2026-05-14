@@ -11,52 +11,18 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { projectTypesService } from '@/services'
-import type { OperationKey, OperationStatus, ProjectTypesStore } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import type { ProjectTypesStore } from '@/types'
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
+  let latestProjectTypesRequestId = 0
   let latestProjectTypeDetailRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (projectTypesService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
     projectTypesRaw: [],
@@ -72,10 +38,12 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
     operationStatus: initialOperationStatus(),
 
     getProjectTypes: async () => {
+      const requestId = ++latestProjectTypesRequestId
       try {
         set({ loadingProjectTypes: true })
         clearOp('list')
         const data = await projectTypesService.getProjectTypes(get().queryParams)
+        if (requestId !== latestProjectTypesRequestId) return
         const pagination = mapperProjectTypesPagination(data)
 
         set({
@@ -85,9 +53,12 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestProjectTypesRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.projectTypes.status.errors.loadError), error)
       } finally {
-        set({ loadingProjectTypes: false })
+        if (requestId === latestProjectTypesRequestId) {
+          set({ loadingProjectTypes: false })
+        }
       }
     },
 

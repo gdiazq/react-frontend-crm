@@ -11,52 +11,18 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { noRehireCauseService } from '@/services'
-import type { OperationKey, OperationStatus, NoRehireCauseStore } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import type { NoRehireCauseStore } from '@/types'
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => {
+  let latestNoRehireCauseRequestId = 0
   let latestNoRehireCauseDetailRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (noRehireCauseService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
     noRehireCauseRaw: [],
@@ -72,10 +38,12 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
     operationStatus: initialOperationStatus(),
 
     getNoRehireCause: async () => {
+      const requestId = ++latestNoRehireCauseRequestId
       try {
         set({ loadingNoRehireCause: true })
         clearOp('list')
         const data = await noRehireCauseService.getNoRehireCause(get().queryParams)
+        if (requestId !== latestNoRehireCauseRequestId) return
         const pagination = mapperNoRehireCausePagination(data)
 
         set({
@@ -85,9 +53,12 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestNoRehireCauseRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.noRehireCause.status.errors.loadError), error)
       } finally {
-        set({ loadingNoRehireCause: false })
+        if (requestId === latestNoRehireCauseRequestId) {
+          set({ loadingNoRehireCause: false })
+        }
       }
     },
 

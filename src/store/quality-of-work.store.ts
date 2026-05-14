@@ -11,52 +11,18 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { qualityOfWorkService } from '@/services'
-import type { OperationKey, OperationStatus, QualityOfWorkStore } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import type { QualityOfWorkStore } from '@/types'
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => {
+  let latestQualityOfWorkRequestId = 0
   let latestQualityOfWorkDetailRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (qualityOfWorkService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
     qualityOfWorkRaw: [],
@@ -72,10 +38,12 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
     operationStatus: initialOperationStatus(),
 
     getQualityOfWork: async () => {
+      const requestId = ++latestQualityOfWorkRequestId
       try {
         set({ loadingQualityOfWork: true })
         clearOp('list')
         const data = await qualityOfWorkService.getQualityOfWork(get().queryParams)
+        if (requestId !== latestQualityOfWorkRequestId) return
         const pagination = mapperQualityOfWorkPagination(data)
 
         set({
@@ -85,9 +53,12 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestQualityOfWorkRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.qualityOfWork.status.errors.loadError), error)
       } finally {
-        set({ loadingQualityOfWork: false })
+        if (requestId === latestQualityOfWorkRequestId) {
+          set({ loadingQualityOfWork: false })
+        }
       }
     },
 

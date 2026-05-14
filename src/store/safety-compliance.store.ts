@@ -11,52 +11,18 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { safetyComplianceService } from '@/services'
-import type { OperationKey, OperationStatus, SafetyComplianceStore } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import type { SafetyComplianceStore } from '@/types'
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, get) => {
+  let latestSafetyComplianceRequestId = 0
   let latestSafetyComplianceDetailRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (safetyComplianceService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
     safetyComplianceRaw: [],
@@ -72,10 +38,12 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
     operationStatus: initialOperationStatus(),
 
     getSafetyCompliance: async () => {
+      const requestId = ++latestSafetyComplianceRequestId
       try {
         set({ loadingSafetyCompliance: true })
         clearOp('list')
         const data = await safetyComplianceService.getSafetyCompliance(get().queryParams)
+        if (requestId !== latestSafetyComplianceRequestId) return
         const pagination = mapperSafetyCompliancePagination(data)
 
         set({
@@ -85,9 +53,12 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestSafetyComplianceRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.safetyCompliance.status.errors.loadError), error)
       } finally {
-        set({ loadingSafetyCompliance: false })
+        if (requestId === latestSafetyComplianceRequestId) {
+          set({ loadingSafetyCompliance: false })
+        }
       }
     },
 

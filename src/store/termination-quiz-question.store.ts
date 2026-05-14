@@ -11,52 +11,18 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { terminationQuizQuestionService } from '@/services'
-import type { OperationKey, OperationStatus, TerminationQuizQuestionStore } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import type { TerminationQuizQuestionStore } from '@/types'
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionStore>()((set, get) => {
+  let latestTerminationQuizQuestionRequestId = 0
   let latestDetailRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (terminationQuizQuestionService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
     terminationQuizQuestionRaw: [],
@@ -72,10 +38,12 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
     operationStatus: initialOperationStatus(),
 
     getTerminationQuizQuestion: async () => {
+      const requestId = ++latestTerminationQuizQuestionRequestId
       try {
         set({ loadingTerminationQuizQuestion: true })
         clearOp('list')
         const data = await terminationQuizQuestionService.getTerminationQuizQuestion(get().queryParams)
+        if (requestId !== latestTerminationQuizQuestionRequestId) return
         const pagination = mapperTerminationQuizQuestionPagination(data)
 
         set({
@@ -85,9 +53,12 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestTerminationQuizQuestionRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.terminationQuizQuestion.status.errors.loadError), error)
       } finally {
-        set({ loadingTerminationQuizQuestion: false })
+        if (requestId === latestTerminationQuizQuestionRequestId) {
+          set({ loadingTerminationQuizQuestion: false })
+        }
       }
     },
 
