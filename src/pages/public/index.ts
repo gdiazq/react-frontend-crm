@@ -1,0 +1,8 @@
+export { default as CreatePasswordPage } from './CreatePasswordPage'
+export { default as DashboardExamplePage } from './DashboardExamplePage'
+export { default as LoginCredentialsPage } from './LoginCredentialsPage'
+export { default as LoginPage } from './LoginPage'
+export { default as LogoutPage } from './LogoutPage'
+export { default as RecoveryPage } from './RecoveryPage'
+export { default as RegisterPage } from './RegisterPage'
+export { default as VerifyEmailPage } from './VerifyEmailPage'
