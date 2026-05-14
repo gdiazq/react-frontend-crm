@@ -10,53 +10,19 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { transferService } from '@/services'
-import { downloadBlobFile } from '@/utils'
-import type { OperationKey, OperationStatus, TransferStore } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import {
+  createOperationStatusHelpers,
+  downloadBlobFile,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
+import type { TransferStore } from '@/types'
 
 export const useStoreTransfer = create<TransferStore>()((set, get) => {
+  let latestTransfersRequestId = 0
   let latestDetailRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const setOpSuccess = (key: OperationKey, success: string) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success, errorBack: null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (transferService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
 
   return {
     transferRaw: [],
@@ -71,10 +37,12 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
     operationStatus: initialOperationStatus(),
 
     getTransfers: async () => {
+      const requestId = ++latestTransfersRequestId
       try {
         set({ loadingTransfers: true })
         clearOp('list')
         const data = await transferService.getTransfers(get().queryParams)
+        if (requestId !== latestTransfersRequestId) return
         const pagination = mapperTransferPagination(data)
         set({
           transferRaw: data.content,
@@ -83,9 +51,12 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestTransfersRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.transfer.status.errors.loadError), error)
       } finally {
-        set({ loadingTransfers: false })
+        if (requestId === latestTransfersRequestId) {
+          set({ loadingTransfers: false })
+        }
       }
     },
 
