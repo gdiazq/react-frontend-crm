@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   LegalTerminationCauseCreateForm,
   LegalTerminationCausesPagination,
@@ -49,7 +50,7 @@ export const initialLegalTerminationCausesQueryParams: LegalTerminationCausesQue
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateLegalTerminationCauseForm: LegalTerminationCauseCreateForm = {

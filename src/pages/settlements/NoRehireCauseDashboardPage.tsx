@@ -19,12 +19,11 @@ import {
   AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE,
   AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE_CREATE,
   AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
 } from '@/constant'
-import {
-  noRehireCauseTableColumns,
-  noRehireCauseTableColumnIndex,
-  noRehireCauseTableSortByColumn,
-} from '@/factories'
+import { noRehireCauseTableColumns, noRehireCauseTableColumnIndex, noRehireCauseTableSortByColumn } from '@/factories'
 import { mapperNoRehireCauseDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { noRehireCauseService } from '@/services'
@@ -71,7 +70,7 @@ export default function NoRehireCauseDashboardPage() {
   const toggleNoRehireCauseStatus = useStoreNoRehireCause((s) => s.toggleNoRehireCauseStatus)
   const clearNoRehireCauseDetail = useStoreNoRehireCause((s) => s.clearNoRehireCauseDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleNoRehireCauseStatus = hasPermission('NO_REHIRE_CAUSE', 'canUpdate')
+  const canToggleNoRehireCauseStatus = hasPermission(PermissionModule.NoRehireCause, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -184,7 +183,7 @@ export default function NoRehireCauseDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortNoRehireCause(sortBy, nextSortDir)
   }
 

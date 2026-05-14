@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import { useEffect, useState } from 'react'
 import {
   AlertMessageComponent,
@@ -11,19 +12,28 @@ import {
   StatsOverviewCardsComponent,
   TableComponent,
 } from '@/components'
-import { ProjectAssignmentCostCenterDetailComponent } from '@/components/project-assignments/ProjectAssignmentCostCenterDetailComponent'
-import { ProjectAssignmentEmployeeDetailComponent } from '@/components/project-assignments/ProjectAssignmentEmployeeDetailComponent'
+import {
+  ProjectAssignmentCostCenterDetailComponent,
+} from '@/components/project-assignments/ProjectAssignmentCostCenterDetailComponent'
+import {
+  ProjectAssignmentEmployeeDetailComponent,
+} from '@/components/project-assignments/ProjectAssignmentEmployeeDetailComponent'
 import {
   projectAssignmentActiveFilterOptions,
   projectAssignmentsTableColumns,
   projectAssignmentsTableColumnIndex,
   projectAssignmentsTableSortByColumn,
 } from '@/factories'
-import { mapperProjectAssignmentDetailViews } from '@/mappers'
+import {
+  mapperProjectAssignmentDetailViews,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreProjectAssignments } from '@/store'
 import type { ProjectAssignmentTableRow, TableRow, TableSortState } from '@/types'
-import { createProjectAssignmentsActions, createProjectAssignmentsTableCustomRenderer } from '@/utils'
+import {
+  createProjectAssignmentsActions,
+  createProjectAssignmentsTableCustomRenderer,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const ASSIGNMENT_EMPLOYEE_COLUMN_INDEX = projectAssignmentsTableColumnIndex.employeeName
@@ -168,7 +178,7 @@ export default function ProjectAssignmentsDashboardPage() {
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = projectAssignmentsTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortProjectAssignments(sortBy, nextSortDir)
   }
 

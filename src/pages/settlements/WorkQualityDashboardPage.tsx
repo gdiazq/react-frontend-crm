@@ -19,12 +19,11 @@ import {
   AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY,
   AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY_CREATE,
   AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
 } from '@/constant'
-import {
-  qualityOfWorkTableColumns,
-  qualityOfWorkTableColumnIndex,
-  qualityOfWorkTableSortByColumn,
-} from '@/factories'
+import { qualityOfWorkTableColumns, qualityOfWorkTableColumnIndex, qualityOfWorkTableSortByColumn } from '@/factories'
 import { mapperQualityOfWorkDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { qualityOfWorkService } from '@/services'
@@ -71,7 +70,7 @@ export default function SettlementsWorkQualityDashboardPage() {
   const toggleQualityOfWorkStatus = useStoreQualityOfWork((s) => s.toggleQualityOfWorkStatus)
   const clearQualityOfWorkDetail = useStoreQualityOfWork((s) => s.clearQualityOfWorkDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleQualityOfWorkStatus = hasPermission('QUALITY_OF_WORK', 'canUpdate')
+  const canToggleQualityOfWorkStatus = hasPermission(PermissionModule.QualityOfWork, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -184,7 +183,7 @@ export default function SettlementsWorkQualityDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortQualityOfWork(sortBy, nextSortDir)
   }
 

@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   AnnexCreateForm,
   AnnexTableRow,
@@ -59,7 +60,7 @@ export const initialAnnexesQueryParams: AnnexesQueryParams = {
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateAnnexForm: AnnexCreateForm = {

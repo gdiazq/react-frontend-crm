@@ -14,23 +14,21 @@ import {
   SettlementDetailComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import {
-  settlementTableColumns,
-  settlementTableColumnIndex,
-  settlementTableSortByColumn,
-} from '@/factories'
+import { settlementTableColumns, settlementTableColumnIndex, settlementTableSortByColumn } from '@/factories'
 import { mapperSettlementDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { settlementService, storageService } from '@/services'
 import { useStoreEmployeeSelects, useStoreSettlement, useStoreSettlementSelects } from '@/store'
-import type { SettlementTableRow, TableRow, TableSortState } from '@/types'
+import type { SettlementTableRow,
+  TableRow,
+  TableSortState } from '@/types'
 import {
   createSettlementActions,
   createSettlementTableCustomRenderer,
   downloadBlobFile,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
-import { AUTH_ROUTE_SETTLEMENTS_CREATE, AUTH_ROUTE_SETTLEMENTS_EDIT } from '@/constant'
+import { AUTH_ROUTE_SETTLEMENTS_CREATE, AUTH_ROUTE_SETTLEMENTS_EDIT, SortDirection } from '@/constant'
 
 const EMPLOYEE_NAME_COLUMN_INDEX = settlementTableColumnIndex.employeeName
 const STATUS_COLUMN_INDEX = settlementTableColumnIndex.status
@@ -220,7 +218,7 @@ export default function SettlementsDashboardPage() {
     if (!sortBy) return
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortSettlements(sortBy, nextSortDir)
   }
 

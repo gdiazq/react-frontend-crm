@@ -18,15 +18,25 @@ import {
   AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION,
   AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION_CREATE,
   AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
 } from '@/constant'
 import {
   terminationQuizQuestionTableColumns,
   terminationQuizQuestionTableColumnIndex,
   terminationQuizQuestionTableSortByColumn,
 } from '@/factories'
-import { mapperTerminationQuizQuestionDetailView } from '@/mappers'
+import {
+  mapperTerminationQuizQuestionDetailView,
+} from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAuth, useStoreSettlementSelects, useStoreTerminationQuizQuestion, useStoreSelects } from '@/store'
+import {
+  useStoreAuth,
+  useStoreSettlementSelects,
+  useStoreTerminationQuizQuestion,
+  useStoreSelects,
+} from '@/store'
 import type { TerminationQuizQuestionTableRow, TableRow, TableSortState } from '@/types'
 import {
   createTerminationQuizQuestionActions,
@@ -69,7 +79,7 @@ export default function TerminationQuizQuestionDashboardPage() {
   const toggleTerminationQuizQuestionStatus = useStoreTerminationQuizQuestion((s) => s.toggleTerminationQuizQuestionStatus)
   const clearTerminationQuizQuestionDetail = useStoreTerminationQuizQuestion((s) => s.clearTerminationQuizQuestionDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleStatus = hasPermission('TERMINATION_QUIZ_QUESTION', 'canUpdate')
+  const canToggleStatus = hasPermission(PermissionModule.TerminationQuizQuestion, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -207,7 +217,7 @@ export default function TerminationQuizQuestionDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortTerminationQuizQuestion(sortBy, nextSortDir)
   }
 

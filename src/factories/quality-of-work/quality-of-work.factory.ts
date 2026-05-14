@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   QualityOfWorkCreateForm,
   QualityOfWorkPagination,
@@ -49,7 +50,7 @@ export const initialQualityOfWorkQueryParams: QualityOfWorkQueryParams = {
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateQualityOfWorkForm: QualityOfWorkCreateForm = {

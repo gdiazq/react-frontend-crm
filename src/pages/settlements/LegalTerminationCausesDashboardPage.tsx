@@ -19,13 +19,18 @@ import {
   AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES,
   AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_CREATE,
   AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
 } from '@/constant'
 import {
   legalTerminationCausesTableColumns,
   legalTerminationCausesTableColumnIndex,
   legalTerminationCausesTableSortByColumn,
 } from '@/factories'
-import { mapperLegalTerminationCauseDetailView } from '@/mappers'
+import {
+  mapperLegalTerminationCauseDetailView,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { legalTerminationCausesService } from '@/services'
 import { useStoreAuth, useStoreLegalTerminationCauses, useStoreSelects } from '@/store'
@@ -71,7 +76,7 @@ export default function SettlementsTerminationDashboardPage() {
   const toggleLegalTerminationCauseStatus = useStoreLegalTerminationCauses((s) => s.toggleLegalTerminationCauseStatus)
   const clearLegalTerminationCauseDetail = useStoreLegalTerminationCauses((s) => s.clearLegalTerminationCauseDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleLegalTerminationCauseStatus = hasPermission('LEGAL_TERMINATION_CAUSE', 'canUpdate')
+  const canToggleLegalTerminationCauseStatus = hasPermission(PermissionModule.LegalTerminationCause, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -184,7 +189,7 @@ export default function SettlementsTerminationDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortLegalTerminationCauses(sortBy, nextSortDir)
   }
 

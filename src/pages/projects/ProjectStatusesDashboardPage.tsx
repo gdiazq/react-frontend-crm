@@ -15,14 +15,26 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_PROJECT_STATUSES, AUTH_ROUTE_PROJECT_STATUSES_CREATE, AUTH_ROUTE_PROJECT_STATUSES_EDIT } from '@/constant'
+import {
+  AUTH_ROUTE_PROJECT_STATUSES,
+  AUTH_ROUTE_PROJECT_STATUSES_CREATE,
+  AUTH_ROUTE_PROJECT_STATUSES_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
 import { projectStatusesTableColumns, projectStatusesTableColumnIndex, projectStatusesTableSortByColumn } from '@/factories'
 import { mapperProjectStatusDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { projectStatusesService } from '@/services'
 import { useStoreAuth, useStoreProjectStatuses, useStoreSelects } from '@/store'
 import type { ProjectStatusTableRow, TableRow, TableSortState } from '@/types'
-import { createProjectStatusesActions, createProjectStatusesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import {
+  createProjectStatusesActions,
+  createProjectStatusesTableCustomRenderer,
+  downloadBlobFile,
+  formatCsvImportSummary,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const PROJECT_STATUS_NAME_COLUMN_INDEX = projectStatusesTableColumnIndex.name
@@ -58,7 +70,7 @@ export default function ProjectStatusesDashboardPage() {
   const toggleProjectStatusStatus = useStoreProjectStatuses((s) => s.toggleProjectStatusStatus)
   const clearProjectStatusDetail = useStoreProjectStatuses((s) => s.clearProjectStatusDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleProjectStatusStatus = hasPermission('PROJECT_STATUS', 'canUpdate')
+  const canToggleProjectStatusStatus = hasPermission(PermissionModule.ProjectStatus, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -167,7 +179,7 @@ export default function ProjectStatusesDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
 
     await sortProjectStatuses(sortBy, nextSortDir)
   }

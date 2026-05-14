@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import { useEffect, useState } from 'react'
 import { AlertMessageComponent } from '@/components/ui/alert/AlertMessageComponent'
 import { ButtonComponent } from '@/components/ui/button/ButtonComponent'
@@ -9,7 +10,10 @@ import { StatusBadgeComponent } from '@/components/ui/status/StatusBadgeComponen
 import { TableComponent } from '@/components/ui/table/TableComponent'
 import type { TableCellCustomRenderer } from '@/components/ui/table/TableCellRendererComponent'
 import { RightSidebarComponent } from '@/components/layout/RightSidebarComponent'
-import { mapperProjectCostCenterEmployeesPagination, mapperProjectCostCenterEmployeesRows } from '@/mappers'
+import {
+  mapperProjectCostCenterEmployeesPagination,
+  mapperProjectCostCenterEmployeesRows,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { projectsService } from '@/services'
 import { useStoreSelects } from '@/store'
@@ -67,7 +71,7 @@ const initialQueryParams: ProjectCostCenterEmployeesQueryParams = {
   active: '',
   statusId: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 const initialPagination: CostCenterEmployeesPagination = {
@@ -193,7 +197,7 @@ export function ProjectCostCenterEmployeesTabComponent({
       ...prev,
       page: 0,
       sortBy,
-      sortDir: prev.sortBy === sortBy && prev.sortDir === 'asc' ? 'desc' : 'asc',
+      sortDir: prev.sortBy === sortBy && prev.sortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc,
     }))
   }
 

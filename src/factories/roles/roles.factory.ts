@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type { RoleCreateForm, RoleTableRow, RolesPagination, RolesQueryParams, RolesSortBy } from '@/types'
 
 export const rolesTableColumns: string[] = [
@@ -39,7 +40,7 @@ export const initialRolesQueryParams: RolesQueryParams = {
   search: '',
   status: '',
   sortBy: 'name',
-  sortDir: 'asc',
+  sortDir: SortDirection.Asc,
 }
 
 export const initialCreateRoleForm: RoleCreateForm = {

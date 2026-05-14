@@ -14,15 +14,30 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AttendanceDetailComponent } from '@/components/attendance/AttendanceDetailComponent'
-import { AUTH_ROUTE_ATTENDANCE_CREATE, AUTH_ROUTE_ATTENDANCE_EDIT } from '@/constant'
+import {
+  AUTH_ROUTE_ATTENDANCE_CREATE,
+  AUTH_ROUTE_ATTENDANCE_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
 import { attendanceTableColumns, attendanceTableColumnIndex, attendanceTableSortByColumn } from '@/factories'
 import { mapperAttendanceDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { attendanceService } from '@/services'
-import { useStoreAttendance, useStoreAttendanceSelects, useStoreAuth, useStoreEmployeeSelects } from '@/store'
+import {
+  useStoreAttendance,
+  useStoreAttendanceSelects,
+  useStoreAuth,
+  useStoreEmployeeSelects,
+} from '@/store'
 import type { TableRow, TableSortState } from '@/components'
 import type { AttendanceTableRow } from '@/types'
-import { createAttendanceActions, createAttendanceTableCustomRenderer, downloadBlobFile } from '@/utils'
+import {
+  createAttendanceActions,
+  createAttendanceTableCustomRenderer,
+  downloadBlobFile,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const ATTENDANCE_EMPLOYEE_NAME_COLUMN_INDEX = attendanceTableColumnIndex.employeeName
@@ -93,8 +108,8 @@ export default function AttendanceDashboardPage() {
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [selectedDetailName, setSelectedDetailName] = useState('')
   const { actionViewDetail, actionUpdateAttendance } = createAttendanceActions()
-  const canCreateAttendance = hasPermission('ATTENDANCE', 'canCreate')
-  const canUpdateAttendance = hasPermission('ATTENDANCE', 'canUpdate')
+  const canCreateAttendance = hasPermission(PermissionModule.Attendance, PermissionAction.Create)
+  const canUpdateAttendance = hasPermission(PermissionModule.Attendance, PermissionAction.Update)
 
   const attendanceDetailView = mapperAttendanceDetailView(attendanceDetail)
   const currentPage = pagination.page + 1
@@ -196,7 +211,7 @@ export default function AttendanceDashboardPage() {
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = attendanceTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortAttendance(sortBy, nextSortDir)
   }
 

@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   ProjectAssignmentTableRow,
   ProjectAssignmentsPagination,
@@ -76,5 +77,5 @@ export const initialProjectAssignmentsQueryParams: ProjectAssignmentsQueryParams
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'startDate',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }

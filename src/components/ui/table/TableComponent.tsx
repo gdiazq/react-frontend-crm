@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import { useEffect, useState } from 'react'
 import type { TableComponentProps, TableRow } from '@/types'
 import type { DropdownAction } from '@/utils'
@@ -25,7 +26,7 @@ export function TableComponent({
   customRenderer,
   actionsConfig,
   sortableColumnIndexes = [],
-  sortState = { columnIndex: null, direction: 'desc' },
+  sortState = { columnIndex: null, direction: SortDirection.Desc },
   onSortChange,
 }: FullTableComponentProps) {
   const [openActionsRowId, setOpenActionsRowId] = useState<string | null>(null)
@@ -68,10 +69,10 @@ export function TableComponent({
           isActive ? 'accent-text' : 'text-slate-300 dark:text-slate-600'
         }`}
       >
-        <svg viewBox="0 0 10 6" className={`h-[5px] w-[10px] ${direction === 'asc' ? '' : direction === 'desc' ? 'opacity-30' : 'opacity-60'}`} fill="currentColor">
+        <svg viewBox="0 0 10 6" className={`h-[5px] w-[10px] ${direction === SortDirection.Asc ? '' : direction === SortDirection.Desc ? 'opacity-30' : 'opacity-60'}`} fill="currentColor">
           <path d="M5 0 L10 6 L0 6 Z" />
         </svg>
-        <svg viewBox="0 0 10 6" className={`mt-[1px] h-[5px] w-[10px] ${direction === 'desc' ? '' : direction === 'asc' ? 'opacity-30' : 'opacity-60'}`} fill="currentColor">
+        <svg viewBox="0 0 10 6" className={`mt-[1px] h-[5px] w-[10px] ${direction === SortDirection.Desc ? '' : direction === SortDirection.Asc ? 'opacity-30' : 'opacity-60'}`} fill="currentColor">
           <path d="M0 0 L10 0 L5 6 Z" />
         </svg>
       </span>

@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   SettlementPagination,
   SettlementQueryParams,
@@ -70,7 +71,7 @@ export const initialSettlementQueryParams: SettlementQueryParams = {
   createdFrom: '',
   createdTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateSettlementForm: SettlementCreateForm = {

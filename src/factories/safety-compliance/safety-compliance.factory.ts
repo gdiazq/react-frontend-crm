@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   SafetyComplianceCreateForm,
   SafetyCompliancePagination,
@@ -49,7 +50,7 @@ export const initialSafetyComplianceQueryParams: SafetyComplianceQueryParams = {
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateSafetyComplianceForm: SafetyComplianceCreateForm = {

@@ -14,7 +14,14 @@ import {
   ToolbarActionsDropdownComponent,
   UserDetailComponent,
 } from '@/components'
-import { AUTH_ROUTE_USERS, AUTH_ROUTE_USERS_CREATE, AUTH_ROUTE_USERS_EDIT } from '@/constant'
+import {
+  AUTH_ROUTE_USERS,
+  AUTH_ROUTE_USERS_CREATE,
+  AUTH_ROUTE_USERS_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
 import { usersTableColumns, usersTableColumnIndex, usersTableSortByColumn } from '@/factories'
 import { mapperUserDetailView } from '@/mappers'
 import messages from '@/messages/messages'
@@ -22,7 +29,12 @@ import { usersService } from '@/services'
 import { useStoreAuth, useStoreSelects, useStoreUsers } from '@/store'
 import type { UserTableRow } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
-import { createUsersActions, createUsersTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import {
+  createUsersActions,
+  createUsersTableCustomRenderer,
+  downloadBlobFile,
+  formatCsvImportSummary,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const STATUS_COLUMN_INDEX = usersTableColumnIndex.status
@@ -55,7 +67,7 @@ export default function UsersDashboardPage() {
   const toggleUserStatus = useStoreUsers((s) => s.toggleUserStatus)
   const goToPage = useStoreUsers((s) => s.goToPage)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleUserStatus = hasPermission('USER', 'canUpdate')
+  const canToggleUserStatus = hasPermission(PermissionModule.User, PermissionAction.Update)
 
   const roleOptions = useStoreSelects((s) => s.roleOptions)
   const userNameOptions = useStoreSelects((s) => s.userNameOptions)
@@ -182,7 +194,7 @@ export default function UsersDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
 
     await sortUsers(sortBy, nextSortDir)
   }

@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   TerminationQuizQuestionCreateForm,
   TerminationQuizQuestionPagination,
@@ -56,7 +57,7 @@ export const initialTerminationQuizQuestionQueryParams: TerminationQuizQuestionQ
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateTerminationQuizQuestionForm: TerminationQuizQuestionCreateForm = {

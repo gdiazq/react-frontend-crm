@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type { ContractCreateForm, ContractsPagination, ContractsQueryParams, ContractTableRow, ContractsSortBy } from '@/types'
 
 export const contractsTableColumns: string[] = [
@@ -64,7 +65,7 @@ export const initialContractsQueryParams: ContractsQueryParams = {
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateContractForm: ContractCreateForm = {

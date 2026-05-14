@@ -1,19 +1,27 @@
 import { type ReactNode, useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
+import {
+  AUTH_ROUTE_HOME,
+  AUTH_ROUTE_LOGIN,
+  AUTH_ROUTE_LOGOUT,
+  AUTH_ROUTE_UNAUTHORIZED,
+  PermissionAction,
+} from '@/constant'
 import { useStoreAuth } from '@/store'
+import type { PermissionActionValue } from '@/constant'
 
 interface ProtectedRouteProps {
   children: ReactNode
   requiresPermissions?: boolean
   module?: string
-  permissionType?: 'canRead' | 'canCreate' | 'canUpdate' | 'canDelete'
+  permissionType?: PermissionActionValue
 }
 
 export function ProtectedRoute({
   children,
   requiresPermissions = false,
   module = '',
-  permissionType = 'canRead',
+  permissionType = PermissionAction.Read,
 }: ProtectedRouteProps) {
   const user = useStoreAuth((s) => s.user)
   const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
@@ -40,11 +48,11 @@ export function ProtectedRoute({
   }
 
   if (error || !user) {
-    return <Navigate to="/login" replace />
+    return <Navigate to={AUTH_ROUTE_LOGIN} replace />
   }
 
   if (requiresPermissions && module && !hasPermission(module, permissionType)) {
-    return <Navigate to="/unauthorized" replace />
+    return <Navigate to={AUTH_ROUTE_UNAUTHORIZED} replace />
   }
 
   return <>{children}</>
@@ -57,10 +65,10 @@ interface PublicRouteProps {
 export function PublicRoute({ children }: PublicRouteProps) {
   const user = useStoreAuth((s) => s.user)
   const location = useLocation()
-  const isLogoutRoute = location.pathname === '/logout'
+  const isLogoutRoute = location.pathname === AUTH_ROUTE_LOGOUT
 
   if (user && !isLogoutRoute) {
-    return <Navigate to="/" replace />
+    return <Navigate to={AUTH_ROUTE_HOME} replace />
   }
 
   return <>{children}</>

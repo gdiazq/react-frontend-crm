@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   TransferCreateForm,
   TransferPagination,
@@ -60,7 +61,7 @@ export const initialTransferQueryParams: TransferQueryParams = {
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateTransferForm: TransferCreateForm = {

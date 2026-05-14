@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type { OvertimeCreateForm, OvertimePagination, OvertimeQueryParams, OvertimeSortBy, OvertimeTableRow } from '@/types'
 
 export const overtimeTableColumns: string[] = [
@@ -59,7 +60,7 @@ export const initialOvertimeQueryParams: OvertimeQueryParams = {
   dateTo: '',
   overtimeTypeId: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialOvertimeForm: OvertimeCreateForm = {

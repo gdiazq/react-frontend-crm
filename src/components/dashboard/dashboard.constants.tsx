@@ -11,6 +11,7 @@ import {
   AUTH_ROUTE_SETTLEMENTS,
   AUTH_ROUTE_TRANSFERS,
   AUTH_ROUTE_USERS,
+  PermissionModule,
 } from '@/constant'
 import type { DashboardModule } from './dashboard.types'
 
@@ -30,7 +31,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Aprobación',
     description: 'Revisa flujos pendientes, operaciones solicitadas y trazabilidad RRHH.',
     route: AUTH_ROUTE_REQUESTS,
-    permissionModules: ['HR_REQUEST'],
+    permissionModules: [PermissionModule.HrRequest],
     accent: 'from-cyan-500 to-sky-500',
     icon: (
       <svg {...baseIconProps}>
@@ -46,7 +47,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Personas',
     description: 'Accede a expedientes, datos laborales, usuarios vinculados y estado de alta.',
     route: AUTH_ROUTE_EMPLOYEES,
-    permissionModules: ['EMPLOYEE'],
+    permissionModules: [PermissionModule.Employee],
     accent: 'from-emerald-500 to-lime-500',
     icon: (
       <svg {...baseIconProps}>
@@ -61,7 +62,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Documentos',
     description: 'Gestiona vínculos contractuales, vigencias y movimientos asociados.',
     route: AUTH_ROUTE_CONTRACTS,
-    permissionModules: ['CONTRACT'],
+    permissionModules: [PermissionModule.Contract],
     accent: 'from-amber-500 to-orange-500',
     icon: (
       <svg {...baseIconProps}>
@@ -75,7 +76,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Ausencias',
     description: 'Centraliza permisos, adjuntos, fechas y estado de revisión.',
     route: AUTH_ROUTE_LEAVES,
-    permissionModules: ['LEAVE'],
+    permissionModules: [PermissionModule.Leave],
     accent: 'from-sky-500 to-cyan-500',
     icon: (
       <svg {...baseIconProps}>
@@ -89,7 +90,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Jornada',
     description: 'Consulta marcas, estados diarios, centros de costo y trazabilidad laboral.',
     route: AUTH_ROUTE_ATTENDANCE,
-    permissionModules: ['ATTENDANCE'],
+    permissionModules: [PermissionModule.Attendance],
     accent: 'from-cyan-500 to-teal-500',
     icon: (
       <svg {...baseIconProps}>
@@ -104,7 +105,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Extensión',
     description: 'Registra y revisa bloques extra, recargos, aprobaciones y motivos.',
     route: AUTH_ROUTE_OVERTIME,
-    permissionModules: ['OVERTIME'],
+    permissionModules: [PermissionModule.Overtime],
     accent: 'from-orange-500 to-amber-500',
     icon: (
       <svg {...baseIconProps}>
@@ -119,7 +120,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Cambios',
     description: 'Consulta anexos contractuales, documentos y actualizaciones del registro.',
     route: AUTH_ROUTE_ANNEXES,
-    permissionModules: ['ANNEX'],
+    permissionModules: [PermissionModule.Annex],
     accent: 'from-teal-500 to-emerald-500',
     icon: (
       <svg {...baseIconProps}>
@@ -132,7 +133,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Movilidad',
     description: 'Controla cambios de proyecto, contrato y asignación operacional.',
     route: AUTH_ROUTE_TRANSFERS,
-    permissionModules: ['TRANSFER'],
+    permissionModules: [PermissionModule.Transfer],
     accent: 'from-blue-500 to-indigo-500',
     icon: (
       <svg {...baseIconProps}>
@@ -147,11 +148,11 @@ export const dashboardModules: DashboardModule[] = [
     description: 'Revisa causales, calidad, seguridad y registros de salida.',
     route: AUTH_ROUTE_SETTLEMENTS,
     permissionModules: [
-      'LEGAL_TERMINATION_CAUSE',
-      'QUALITY_OF_WORK',
-      'SAFETY_COMPLIANCE',
-      'NO_REHIRE_CAUSE',
-      'TERMINATION_QUIZ_QUESTION',
+      PermissionModule.LegalTerminationCause,
+      PermissionModule.QualityOfWork,
+      PermissionModule.SafetyCompliance,
+      PermissionModule.NoRehireCause,
+      PermissionModule.TerminationQuizQuestion,
     ],
     accent: 'from-rose-500 to-orange-500',
     icon: (
@@ -166,7 +167,12 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Operación',
     description: 'Entra a proyectos, tipos, especialidades y vigencias del servicio.',
     route: AUTH_ROUTE_PROJECTS,
-    permissionModules: ['PROJECT', 'PROJECT_TYPE', 'PROJECT_SPECIALTY', 'PROJECT_STATUS'],
+    permissionModules: [
+      PermissionModule.Project,
+      PermissionModule.ProjectType,
+      PermissionModule.ProjectSpecialty,
+      PermissionModule.ProjectStatus,
+    ],
     accent: 'from-cyan-500 to-emerald-500',
     icon: (
       <svg {...baseIconProps}>
@@ -179,7 +185,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Accesos',
     description: 'Administra cuentas, perfiles, sesiones y relación con trabajadores.',
     route: AUTH_ROUTE_USERS,
-    permissionModules: ['USER'],
+    permissionModules: [PermissionModule.User],
     accent: 'from-slate-600 to-cyan-500',
     icon: (
       <svg {...baseIconProps}>
@@ -193,7 +199,7 @@ export const dashboardModules: DashboardModule[] = [
     eyebrow: 'Permisos',
     description: 'Define roles y capacidades para cada módulo del sistema.',
     route: AUTH_ROUTE_ROLES,
-    permissionModules: ['ROLE'],
+    permissionModules: [PermissionModule.Role],
     accent: 'from-zinc-700 to-sky-500',
     icon: (
       <svg {...baseIconProps}>

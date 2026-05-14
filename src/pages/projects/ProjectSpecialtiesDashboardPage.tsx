@@ -15,14 +15,30 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_PROJECT_SPECIALTIES, AUTH_ROUTE_PROJECT_SPECIALTIES_CREATE, AUTH_ROUTE_PROJECT_SPECIALTIES_EDIT } from '@/constant'
-import { projectSpecialtiesTableColumns, projectSpecialtiesTableColumnIndex, projectSpecialtiesTableSortByColumn } from '@/factories'
+import {
+  AUTH_ROUTE_PROJECT_SPECIALTIES,
+  AUTH_ROUTE_PROJECT_SPECIALTIES_CREATE,
+  AUTH_ROUTE_PROJECT_SPECIALTIES_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
+import {
+  projectSpecialtiesTableColumns,
+  projectSpecialtiesTableColumnIndex,
+  projectSpecialtiesTableSortByColumn,
+} from '@/factories'
 import { mapperProjectSpecialtyDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { projectSpecialtiesService } from '@/services'
 import { useStoreAuth, useStoreProjectSpecialties, useStoreSelects } from '@/store'
 import type { ProjectSpecialtyTableRow, TableRow, TableSortState } from '@/types'
-import { createProjectSpecialtiesActions, createProjectSpecialtiesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import {
+  createProjectSpecialtiesActions,
+  createProjectSpecialtiesTableCustomRenderer,
+  downloadBlobFile,
+  formatCsvImportSummary,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const PROJECT_SPECIALTY_NAME_COLUMN_INDEX = projectSpecialtiesTableColumnIndex.name
@@ -58,7 +74,7 @@ export default function ProjectSpecialtiesDashboardPage() {
   const toggleProjectSpecialtyStatus = useStoreProjectSpecialties((s) => s.toggleProjectSpecialtyStatus)
   const clearProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.clearProjectSpecialtyDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleProjectSpecialtyStatus = hasPermission('PROJECT_SPECIALTY', 'canUpdate')
+  const canToggleProjectSpecialtyStatus = hasPermission(PermissionModule.ProjectSpecialty, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -167,7 +183,7 @@ export default function ProjectSpecialtiesDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
 
     await sortProjectSpecialties(sortBy, nextSortDir)
   }

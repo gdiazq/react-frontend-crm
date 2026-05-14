@@ -16,15 +16,29 @@ import {
   TabsComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { ProjectCostCenterEmployeesTabComponent } from '@/components/projects/ProjectCostCenterEmployeesTabComponent'
-import { AUTH_ROUTE_PROJECTS, AUTH_ROUTE_PROJECTS_CREATE, AUTH_ROUTE_PROJECTS_EDIT } from '@/constant'
+import {
+  ProjectCostCenterEmployeesTabComponent,
+} from '@/components/projects/ProjectCostCenterEmployeesTabComponent'
+import {
+  AUTH_ROUTE_PROJECTS,
+  AUTH_ROUTE_PROJECTS_CREATE,
+  AUTH_ROUTE_PROJECTS_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
 import { projectsTableColumns, projectsTableColumnIndex, projectsTableSortByColumn } from '@/factories'
 import { mapperProjectDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { projectsService } from '@/services'
 import { useStoreAuth, useStoreProjects, useStoreSelects } from '@/store'
 import type { ProjectTableRow, TableRow, TableSortState } from '@/types'
-import { createProjectsActions, createProjectsTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import {
+  createProjectsActions,
+  createProjectsTableCustomRenderer,
+  downloadBlobFile,
+  formatCsvImportSummary,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const PROJECT_TYPE_COLUMN_INDEX = projectsTableColumnIndex.type
@@ -76,8 +90,8 @@ export default function ProjectsDashboardPage() {
   const sortProjects = useStoreProjects((s) => s.sortProjects)
   const toggleProjectStatus = useStoreProjects((s) => s.toggleProjectStatus)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canReadProject = hasPermission('PROJECT', 'canRead')
-  const canUpdateProject = hasPermission('PROJECT', 'canUpdate')
+  const canReadProject = hasPermission(PermissionModule.Project, PermissionAction.Read)
+  const canUpdateProject = hasPermission(PermissionModule.Project, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -256,7 +270,7 @@ export default function ProjectsDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortProjects(sortBy, nextSortDir)
   }
 

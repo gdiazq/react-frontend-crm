@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type { UserCreateForm, UserTableRow, UsersPagination, UsersQueryParams, UsersSortBy } from '@/types'
 
 export const usersTableColumns: string[] = [
@@ -52,7 +53,7 @@ export const initialUsersQueryParams: UsersQueryParams = {
   status: '',
   roleId: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateUserForm: UserCreateForm = {

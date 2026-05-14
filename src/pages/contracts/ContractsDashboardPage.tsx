@@ -14,13 +14,28 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_ANNEXES, AUTH_ROUTE_CONTRACTS_CREATE, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
+import {
+  AUTH_ROUTE_ANNEXES,
+  AUTH_ROUTE_CONTRACTS_CREATE,
+  AUTH_ROUTE_CONTRACTS_EDIT,
+  SortDirection,
+} from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
 import { mapperContractDetailView } from '@/mappers'
 import { contractsService, storageService } from '@/services'
-import { useStoreAnnexes, useStoreContractSelects, useStoreContracts, useStoreEmployeeSelects } from '@/store'
+import {
+  useStoreAnnexes,
+  useStoreContractSelects,
+  useStoreContracts,
+  useStoreEmployeeSelects,
+} from '@/store'
 import type { ContractTableRow, TableRow, TableSortState } from '@/types'
-import { createContractsActions, createContractsTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import {
+  createContractsActions,
+  createContractsTableCustomRenderer,
+  downloadBlobFile,
+  formatCsvImportSummary,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const CONTRACT_EMPLOYEE_NAME_COLUMN_INDEX = contractsTableColumnIndex.employeeName
@@ -219,7 +234,7 @@ export default function ContractsDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
 
     await sortContracts(sortBy, nextSortDir)
   }

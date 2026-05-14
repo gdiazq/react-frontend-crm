@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type { RequestTableRow, RequestsPagination, RequestsQueryParams, RequestsSortBy } from '@/types'
 
 export const requestsTableColumns: string[] = [
@@ -56,5 +57,5 @@ export const initialRequestsQueryParams: RequestsQueryParams = {
   approvalFrom: '',
   approvalTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }

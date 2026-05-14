@@ -14,7 +14,14 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_ROLES, AUTH_ROUTE_ROLES_CREATE, AUTH_ROUTE_ROLES_EDIT } from '@/constant'
+import {
+  AUTH_ROUTE_ROLES,
+  AUTH_ROUTE_ROLES_CREATE,
+  AUTH_ROUTE_ROLES_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
 import { rolesTableColumns, rolesTableColumnIndex, rolesTableSortByColumn } from '@/factories'
 import { mapperRoleDetailView } from '@/mappers'
 import messages from '@/messages/messages'
@@ -22,7 +29,12 @@ import { rolesService } from '@/services'
 import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
 import type { RoleTableRow } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
-import { createRolesActions, createRolesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import {
+  createRolesActions,
+  createRolesTableCustomRenderer,
+  downloadBlobFile,
+  formatCsvImportSummary,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const ROLE_NAME_COLUMN_INDEX = rolesTableColumnIndex.name
@@ -55,7 +67,7 @@ export default function RolesDashboardPage() {
   const toggleRoleStatus = useStoreRoles((s) => s.toggleRoleStatus)
   const clearRoleDetail = useStoreRoles((s) => s.clearRoleDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleRoleStatus = hasPermission('ROLE', 'canUpdate')
+  const canToggleRoleStatus = hasPermission(PermissionModule.Role, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -171,7 +183,7 @@ export default function RolesDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
 
     await sortRoles(sortBy, nextSortDir)
   }

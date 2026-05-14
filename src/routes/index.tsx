@@ -2,6 +2,62 @@ import { createBrowserRouter } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { ProtectedRoute, PublicRoute } from '@/middlewares/auth.middleware'
 import { LayoutPrivateDefault } from '@/layouts'
+import {
+  AUTH_ROUTE_ANNEXES,
+  AUTH_ROUTE_ANNEXES_CREATE,
+  AUTH_ROUTE_ATTENDANCE,
+  AUTH_ROUTE_ATTENDANCE_CREATE,
+  AUTH_ROUTE_CONTRACTS,
+  AUTH_ROUTE_CONTRACTS_CREATE,
+  AUTH_ROUTE_CREATE_PASSWORD,
+  AUTH_ROUTE_DASHBOARD,
+  AUTH_ROUTE_DASHBOARD_EXAMPLE,
+  AUTH_ROUTE_EMPLOYEES,
+  AUTH_ROUTE_EMPLOYEES_CREATE,
+  AUTH_ROUTE_HOME,
+  AUTH_ROUTE_LEAVES,
+  AUTH_ROUTE_LEAVES_CREATE,
+  AUTH_ROUTE_LOGIN,
+  AUTH_ROUTE_LOGIN_CREDENTIALS,
+  AUTH_ROUTE_LOGOUT,
+  AUTH_ROUTE_OVERTIME,
+  AUTH_ROUTE_OVERTIME_CREATE,
+  AUTH_ROUTE_PROJECT_ASSIGNMENTS,
+  AUTH_ROUTE_PROJECT_SPECIALTIES,
+  AUTH_ROUTE_PROJECT_SPECIALTIES_CREATE,
+  AUTH_ROUTE_PROJECT_STATUSES,
+  AUTH_ROUTE_PROJECT_STATUSES_CREATE,
+  AUTH_ROUTE_PROJECT_TYPES,
+  AUTH_ROUTE_PROJECT_TYPES_CREATE,
+  AUTH_ROUTE_PROJECTS,
+  AUTH_ROUTE_PROJECTS_CREATE,
+  AUTH_ROUTE_RECOVERY,
+  AUTH_ROUTE_REGISTER,
+  AUTH_ROUTE_REQUESTS,
+  AUTH_ROUTE_ROLES,
+  AUTH_ROUTE_ROLES_CREATE,
+  AUTH_ROUTE_SETTINGS,
+  AUTH_ROUTE_SETTLEMENTS,
+  AUTH_ROUTE_SETTLEMENTS_CREATE,
+  AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE,
+  AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE_CREATE,
+  AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE,
+  AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE_CREATE,
+  AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES,
+  AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_CREATE,
+  AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION,
+  AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION_CREATE,
+  AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY,
+  AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY_CREATE,
+  AUTH_ROUTE_TRANSFERS,
+  AUTH_ROUTE_TRANSFERS_CREATE,
+  AUTH_ROUTE_UNAUTHORIZED,
+  AUTH_ROUTE_USERS,
+  AUTH_ROUTE_USERS_CREATE,
+  AUTH_ROUTE_VERIFY_EMAIL,
+  PermissionAction,
+  PermissionModule,
+} from '@/constant'
 
 // Lazy-load pages
 const LoginPage = lazy(() => import('@/pages/public/LoginPage'))
@@ -70,7 +126,7 @@ function wrap(element: React.ReactElement) {
 
 export const router = createBrowserRouter([
   {
-    path: '/login',
+    path: AUTH_ROUTE_LOGIN,
     element: wrap(
       <PublicRoute>
         <LoginPage />
@@ -78,7 +134,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/login/credentials',
+    path: AUTH_ROUTE_LOGIN_CREDENTIALS,
     element: wrap(
       <PublicRoute>
         <LoginCredentialsPage />
@@ -86,7 +142,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/register',
+    path: AUTH_ROUTE_REGISTER,
     element: wrap(
       <PublicRoute>
         <RegisterPage />
@@ -94,7 +150,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/recovery',
+    path: AUTH_ROUTE_RECOVERY,
     element: wrap(
       <PublicRoute>
         <RecoveryPage />
@@ -102,7 +158,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/verify-email',
+    path: AUTH_ROUTE_VERIFY_EMAIL,
     element: wrap(
       <PublicRoute>
         <VerifyEmailPage />
@@ -110,7 +166,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/create-password',
+    path: AUTH_ROUTE_CREATE_PASSWORD,
     element: wrap(
       <PublicRoute>
         <CreatePasswordPage />
@@ -118,7 +174,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/logout',
+    path: AUTH_ROUTE_LOGOUT,
     element: wrap(
       <PublicRoute>
         <LogoutPage />
@@ -126,11 +182,11 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/dashboard-example',
+    path: AUTH_ROUTE_DASHBOARD_EXAMPLE,
     element: wrap(<DashboardExamplePage />),
   },
   {
-    path: '/',
+    path: AUTH_ROUTE_HOME,
     element: wrap(<HomePage />),
   },
   {
@@ -141,171 +197,171 @@ export const router = createBrowserRouter([
     ),
     children: [
       {
-        path: '/dashboard',
+        path: AUTH_ROUTE_DASHBOARD,
         element: <DashboardPage />,
       },
       {
-        path: '/settings',
+        path: AUTH_ROUTE_SETTINGS,
         element: <SettingsPage />,
       },
       {
-        path: '/users',
+        path: AUTH_ROUTE_USERS,
         element: (
-          <ProtectedRoute requiresPermissions module="USER" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.User} permissionType={PermissionAction.Read}>
             <UsersDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/requests',
+        path: AUTH_ROUTE_REQUESTS,
         element: (
-          <ProtectedRoute requiresPermissions module="HR_REQUEST" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.HrRequest} permissionType={PermissionAction.Read}>
             <RequestsDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/employees',
+        path: AUTH_ROUTE_EMPLOYEES,
         element: (
-          <ProtectedRoute requiresPermissions module="EMPLOYEE" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Employee} permissionType={PermissionAction.Read}>
             <EmployeesDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/annexes',
+        path: AUTH_ROUTE_ANNEXES,
         element: (
-          <ProtectedRoute requiresPermissions module="ANNEX" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Annex} permissionType={PermissionAction.Read}>
             <AnnexesDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/annexes/new',
+        path: AUTH_ROUTE_ANNEXES_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="ANNEX" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Annex} permissionType={PermissionAction.Create}>
             <AnnexesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/annexes/:editId',
+        path: `${AUTH_ROUTE_ANNEXES}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="ANNEX" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Annex} permissionType={PermissionAction.Update}>
             <AnnexesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/contracts',
+        path: AUTH_ROUTE_CONTRACTS,
         element: (
-          <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Contract} permissionType={PermissionAction.Read}>
             <ContractsDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/leaves',
+        path: AUTH_ROUTE_LEAVES,
         element: (
-          <ProtectedRoute requiresPermissions module="LEAVE" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Leave} permissionType={PermissionAction.Read}>
             <LeavesDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/leaves/new',
+        path: AUTH_ROUTE_LEAVES_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="LEAVE" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Leave} permissionType={PermissionAction.Create}>
             <LeavesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/leaves/:editId',
+        path: `${AUTH_ROUTE_LEAVES}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="LEAVE" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Leave} permissionType={PermissionAction.Update}>
             <LeavesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/attendance',
+        path: AUTH_ROUTE_ATTENDANCE,
         element: (
-          <ProtectedRoute requiresPermissions module="ATTENDANCE" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Attendance} permissionType={PermissionAction.Read}>
             <AttendanceDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/attendance/new',
+        path: AUTH_ROUTE_ATTENDANCE_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="ATTENDANCE" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Attendance} permissionType={PermissionAction.Create}>
             <AttendanceFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/attendance/:editId',
+        path: `${AUTH_ROUTE_ATTENDANCE}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="ATTENDANCE" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Attendance} permissionType={PermissionAction.Update}>
             <AttendanceFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/overtime',
+        path: AUTH_ROUTE_OVERTIME,
         element: (
-          <ProtectedRoute requiresPermissions module="OVERTIME" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Overtime} permissionType={PermissionAction.Read}>
             <OvertimeDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/overtime/new',
+        path: AUTH_ROUTE_OVERTIME_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="OVERTIME" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Overtime} permissionType={PermissionAction.Create}>
             <OvertimeFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/overtime/:editId',
+        path: `${AUTH_ROUTE_OVERTIME}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="OVERTIME" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Overtime} permissionType={PermissionAction.Update}>
             <OvertimeFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/transfers',
+        path: AUTH_ROUTE_TRANSFERS,
         element: (
-          <ProtectedRoute requiresPermissions module="TRANSFER" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Transfer} permissionType={PermissionAction.Read}>
             <TransfersDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/settlements',
+        path: AUTH_ROUTE_SETTLEMENTS,
         element: <SettlementsDashboardPage />,
       },
       {
-        path: '/settlements/new',
+        path: AUTH_ROUTE_SETTLEMENTS_CREATE,
         element: <SettlementFormDashboardPage />,
       },
       {
-        path: '/settlements/:editId',
+        path: `${AUTH_ROUTE_SETTLEMENTS}/:editId`,
         element: <SettlementFormDashboardPage />,
       },
       {
-        path: '/settlements/termination-causes',
+        path: AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES,
         element: <LegalTerminationCausesDashboardPage />,
       },
       {
-        path: '/settlements/termination-causes/new',
+        path: AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_CREATE,
         element: <LegalTerminationCausesFormDashboardPage />,
       },
       {
-        path: '/settlements/termination-causes/:editId',
+        path: `${AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES}/:editId`,
         element: <LegalTerminationCausesFormDashboardPage />,
       },
       {
@@ -313,247 +369,247 @@ export const router = createBrowserRouter([
         element: <NotFoundPage />,
       },
       {
-        path: '/settlements/work-quality',
+        path: AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY,
         element: <SettlementsWorkQualityDashboardPage />,
       },
       {
-        path: '/settlements/work-quality/new',
+        path: AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY_CREATE,
         element: <SettlementsWorkQualityFormDashboardPage />,
       },
       {
-        path: '/settlements/work-quality/:editId',
+        path: `${AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY}/:editId`,
         element: <SettlementsWorkQualityFormDashboardPage />,
       },
       {
-        path: '/settlements/safety-compliance',
+        path: AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE,
         element: <SafetyComplianceDashboardPage />,
       },
       {
-        path: '/settlements/safety-compliance/new',
+        path: AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE_CREATE,
         element: <SafetyComplianceFormDashboardPage />,
       },
       {
-        path: '/settlements/safety-compliance/:editId',
+        path: `${AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE}/:editId`,
         element: <SafetyComplianceFormDashboardPage />,
       },
       {
-        path: '/settlements/no-rehire-cause',
+        path: AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE,
         element: <NoRehireCauseDashboardPage />,
       },
       {
-        path: '/settlements/no-rehire-cause/new',
+        path: AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE_CREATE,
         element: <NoRehireCauseFormDashboardPage />,
       },
       {
-        path: '/settlements/no-rehire-cause/:editId',
+        path: `${AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE}/:editId`,
         element: <NoRehireCauseFormDashboardPage />,
       },
       {
-        path: '/settlements/termination-quiz-question',
+        path: AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION,
         element: <TerminationQuizQuestionDashboardPage />,
       },
       {
-        path: '/settlements/termination-quiz-question/new',
+        path: AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION_CREATE,
         element: <TerminationQuizQuestionFormDashboardPage />,
       },
       {
-        path: '/settlements/termination-quiz-question/:editId',
+        path: `${AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION}/:editId`,
         element: <TerminationQuizQuestionFormDashboardPage />,
       },
       {
-        path: '/projects',
+        path: AUTH_ROUTE_PROJECTS,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Project} permissionType={PermissionAction.Read}>
             <ProjectsDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/history',
+        path: AUTH_ROUTE_PROJECT_ASSIGNMENTS,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Project} permissionType={PermissionAction.Read}>
             <ProjectAssignmentsDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/new',
+        path: AUTH_ROUTE_PROJECTS_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Project} permissionType={PermissionAction.Create}>
             <ProjectsFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/:editId',
+        path: `${AUTH_ROUTE_PROJECTS}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Project} permissionType={PermissionAction.Update}>
             <ProjectsFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/types',
+        path: AUTH_ROUTE_PROJECT_TYPES,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT_TYPE" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.ProjectType} permissionType={PermissionAction.Read}>
             <ProjectTypesDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/types/new',
+        path: AUTH_ROUTE_PROJECT_TYPES_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT_TYPE" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.ProjectType} permissionType={PermissionAction.Create}>
             <ProjectTypesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/types/:editId',
+        path: `${AUTH_ROUTE_PROJECT_TYPES}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT_TYPE" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.ProjectType} permissionType={PermissionAction.Update}>
             <ProjectTypesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/specialties',
+        path: AUTH_ROUTE_PROJECT_SPECIALTIES,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT_SPECIALTY" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.ProjectSpecialty} permissionType={PermissionAction.Read}>
             <ProjectSpecialtiesDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/specialties/new',
+        path: AUTH_ROUTE_PROJECT_SPECIALTIES_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT_SPECIALTY" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.ProjectSpecialty} permissionType={PermissionAction.Create}>
             <ProjectSpecialtiesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/specialties/:editId',
+        path: `${AUTH_ROUTE_PROJECT_SPECIALTIES}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT_SPECIALTY" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.ProjectSpecialty} permissionType={PermissionAction.Update}>
             <ProjectSpecialtiesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/statuses',
+        path: AUTH_ROUTE_PROJECT_STATUSES,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT_STATUS" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.ProjectStatus} permissionType={PermissionAction.Read}>
             <ProjectStatusesDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/statuses/new',
+        path: AUTH_ROUTE_PROJECT_STATUSES_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT_STATUS" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.ProjectStatus} permissionType={PermissionAction.Create}>
             <ProjectStatusesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/projects/statuses/:editId',
+        path: `${AUTH_ROUTE_PROJECT_STATUSES}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="PROJECT_STATUS" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.ProjectStatus} permissionType={PermissionAction.Update}>
             <ProjectStatusesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/contracts/new',
+        path: AUTH_ROUTE_CONTRACTS_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Contract} permissionType={PermissionAction.Create}>
             <ContractsFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/contracts/:editId',
+        path: `${AUTH_ROUTE_CONTRACTS}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="CONTRACT" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Contract} permissionType={PermissionAction.Update}>
             <ContractsFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/transfers/new',
+        path: AUTH_ROUTE_TRANSFERS_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="TRANSFER" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Transfer} permissionType={PermissionAction.Create}>
             <TransferFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/transfers/:editId',
+        path: `${AUTH_ROUTE_TRANSFERS}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="TRANSFER" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Transfer} permissionType={PermissionAction.Update}>
             <TransferFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/employees/new',
+        path: AUTH_ROUTE_EMPLOYEES_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="EMPLOYEE" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Employee} permissionType={PermissionAction.Create}>
             <EmployeesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/employees/:editId',
+        path: `${AUTH_ROUTE_EMPLOYEES}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="EMPLOYEE" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Employee} permissionType={PermissionAction.Update}>
             <EmployeesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/roles',
+        path: AUTH_ROUTE_ROLES,
         element: (
-          <ProtectedRoute requiresPermissions module="ROLE" permissionType="canRead">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Role} permissionType={PermissionAction.Read}>
             <RolesDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/roles/new',
+        path: AUTH_ROUTE_ROLES_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="ROLE" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Role} permissionType={PermissionAction.Create}>
             <RolesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/roles/:editId',
+        path: `${AUTH_ROUTE_ROLES}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="ROLE" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.Role} permissionType={PermissionAction.Update}>
             <RolesFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/users/new',
+        path: AUTH_ROUTE_USERS_CREATE,
         element: (
-          <ProtectedRoute requiresPermissions module="USER" permissionType="canCreate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.User} permissionType={PermissionAction.Create}>
             <UsersFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/users/:editId',
+        path: `${AUTH_ROUTE_USERS}/:editId`,
         element: (
-          <ProtectedRoute requiresPermissions module="USER" permissionType="canUpdate">
+          <ProtectedRoute requiresPermissions module={PermissionModule.User} permissionType={PermissionAction.Update}>
             <UsersFormDashboardPage />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/unauthorized',
+        path: AUTH_ROUTE_UNAUTHORIZED,
         element: <UnauthorizedPage />,
       },
     ],

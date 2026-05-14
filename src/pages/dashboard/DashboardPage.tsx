@@ -6,7 +6,7 @@ import {
   DashboardSummaryCardsComponent,
   dashboardModules,
 } from '@/components'
-import { AUTH_ROUTE_SETTINGS } from '@/constant'
+import { AUTH_ROUTE_SETTINGS, PermissionAction } from '@/constant'
 import { useStoreAuth } from '@/store'
 
 const RRHH_MODULE_LABELS = ['Solicitudes', 'Trabajadores', 'Contratos', 'Permisos', 'Asistencia', 'Horas extras', 'Anexos', 'Traspasos', 'Finiquitos']
@@ -18,7 +18,7 @@ export default function DashboardPage() {
   const permissions = useStoreAuth((s) => s.permissions)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
 
-  const visibleModules = dashboardModules.filter((item) => item.permissionModules.some((module) => hasPermission(module, 'canRead')))
+  const visibleModules = dashboardModules.filter((item) => item.permissionModules.some((module) => hasPermission(module, PermissionAction.Read)))
   const rrhhModules = visibleModules.filter((item) => RRHH_MODULE_LABELS.includes(item.label))
   const adminModules = visibleModules.filter((item) => ADMIN_MODULE_LABELS.includes(item.label))
   const projectModules = visibleModules.filter((item) => item.label === 'Proyectos')

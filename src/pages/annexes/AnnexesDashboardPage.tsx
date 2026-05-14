@@ -14,7 +14,7 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_ANNEXES_CREATE, AUTH_ROUTE_ANNEXES_EDIT } from '@/constant'
+import { AUTH_ROUTE_ANNEXES_CREATE, AUTH_ROUTE_ANNEXES_EDIT, SortDirection } from '@/constant'
 import { annexesTableColumns, annexesTableColumnIndex, annexesTableSortByColumn } from '@/factories'
 import { mapperAnnexDetailView } from '@/mappers'
 import { annexesService, storageService } from '@/services'
@@ -174,7 +174,7 @@ export default function AnnexesDashboardPage() {
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = annexesTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortAnnexes(sortBy, nextSortDir)
   }
 

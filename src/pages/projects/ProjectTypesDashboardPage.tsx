@@ -15,14 +15,26 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_PROJECT_TYPES, AUTH_ROUTE_PROJECT_TYPES_CREATE, AUTH_ROUTE_PROJECT_TYPES_EDIT } from '@/constant'
+import {
+  AUTH_ROUTE_PROJECT_TYPES,
+  AUTH_ROUTE_PROJECT_TYPES_CREATE,
+  AUTH_ROUTE_PROJECT_TYPES_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
 import { projectTypesTableColumns, projectTypesTableColumnIndex, projectTypesTableSortByColumn } from '@/factories'
 import { mapperProjectTypeDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { projectTypesService } from '@/services'
 import { useStoreAuth, useStoreProjectTypes, useStoreSelects } from '@/store'
 import type { ProjectTypeTableRow, TableRow, TableSortState } from '@/types'
-import { createProjectTypesActions, createProjectTypesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import {
+  createProjectTypesActions,
+  createProjectTypesTableCustomRenderer,
+  downloadBlobFile,
+  formatCsvImportSummary,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const PROJECT_TYPE_NAME_COLUMN_INDEX = projectTypesTableColumnIndex.name
@@ -58,7 +70,7 @@ export default function ProjectTypesDashboardPage() {
   const toggleProjectTypeStatus = useStoreProjectTypes((s) => s.toggleProjectTypeStatus)
   const clearProjectTypeDetail = useStoreProjectTypes((s) => s.clearProjectTypeDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleProjectTypeStatus = hasPermission('PROJECT_TYPE', 'canUpdate')
+  const canToggleProjectTypeStatus = hasPermission(PermissionModule.ProjectType, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -167,7 +179,7 @@ export default function ProjectTypesDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
 
     await sortProjectTypes(sortBy, nextSortDir)
   }

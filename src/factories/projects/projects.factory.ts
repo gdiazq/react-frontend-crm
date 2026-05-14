@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   ProjectCreateForm,
   ProjectsPagination,
@@ -72,7 +73,7 @@ export const initialProjectsQueryParams: ProjectsQueryParams = {
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateProjectForm: ProjectCreateForm = {

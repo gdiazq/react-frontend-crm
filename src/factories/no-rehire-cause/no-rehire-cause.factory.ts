@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   NoRehireCauseCreateForm,
   NoRehireCausePagination,
@@ -49,7 +50,7 @@ export const initialNoRehireCauseQueryParams: NoRehireCauseQueryParams = {
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateNoRehireCauseForm: NoRehireCauseCreateForm = {

@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type { LeaveCreateForm, LeavesPagination, LeavesQueryParams, LeavesSortBy, LeaveTableRow } from '@/types'
 
 export const leavesTableColumns: string[] = [
@@ -67,7 +68,7 @@ export const initialLeavesQueryParams: LeavesQueryParams = {
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateLeaveForm: LeaveCreateForm = {

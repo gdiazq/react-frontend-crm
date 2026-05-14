@@ -13,13 +13,27 @@ import {
   TableComponent,
 } from '@/components'
 import { OvertimeDetailComponent } from '@/components/overtime/OvertimeDetailComponent'
-import { AUTH_ROUTE_OVERTIME_CREATE, AUTH_ROUTE_OVERTIME_EDIT } from '@/constant'
+import {
+  AUTH_ROUTE_OVERTIME_CREATE,
+  AUTH_ROUTE_OVERTIME_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
 import { overtimeTableColumns, overtimeTableColumnIndex, overtimeTableSortByColumn } from '@/factories'
 import { mapperOvertimeDetailView } from '@/mappers'
-import { useStoreAttendanceSelects, useStoreAuth, useStoreEmployeeSelects, useStoreOvertime } from '@/store'
+import {
+  useStoreAttendanceSelects,
+  useStoreAuth,
+  useStoreEmployeeSelects,
+  useStoreOvertime,
+} from '@/store'
 import type { TableSortState } from '@/components'
 import type { OvertimeTableRow, TableRow } from '@/types'
-import { createOvertimeActions, createOvertimeTableCustomRenderer } from '@/utils'
+import {
+  createOvertimeActions,
+  createOvertimeTableCustomRenderer,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const OVERTIME_EMPLOYEE_NAME_COLUMN_INDEX = overtimeTableColumnIndex.employeeName
@@ -100,8 +114,8 @@ export default function OvertimeDashboardPage() {
     value: String(option.id),
   }))
   const { actionViewDetail, actionUpdateOvertime } = createOvertimeActions()
-  const canCreateOvertime = hasPermission('OVERTIME', 'canCreate')
-  const canUpdateOvertime = hasPermission('OVERTIME', 'canUpdate')
+  const canCreateOvertime = hasPermission(PermissionModule.Overtime, PermissionAction.Create)
+  const canUpdateOvertime = hasPermission(PermissionModule.Overtime, PermissionAction.Update)
   const overtimeDetailView = mapperOvertimeDetailView(overtimeDetail)
   const detailTitle = overtimeDetailView
     ? `Detalle de ${overtimeDetailView.employeeName}`
@@ -167,7 +181,7 @@ export default function OvertimeDashboardPage() {
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = overtimeTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortOvertime(sortBy, nextSortDir)
   }
 

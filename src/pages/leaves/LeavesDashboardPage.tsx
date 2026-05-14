@@ -14,8 +14,13 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_LEAVES_CREATE, AUTH_ROUTE_LEAVES_EDIT } from '@/constant'
-import { leaveStatusFilterOptions, leavesTableColumns, leavesTableColumnIndex, leavesTableSortByColumn } from '@/factories'
+import { AUTH_ROUTE_LEAVES_CREATE, AUTH_ROUTE_LEAVES_EDIT, SortDirection } from '@/constant'
+import {
+  leaveStatusFilterOptions,
+  leavesTableColumns,
+  leavesTableColumnIndex,
+  leavesTableSortByColumn,
+} from '@/factories'
 import { mapperLeaveDetailView } from '@/mappers'
 import { leavesService, storageService } from '@/services'
 import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
@@ -196,7 +201,7 @@ export default function LeavesDashboardPage() {
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = leavesTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortLeaves(sortBy, nextSortDir)
   }
 

@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import { useEffect, useState } from 'react'
 import {
   AlertMessageComponent,
@@ -20,7 +21,11 @@ import messages from '@/messages/messages'
 import { requestsService } from '@/services'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
 import type { RequestTableRow, TableRow, TableSortState } from '@/types'
-import { createRequestsActions, createRequestsTableCustomRenderer, downloadBlobFile } from '@/utils'
+import {
+  createRequestsActions,
+  createRequestsTableCustomRenderer,
+  downloadBlobFile,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const REQUEST_STATUS_COLUMN_INDEX = requestsTableColumnIndex.status
@@ -187,7 +192,7 @@ export default function RequestsDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
 
     await sortRequests(sortBy, nextSortDir)
   }

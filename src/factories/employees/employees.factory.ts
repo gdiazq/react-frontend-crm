@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type { EmployeeCreateForm, EmployeesPagination, EmployeesQueryParams, EmployeeTableRow, EmployeesSortBy } from '@/types'
 
 export const employeesTableColumns: string[] = [
@@ -54,7 +55,7 @@ export const initialEmployeesQueryParams: EmployeesQueryParams = {
   createdFrom: '',
   createdTo: '',
   sortBy: 'createdAt',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateEmployeeForm: EmployeeCreateForm = {

@@ -19,6 +19,9 @@ import {
   AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE,
   AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE_CREATE,
   AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
 } from '@/constant'
 import {
   safetyComplianceTableColumns,
@@ -71,7 +74,7 @@ export default function SafetyComplianceDashboardPage() {
   const toggleSafetyComplianceStatus = useStoreSafetyCompliance((s) => s.toggleSafetyComplianceStatus)
   const clearSafetyComplianceDetail = useStoreSafetyCompliance((s) => s.clearSafetyComplianceDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleSafetyComplianceStatus = hasPermission('SAFETY_COMPLIANCE', 'canUpdate')
+  const canToggleSafetyComplianceStatus = hasPermission(PermissionModule.SafetyCompliance, PermissionAction.Update)
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
@@ -184,7 +187,7 @@ export default function SafetyComplianceDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortSafetyCompliance(sortBy, nextSortDir)
   }
 

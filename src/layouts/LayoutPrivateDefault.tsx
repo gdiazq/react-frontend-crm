@@ -1,4 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import {
   AUTH_ROUTE_ANNEXES,
@@ -25,10 +30,18 @@ import {
   AUTH_ROUTE_REQUESTS,
   AUTH_ROUTE_ROLES,
   AUTH_ROUTE_SETTINGS,
+  AUTH_ROUTE_UNAUTHORIZED,
   AUTH_ROUTE_USERS,
+  PermissionAction,
+  PermissionModule,
 } from '@/constant'
 import { NavbarComponent, NotificationPanel, SidebarComponent } from '@/components'
-import { useStoreAuth, useStoreCalendar, useStoreNotification, useStoreTheme } from '@/store'
+import {
+  useStoreAuth,
+  useStoreCalendar,
+  useStoreNotification,
+  useStoreTheme,
+} from '@/store'
 import { selectFilterNotifications, selectUnreadCount } from '@/store/notification.store'
 
 export function LayoutPrivateDefault() {
@@ -60,20 +73,20 @@ export function LayoutPrivateDefault() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const disconnectRef = useRef(disconnect)
   disconnectRef.current = disconnect
-  const canReadUsers = hasPermission('USER', 'canRead')
-  const canReadRequests = hasPermission('HR_REQUEST', 'canRead')
-  const canReadEmployees = hasPermission('EMPLOYEE', 'canRead')
-  const canReadContracts = hasPermission('CONTRACT', 'canRead')
-  const canReadLeaves = hasPermission('LEAVE', 'canRead')
-  const canReadAttendance = hasPermission('ATTENDANCE', 'canRead')
-  const canReadOvertime = hasPermission('OVERTIME', 'canRead')
-  const canReadAnnexes = hasPermission('ANNEX', 'canRead')
-  const canReadTransfers = hasPermission('TRANSFER', 'canRead')
-  const canReadProjects = hasPermission('PROJECT', 'canRead')
-  const canReadProjectTypes = hasPermission('PROJECT_TYPE', 'canRead')
-  const canReadProjectSpecialties = hasPermission('PROJECT_SPECIALTY', 'canRead')
-  const canReadProjectStatuses = hasPermission('PROJECT_STATUS', 'canRead')
-  const canReadRoles = hasPermission('ROLE', 'canRead')
+  const canReadUsers = hasPermission(PermissionModule.User, PermissionAction.Read)
+  const canReadRequests = hasPermission(PermissionModule.HrRequest, PermissionAction.Read)
+  const canReadEmployees = hasPermission(PermissionModule.Employee, PermissionAction.Read)
+  const canReadContracts = hasPermission(PermissionModule.Contract, PermissionAction.Read)
+  const canReadLeaves = hasPermission(PermissionModule.Leave, PermissionAction.Read)
+  const canReadAttendance = hasPermission(PermissionModule.Attendance, PermissionAction.Read)
+  const canReadOvertime = hasPermission(PermissionModule.Overtime, PermissionAction.Read)
+  const canReadAnnexes = hasPermission(PermissionModule.Annex, PermissionAction.Read)
+  const canReadTransfers = hasPermission(PermissionModule.Transfer, PermissionAction.Read)
+  const canReadProjects = hasPermission(PermissionModule.Project, PermissionAction.Read)
+  const canReadProjectTypes = hasPermission(PermissionModule.ProjectType, PermissionAction.Read)
+  const canReadProjectSpecialties = hasPermission(PermissionModule.ProjectSpecialty, PermissionAction.Read)
+  const canReadProjectStatuses = hasPermission(PermissionModule.ProjectStatus, PermissionAction.Read)
+  const canReadRoles = hasPermission(PermissionModule.Role, PermissionAction.Read)
 
   useEffect(() => {
     let cancelled = false
@@ -105,7 +118,7 @@ export function LayoutPrivateDefault() {
       cancelled = true
       disconnectRef.current()
     }
-  }, [])
+  }, [captureTab, connect, getCounter, getCurrentUser, getNotifications, navigate])
 
 
   const handleGoDashboard = () => {
@@ -120,7 +133,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadUsers) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_USERS)
@@ -131,7 +144,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadRequests) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_REQUESTS)
@@ -142,7 +155,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadRoles) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_ROLES)
@@ -153,7 +166,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadEmployees) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_EMPLOYEES)
@@ -164,7 +177,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadContracts) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_CONTRACTS)
@@ -175,7 +188,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadLeaves) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_LEAVES)
@@ -186,7 +199,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadAttendance) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_ATTENDANCE)
@@ -197,7 +210,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadOvertime) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_OVERTIME)
@@ -208,7 +221,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadAnnexes) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_ANNEXES)
@@ -219,7 +232,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadTransfers) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_TRANSFERS)
@@ -272,7 +285,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadProjects) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_PROJECTS)
@@ -283,7 +296,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadProjects) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_PROJECT_ASSIGNMENTS)
@@ -294,7 +307,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadProjectTypes) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_PROJECT_TYPES)
@@ -305,7 +318,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadProjectSpecialties) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_PROJECT_SPECIALTIES)
@@ -316,7 +329,7 @@ export function LayoutPrivateDefault() {
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
     if (!canReadProjectStatuses) {
-      navigate('/unauthorized')
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
       return
     }
     navigate(AUTH_ROUTE_PROJECT_STATUSES)

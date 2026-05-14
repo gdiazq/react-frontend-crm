@@ -14,19 +14,26 @@ import {
   TransferDetailComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import {
-  transferTableColumns,
-  transferTableColumnIndex,
-  transferTableSortByColumn,
-} from '@/factories'
+import { transferTableColumns, transferTableColumnIndex, transferTableSortByColumn } from '@/factories'
 import { mapperTransferDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { storageService } from '@/services'
 import { useStoreAuth, useStoreEmployeeSelects, useStoreTransfer } from '@/store'
-import type { TransferTableRow, TableRow, TableSortState } from '@/types'
-import { createTransferActions, createTransferTableCustomRenderer } from '@/utils'
+import type { TransferTableRow,
+  TableRow,
+  TableSortState } from '@/types'
+import {
+  createTransferActions,
+  createTransferTableCustomRenderer,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
-import { AUTH_ROUTE_TRANSFERS_CREATE, AUTH_ROUTE_TRANSFERS_EDIT } from '@/constant'
+import {
+  AUTH_ROUTE_TRANSFERS_CREATE,
+  AUTH_ROUTE_TRANSFERS_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
 
 const EMPLOYEE_NAME_COLUMN_INDEX = transferTableColumnIndex.employeeName
 const STATUS_COLUMN_INDEX = transferTableColumnIndex.status
@@ -64,8 +71,8 @@ export default function TransfersDashboardPage() {
   const exportTransfersCsv = useStoreTransfer((s) => s.exportTransfersCsv)
   const clearTransferDetail = useStoreTransfer((s) => s.clearTransferDetail)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canCreateTransfer = hasPermission('TRANSFER', 'canCreate')
-  const canUpdateTransfer = hasPermission('TRANSFER', 'canUpdate')
+  const canCreateTransfer = hasPermission(PermissionModule.Transfer, PermissionAction.Create)
+  const canUpdateTransfer = hasPermission(PermissionModule.Transfer, PermissionAction.Update)
 
   const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
   const transferToCostCenterOptions = useStoreEmployeeSelects((s) => s.transferToCostCenterOptions)
@@ -194,7 +201,7 @@ export default function TransfersDashboardPage() {
     if (!sortBy) return
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
     await sortTransfers(sortBy, nextSortDir)
   }
 

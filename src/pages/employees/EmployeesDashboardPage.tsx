@@ -15,15 +15,32 @@ import {
   TableComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_EMPLOYEES, AUTH_ROUTE_EMPLOYEES_CREATE, AUTH_ROUTE_EMPLOYEES_EDIT } from '@/constant'
+import {
+  AUTH_ROUTE_EMPLOYEES,
+  AUTH_ROUTE_EMPLOYEES_CREATE,
+  AUTH_ROUTE_EMPLOYEES_EDIT,
+  PermissionAction,
+  PermissionModule,
+  SortDirection,
+} from '@/constant'
 import { employeesTableColumns, employeesTableColumnIndex, employeesTableSortByColumn } from '@/factories'
 import { mapperEmployeeDetailView } from '@/mappers'
 import messages from '@/messages/messages'
 import { employeesService } from '@/services'
-import { useStoreAuth, useStoreEmployeeSelects, useStoreEmployees, useStoreSelects } from '@/store'
+import {
+  useStoreAuth,
+  useStoreEmployeeSelects,
+  useStoreEmployees,
+  useStoreSelects,
+} from '@/store'
 import type { EmployeeTableRow } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
-import { createEmployeesActions, createEmployeesTableCustomRenderer, downloadBlobFile, formatCsvImportSummary } from '@/utils'
+import {
+  createEmployeesActions,
+  createEmployeesTableCustomRenderer,
+  downloadBlobFile,
+  formatCsvImportSummary,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const EMPLOYEE_ACTIVE_COLUMN_INDEX = employeesTableColumnIndex.active
@@ -70,7 +87,7 @@ export default function EmployeesDashboardPage() {
   const unlinkEmployeeUser = useStoreEmployees((s) => s.unlinkEmployeeUser)
   const clearAvailableUsers = useStoreEmployees((s) => s.clearAvailableUsers)
   const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canUpdateEmployee = hasPermission('EMPLOYEE', 'canUpdate')
+  const canUpdateEmployee = hasPermission(PermissionModule.Employee, PermissionAction.Update)
   const canToggleEmployeeStatus = canUpdateEmployee
 
   const statusOptions = useStoreSelects((s) => s.statusOptions)
@@ -236,7 +253,7 @@ export default function EmployeesDashboardPage() {
 
     const currentSortBy = queryParams.sortBy
     const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === 'asc' ? 'desc' : 'asc'
+    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
 
     await sortEmployees(sortBy, nextSortDir)
   }

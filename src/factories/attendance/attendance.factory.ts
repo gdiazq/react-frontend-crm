@@ -1,3 +1,4 @@
+import { SortDirection } from '@/constant'
 import type {
   AttendanceCreateForm,
   AttendanceMarkCreateForm,
@@ -74,7 +75,7 @@ export const initialAttendanceQueryParams: AttendanceQueryParams = {
   updatedFrom: '',
   updatedTo: '',
   sortBy: 'checkInDate',
-  sortDir: 'desc',
+  sortDir: SortDirection.Desc,
 }
 
 export const initialCreateAttendanceForm: AttendanceCreateForm = {

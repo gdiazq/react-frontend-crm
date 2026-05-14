@@ -9,7 +9,7 @@ import {
   SaveConfirmComponent,
   SelectComponent,
 } from '@/components'
-import { AUTH_ROUTE_ATTENDANCE } from '@/constant'
+import { AttendanceMarkType, AUTH_ROUTE_ATTENDANCE } from '@/constant'
 import { initialAttendanceMarkForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import {
@@ -19,7 +19,9 @@ import {
 } from '@/mappers'
 import { useStoreAttendance, useStoreAttendanceSelects, useStoreEmployeeSelects } from '@/store'
 import type { AttendanceMarkCreatePayload, AttendanceMarkUpdatePayload } from '@/types'
-import { attendanceMarkCreateValidationRules } from '@/validators'
+import {
+  attendanceMarkCreateValidationRules,
+} from '@/validators'
 
 function SubSectionLabel({ number, title }: { number: string, title: string }) {
   return (
@@ -173,9 +175,9 @@ export default function AttendanceFormDashboardPage() {
     ? [{ label: editCostCenterLabel || `Centro #${form.costCenter}`, value: form.costCenter }, ...costCenterSelectOptions]
     : costCenterSelectOptionsForEmployee
 
-  const markTimeLabel = form.markType === 'CHECK_OUT'
+  const markTimeLabel = form.markType === AttendanceMarkType.CheckOut
     ? 'Salida'
-    : form.markType === 'CHECK_IN'
+    : form.markType === AttendanceMarkType.CheckIn
       ? 'Entrada'
       : 'Hora de marca'
 
