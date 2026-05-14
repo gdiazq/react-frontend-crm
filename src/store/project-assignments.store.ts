@@ -8,49 +8,22 @@ import { mapperProjectAssignmentsPagination, mapperProjectAssignmentsRows } from
 import messages from '@/messages/messages'
 import { projectAssignmentsService } from '@/services'
 import type {
-  OperationKey,
-  OperationStatus,
   ProjectAssignmentsSortBy,
   ProjectAssignmentsSortDir,
   ProjectAssignmentsStore,
 } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set, get) => {
+  let latestProjectAssignmentsRequestId = 0
   let latestEmployeeProjectAssignmentsRequestId = 0
   let latestCostCenterProjectAssignmentsRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (projectAssignmentsService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, clearOp } = createOperationStatusHelpers(set)
 
   return {
     projectAssignmentsRows: [...initialProjectAssignmentsRows],
@@ -64,10 +37,12 @@ export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set
     operationStatus: initialOperationStatus(),
 
     getProjectAssignments: async () => {
+      const requestId = ++latestProjectAssignmentsRequestId
       try {
         set({ loadingProjectAssignments: true })
         clearOp('list')
         const data = await projectAssignmentsService.getProjectAssignments(get().queryParams)
+        if (requestId !== latestProjectAssignmentsRequestId) return
         const pagination = mapperProjectAssignmentsPagination(data)
         set({
           projectAssignmentsRows: mapperProjectAssignmentsRows(data.content),
@@ -75,9 +50,12 @@ export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set
           queryParams: { ...get().queryParams, page: pagination.page, size: pagination.size },
         })
       } catch (error) {
+        if (requestId !== latestProjectAssignmentsRequestId) return
         setOpError('list', resolveErrorMessage(error, messages.projectAssignments.status.errors.loadError), error)
       } finally {
-        set({ loadingProjectAssignments: false })
+        if (requestId === latestProjectAssignmentsRequestId) {
+          set({ loadingProjectAssignments: false })
+        }
       }
     },
 

@@ -2,16 +2,12 @@ import { create } from 'zustand'
 import { calendarService } from '@/services'
 import { mapperCalendarEvents } from '@/mappers'
 import type { CalendarStore } from '@/types'
+import { resolveErrorMessage } from '@/utils'
+
+const CALENDAR_ERROR_FALLBACK = 'No se pudo cargar el calendario.'
 
 export const useStoreCalendar = create<CalendarStore>()((set) => {
   let latestCalendarRequestId = 0
-
-  const resolveErrorMessage = (error: unknown): string => {
-    if (calendarService.isAxiosError(error)) {
-      return error.response?.data?.message || 'No se pudo cargar el calendario.'
-    }
-    return 'No se pudo cargar el calendario.'
-  }
 
   return {
     events: [],
@@ -31,7 +27,7 @@ export const useStoreCalendar = create<CalendarStore>()((set) => {
         })
       } catch (error) {
         if (requestId !== latestCalendarRequestId) return
-        set({ eventsErrorMessage: resolveErrorMessage(error), events: [] })
+        set({ eventsErrorMessage: resolveErrorMessage(error, CALENDAR_ERROR_FALLBACK), events: [] })
       } finally {
         if (requestId === latestCalendarRequestId) set({ loadingEvents: false })
       }

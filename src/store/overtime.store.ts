@@ -10,45 +10,19 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { overtimeService } from '@/services'
-import type { OperationKey, OperationStatus, OvertimeSortBy, OvertimeSortDir, OvertimeStore } from '@/types'
-
-const initialOperationStatus: () => Record<OperationKey, OperationStatus> = () => ({
-  list: { error: null, success: null, errorBack: null },
-  detail: { error: null, success: null, errorBack: null },
-  create: { error: null, success: null, errorBack: null },
-  update: { error: null, success: null, errorBack: null },
-  toggle: { error: null, success: null, errorBack: null },
-})
+import type { OvertimeSortBy, OvertimeSortDir, OvertimeStore } from '@/types'
+import {
+  createOperationStatusHelpers,
+  initialOperationStatus,
+  resolveErrorMessage,
+} from '@/utils'
 
 export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
   let latestOvertimeRequestId = 0
   let latestOvertimeDetailRequestId = 0
   let latestOvertimeTypesRequestId = 0
 
-  const setOpError = (key: OperationKey, error: string, errorBack?: unknown) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error, success: null, errorBack: errorBack ?? null },
-      },
-    }))
-  }
-
-  const clearOp = (key: OperationKey) => {
-    set((state) => ({
-      operationStatus: {
-        ...state.operationStatus,
-        [key]: { error: null, success: null, errorBack: null },
-      },
-    }))
-  }
-
-  const resolveErrorMessage = (error: unknown, fallback: string): string => {
-    if (overtimeService.isAxiosError(error)) {
-      return error.response?.data?.message || fallback
-    }
-    return fallback
-  }
+  const { setOpError, clearOp } = createOperationStatusHelpers(set)
 
   return {
     overtimeRows: [...initialOvertimeRows],
