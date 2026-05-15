@@ -37,6 +37,9 @@ export const contractsTableSortByColumn: Partial<Record<number, ContractsSortBy>
 
 export const initialContractsRows: ContractTableRow[] = []
 
+export const CONTRACT_FILES_MAX_COUNT = 5
+export const CONTRACT_FILE_MAX_SIZE_BYTES = 10 * 1024 * 1024
+
 export const initialContractsPagination: ContractsPagination = {
   page: 0,
   size: 8,
