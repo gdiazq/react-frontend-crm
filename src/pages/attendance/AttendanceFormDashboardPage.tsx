@@ -2,12 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
+  AttendanceFormDetailsSectionComponent,
+  AttendanceFormScheduleSectionComponent,
+  AttendanceFormTypeEmployeeSectionComponent,
   ButtonComponent,
-  DatePickerComponent,
-  DetailSectionHeaderComponent,
-  InputComponent,
   SaveConfirmComponent,
-  SelectComponent,
 } from '@/components'
 import { AttendanceMarkType, AUTH_ROUTE_ATTENDANCE } from '@/constant'
 import { initialAttendanceMarkForm } from '@/factories'
@@ -19,56 +18,13 @@ import {
 } from '@/mappers'
 import { useStoreAttendance, useStoreAttendanceSelects, useStoreEmployeeSelects } from '@/store'
 import type { AttendanceMarkCreatePayload, AttendanceMarkUpdatePayload } from '@/types'
-import {
-  attendanceMarkCreateValidationRules,
-} from '@/validators'
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
-  )
-}
+import { normalizeTimeInput } from '@/utils'
+import { attendanceMarkCreateValidationRules } from '@/validators'
 
 type PendingAction =
   | { mode: 'create', payload: AttendanceMarkCreatePayload }
   | { mode: 'update', payload: AttendanceMarkUpdatePayload }
   | null
-
-function normalizeTimeInput(value: string): string {
-  const normalized = value.trim()
-  if (!normalized) return ''
-
-  const hourOnlyMatch = normalized.match(/^(\d{1,2})$/)
-  if (hourOnlyMatch) {
-    const hour = Number(hourOnlyMatch[1])
-    return hour >= 0 && hour <= 23 ? `${String(hour).padStart(2, '0')}:00` : normalized
-  }
-
-  const compactMatch = normalized.match(/^(\d{1,2})(\d{2})$/)
-  if (compactMatch) {
-    const hour = Number(compactMatch[1])
-    const minute = Number(compactMatch[2])
-    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
-      return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-    }
-    return normalized
-  }
-
-  const timeMatch = normalized.match(/^(\d{1,2}):(\d{1,2})$/)
-  if (timeMatch) {
-    const hour = Number(timeMatch[1])
-    const minute = Number(timeMatch[2])
-    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
-      return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-    }
-  }
-
-  return normalized
-}
 
 export default function AttendanceFormDashboardPage() {
   const navigate = useNavigate()
@@ -180,6 +136,7 @@ export default function AttendanceFormDashboardPage() {
     : form.markType === AttendanceMarkType.CheckIn
       ? 'Entrada'
       : 'Hora de marca'
+  const costCenterDisabled = !form.markType || Boolean(selectedEmployeeCostCenter)
 
   useEffect(() => {
     void getAttendanceFormOptions()
@@ -370,123 +327,40 @@ export default function AttendanceFormDashboardPage() {
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando marcas de la asistencia...</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Tipo y trabajador" />
+        <AttendanceFormTypeEmployeeSectionComponent
+          form={form}
+          errors={errors}
+          isEditMode={isEditMode}
+          loadingAttendanceMarks={loadingAttendanceMarks}
+          editingMarkId={editingMarkId}
+          markTypeOptions={markTypeSelectOptions}
+          employeeOptions={employeeSelectOptions}
+          attendanceStatusOptions={attendanceStatusSelectOptions}
+          loadingMarkTypeOptions={loadingAttendanceMarkTypeOptions}
+          loadingEmployeeOptions={loadingAttendanceEmployeeOptions}
+          loadingAttendanceFormOptions={loadingAttendanceFormOptions}
+          onChangeMarkType={handleChangeMarkType}
+          onChangeEmployee={handleChangeEmployee}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+        />
 
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Tipo de marca" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <SelectComponent
-                value={form.markType}
-                label="Tipo de marca"
-                options={markTypeSelectOptions}
-                loading={loadingAttendanceMarkTypeOptions}
-                error={errors.markType}
-                onValueChange={handleChangeMarkType}
-                onValidation={onValidation('markType')}
-                required
-              />
-            </div>
-            {isEditMode && !loadingAttendanceMarks && form.markType && editingMarkId == null && (
-              <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                Esta asistencia aún no tiene una marca de este tipo. Se creará una nueva.
-              </p>
-            )}
-          </div>
+        <AttendanceFormScheduleSectionComponent
+          form={form}
+          errors={errors}
+          markTimeLabel={markTimeLabel}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+          onNormalizeMarkTime={handleNormalizeMarkTime}
+        />
 
-          <div className="space-y-3">
-            <SubSectionLabel number="01.2" title="Relación laboral" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <SelectComponent
-                value={form.employeeId}
-                label="Trabajador"
-                options={employeeSelectOptions}
-                loading={loadingAttendanceEmployeeOptions}
-                error={errors.employeeId}
-                onValueChange={handleChangeEmployee}
-                onValidation={onValidation('employeeId')}
-                disabled={!form.markType}
-                required
-              />
-              {!isEditMode && (
-                <SelectComponent
-                  value={form.statusId}
-                  label="Estado de asistencia"
-                  options={attendanceStatusSelectOptions}
-                  loading={loadingAttendanceFormOptions}
-                  onValueChange={handleChangeField('statusId')}
-                  disabled={!form.markType}
-                />
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="02" title="Marca" />
-
-          <div className="space-y-3">
-            <SubSectionLabel number="02.1" title="Jornada" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <DatePickerComponent
-                value={form.date}
-                label="Fecha"
-                error={errors.date}
-                onValueChange={handleChangeField('date')}
-                onValidation={onValidation('date')}
-                disabled={!form.markType}
-                required
-              />
-              <InputComponent
-                value={form.markTime}
-                label={markTimeLabel}
-                type="text"
-                inputMode="numeric"
-                placeholder="08 o 08:00"
-                maxLength={5}
-                error={errors.markTime}
-                onValueChange={handleChangeField('markTime')}
-                onBlur={() => {
-                  handleNormalizeMarkTime()
-                  onValidation('markTime')()
-                }}
-                disabled={!form.markType}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <SubSectionLabel number="02.2" title="Proyecto" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <SelectComponent
-                value={form.costCenter}
-                label="Centro de costo"
-                options={costCenterSelectOptionsWithCurrent}
-                loading={loadingCostCenterOptions}
-                disabled={!form.markType || Boolean(selectedEmployeeCostCenter)}
-                onValueChange={handleChangeField('costCenter')}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <SubSectionLabel number="02.3" title="Notas" />
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-                Notas
-              </label>
-              <textarea
-                value={form.notes}
-                placeholder="Ej: Entrada manual"
-                rows={4}
-                disabled={!form.markType}
-                className="r-md w-full resize-y border border-slate-200 bg-white px-2.5 py-2 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[var(--accent-500)] focus:ring-2 focus:ring-[var(--accent-400)]/30 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-slate-900/40 dark:text-slate-100 dark:placeholder:text-slate-500"
-                onChange={(e) => handleChangeField('notes')(e.target.value)}
-              />
-            </div>
-          </div>
-        </section>
+        <AttendanceFormDetailsSectionComponent
+          form={form}
+          costCenterOptions={costCenterSelectOptionsWithCurrent}
+          loadingCostCenterOptions={loadingCostCenterOptions}
+          costCenterDisabled={costCenterDisabled}
+          onChangeField={handleChangeField}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
