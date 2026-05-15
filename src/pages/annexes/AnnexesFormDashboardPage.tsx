@@ -2,13 +2,10 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
+  AnnexesFormAttachmentsSectionComponent,
+  AnnexesFormDataSectionComponent,
   ButtonComponent,
-  DatePickerComponent,
-  DetailSectionHeaderComponent,
-  FileDropzoneComponent,
-  InputComponent,
   SaveConfirmComponent,
-  SelectComponent,
 } from '@/components'
 import { AUTH_ROUTE_ANNEXES } from '@/constant'
 import { initialCreateAnnexForm, ANNEX_FILES_MAX_COUNT, ANNEX_FILE_MAX_SIZE_BYTES } from '@/factories'
@@ -18,16 +15,6 @@ import messages from '@/messages/messages'
 import { useStoreAnnexes, useStoreAnnexSelects } from '@/store'
 import type { AnnexCreatePayload, AnnexUpdatePayload } from '@/types'
 import { annexesCreateValidationRules } from '@/validators'
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
-  )
-}
 
 const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
 
@@ -241,75 +228,25 @@ export default function AnnexesFormDashboardPage() {
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del anexo…</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos del anexo" />
+        <AnnexesFormDataSectionComponent
+          form={form}
+          errors={errors}
+          isEditMode={isEditMode}
+          employeeOptions={employeeWithContractSelectOptions}
+          annexTypeOptions={annexTypeSelectOptions}
+          loadingFormOptions={loadingAnnexFormOptions}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+        />
 
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Relación contractual" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <SelectComponent
-                value={form.employeeId}
-                label="ID trabajador"
-                options={employeeWithContractSelectOptions}
-                loading={loadingAnnexFormOptions}
-                error={errors.employeeId}
-                disabled={isEditMode}
-                onValueChange={handleChangeField('employeeId')}
-                onValidation={onValidation('employeeId')}
-                required
-              />
-              <SelectComponent
-                value={form.annexTypeId}
-                label="Tipo de anexo"
-                options={annexTypeSelectOptions}
-                loading={loadingAnnexFormOptions}
-                error={errors.annexTypeId}
-                onValueChange={handleChangeField('annexTypeId')}
-                onValidation={onValidation('annexTypeId')}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <SubSectionLabel number="01.2" title="Vigencia y descripción" />
-            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-              <DatePickerComponent
-                value={form.date}
-                label="Fecha"
-                
-                error={errors.date}
-                onValueChange={handleChangeField('date')}
-                onValidation={onValidation('date')}
-                required
-              />
-              <InputComponent
-                value={form.description}
-                label="Descripción"
-                type="text"
-                placeholder="Descripción opcional"
-                onValueChange={handleChangeField('description')}
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <DetailSectionHeaderComponent number="02" title="Adjuntos" />
-          <div className="space-y-3">
-            <SubSectionLabel number="02.1" title="Documentos del anexo" />
-            <FileDropzoneComponent
-              files={annexFiles}
-              error={filesError}
-              maxFiles={ANNEX_FILES_MAX_COUNT}
-              disabled={saving}
-              helperText="Opcional. Máximo 5 archivos y 10 MB por archivo."
-              onAddFiles={handleAddFiles}
-              onRemoveFile={handleRemoveFile}
-              onClearFiles={handleClearFiles}
-            />
-          </div>
-        </section>
+        <AnnexesFormAttachmentsSectionComponent
+          files={annexFiles}
+          filesError={filesError}
+          saving={saving}
+          onAddFiles={handleAddFiles}
+          onRemoveFile={handleRemoveFile}
+          onClearFiles={handleClearFiles}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
