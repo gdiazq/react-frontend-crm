@@ -31,7 +31,9 @@ import type { UserTableRow } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
 import {
   createUsersActions,
-  createUsersTableCustomRenderer,
+  createTableCustomRenderer,
+  renderStatusBadge,
+  renderViewDetailButton,
   downloadBlobFile,
   formatCsvImportSummary,
 } from '@/utils'
@@ -180,11 +182,9 @@ export default function UsersDashboardPage() {
     return resolveRowActions(userRow)
   }
 
-  const renderCustomCell = createUsersTableCustomRenderer({
-    emailColumnIndex: EMAIL_COLUMN_INDEX,
-    statusColumnIndex: STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusEnabled: getUserStatusEnabled,
+  const renderCustomCell = createTableCustomRenderer({
+    [EMAIL_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getUserStatusEnabled(row.id)),
   })
 
   // --- Handlers: Sort ---

@@ -24,8 +24,11 @@ import type { SettlementTableRow,
   TableSortState } from '@/types'
 import {
   createSettlementActions,
-  createSettlementTableCustomRenderer,
+  createTableCustomRenderer,
   downloadBlobFile,
+  renderEmployeeApprovalStatus,
+  renderStatusBadge,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import { AUTH_ROUTE_SETTLEMENTS_CREATE, AUTH_ROUTE_SETTLEMENTS_EDIT, SortDirection } from '@/constant'
@@ -206,11 +209,10 @@ export default function SettlementsDashboardPage() {
     return resolveRowActions(row)
   }
 
-  const renderCustomCell = createSettlementTableCustomRenderer({
-    employeeNameColumnIndex: EMPLOYEE_NAME_COLUMN_INDEX,
-    statusColumnIndex: STATUS_COLUMN_INDEX,
-    rehireColumnIndex: REHIRE_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
+  const renderCustomCell = createTableCustomRenderer({
+    [EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
+    [REHIRE_COLUMN_INDEX]: ({ value }) => renderStatusBadge(value === 'Si', { activeLabel: 'Si', inactiveLabel: 'No' }),
   })
 
   const handleSortChange = async (columnIndex: number) => {

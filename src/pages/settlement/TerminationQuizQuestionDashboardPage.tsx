@@ -40,7 +40,9 @@ import {
 import type { TerminationQuizQuestionTableRow, TableRow, TableSortState } from '@/types'
 import {
   createTerminationQuizQuestionActions,
-  createTerminationQuizQuestionTableCustomRenderer,
+  createTableCustomRenderer,
+  renderStatusBadge,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -204,11 +206,9 @@ export default function TerminationQuizQuestionDashboardPage() {
     return resolveRowActions(row)
   }
 
-  const renderCustomCell = createTerminationQuizQuestionTableCustomRenderer({
-    questionColumnIndex: QUESTION_COLUMN_INDEX,
-    statusColumnIndex: STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusEnabled,
+  const renderCustomCell = createTableCustomRenderer({
+    [QUESTION_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getStatusEnabled(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {

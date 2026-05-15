@@ -32,9 +32,12 @@ import {
 import type { ContractTableRow, TableRow, TableSortState } from '@/types'
 import {
   createContractsActions,
-  createContractsTableCustomRenderer,
+  createTableCustomRenderer,
   downloadBlobFile,
   formatCsvImportSummary,
+  renderContractStatus,
+  renderContractType,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -220,11 +223,10 @@ export default function ContractsDashboardPage() {
     return resolveRowActions(contractRow)
   }
 
-  const renderCustomCell = createContractsTableCustomRenderer({
-    employeeNameColumnIndex: CONTRACT_EMPLOYEE_NAME_COLUMN_INDEX,
-    contractTypeColumnIndex: CONTRACT_TYPE_COLUMN_INDEX,
-    contractStatusColumnIndex: CONTRACT_STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
+  const renderCustomCell = createTableCustomRenderer({
+    [CONTRACT_EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [CONTRACT_TYPE_COLUMN_INDEX]: ({ value }) => renderContractType(value),
+    [CONTRACT_STATUS_COLUMN_INDEX]: ({ value }) => renderContractStatus(value),
   })
 
   // --- Handlers: Sort ---

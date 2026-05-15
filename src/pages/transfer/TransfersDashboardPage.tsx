@@ -23,8 +23,10 @@ import type { TransferTableRow,
   TableRow,
   TableSortState } from '@/types'
 import {
+  createTableCustomRenderer,
   createTransferActions,
-  createTransferTableCustomRenderer,
+  renderEmployeeApprovalStatus,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 import {
@@ -190,10 +192,9 @@ export default function TransfersDashboardPage() {
     return resolveRowActions(row)
   }
 
-  const renderCustomCell = createTransferTableCustomRenderer({
-    employeeNameColumnIndex: EMPLOYEE_NAME_COLUMN_INDEX,
-    statusColumnIndex: STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
+  const renderCustomCell = createTableCustomRenderer({
+    [EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
   })
 
   const handleSortChange = async (columnIndex: number) => {

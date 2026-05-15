@@ -35,9 +35,11 @@ import { useStoreAuth, useStoreProjects, useStoreSelects } from '@/store'
 import type { ProjectTableRow, TableRow, TableSortState } from '@/types'
 import {
   createProjectsActions,
-  createProjectsTableCustomRenderer,
+  createTableCustomRenderer,
   downloadBlobFile,
   formatCsvImportSummary,
+  renderStatusBadge,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -224,17 +226,17 @@ export default function ProjectsDashboardPage() {
     return resolveRowActions(projectRow)
   }
 
-  const renderCustomCell = createProjectsTableCustomRenderer({
-    nameColumnIndex: PROJECT_NAME_COLUMN_INDEX,
-    typeColumnIndex: PROJECT_TYPE_COLUMN_INDEX,
-    statusColumnIndex: PROJECT_STATUS_COLUMN_INDEX,
-    specialtyColumnIndex: PROJECT_SPECIALTY_COLUMN_INDEX,
-    activeColumnIndex: PROJECT_ACTIVE_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    projectTypeOptions,
-    projectStatusOptions,
-    projectSpecialtyOptions,
-    getActive: getProjectActive,
+  const resolveOptionName = (options: { id: number, name: string }[], optionId?: number | null): string => {
+    if (!optionId) return '-'
+    return options.find((option) => option.id === optionId)?.name || '-'
+  }
+
+  const renderCustomCell = createTableCustomRenderer({
+    [PROJECT_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [PROJECT_TYPE_COLUMN_INDEX]: ({ row }) => resolveOptionName(projectTypeOptions, (row as ProjectTableRow).typeId),
+    [PROJECT_STATUS_COLUMN_INDEX]: ({ row }) => resolveOptionName(projectStatusOptions, (row as ProjectTableRow).statusId),
+    [PROJECT_SPECIALTY_COLUMN_INDEX]: ({ row }) => resolveOptionName(projectSpecialtyOptions, (row as ProjectTableRow).specialtyId),
+    [PROJECT_ACTIVE_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getProjectActive(row.id)),
   })
 
   const handleCloseConfirm = () => {

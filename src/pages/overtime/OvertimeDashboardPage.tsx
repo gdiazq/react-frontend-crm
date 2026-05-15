@@ -32,7 +32,9 @@ import type { TableSortState } from '@/components'
 import type { OvertimeTableRow, TableRow } from '@/types'
 import {
   createOvertimeActions,
-  createOvertimeTableCustomRenderer,
+  createTableCustomRenderer,
+  renderEmployeeApprovalStatus,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -130,14 +132,14 @@ export default function OvertimeDashboardPage() {
     void getCostCenterFormOptions()
   }, [getOvertime, getOvertimeTypes, getAttendanceEmployeeOptions, getCostCenterFormOptions])
 
-  const renderCustomCell = createOvertimeTableCustomRenderer({
-    employeeNameColumnIndex: OVERTIME_EMPLOYEE_NAME_COLUMN_INDEX,
-    statusColumnIndex: OVERTIME_STATUS_COLUMN_INDEX,
-    onViewDetail: (rowId) => {
-      const overtimeRow = findOvertimeRowById(rowId)
-      if (!overtimeRow) return
-      handleViewDetail(overtimeRow)
-    },
+  const renderCustomCell = createTableCustomRenderer({
+    [OVERTIME_EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) =>
+      renderViewDetailButton(value, () => {
+        const overtimeRow = findOvertimeRowById(row.id)
+        if (!overtimeRow) return
+        handleViewDetail(overtimeRow)
+      }),
+    [OVERTIME_STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
   })
 
   const handleViewDetail = (row: OvertimeTableRow) => {

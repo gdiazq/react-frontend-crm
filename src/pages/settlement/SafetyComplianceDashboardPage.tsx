@@ -35,7 +35,9 @@ import { useStoreAuth, useStoreSafetyCompliance, useStoreSelects } from '@/store
 import type { SafetyComplianceTableRow, TableRow, TableSortState } from '@/types'
 import {
   createSafetyComplianceActions,
-  createSafetyComplianceTableCustomRenderer,
+  createTableCustomRenderer,
+  renderStatusBadge,
+  renderViewDetailButton,
   downloadBlobFile,
   formatCsvImportSummary,
 } from '@/utils'
@@ -174,11 +176,9 @@ export default function SafetyComplianceDashboardPage() {
     return resolveRowActions(safetyComplianceRow)
   }
 
-  const renderCustomCell = createSafetyComplianceTableCustomRenderer({
-    nameColumnIndex: NAME_COLUMN_INDEX,
-    statusColumnIndex: STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusEnabled,
+  const renderCustomCell = createTableCustomRenderer({
+    [NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getStatusEnabled(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {

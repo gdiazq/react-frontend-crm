@@ -37,9 +37,12 @@ import type { EmployeeTableRow } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
 import {
   createEmployeesActions,
-  createEmployeesTableCustomRenderer,
+  createTableCustomRenderer,
   downloadBlobFile,
   formatCsvImportSummary,
+  renderEmployeeApprovalStatus,
+  renderStatusBadge,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -236,14 +239,11 @@ export default function EmployeesDashboardPage() {
     return resolveRowActions(employeeRow)
   }
 
-  const renderCustomCell = createEmployeesTableCustomRenderer({
-    nameColumnIndex: EMPLOYEE_NAME_COLUMN_INDEX,
-    approvalStatusColumnIndex: EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX,
-    contractColumnIndex: EMPLOYEE_CONTRACT_COLUMN_INDEX,
-    activeColumnIndex: EMPLOYEE_ACTIVE_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getHasContract: getEmployeeHasContract,
-    getIsActive: getEmployeeIsActive,
+  const renderCustomCell = createTableCustomRenderer({
+    [EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
+    [EMPLOYEE_CONTRACT_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getEmployeeHasContract(row.id), { activeLabel: 'Si', inactiveLabel: 'No' }),
+    [EMPLOYEE_ACTIVE_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getEmployeeIsActive(row.id)),
   })
 
   // --- Handlers: Sort ---

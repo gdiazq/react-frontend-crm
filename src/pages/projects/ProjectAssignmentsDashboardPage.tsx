@@ -32,7 +32,9 @@ import { useStoreProjectAssignments } from '@/store'
 import type { ProjectAssignmentTableRow, TableRow, TableSortState } from '@/types'
 import {
   createProjectAssignmentsActions,
-  createProjectAssignmentsTableCustomRenderer,
+  createTableCustomRenderer,
+  renderStatusBadge,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -182,13 +184,10 @@ export default function ProjectAssignmentsDashboardPage() {
     await sortProjectAssignments(sortBy, nextSortDir)
   }
 
-  const renderCustomCell = createProjectAssignmentsTableCustomRenderer({
-    employeeNameColumnIndex: ASSIGNMENT_EMPLOYEE_COLUMN_INDEX,
-    projectNameColumnIndex: ASSIGNMENT_PROJECT_COLUMN_INDEX,
-    statusColumnIndex: ASSIGNMENT_STATUS_COLUMN_INDEX,
-    onViewEmployeeDetail: handleViewEmployeeDetailById,
-    onViewCostCenterDetail: handleViewCostCenterDetailById,
-    getActive: getProjectAssignmentActive,
+  const renderCustomCell = createTableCustomRenderer({
+    [ASSIGNMENT_EMPLOYEE_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewEmployeeDetailById(row.id)),
+    [ASSIGNMENT_PROJECT_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewCostCenterDetailById(row.id)),
+    [ASSIGNMENT_STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getProjectAssignmentActive(row.id)),
   })
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {

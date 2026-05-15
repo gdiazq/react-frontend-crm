@@ -26,7 +26,7 @@ import { leavesService, storageService } from '@/services'
 import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
 import type { TableRow, TableSortState } from '@/components'
 import type { LeaveTableRow } from '@/types'
-import { createLeavesActions, createLeavesTableCustomRenderer, downloadBlobFile } from '@/utils'
+import { createLeavesActions, createTableCustomRenderer, downloadBlobFile, renderEmployeeApprovalStatus, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const LEAVE_EMPLOYEE_NAME_COLUMN_INDEX = leavesTableColumnIndex.employeeName
@@ -184,14 +184,14 @@ export default function LeavesDashboardPage() {
     return resolveRowActions(leaveRow)
   }
 
-  const renderCustomCell = createLeavesTableCustomRenderer({
-    employeeNameColumnIndex: LEAVE_EMPLOYEE_NAME_COLUMN_INDEX,
-    statusColumnIndex: LEAVE_STATUS_COLUMN_INDEX,
-    onViewDetail: (rowId) => {
-      const leaveRow = findLeaveRowById(rowId)
-      if (!leaveRow) return
-      handleViewDetail(leaveRow)
-    },
+  const renderCustomCell = createTableCustomRenderer({
+    [LEAVE_EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) =>
+      renderViewDetailButton(value, () => {
+        const leaveRow = findLeaveRowById(row.id)
+        if (!leaveRow) return
+        handleViewDetail(leaveRow)
+      }),
+    [LEAVE_STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
   })
 
   const handleDownloadDocument = (fileId: number) => {

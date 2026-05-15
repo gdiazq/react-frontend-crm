@@ -31,7 +31,9 @@ import { useStoreAuth, useStoreQualityOfWork, useStoreSelects } from '@/store'
 import type { QualityOfWorkTableRow, TableRow, TableSortState } from '@/types'
 import {
   createQualityOfWorkActions,
-  createQualityOfWorkTableCustomRenderer,
+  createTableCustomRenderer,
+  renderStatusBadge,
+  renderViewDetailButton,
   downloadBlobFile,
   formatCsvImportSummary,
 } from '@/utils'
@@ -170,11 +172,9 @@ export default function SettlementsWorkQualityDashboardPage() {
     return resolveRowActions(qualityOfWorkRow)
   }
 
-  const renderCustomCell = createQualityOfWorkTableCustomRenderer({
-    nameColumnIndex: NAME_COLUMN_INDEX,
-    statusColumnIndex: STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusEnabled,
+  const renderCustomCell = createTableCustomRenderer({
+    [NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getStatusEnabled(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {

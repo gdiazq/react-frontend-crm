@@ -35,7 +35,9 @@ import { useStoreAuth, useStoreProjectSpecialties, useStoreSelects } from '@/sto
 import type { ProjectSpecialtyTableRow, TableRow, TableSortState } from '@/types'
 import {
   createProjectSpecialtiesActions,
-  createProjectSpecialtiesTableCustomRenderer,
+  createTableCustomRenderer,
+  renderStatusBadge,
+  renderViewDetailButton,
   downloadBlobFile,
   formatCsvImportSummary,
 } from '@/utils'
@@ -170,11 +172,9 @@ export default function ProjectSpecialtiesDashboardPage() {
     return resolveRowActions(projectSpecialtyRow)
   }
 
-  const renderCustomCell = createProjectSpecialtiesTableCustomRenderer({
-    nameColumnIndex: PROJECT_SPECIALTY_NAME_COLUMN_INDEX,
-    statusColumnIndex: PROJECT_SPECIALTY_STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusEnabled: getProjectSpecialtyStatusEnabled,
+  const renderCustomCell = createTableCustomRenderer({
+    [PROJECT_SPECIALTY_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [PROJECT_SPECIALTY_STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getProjectSpecialtyStatusEnabled(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {

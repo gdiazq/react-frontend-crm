@@ -21,7 +21,7 @@ import { annexesService, storageService } from '@/services'
 import { useStoreAnnexes } from '@/store'
 import { useStoreEmployeeSelects } from '@/store'
 import type { AnnexTableRow, TableRow, TableSortState } from '@/types'
-import { createAnnexesActions, createAnnexesTableCustomRenderer, downloadBlobFile } from '@/utils'
+import { createAnnexesActions, createTableCustomRenderer, downloadBlobFile, renderEmployeeApprovalStatus, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const ANNEX_EMPLOYEE_NAME_COLUMN_INDEX = annexesTableColumnIndex.employeeName
@@ -165,10 +165,9 @@ export default function AnnexesDashboardPage() {
     return resolveRowActions(annexRow)
   }
 
-  const renderCustomCell = createAnnexesTableCustomRenderer({
-    employeeNameColumnIndex: ANNEX_EMPLOYEE_NAME_COLUMN_INDEX,
-    statusColumnIndex: ANNEX_STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
+  const renderCustomCell = createTableCustomRenderer({
+    [ANNEX_EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [ANNEX_STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
   })
 
   const handleSortChange = async (columnIndex: number) => {

@@ -31,7 +31,9 @@ import { useStoreAuth, useStoreNoRehireCause, useStoreSelects } from '@/store'
 import type { NoRehireCauseTableRow, TableRow, TableSortState } from '@/types'
 import {
   createNoRehireCauseActions,
-  createNoRehireCauseTableCustomRenderer,
+  createTableCustomRenderer,
+  renderStatusBadge,
+  renderViewDetailButton,
   downloadBlobFile,
   formatCsvImportSummary,
 } from '@/utils'
@@ -170,11 +172,9 @@ export default function NoRehireCauseDashboardPage() {
     return resolveRowActions(noRehireCauseRow)
   }
 
-  const renderCustomCell = createNoRehireCauseTableCustomRenderer({
-    nameColumnIndex: NAME_COLUMN_INDEX,
-    statusColumnIndex: STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusEnabled,
+  const renderCustomCell = createTableCustomRenderer({
+    [NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getStatusEnabled(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {

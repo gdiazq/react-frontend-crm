@@ -31,7 +31,9 @@ import type { RoleTableRow } from '@/types'
 import type { TableRow, TableSortState } from '@/components'
 import {
   createRolesActions,
-  createRolesTableCustomRenderer,
+  createTableCustomRenderer,
+  renderStatusBadge,
+  renderViewDetailButton,
   downloadBlobFile,
   formatCsvImportSummary,
 } from '@/utils'
@@ -169,11 +171,9 @@ export default function RolesDashboardPage() {
     return resolveRowActions(roleRow)
   }
 
-  const renderCustomCell = createRolesTableCustomRenderer({
-    roleNameColumnIndex: ROLE_NAME_COLUMN_INDEX,
-    statusColumnIndex: STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusEnabled: getRoleStatusEnabled,
+  const renderCustomCell = createTableCustomRenderer({
+    [ROLE_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getRoleStatusEnabled(row.id)),
   })
 
   // --- Handlers: Sort ---

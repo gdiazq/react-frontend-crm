@@ -35,8 +35,10 @@ import type { TableRow, TableSortState } from '@/components'
 import type { AttendanceTableRow } from '@/types'
 import {
   createAttendanceActions,
-  createAttendanceTableCustomRenderer,
+  createTableCustomRenderer,
   downloadBlobFile,
+  renderEmployeeApprovalStatus,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -198,14 +200,14 @@ export default function AttendanceDashboardPage() {
     return resolveRowActions(attendanceRow)
   }
 
-  const renderCustomCell = createAttendanceTableCustomRenderer({
-    employeeNameColumnIndex: ATTENDANCE_EMPLOYEE_NAME_COLUMN_INDEX,
-    statusColumnIndex: ATTENDANCE_STATUS_COLUMN_INDEX,
-    onViewDetail: (rowId) => {
-      const attendanceRow = findAttendanceRowById(rowId)
-      if (!attendanceRow) return
-      handleViewDetail(attendanceRow)
-    },
+  const renderCustomCell = createTableCustomRenderer({
+    [ATTENDANCE_EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) =>
+      renderViewDetailButton(value, () => {
+        const attendanceRow = findAttendanceRowById(row.id)
+        if (!attendanceRow) return
+        handleViewDetail(attendanceRow)
+      }, 'accent'),
+    [ATTENDANCE_STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
   })
 
   const handleSortChange = async (columnIndex: number) => {

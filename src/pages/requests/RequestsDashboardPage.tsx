@@ -23,8 +23,10 @@ import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
 import type { RequestTableRow, TableRow, TableSortState } from '@/types'
 import {
   createRequestsActions,
-  createRequestsTableCustomRenderer,
+  createTableCustomRenderer,
   downloadBlobFile,
+  renderEmployeeApprovalStatus,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -178,11 +180,9 @@ export default function RequestsDashboardPage() {
     return resolveRowActions(requestRow)
   }
 
-  const renderCustomCell = createRequestsTableCustomRenderer({
-    requestNameColumnIndex: REQUEST_NAME_COLUMN_INDEX,
-    statusColumnIndex: REQUEST_STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusName: getRequestStatusName,
+  const renderCustomCell = createTableCustomRenderer({
+    [REQUEST_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [REQUEST_STATUS_COLUMN_INDEX]: ({ row, value }) => renderEmployeeApprovalStatus(getRequestStatusName(row.id, String(value ?? ''))),
   })
 
   // --- Handlers: Sort ---

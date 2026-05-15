@@ -37,9 +37,11 @@ import { useStoreAuth, useStoreLegalTerminationCauses, useStoreSelects } from '@
 import type { LegalTerminationCauseTableRow, TableRow, TableSortState } from '@/types'
 import {
   createLegalTerminationCausesActions,
-  createLegalTerminationCausesTableCustomRenderer,
+  createTableCustomRenderer,
   downloadBlobFile,
   formatCsvImportSummary,
+  renderStatusBadge,
+  renderViewDetailButton,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -176,11 +178,9 @@ export default function SettlementsTerminationDashboardPage() {
     return resolveRowActions(legalTerminationCauseRow)
   }
 
-  const renderCustomCell = createLegalTerminationCausesTableCustomRenderer({
-    nameColumnIndex: NAME_COLUMN_INDEX,
-    statusColumnIndex: STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusEnabled,
+  const renderCustomCell = createTableCustomRenderer({
+    [NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getStatusEnabled(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {

@@ -31,7 +31,9 @@ import { useStoreAuth, useStoreProjectStatuses, useStoreSelects } from '@/store'
 import type { ProjectStatusTableRow, TableRow, TableSortState } from '@/types'
 import {
   createProjectStatusesActions,
-  createProjectStatusesTableCustomRenderer,
+  createTableCustomRenderer,
+  renderStatusBadge,
+  renderViewDetailButton,
   downloadBlobFile,
   formatCsvImportSummary,
 } from '@/utils'
@@ -166,11 +168,9 @@ export default function ProjectStatusesDashboardPage() {
     return resolveRowActions(projectStatusRow)
   }
 
-  const renderCustomCell = createProjectStatusesTableCustomRenderer({
-    nameColumnIndex: PROJECT_STATUS_NAME_COLUMN_INDEX,
-    statusColumnIndex: PROJECT_STATUS_STATUS_COLUMN_INDEX,
-    onViewDetail: handleViewDetailById,
-    getStatusEnabled: getProjectStatusStatusEnabled,
+  const renderCustomCell = createTableCustomRenderer({
+    [PROJECT_STATUS_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
+    [PROJECT_STATUS_STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getProjectStatusStatusEnabled(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {
