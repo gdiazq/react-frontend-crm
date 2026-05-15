@@ -7,21 +7,21 @@ import {
   InputComponent,
   SaveConfirmComponent,
 } from '@/components'
-import { AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE } from '@/constant'
-import { initialCreateSafetyComplianceForm } from '@/factories'
+import { AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY } from '@/constant'
+import { initialCreateQualityOfWorkForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import {
-  mapperCreateSafetyCompliancePayload,
-  mapperSafetyComplianceToForm,
-  mapperUpdateSafetyCompliancePayload,
+  mapperCreateQualityOfWorkPayload,
+  mapperQualityOfWorkToForm,
+  mapperUpdateQualityOfWorkPayload,
 } from '@/mappers'
-import { useStoreSafetyCompliance } from '@/store'
-import type { SafetyComplianceCreatePayload, SafetyComplianceUpdatePayload } from '@/types'
-import { safetyComplianceCreateValidationRules } from '@/validators'
+import { useStoreQualityOfWork } from '@/store'
+import type { QualityOfWorkCreatePayload, QualityOfWorkUpdatePayload } from '@/types'
+import { qualityOfWorkCreateValidationRules } from '@/validators'
 
 type PendingAction =
-  | { mode: 'create', payload: SafetyComplianceCreatePayload }
-  | { mode: 'update', payload: SafetyComplianceUpdatePayload }
+  | { mode: 'create', payload: QualityOfWorkCreatePayload }
+  | { mode: 'update', payload: QualityOfWorkUpdatePayload }
   | null
 
 function SubSectionLabel({ number, title }: { number: string, title: string }) {
@@ -33,39 +33,39 @@ function SubSectionLabel({ number, title }: { number: string, title: string }) {
   )
 }
 
-export default function SafetyComplianceFormDashboardPage() {
+export default function SettlementsWorkQualityFormDashboardPage() {
   const navigate = useNavigate()
   const params = useParams<{ editId: string }>()
   const rawEditParam = params.editId || ''
-  const editSafetyComplianceId = rawEditParam.startsWith('edit=') ? Number(rawEditParam.slice(5)) : Number.NaN
-  const isEditMode = Number.isInteger(editSafetyComplianceId) && editSafetyComplianceId > 0
+  const editQualityOfWorkId = rawEditParam.startsWith('edit=') ? Number(rawEditParam.slice(5)) : Number.NaN
+  const isEditMode = Number.isInteger(editQualityOfWorkId) && editQualityOfWorkId > 0
 
-  const [form, setForm] = useState({ ...initialCreateSafetyComplianceForm })
+  const [form, setForm] = useState({ ...initialCreateQualityOfWorkForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingSafetyComplianceDetail = useStoreSafetyCompliance((s) => s.loadingSafetyComplianceDetail)
-  const detailError = useStoreSafetyCompliance((s) => s.operationStatus.detail.error)
-  const createSafetyComplianceSubmitting = useStoreSafetyCompliance((s) => s.createSafetyComplianceSubmitting)
-  const updateSafetyComplianceSubmitting = useStoreSafetyCompliance((s) => s.updateSafetyComplianceSubmitting)
-  const createStatus = useStoreSafetyCompliance((s) => s.operationStatus.create)
-  const updateStatus = useStoreSafetyCompliance((s) => s.operationStatus.update)
-  const getSafetyComplianceDetail = useStoreSafetyCompliance((s) => s.getSafetyComplianceDetail)
-  const clearSafetyComplianceDetail = useStoreSafetyCompliance((s) => s.clearSafetyComplianceDetail)
-  const clearOperationStatus = useStoreSafetyCompliance((s) => s.clearOperationStatus)
-  const createSafetyCompliance = useStoreSafetyCompliance((s) => s.createSafetyCompliance)
-  const updateSafetyCompliance = useStoreSafetyCompliance((s) => s.updateSafetyCompliance)
+  const loadingQualityOfWorkDetail = useStoreQualityOfWork((s) => s.operationLoading.detail)
+  const detailError = useStoreQualityOfWork((s) => s.operationStatus.detail.error)
+  const createQualityOfWorkSubmitting = useStoreQualityOfWork((s) => s.operationLoading.create)
+  const updateQualityOfWorkSubmitting = useStoreQualityOfWork((s) => s.operationLoading.update)
+  const createStatus = useStoreQualityOfWork((s) => s.operationStatus.create)
+  const updateStatus = useStoreQualityOfWork((s) => s.operationStatus.update)
+  const getQualityOfWorkDetail = useStoreQualityOfWork((s) => s.getQualityOfWorkDetail)
+  const clearQualityOfWorkDetail = useStoreQualityOfWork((s) => s.clearQualityOfWorkDetail)
+  const clearOperationStatus = useStoreQualityOfWork((s) => s.clearOperationStatus)
+  const createQualityOfWork = useStoreQualityOfWork((s) => s.createQualityOfWork)
+  const updateQualityOfWork = useStoreQualityOfWork((s) => s.updateQualityOfWork)
 
-  const { errors, validateAll, onValidation } = useFormValidation(form, safetyComplianceCreateValidationRules)
+  const { errors, validateAll, onValidation } = useFormValidation(form, qualityOfWorkCreateValidationRules)
 
-  const saving = createSafetyComplianceSubmitting || updateSafetyComplianceSubmitting
+  const saving = createQualityOfWorkSubmitting || updateQualityOfWorkSubmitting
 
-  const headerTitle = isEditMode ? 'Editar cumplimiento de seguridad' : 'Crear cumplimiento'
+  const headerTitle = isEditMode ? 'Editar calidad del trabajo' : 'Crear calidad del trabajo'
   const headerDescription = isEditMode
-    ? 'Actualiza los datos del registro de cumplimiento de seguridad seleccionado.'
-    : 'Completa los datos para registrar un nuevo cumplimiento de seguridad.'
-  const submitLabel = isEditMode ? 'Guardar cambios' : 'Crear cumplimiento'
-  const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : 'Creando cumplimiento...'
+    ? 'Actualiza los datos del registro de calidad del trabajo seleccionado.'
+    : 'Completa los datos para registrar una nueva calidad del trabajo.'
+  const submitLabel = isEditMode ? 'Guardar cambios' : 'Crear calidad'
+  const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : 'Creando calidad...'
   const activeStatus = isEditMode ? updateStatus : createStatus
   const submitErrorMessage = activeStatus.error
   const submitSuccessMessage = activeStatus.success
@@ -76,9 +76,9 @@ export default function SafetyComplianceFormDashboardPage() {
       clearOperationStatus('create')
       clearOperationStatus('update')
       clearOperationStatus('detail')
-      clearSafetyComplianceDetail()
+      clearQualityOfWorkDetail()
     }
-  }, [clearOperationStatus, clearSafetyComplianceDetail])
+  }, [clearOperationStatus, clearQualityOfWorkDetail])
 
   useEffect(() => {
     if (!isEditMode) return
@@ -86,9 +86,9 @@ export default function SafetyComplianceFormDashboardPage() {
     let cancelled = false
 
     const load = async () => {
-      const detail = await getSafetyComplianceDetail(String(editSafetyComplianceId))
+      const detail = await getQualityOfWorkDetail(String(editQualityOfWorkId))
       if (!detail || cancelled) return
-      setForm(mapperSafetyComplianceToForm(detail))
+      setForm(mapperQualityOfWorkToForm(detail))
     }
 
     void load()
@@ -96,28 +96,28 @@ export default function SafetyComplianceFormDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [editSafetyComplianceId, getSafetyComplianceDetail, isEditMode])
+  }, [editQualityOfWorkId, getQualityOfWorkDetail, isEditMode])
 
   const clearSubmitStatus = () => {
     clearOperationStatus('create')
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateSafetyComplianceForm, value: string) => {
+  const handleChangeField = (field: keyof typeof initialCreateQualityOfWorkForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
-  const handleSafetyComplianceNameChange = (value: string) => handleChangeField('name', value)
-  const handleSafetyComplianceDescriptionChange = (value: string) => handleChangeField('description', value)
+  const handleQualityOfWorkNameChange = (value: string) => handleChangeField('name', value)
+  const handleQualityOfWorkDescriptionChange = (value: string) => handleChangeField('description', value)
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
     if (!validateAll()) return
 
     if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateSafetyCompliancePayload(editSafetyComplianceId, form) })
+      setPendingAction({ mode: 'update', payload: mapperUpdateQualityOfWorkPayload(editQualityOfWorkId, form) })
     } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateSafetyCompliancePayload(form) })
+      setPendingAction({ mode: 'create', payload: mapperCreateQualityOfWorkPayload(form) })
     }
     setConfirmOpen(true)
   }
@@ -132,11 +132,11 @@ export default function SafetyComplianceFormDashboardPage() {
     if (!pendingAction || saving) return
 
     const success = pendingAction.mode === 'create'
-      ? await createSafetyCompliance(pendingAction.payload)
-      : await updateSafetyCompliance(pendingAction.payload)
+      ? await createQualityOfWork(pendingAction.payload)
+      : await updateQualityOfWork(pendingAction.payload)
 
     if (success) {
-      navigate(AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE)
+      navigate(AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY)
       return
     }
 
@@ -145,8 +145,8 @@ export default function SafetyComplianceFormDashboardPage() {
   }
 
   const confirmMessage = pendingAction?.mode === 'update'
-    ? `¿Deseas guardar los cambios del cumplimiento ${form.name}?`
-    : `¿Deseas crear el cumplimiento ${form.name}?`
+    ? `¿Deseas guardar los cambios de la calidad ${form.name}?`
+    : `¿Deseas crear la calidad ${form.name}?`
   const heroWords = headerTitle.trim().split(/\s+/).filter(Boolean)
   const heroLeading = heroWords.slice(0, 2).join(' ')
   const heroTrailing = heroWords.slice(2).join(' ')
@@ -193,24 +193,24 @@ export default function SafetyComplianceFormDashboardPage() {
         className="space-y-10"
         onSubmit={handleSubmit}
       >
-        {isEditMode && loadingSafetyComplianceDetail && (
-          <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del cumplimiento de seguridad...</p>
+        {isEditMode && loadingQualityOfWorkDetail && (
+          <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos de la calidad del trabajo...</p>
         )}
 
         <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos de seguridad" />
+          <DetailSectionHeaderComponent number="01" title="Datos de calidad" />
 
           <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Identificación del cumplimiento" />
+            <SubSectionLabel number="01.1" title="Identificación del registro" />
             <div className="grid gap-4 md:grid-cols-2">
               <InputComponent
                 value={form.name}
-                label="Nombre cumplimiento de seguridad"
+                label="Nombre calidad del trabajo"
                 type="text"
-                placeholder="Ingresa el nombre del cumplimiento de seguridad"
+                placeholder="Ingresa el nombre de la calidad del trabajo"
                 autoComplete="off"
                 error={errors.name}
-                onValueChange={handleSafetyComplianceNameChange}
+                onValueChange={handleQualityOfWorkNameChange}
                 onBlur={onValidation('name')}
                 required
               />
@@ -225,11 +225,11 @@ export default function SafetyComplianceFormDashboardPage() {
               </label>
               <textarea
                 value={form.description}
-                placeholder="Ingresa la descripción del cumplimiento de seguridad"
+                placeholder="Ingresa la descripción de la calidad del trabajo"
                 autoComplete="off"
                 rows={5}
                 className="r-md min-h-28 w-full resize-y border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[color:var(--accent-400)] focus:ring-2 focus:ring-[color:var(--accent-400)]/20 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-100 dark:placeholder:text-slate-500"
-                onChange={(event) => handleSafetyComplianceDescriptionChange(event.target.value)}
+                onChange={(event) => handleQualityOfWorkDescriptionChange(event.target.value)}
               />
             </div>
           </div>
@@ -241,7 +241,7 @@ export default function SafetyComplianceFormDashboardPage() {
             variant="outline"
             disabled={saving}
             label="Volver"
-            onClick={() => navigate(AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE)}
+            onClick={() => navigate(AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY)}
           />
           <ButtonComponent
             type="submit"
@@ -254,7 +254,7 @@ export default function SafetyComplianceFormDashboardPage() {
 
       <SaveConfirmComponent
         open={confirmOpen}
-        title={isEditMode ? 'Confirmar actualización de cumplimiento' : 'Confirmar creación de cumplimiento'}
+        title={isEditMode ? 'Confirmar actualización de calidad' : 'Confirmar creación de calidad'}
         message={confirmMessage}
         confirmLabel={submitLabel}
         cancelLabel="Cancelar"

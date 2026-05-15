@@ -44,10 +44,10 @@ export default function NoRehireCauseFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingNoRehireCauseDetail = useStoreNoRehireCause((s) => s.loadingNoRehireCauseDetail)
+  const loadingNoRehireCauseDetail = useStoreNoRehireCause((s) => s.operationLoading.detail)
   const detailError = useStoreNoRehireCause((s) => s.operationStatus.detail.error)
-  const createNoRehireCauseSubmitting = useStoreNoRehireCause((s) => s.createNoRehireCauseSubmitting)
-  const updateNoRehireCauseSubmitting = useStoreNoRehireCause((s) => s.updateNoRehireCauseSubmitting)
+  const createNoRehireCauseSubmitting = useStoreNoRehireCause((s) => s.operationLoading.create)
+  const updateNoRehireCauseSubmitting = useStoreNoRehireCause((s) => s.operationLoading.update)
   const createStatus = useStoreNoRehireCause((s) => s.operationStatus.create)
   const updateStatus = useStoreNoRehireCause((s) => s.operationStatus.update)
   const getNoRehireCauseDetail = useStoreNoRehireCause((s) => s.getNoRehireCauseDetail)

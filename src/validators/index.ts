@@ -27,4 +27,4 @@ export {
   terminationQuizQuestionCreateValidationRules,
   transferCreateValidationRules,
 } from './entity-name.validators'
-export { settlementsCreateValidationRules } from './settlements.validators'
+export { settlementsCreateValidationRules } from './settlement.validators'

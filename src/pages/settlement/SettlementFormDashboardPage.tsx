@@ -72,10 +72,10 @@ export default function SettlementFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingSettlementDetail = useStoreSettlement((s) => s.loadingSettlementDetail)
+  const loadingSettlementDetail = useStoreSettlement((s) => s.operationLoading.detail)
   const detailError = useStoreSettlement((s) => s.operationStatus.detail.error)
-  const createSettlementSubmitting = useStoreSettlement((s) => s.createSettlementSubmitting)
-  const updateSettlementSubmitting = useStoreSettlement((s) => s.updateSettlementSubmitting)
+  const createSettlementSubmitting = useStoreSettlement((s) => s.operationLoading.create)
+  const updateSettlementSubmitting = useStoreSettlement((s) => s.operationLoading.update)
   const createStatus = useStoreSettlement((s) => s.operationStatus.create)
   const updateStatus = useStoreSettlement((s) => s.operationStatus.update)
   const getSettlementDetail = useStoreSettlement((s) => s.getSettlementDetail)

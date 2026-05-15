@@ -63,10 +63,10 @@ export default function TransferFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingTransferDetail = useStoreTransfer((s) => s.loadingTransferDetail)
+  const loadingTransferDetail = useStoreTransfer((s) => s.operationLoading.detail)
   const detailError = useStoreTransfer((s) => s.operationStatus.detail.error)
-  const createTransferSubmitting = useStoreTransfer((s) => s.createTransferSubmitting)
-  const updateTransferSubmitting = useStoreTransfer((s) => s.updateTransferSubmitting)
+  const createTransferSubmitting = useStoreTransfer((s) => s.operationLoading.create)
+  const updateTransferSubmitting = useStoreTransfer((s) => s.operationLoading.update)
   const createStatus = useStoreTransfer((s) => s.operationStatus.create)
   const updateStatus = useStoreTransfer((s) => s.operationStatus.update)
   const getTransferDetail = useStoreTransfer((s) => s.getTransferDetail)

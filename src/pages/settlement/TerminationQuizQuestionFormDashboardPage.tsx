@@ -49,10 +49,10 @@ export default function TerminationQuizQuestionFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingDetail = useStoreTerminationQuizQuestion((s) => s.loadingTerminationQuizQuestionDetail)
+  const loadingDetail = useStoreTerminationQuizQuestion((s) => s.operationLoading.detail)
   const detailError = useStoreTerminationQuizQuestion((s) => s.operationStatus.detail.error)
-  const createSubmitting = useStoreTerminationQuizQuestion((s) => s.createTerminationQuizQuestionSubmitting)
-  const updateSubmitting = useStoreTerminationQuizQuestion((s) => s.updateTerminationQuizQuestionSubmitting)
+  const createSubmitting = useStoreTerminationQuizQuestion((s) => s.operationLoading.create)
+  const updateSubmitting = useStoreTerminationQuizQuestion((s) => s.operationLoading.update)
   const createStatus = useStoreTerminationQuizQuestion((s) => s.operationStatus.create)
   const updateStatus = useStoreTerminationQuizQuestion((s) => s.operationStatus.update)
   const getDetail = useStoreTerminationQuizQuestion((s) => s.getTerminationQuizQuestionDetail)
