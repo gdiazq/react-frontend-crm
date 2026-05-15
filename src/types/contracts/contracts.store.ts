@@ -15,11 +15,7 @@ export interface ContractsStore {
   contractDetail: ContractDetail | null
   pagination: ContractsPagination
   queryParams: ContractsQueryParams
-  loadingContracts: boolean
-  loadingContractDetail: boolean
-  loadingToggleStatus: boolean
-  createContractSubmitting: boolean
-  updateContractSubmitting: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getContracts: () => Promise<void>
   getContractDetail: (contractId: string) => Promise<ContractDetail | null>

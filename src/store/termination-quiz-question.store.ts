@@ -14,6 +14,7 @@ import { terminationQuizQuestionService } from '@/services'
 import type { TerminationQuizQuestionStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
   let latestTerminationQuizQuestionRequestId = 0
   let latestDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     terminationQuizQuestionRaw: [],
@@ -30,17 +31,13 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
     terminationQuizQuestionRows: [...initialTerminationQuizQuestionRows],
     pagination: { ...initialTerminationQuizQuestionPagination },
     queryParams: { ...initialTerminationQuizQuestionQueryParams },
-    loadingTerminationQuizQuestion: false,
-    loadingTerminationQuizQuestionDetail: false,
-    createTerminationQuizQuestionSubmitting: false,
-    updateTerminationQuizQuestionSubmitting: false,
-    loadingToggleStatus: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getTerminationQuizQuestion: async () => {
       const requestId = ++latestTerminationQuizQuestionRequestId
       try {
-        set({ loadingTerminationQuizQuestion: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await terminationQuizQuestionService.getTerminationQuizQuestion(get().queryParams)
         if (requestId !== latestTerminationQuizQuestionRequestId) return
@@ -57,7 +54,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
         setOpError('list', resolveErrorMessage(error, messages.terminationQuizQuestion.status.errors.loadError), error)
       } finally {
         if (requestId === latestTerminationQuizQuestionRequestId) {
-          set({ loadingTerminationQuizQuestion: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -72,7 +69,8 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
       const requestId = ++latestDetailRequestId
 
       try {
-        set({ loadingTerminationQuizQuestionDetail: true, terminationQuizQuestionDetail: null })
+        setOpLoading('detail', true)
+        set({ terminationQuizQuestionDetail: null })
         clearOp('detail')
         const data = await terminationQuizQuestionService.getTerminationQuizQuestionDetail(parsedId)
         if (requestId != latestDetailRequestId) return null
@@ -84,7 +82,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
         return null
       } finally {
         if (requestId == latestDetailRequestId) {
-          set({ loadingTerminationQuizQuestionDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
@@ -179,7 +177,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
       }
 
       try {
-        set({ createTerminationQuizQuestionSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await terminationQuizQuestionService.createTerminationQuizQuestion(payload)
         setOpSuccess('create', messages.terminationQuizQuestion.status.success.createSuccess)
@@ -188,7 +186,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
         setOpError('create', resolveErrorMessage(error, messages.terminationQuizQuestion.status.errors.createError), error)
         return false
       } finally {
-        set({ createTerminationQuizQuestionSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -204,7 +202,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
       }
 
       try {
-        set({ updateTerminationQuizQuestionSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await terminationQuizQuestionService.updateTerminationQuizQuestion(payload)
         setOpSuccess('update', messages.terminationQuizQuestion.status.success.updateSuccess)
@@ -213,7 +211,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
         setOpError('update', resolveErrorMessage(error, messages.terminationQuizQuestion.status.errors.updateError), error)
         return false
       } finally {
-        set({ updateTerminationQuizQuestionSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 
@@ -232,7 +230,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
       }
 
       try {
-        set({ loadingToggleStatus: true })
+        setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
           terminationQuizQuestionRaw: state.terminationQuizQuestionRaw.map((item) =>
@@ -286,7 +284,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
         setOpError('toggle', resolveErrorMessage(error, messages.terminationQuizQuestion.status.errors.toggleStatusError), error)
         return false
       } finally {
-        set({ loadingToggleStatus: false })
+        setOpLoading('toggle', false)
       }
     },
 
@@ -294,7 +292,7 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
       set({ terminationQuizQuestionDetail: null })
     },
 
-    clearOperationStatus: (key: OperationKey) => {
+    clearOperationStatus: (key) => {
       clearOp(key)
     },
 

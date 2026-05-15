@@ -17,11 +17,7 @@ export interface ProjectTypesStore {
   projectTypesRows: ProjectTypeTableRow[]
   pagination: ProjectTypesPagination
   queryParams: ProjectTypesQueryParams
-  loadingProjectTypes: boolean
-  loadingProjectTypeDetail: boolean
-  createProjectTypeSubmitting: boolean
-  updateProjectTypeSubmitting: boolean
-  loadingToggleStatus: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getProjectTypes: () => Promise<void>
   getProjectTypeDetail: (projectTypeId: string) => Promise<ProjectTypeDetail | null>

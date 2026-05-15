@@ -13,6 +13,7 @@ import { overtimeService } from '@/services'
 import type { OvertimeSortBy, OvertimeSortDir, OvertimeStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
   let latestOvertimeDetailRequestId = 0
   let latestOvertimeTypesRequestId = 0
 
-  const { setOpError, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     overtimeRows: [...initialOvertimeRows],
@@ -30,17 +31,14 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
     overtimeTypes: [],
     pagination: { ...initialOvertimePagination },
     queryParams: { ...initialOvertimeQueryParams },
-    loadingOvertime: false,
-    loadingOvertimeDetail: false,
     loadingOvertimeTypes: false,
-    createOvertimeSubmitting: false,
-    updateOvertimeSubmitting: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getOvertime: async () => {
       const requestId = ++latestOvertimeRequestId
       try {
-        set({ loadingOvertime: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await overtimeService.getOvertime(get().queryParams)
         if (requestId !== latestOvertimeRequestId) return
@@ -55,7 +53,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
         setOpError('list', resolveErrorMessage(error, messages.overtime.status.errors.loadError), error)
       } finally {
         if (requestId === latestOvertimeRequestId) {
-          set({ loadingOvertime: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -70,7 +68,8 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
       const requestId = ++latestOvertimeDetailRequestId
 
       try {
-        set({ loadingOvertimeDetail: true, overtimeDetail: null })
+        setOpLoading('detail', true)
+        set({ overtimeDetail: null })
         clearOp('detail')
         const data = await overtimeService.getOvertimeDetail(parsedOvertimeId)
         if (requestId !== latestOvertimeDetailRequestId) return null
@@ -82,14 +81,15 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
         return null
       } finally {
         if (requestId === latestOvertimeDetailRequestId) {
-          set({ loadingOvertimeDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
 
     clearOvertimeDetail: () => {
       latestOvertimeDetailRequestId += 1
-      set({ overtimeDetail: null, loadingOvertimeDetail: false })
+      set({ overtimeDetail: null })
+      setOpLoading('detail', false)
       clearOp('detail')
     },
 
@@ -195,7 +195,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
 
     createOvertime: async (payload) => {
       try {
-        set({ createOvertimeSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await overtimeService.createOvertime(payload)
         set((state) => ({
@@ -209,7 +209,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
         setOpError('create', resolveErrorMessage(error, messages.overtime.status.errors.createOvertimeError), error)
         return false
       } finally {
-        set({ createOvertimeSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -220,7 +220,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
       }
 
       try {
-        set({ updateOvertimeSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await overtimeService.updateOvertime(payload)
         set((state) => ({
@@ -234,7 +234,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
         setOpError('update', resolveErrorMessage(error, messages.overtime.status.errors.updateOvertimeError), error)
         return false
       } finally {
-        set({ updateOvertimeSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 

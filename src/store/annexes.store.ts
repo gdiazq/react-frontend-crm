@@ -13,6 +13,7 @@ import messages from '@/messages/messages'
 import type { AnnexesSortBy, AnnexesSortDir, AnnexesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
   let latestAnnexDetailRequestId = 0
   let latestContractAnnexesRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     annexesRows: [...initialAnnexesRows],
@@ -31,16 +32,13 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
     loadingContractAnnexes: false,
     pagination: { ...initialAnnexesPagination },
     queryParams: { ...initialAnnexesQueryParams },
-    loadingAnnexes: false,
-    loadingAnnexDetail: false,
-    createAnnexSubmitting: false,
-    updateAnnexSubmitting: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getAnnexes: async () => {
       const requestId = ++latestAnnexesRequestId
       try {
-        set({ loadingAnnexes: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await annexesService.getAnnexes(get().queryParams)
         if (requestId !== latestAnnexesRequestId) return
@@ -55,7 +53,7 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
         setOpError('list', resolveErrorMessage(error, messages.annexes.status.errors.loadError), error)
       } finally {
         if (requestId === latestAnnexesRequestId) {
-          set({ loadingAnnexes: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -70,7 +68,8 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
       const requestId = ++latestAnnexDetailRequestId
 
       try {
-        set({ loadingAnnexDetail: true, annexDetail: null })
+        setOpLoading('detail', true)
+        set({ annexDetail: null })
         clearOp('detail')
         const data = await annexesService.getAnnexDetail(parsedAnnexId)
         if (requestId !== latestAnnexDetailRequestId) return null
@@ -82,14 +81,15 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
         return null
       } finally {
         if (requestId === latestAnnexDetailRequestId) {
-          set({ loadingAnnexDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
 
     clearAnnexDetail: () => {
       latestAnnexDetailRequestId += 1
-      set({ annexDetail: null, loadingAnnexDetail: false })
+      set({ annexDetail: null })
+      setOpLoading('detail', false)
       clearOp('detail')
     },
 
@@ -185,7 +185,7 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
 
     createAnnex: async (payload, files = []) => {
       try {
-        set({ createAnnexSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await annexesService.createAnnex(payload, files)
         setOpSuccess('create', messages.annexes.status.success.createAnnexSuccess)
@@ -194,7 +194,7 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
         setOpError('create', resolveErrorMessage(error, messages.annexes.status.errors.createAnnexError), error)
         return false
       } finally {
-        set({ createAnnexSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -205,7 +205,7 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
       }
 
       try {
-        set({ updateAnnexSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await annexesService.updateAnnex(payload, files)
         setOpSuccess('update', messages.annexes.status.success.updateAnnexSuccess)
@@ -214,7 +214,7 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
         setOpError('update', resolveErrorMessage(error, messages.annexes.status.errors.updateAnnexError), error)
         return false
       } finally {
-        set({ updateAnnexSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 

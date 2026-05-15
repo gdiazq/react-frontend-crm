@@ -65,10 +65,10 @@ export default function EmployeesFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingEmployeeDetail = useStoreEmployees((s) => s.loadingEmployeeDetail)
+  const loadingEmployeeDetail = useStoreEmployees((s) => s.operationLoading.detail)
   const detailError = useStoreEmployees((s) => s.operationStatus.detail.error)
-  const createEmployeeSubmitting = useStoreEmployees((s) => s.createEmployeeSubmitting)
-  const updateEmployeeSubmitting = useStoreEmployees((s) => s.updateEmployeeSubmitting)
+  const createEmployeeSubmitting = useStoreEmployees((s) => s.operationLoading.create)
+  const updateEmployeeSubmitting = useStoreEmployees((s) => s.operationLoading.update)
   const createStatus = useStoreEmployees((s) => s.operationStatus.create)
   const updateStatus = useStoreEmployees((s) => s.operationStatus.update)
   const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)

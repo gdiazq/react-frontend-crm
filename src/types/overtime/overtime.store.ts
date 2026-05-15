@@ -17,11 +17,8 @@ export interface OvertimeStore {
   overtimeTypes: OvertimeTypeRaw[]
   pagination: OvertimePagination
   queryParams: OvertimeQueryParams
-  loadingOvertime: boolean
-  loadingOvertimeDetail: boolean
   loadingOvertimeTypes: boolean
-  createOvertimeSubmitting: boolean
-  updateOvertimeSubmitting: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getOvertime: () => Promise<void>
   getOvertimeDetail: (overtimeId: string) => Promise<OvertimeDetail | null>

@@ -13,10 +13,9 @@ export interface RequestsStore {
   requestDetail: HrRequestDetailRaw | null
   pagination: RequestsPagination
   queryParams: RequestsQueryParams
-  loadingRequests: boolean
-  loadingRequestDetail: boolean
   loadingApproveRequest: boolean
   loadingRejectRequest: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getRequests: () => Promise<void>
   getRequestDetail: (requestId: string) => Promise<HrRequestDetailRaw | null>

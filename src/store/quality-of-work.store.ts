@@ -14,6 +14,7 @@ import { qualityOfWorkService } from '@/services'
 import type { QualityOfWorkStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
   let latestQualityOfWorkRequestId = 0
   let latestQualityOfWorkDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     qualityOfWorkRaw: [],
@@ -30,17 +31,13 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
     qualityOfWorkRows: [...initialQualityOfWorkRows],
     pagination: { ...initialQualityOfWorkPagination },
     queryParams: { ...initialQualityOfWorkQueryParams },
-    loadingQualityOfWork: false,
-    loadingQualityOfWorkDetail: false,
-    createQualityOfWorkSubmitting: false,
-    updateQualityOfWorkSubmitting: false,
-    loadingToggleStatus: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getQualityOfWork: async () => {
       const requestId = ++latestQualityOfWorkRequestId
       try {
-        set({ loadingQualityOfWork: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await qualityOfWorkService.getQualityOfWork(get().queryParams)
         if (requestId !== latestQualityOfWorkRequestId) return
@@ -57,7 +54,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
         setOpError('list', resolveErrorMessage(error, messages.qualityOfWork.status.errors.loadError), error)
       } finally {
         if (requestId === latestQualityOfWorkRequestId) {
-          set({ loadingQualityOfWork: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -72,7 +69,8 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
       const requestId = ++latestQualityOfWorkDetailRequestId
 
       try {
-        set({ loadingQualityOfWorkDetail: true, qualityOfWorkDetail: null })
+        setOpLoading('detail', true)
+        set({ qualityOfWorkDetail: null })
         clearOp('detail')
         const data = await qualityOfWorkService.getQualityOfWorkDetail(parsedQualityOfWorkId)
         if (requestId != latestQualityOfWorkDetailRequestId) return null
@@ -84,7 +82,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
         return null
       } finally {
         if (requestId == latestQualityOfWorkDetailRequestId) {
-          set({ loadingQualityOfWorkDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
@@ -187,7 +185,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
       }
 
       try {
-        set({ createQualityOfWorkSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await qualityOfWorkService.createQualityOfWork(payload)
         setOpSuccess('create', messages.qualityOfWork.status.success.createQualityOfWorkSuccess)
@@ -196,7 +194,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
         setOpError('create', resolveErrorMessage(error, messages.qualityOfWork.status.errors.createError), error)
         return false
       } finally {
-        set({ createQualityOfWorkSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -212,7 +210,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
       }
 
       try {
-        set({ updateQualityOfWorkSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await qualityOfWorkService.updateQualityOfWork(payload)
         setOpSuccess('update', messages.qualityOfWork.status.success.updateQualityOfWorkSuccess)
@@ -221,7 +219,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
         setOpError('update', resolveErrorMessage(error, messages.qualityOfWork.status.errors.updateError), error)
         return false
       } finally {
-        set({ updateQualityOfWorkSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 
@@ -240,7 +238,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
       }
 
       try {
-        set({ loadingToggleStatus: true })
+        setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
           qualityOfWorkRaw: state.qualityOfWorkRaw.map((item) =>
@@ -294,7 +292,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
         setOpError('toggle', resolveErrorMessage(error, messages.qualityOfWork.status.errors.toggleStatusError), error)
         return false
       } finally {
-        set({ loadingToggleStatus: false })
+        setOpLoading('toggle', false)
       }
     },
 
@@ -302,7 +300,7 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
       set({ qualityOfWorkDetail: null })
     },
 
-    clearOperationStatus: (key: OperationKey) => {
+    clearOperationStatus: (key) => {
       clearOp(key)
     },
 

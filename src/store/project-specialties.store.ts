@@ -14,6 +14,7 @@ import { projectSpecialtiesService } from '@/services'
 import type { ProjectSpecialtiesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
   let latestProjectSpecialtiesRequestId = 0
   let latestProjectSpecialtyDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     projectSpecialtiesRaw: [],
@@ -30,17 +31,13 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
     projectSpecialtiesRows: [...initialProjectSpecialtiesRows],
     pagination: { ...initialProjectSpecialtiesPagination },
     queryParams: { ...initialProjectSpecialtiesQueryParams },
-    loadingProjectSpecialties: false,
-    loadingProjectSpecialtyDetail: false,
-    createProjectSpecialtySubmitting: false,
-    updateProjectSpecialtySubmitting: false,
-    loadingToggleStatus: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getProjectSpecialties: async () => {
       const requestId = ++latestProjectSpecialtiesRequestId
       try {
-        set({ loadingProjectSpecialties: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await projectSpecialtiesService.getProjectSpecialties(get().queryParams)
         if (requestId !== latestProjectSpecialtiesRequestId) return
@@ -57,7 +54,7 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         setOpError('list', resolveErrorMessage(error, messages.projectSpecialties.status.errors.loadError), error)
       } finally {
         if (requestId === latestProjectSpecialtiesRequestId) {
-          set({ loadingProjectSpecialties: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -72,7 +69,8 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
       const requestId = ++latestProjectSpecialtyDetailRequestId
 
       try {
-        set({ loadingProjectSpecialtyDetail: true, projectSpecialtyDetail: null })
+        setOpLoading('detail', true)
+        set({ projectSpecialtyDetail: null })
         clearOp('detail')
         const data = await projectSpecialtiesService.getProjectSpecialtyDetail(parsedProjectSpecialtyId)
         if (requestId != latestProjectSpecialtyDetailRequestId) return null
@@ -84,7 +82,7 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         return null
       } finally {
         if (requestId == latestProjectSpecialtyDetailRequestId) {
-          set({ loadingProjectSpecialtyDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
@@ -187,7 +185,7 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
       }
 
       try {
-        set({ createProjectSpecialtySubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await projectSpecialtiesService.createProjectSpecialty(payload)
         setOpSuccess('create', messages.projectSpecialties.status.success.createProjectSpecialtySuccess)
@@ -196,7 +194,7 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         setOpError('create', resolveErrorMessage(error, messages.projectSpecialties.status.errors.createProjectSpecialtyError), error)
         return false
       } finally {
-        set({ createProjectSpecialtySubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -212,7 +210,7 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
       }
 
       try {
-        set({ updateProjectSpecialtySubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await projectSpecialtiesService.updateProjectSpecialty(payload)
         setOpSuccess('update', messages.projectSpecialties.status.success.updateProjectSpecialtySuccess)
@@ -221,7 +219,7 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         setOpError('update', resolveErrorMessage(error, messages.projectSpecialties.status.errors.updateProjectSpecialtyError), error)
         return false
       } finally {
-        set({ updateProjectSpecialtySubmitting: false })
+        setOpLoading('update', false)
       }
     },
 
@@ -240,7 +238,7 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
       }
 
       try {
-        set({ loadingToggleStatus: true })
+        setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
           projectSpecialtiesRaw: state.projectSpecialtiesRaw.map((item) => (item.id == parsedProjectSpecialtyId ? { ...item, active: nextStatus } : item)),
@@ -267,13 +265,14 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         setOpError('toggle', resolveErrorMessage(error, messages.projectSpecialties.status.errors.toggleStatusError), error)
         return false
       } finally {
-        set({ loadingToggleStatus: false })
+        setOpLoading('toggle', false)
       }
     },
 
     clearProjectSpecialtyDetail: () => {
       latestProjectSpecialtyDetailRequestId += 1
-      set({ projectSpecialtyDetail: null, loadingProjectSpecialtyDetail: false })
+      set({ projectSpecialtyDetail: null })
+      setOpLoading('detail', false)
       clearOp('detail')
     },
 

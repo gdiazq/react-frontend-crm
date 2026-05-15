@@ -12,27 +12,33 @@ import {
 import messages from '@/messages/messages'
 import type { EmployeeOperationKey, EmployeesSortBy, EmployeesSortDir, EmployeesStore } from '@/types'
 import {
+  buildInitialOperationLoading,
   buildInitialOperationStatus,
   createOperationStatusHelpers,
   resolveErrorMessage,
 } from '@/utils'
 
+const EMPLOYEE_OP_KEYS: readonly EmployeeOperationKey[] = [
+  'list',
+  'detail',
+  'create',
+  'update',
+  'toggle',
+  'link',
+]
+
 const initialOperationStatus = () =>
-  buildInitialOperationStatus<EmployeeOperationKey>([
-    'list',
-    'detail',
-    'create',
-    'update',
-    'toggle',
-    'link',
-  ])
+  buildInitialOperationStatus<EmployeeOperationKey>(EMPLOYEE_OP_KEYS)
+
+const initialOperationLoading = () =>
+  buildInitialOperationLoading<EmployeeOperationKey>(EMPLOYEE_OP_KEYS)
 
 export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
   let latestEmployeesRequestId = 0
   let latestEmployeeDetailRequestId = 0
   let latestAvailableUsersRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } =
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } =
     createOperationStatusHelpers<EmployeeOperationKey, EmployeesStore>(set)
 
   return {
@@ -40,14 +46,10 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
   employeeDetail: null,
   pagination: { ...initialEmployeesPagination },
   queryParams: { ...initialEmployeesQueryParams },
-  loadingEmployees: false,
-  loadingEmployeeDetail: false,
-  loadingToggleStatus: false,
   loadingLinkUser: false,
-  createEmployeeSubmitting: false,
-  updateEmployeeSubmitting: false,
   availableUsers: [],
   loadingAvailableUsers: false,
+  operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
   getEmployeeDetail: async (employeeId: string) => {
@@ -60,7 +62,8 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     const requestId = ++latestEmployeeDetailRequestId
 
     try {
-      set({ loadingEmployeeDetail: true, employeeDetail: null })
+      setOpLoading('detail', true)
+        set({ employeeDetail: null })
       clearOp('detail')
       const data = await employeesService.getEmployeeDetail(parsedId)
       if (requestId !== latestEmployeeDetailRequestId) return null
@@ -72,21 +75,22 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
       return null
     } finally {
       if (requestId === latestEmployeeDetailRequestId) {
-        set({ loadingEmployeeDetail: false })
+        setOpLoading('detail', false)
       }
     }
   },
 
   clearEmployeeDetail: () => {
     latestEmployeeDetailRequestId += 1
-    set({ employeeDetail: null, loadingEmployeeDetail: false })
+    set({ employeeDetail: null })
+      setOpLoading('detail', false)
     clearOp('detail')
   },
 
   getEmployees: async () => {
     const requestId = ++latestEmployeesRequestId
     try {
-      set({ loadingEmployees: true })
+      setOpLoading('list', true)
       clearOp('list')
       const data = await employeesService.getEmployees(get().queryParams)
       if (requestId !== latestEmployeesRequestId) return
@@ -101,7 +105,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
       setOpError('list', resolveErrorMessage(error, messages.employees.status.errors.loadError), error)
     } finally {
       if (requestId === latestEmployeesRequestId) {
-        set({ loadingEmployees: false })
+        setOpLoading('list', false)
       }
     }
   },
@@ -180,7 +184,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     }
 
     try {
-      set({ loadingToggleStatus: true })
+      setOpLoading('toggle', true)
       clearOp('toggle')
       await employeesService.toggleEmployeeStatus(parsedEmployeeId, nextStatus)
       return true
@@ -188,13 +192,13 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
       setOpError('toggle', resolveErrorMessage(error, messages.employees.status.errors.toggleStatusError), error)
       return false
     } finally {
-      set({ loadingToggleStatus: false })
+      setOpLoading('toggle', false)
     }
   },
 
   createEmployee: async (payload) => {
     try {
-      set({ createEmployeeSubmitting: true })
+      setOpLoading('create', true)
       clearOp('create')
 
       const data = await employeesService.createEmployee(payload)
@@ -205,7 +209,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
       setOpError('create', resolveErrorMessage(error, messages.employees.status.errors.createEmployeeError), error)
       return false
     } finally {
-      set({ createEmployeeSubmitting: false })
+      setOpLoading('create', false)
     }
   },
 
@@ -216,7 +220,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     }
 
     try {
-      set({ updateEmployeeSubmitting: true })
+      setOpLoading('update', true)
       clearOp('update')
 
       await employeesService.updateEmployee(payload)
@@ -226,7 +230,7 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
       setOpError('update', resolveErrorMessage(error, messages.employees.status.errors.updateEmployeeError), error)
       return false
     } finally {
-      set({ updateEmployeeSubmitting: false })
+      setOpLoading('update', false)
     }
   },
 

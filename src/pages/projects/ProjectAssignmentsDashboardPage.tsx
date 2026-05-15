@@ -48,7 +48,7 @@ export default function ProjectAssignmentsDashboardPage() {
   const costCenterProjectAssignments = useStoreProjectAssignments((s) => s.costCenterProjectAssignments)
   const pagination = useStoreProjectAssignments((s) => s.pagination)
   const queryParams = useStoreProjectAssignments((s) => s.queryParams)
-  const loadingProjectAssignments = useStoreProjectAssignments((s) => s.loadingProjectAssignments)
+  const loadingProjectAssignments = useStoreProjectAssignments((s) => s.operationLoading.list)
   const loadingEmployeeProjectAssignments = useStoreProjectAssignments((s) => s.loadingEmployeeProjectAssignments)
   const loadingCostCenterProjectAssignments = useStoreProjectAssignments((s) => s.loadingCostCenterProjectAssignments)
   const listError = useStoreProjectAssignments((s) => s.operationStatus.list.error)

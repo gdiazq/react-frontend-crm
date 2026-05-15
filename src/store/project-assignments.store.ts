@@ -14,6 +14,7 @@ import type {
 } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -23,7 +24,7 @@ export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set
   let latestEmployeeProjectAssignmentsRequestId = 0
   let latestCostCenterProjectAssignmentsRequestId = 0
 
-  const { setOpError, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     projectAssignmentsRows: [...initialProjectAssignmentsRows],
@@ -31,15 +32,15 @@ export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set
     costCenterProjectAssignments: [],
     pagination: { ...initialProjectAssignmentsPagination },
     queryParams: { ...initialProjectAssignmentsQueryParams },
-    loadingProjectAssignments: false,
     loadingEmployeeProjectAssignments: false,
     loadingCostCenterProjectAssignments: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getProjectAssignments: async () => {
       const requestId = ++latestProjectAssignmentsRequestId
       try {
-        set({ loadingProjectAssignments: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await projectAssignmentsService.getProjectAssignments(get().queryParams)
         if (requestId !== latestProjectAssignmentsRequestId) return
@@ -54,7 +55,7 @@ export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set
         setOpError('list', resolveErrorMessage(error, messages.projectAssignments.status.errors.loadError), error)
       } finally {
         if (requestId === latestProjectAssignmentsRequestId) {
-          set({ loadingProjectAssignments: false })
+          setOpLoading('list', false)
         }
       }
     },

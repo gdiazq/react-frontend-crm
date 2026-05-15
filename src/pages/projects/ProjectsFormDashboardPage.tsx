@@ -47,10 +47,10 @@ export default function ProjectsFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingProjectDetail = useStoreProjects((s) => s.loadingProjectDetail)
+  const loadingProjectDetail = useStoreProjects((s) => s.operationLoading.detail)
   const detailError = useStoreProjects((s) => s.operationStatus.detail.error)
-  const createProjectSubmitting = useStoreProjects((s) => s.createProjectSubmitting)
-  const updateProjectSubmitting = useStoreProjects((s) => s.updateProjectSubmitting)
+  const createProjectSubmitting = useStoreProjects((s) => s.operationLoading.create)
+  const updateProjectSubmitting = useStoreProjects((s) => s.operationLoading.update)
   const createStatus = useStoreProjects((s) => s.operationStatus.create)
   const updateStatus = useStoreProjects((s) => s.operationStatus.update)
   const getProjectDetail = useStoreProjects((s) => s.getProjectDetail)

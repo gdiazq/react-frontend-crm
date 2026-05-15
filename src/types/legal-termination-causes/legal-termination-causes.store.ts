@@ -17,11 +17,7 @@ export interface LegalTerminationCausesStore {
   legalTerminationCausesRows: LegalTerminationCauseTableRow[]
   pagination: LegalTerminationCausesPagination
   queryParams: LegalTerminationCausesQueryParams
-  loadingLegalTerminationCauses: boolean
-  loadingLegalTerminationCauseDetail: boolean
-  createLegalTerminationCauseSubmitting: boolean
-  updateLegalTerminationCauseSubmitting: boolean
-  loadingToggleStatus: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getLegalTerminationCauses: () => Promise<void>
   getLegalTerminationCauseDetail: (legalTerminationCauseId: string) => Promise<LegalTerminationCauseDetail | null>

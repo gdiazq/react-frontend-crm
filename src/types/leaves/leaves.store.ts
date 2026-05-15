@@ -17,10 +17,7 @@ export interface LeavesStore {
   loadingEmployeeLeaves: boolean
   pagination: LeavesPagination
   queryParams: LeavesQueryParams
-  loadingLeaves: boolean
-  loadingLeaveDetail: boolean
-  createLeaveSubmitting: boolean
-  updateLeaveSubmitting: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getLeaves: () => Promise<void>
   getLeaveDetail: (leaveId: string) => Promise<LeaveDetail | null>

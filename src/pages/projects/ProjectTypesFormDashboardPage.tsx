@@ -41,10 +41,10 @@ export default function ProjectTypesFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingProjectTypeDetail = useStoreProjectTypes((s) => s.loadingProjectTypeDetail)
+  const loadingProjectTypeDetail = useStoreProjectTypes((s) => s.operationLoading.detail)
   const detailError = useStoreProjectTypes((s) => s.operationStatus.detail.error)
-  const createProjectTypeSubmitting = useStoreProjectTypes((s) => s.createProjectTypeSubmitting)
-  const updateProjectTypeSubmitting = useStoreProjectTypes((s) => s.updateProjectTypeSubmitting)
+  const createProjectTypeSubmitting = useStoreProjectTypes((s) => s.operationLoading.create)
+  const updateProjectTypeSubmitting = useStoreProjectTypes((s) => s.operationLoading.update)
   const createStatus = useStoreProjectTypes((s) => s.operationStatus.create)
   const updateStatus = useStoreProjectTypes((s) => s.operationStatus.update)
   const getProjectTypeDetail = useStoreProjectTypes((s) => s.getProjectTypeDetail)

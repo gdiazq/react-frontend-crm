@@ -18,14 +18,10 @@ export interface EmployeesStore {
   employeeDetail: EmployeeDetail | null
   pagination: EmployeesPagination
   queryParams: EmployeesQueryParams
-  loadingEmployees: boolean
-  loadingEmployeeDetail: boolean
-  loadingToggleStatus: boolean
   loadingLinkUser: boolean
-  createEmployeeSubmitting: boolean
-  updateEmployeeSubmitting: boolean
   availableUsers: EmployeeAvailableUserOption[]
   loadingAvailableUsers: boolean
+  operationLoading: Record<EmployeeOperationKey, boolean>
   operationStatus: Record<EmployeeOperationKey, OperationStatus>
   getEmployees: () => Promise<void>
   getEmployeeDetail: (employeeId: string) => Promise<EmployeeDetail | null>

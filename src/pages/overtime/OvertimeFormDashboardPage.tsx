@@ -77,10 +77,10 @@ export default function OvertimeFormDashboardPage() {
 
   const overtimeDetail = useStoreOvertime((s) => s.overtimeDetail)
   const overtimeTypes = useStoreOvertime((s) => s.overtimeTypes)
-  const loadingOvertimeDetail = useStoreOvertime((s) => s.loadingOvertimeDetail)
+  const loadingOvertimeDetail = useStoreOvertime((s) => s.operationLoading.detail)
   const loadingOvertimeTypes = useStoreOvertime((s) => s.loadingOvertimeTypes)
-  const createOvertimeSubmitting = useStoreOvertime((s) => s.createOvertimeSubmitting)
-  const updateOvertimeSubmitting = useStoreOvertime((s) => s.updateOvertimeSubmitting)
+  const createOvertimeSubmitting = useStoreOvertime((s) => s.operationLoading.create)
+  const updateOvertimeSubmitting = useStoreOvertime((s) => s.operationLoading.update)
   const detailError = useStoreOvertime((s) => s.operationStatus.detail.error)
   const createStatus = useStoreOvertime((s) => s.operationStatus.create)
   const updateStatus = useStoreOvertime((s) => s.operationStatus.update)

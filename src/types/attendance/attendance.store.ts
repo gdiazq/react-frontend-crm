@@ -19,14 +19,10 @@ export interface AttendanceStore {
   attendanceMarks: AttendanceMarkRaw[]
   pagination: AttendancePagination
   queryParams: AttendanceQueryParams
-  loadingAttendance: boolean
-  loadingAttendanceDetail: boolean
   loadingAttendanceMarks: boolean
-  createAttendanceSubmitting: boolean
-  updateAttendanceSubmitting: boolean
-  deleteAttendanceSubmitting: boolean
   createAttendanceMarkSubmitting: boolean
   updateAttendanceMarkSubmitting: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getAttendance: () => Promise<void>
   getAttendanceDetail: (attendanceId: string) => Promise<AttendanceDetail | null>

@@ -41,10 +41,10 @@ export default function ProjectSpecialtiesFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.loadingProjectSpecialtyDetail)
+  const loadingProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.operationLoading.detail)
   const detailError = useStoreProjectSpecialties((s) => s.operationStatus.detail.error)
-  const createProjectSpecialtySubmitting = useStoreProjectSpecialties((s) => s.createProjectSpecialtySubmitting)
-  const updateProjectSpecialtySubmitting = useStoreProjectSpecialties((s) => s.updateProjectSpecialtySubmitting)
+  const createProjectSpecialtySubmitting = useStoreProjectSpecialties((s) => s.operationLoading.create)
+  const updateProjectSpecialtySubmitting = useStoreProjectSpecialties((s) => s.operationLoading.update)
   const createStatus = useStoreProjectSpecialties((s) => s.operationStatus.create)
   const updateStatus = useStoreProjectSpecialties((s) => s.operationStatus.update)
   const getProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.getProjectSpecialtyDetail)

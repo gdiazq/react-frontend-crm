@@ -13,6 +13,7 @@ import messages from '@/messages/messages'
 import type { RequestsSortBy, RequestsSortDir, RequestsStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -21,23 +22,22 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
   let latestRequestsRequestId = 0
   let latestRequestDetailRequestId = 0
 
-  const { setOpError, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
   requestsRows: [...initialRequestsRows],
   requestDetail: null,
   pagination: { ...initialRequestsPagination },
   queryParams: { ...initialRequestsQueryParams },
-  loadingRequests: false,
-  loadingRequestDetail: false,
   loadingApproveRequest: false,
   loadingRejectRequest: false,
+  operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
   getRequests: async () => {
     const requestId = ++latestRequestsRequestId
     try {
-      set({ loadingRequests: true })
+      setOpLoading('list', true)
       clearOp('list')
       const data = await requestsService.getRequests(get().queryParams)
       if (requestId !== latestRequestsRequestId) return
@@ -52,7 +52,7 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
       setOpError('list', resolveErrorMessage(error, messages.requests.status.errors.loadError), error)
     } finally {
       if (requestId === latestRequestsRequestId) {
-        set({ loadingRequests: false })
+        setOpLoading('list', false)
       }
     }
   },
@@ -67,7 +67,8 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
     const currentRequestId = ++latestRequestDetailRequestId
 
     try {
-      set({ loadingRequestDetail: true, requestDetail: null })
+      setOpLoading('detail', true)
+        set({ requestDetail: null })
       clearOp('detail')
       const data = await requestsService.getRequestDetail(parsedRequestId)
       if (currentRequestId !== latestRequestDetailRequestId) return null
@@ -79,14 +80,15 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
       return null
     } finally {
       if (currentRequestId === latestRequestDetailRequestId) {
-        set({ loadingRequestDetail: false })
+        setOpLoading('detail', false)
       }
     }
   },
 
   clearRequestDetail: () => {
     latestRequestDetailRequestId += 1
-    set({ requestDetail: null, loadingRequestDetail: false })
+    set({ requestDetail: null })
+      setOpLoading('detail', false)
     clearOp('detail')
   },
 

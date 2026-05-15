@@ -17,11 +17,7 @@ export interface TerminationQuizQuestionStore {
   terminationQuizQuestionRows: TerminationQuizQuestionTableRow[]
   pagination: TerminationQuizQuestionPagination
   queryParams: TerminationQuizQuestionQueryParams
-  loadingTerminationQuizQuestion: boolean
-  loadingTerminationQuizQuestionDetail: boolean
-  createTerminationQuizQuestionSubmitting: boolean
-  updateTerminationQuizQuestionSubmitting: boolean
-  loadingToggleStatus: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getTerminationQuizQuestion: () => Promise<void>
   getTerminationQuizQuestionDetail: (id: string) => Promise<TerminationQuizQuestionDetail | null>

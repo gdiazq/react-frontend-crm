@@ -17,10 +17,7 @@ export interface TransferStore {
   transferRows: TransferTableRow[]
   pagination: TransferPagination
   queryParams: TransferQueryParams
-  loadingTransfers: boolean
-  loadingTransferDetail: boolean
-  createTransferSubmitting: boolean
-  updateTransferSubmitting: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
 
   getTransfers: () => Promise<void>

@@ -13,6 +13,7 @@ import messages from '@/messages/messages'
 import type { LeavesSortBy, LeavesSortDir, LeavesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
   let latestLeaveDetailRequestId = 0
   let latestEmployeeLeavesRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     leavesRows: [...initialLeavesRows],
@@ -31,16 +32,13 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
     loadingEmployeeLeaves: false,
     pagination: { ...initialLeavesPagination },
     queryParams: { ...initialLeavesQueryParams },
-    loadingLeaves: false,
-    loadingLeaveDetail: false,
-    createLeaveSubmitting: false,
-    updateLeaveSubmitting: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getLeaves: async () => {
       const requestId = ++latestLeavesRequestId
       try {
-        set({ loadingLeaves: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await leavesService.getLeaves(get().queryParams)
         if (requestId !== latestLeavesRequestId) return
@@ -55,7 +53,7 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
         setOpError('list', resolveErrorMessage(error, messages.leaves.status.errors.loadError), error)
       } finally {
         if (requestId === latestLeavesRequestId) {
-          set({ loadingLeaves: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -70,7 +68,8 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
       const requestId = ++latestLeaveDetailRequestId
 
       try {
-        set({ loadingLeaveDetail: true, leaveDetail: null })
+        setOpLoading('detail', true)
+        set({ leaveDetail: null })
         clearOp('detail')
         const data = await leavesService.getLeaveDetail(parsedLeaveId)
         if (requestId !== latestLeaveDetailRequestId) return null
@@ -82,14 +81,15 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
         return null
       } finally {
         if (requestId === latestLeaveDetailRequestId) {
-          set({ loadingLeaveDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
 
     clearLeaveDetail: () => {
       latestLeaveDetailRequestId += 1
-      set({ leaveDetail: null, loadingLeaveDetail: false })
+      set({ leaveDetail: null })
+      setOpLoading('detail', false)
       clearOp('detail')
     },
 
@@ -193,7 +193,7 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
 
     createLeave: async (payload, files = []) => {
       try {
-        set({ createLeaveSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await leavesService.createLeave(payload, files)
         setOpSuccess('create', messages.leaves.status.success.createLeaveSuccess)
@@ -202,7 +202,7 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
         setOpError('create', resolveErrorMessage(error, messages.leaves.status.errors.createLeaveError), error)
         return false
       } finally {
-        set({ createLeaveSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -213,7 +213,7 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
       }
 
       try {
-        set({ updateLeaveSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await leavesService.updateLeave(payload, files)
         setOpSuccess('update', messages.leaves.status.success.updateLeaveSuccess)
@@ -222,7 +222,7 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
         setOpError('update', resolveErrorMessage(error, messages.leaves.status.errors.updateLeaveError), error)
         return false
       } finally {
-        set({ updateLeaveSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 

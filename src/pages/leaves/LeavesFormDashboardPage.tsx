@@ -55,10 +55,10 @@ export default function LeavesFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingLeaveDetail = useStoreLeaves((s) => s.loadingLeaveDetail)
+  const loadingLeaveDetail = useStoreLeaves((s) => s.operationLoading.detail)
   const detailError = useStoreLeaves((s) => s.operationStatus.detail.error)
-  const createLeaveSubmitting = useStoreLeaves((s) => s.createLeaveSubmitting)
-  const updateLeaveSubmitting = useStoreLeaves((s) => s.updateLeaveSubmitting)
+  const createLeaveSubmitting = useStoreLeaves((s) => s.operationLoading.create)
+  const updateLeaveSubmitting = useStoreLeaves((s) => s.operationLoading.update)
   const createStatus = useStoreLeaves((s) => s.operationStatus.create)
   const updateStatus = useStoreLeaves((s) => s.operationStatus.update)
   const getLeaveDetail = useStoreLeaves((s) => s.getLeaveDetail)

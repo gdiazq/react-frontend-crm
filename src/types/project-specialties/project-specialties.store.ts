@@ -17,11 +17,7 @@ export interface ProjectSpecialtiesStore {
   projectSpecialtiesRows: ProjectSpecialtyTableRow[]
   pagination: ProjectSpecialtiesPagination
   queryParams: ProjectSpecialtiesQueryParams
-  loadingProjectSpecialties: boolean
-  loadingProjectSpecialtyDetail: boolean
-  createProjectSpecialtySubmitting: boolean
-  updateProjectSpecialtySubmitting: boolean
-  loadingToggleStatus: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getProjectSpecialties: () => Promise<void>
   getProjectSpecialtyDetail: (projectSpecialtyId: string) => Promise<ProjectSpecialtyDetail | null>

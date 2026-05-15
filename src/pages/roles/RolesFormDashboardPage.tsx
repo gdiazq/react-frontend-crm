@@ -36,10 +36,10 @@ export default function RolesFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingRoleDetail = useStoreRoles((s) => s.loadingRoleDetail)
+  const loadingRoleDetail = useStoreRoles((s) => s.operationLoading.detail)
   const detailError = useStoreRoles((s) => s.operationStatus.detail.error)
-  const createRoleSubmitting = useStoreRoles((s) => s.createRoleSubmitting)
-  const updateRoleSubmitting = useStoreRoles((s) => s.updateRoleSubmitting)
+  const createRoleSubmitting = useStoreRoles((s) => s.operationLoading.create)
+  const updateRoleSubmitting = useStoreRoles((s) => s.operationLoading.update)
   const createStatus = useStoreRoles((s) => s.operationStatus.create)
   const updateStatus = useStoreRoles((s) => s.operationStatus.update)
   const getRoleDetail = useStoreRoles((s) => s.getRoleDetail)

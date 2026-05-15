@@ -59,10 +59,10 @@ export default function ContractsFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingContractDetail = useStoreContracts((s) => s.loadingContractDetail)
+  const loadingContractDetail = useStoreContracts((s) => s.operationLoading.detail)
   const detailError = useStoreContracts((s) => s.operationStatus.detail.error)
-  const createContractSubmitting = useStoreContracts((s) => s.createContractSubmitting)
-  const updateContractSubmitting = useStoreContracts((s) => s.updateContractSubmitting)
+  const createContractSubmitting = useStoreContracts((s) => s.operationLoading.create)
+  const updateContractSubmitting = useStoreContracts((s) => s.operationLoading.update)
   const createStatus = useStoreContracts((s) => s.operationStatus.create)
   const updateStatus = useStoreContracts((s) => s.operationStatus.update)
   const getContractDetail = useStoreContracts((s) => s.getContractDetail)

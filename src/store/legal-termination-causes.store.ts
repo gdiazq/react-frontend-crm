@@ -14,6 +14,7 @@ import { legalTerminationCausesService } from '@/services'
 import type { LegalTerminationCausesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
   let latestLegalTerminationCausesRequestId = 0
   let latestLegalTerminationCauseDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     legalTerminationCausesRaw: [],
@@ -30,17 +31,13 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
     legalTerminationCausesRows: [...initialLegalTerminationCausesRows],
     pagination: { ...initialLegalTerminationCausesPagination },
     queryParams: { ...initialLegalTerminationCausesQueryParams },
-    loadingLegalTerminationCauses: false,
-    loadingLegalTerminationCauseDetail: false,
-    createLegalTerminationCauseSubmitting: false,
-    updateLegalTerminationCauseSubmitting: false,
-    loadingToggleStatus: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getLegalTerminationCauses: async () => {
       const requestId = ++latestLegalTerminationCausesRequestId
       try {
-        set({ loadingLegalTerminationCauses: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await legalTerminationCausesService.getLegalTerminationCauses(get().queryParams)
         if (requestId !== latestLegalTerminationCausesRequestId) return
@@ -57,7 +54,7 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         setOpError('list', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.loadError), error)
       } finally {
         if (requestId === latestLegalTerminationCausesRequestId) {
-          set({ loadingLegalTerminationCauses: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -72,7 +69,8 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
       const requestId = ++latestLegalTerminationCauseDetailRequestId
 
       try {
-        set({ loadingLegalTerminationCauseDetail: true, legalTerminationCauseDetail: null })
+        setOpLoading('detail', true)
+        set({ legalTerminationCauseDetail: null })
         clearOp('detail')
         const data = await legalTerminationCausesService.getLegalTerminationCauseDetail(parsedLegalTerminationCauseId)
         if (requestId != latestLegalTerminationCauseDetailRequestId) return null
@@ -84,7 +82,7 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         return null
       } finally {
         if (requestId == latestLegalTerminationCauseDetailRequestId) {
-          set({ loadingLegalTerminationCauseDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
@@ -187,7 +185,7 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
       }
 
       try {
-        set({ createLegalTerminationCauseSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await legalTerminationCausesService.createLegalTerminationCause(payload)
         setOpSuccess('create', messages.legalTerminationCauses.status.success.createLegalTerminationCauseSuccess)
@@ -196,7 +194,7 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         setOpError('create', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.createLegalTerminationCauseError), error)
         return false
       } finally {
-        set({ createLegalTerminationCauseSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -212,7 +210,7 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
       }
 
       try {
-        set({ updateLegalTerminationCauseSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await legalTerminationCausesService.updateLegalTerminationCause(payload)
         setOpSuccess('update', messages.legalTerminationCauses.status.success.updateLegalTerminationCauseSuccess)
@@ -221,7 +219,7 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         setOpError('update', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.updateLegalTerminationCauseError), error)
         return false
       } finally {
-        set({ updateLegalTerminationCauseSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 
@@ -240,7 +238,7 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
       }
 
       try {
-        set({ loadingToggleStatus: true })
+        setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
           legalTerminationCausesRaw: state.legalTerminationCausesRaw.map((item) => (item.id == parsedLegalTerminationCauseId ? { ...item, active: nextStatus } : item)),
@@ -267,13 +265,14 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         setOpError('toggle', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.toggleStatusError), error)
         return false
       } finally {
-        set({ loadingToggleStatus: false })
+        setOpLoading('toggle', false)
       }
     },
 
     clearLegalTerminationCauseDetail: () => {
       latestLegalTerminationCauseDetailRequestId += 1
-      set({ legalTerminationCauseDetail: null, loadingLegalTerminationCauseDetail: false })
+      set({ legalTerminationCauseDetail: null })
+      setOpLoading('detail', false)
       clearOp('detail')
     },
 

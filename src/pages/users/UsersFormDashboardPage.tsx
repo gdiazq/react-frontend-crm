@@ -39,10 +39,10 @@ export default function UsersFormDashboardPage() {
   const getRoleOptions = useStoreSelects((s) => s.getRoleOptions)
   const clearRoleOptionsStatus = useStoreSelects((s) => s.clearRoleOptionsStatus)
 
-  const loadingUserDetail = useStoreUsers((s) => s.loadingUserDetail)
+  const loadingUserDetail = useStoreUsers((s) => s.operationLoading.detail)
   const detailError = useStoreUsers((s) => s.operationStatus.detail.error)
-  const createUserSubmitting = useStoreUsers((s) => s.createUserSubmitting)
-  const updateUserSubmitting = useStoreUsers((s) => s.updateUserSubmitting)
+  const createUserSubmitting = useStoreUsers((s) => s.operationLoading.create)
+  const updateUserSubmitting = useStoreUsers((s) => s.operationLoading.update)
   const createStatus = useStoreUsers((s) => s.operationStatus.create)
   const updateStatus = useStoreUsers((s) => s.operationStatus.update)
   const getUserDetail = useStoreUsers((s) => s.getUserDetail)

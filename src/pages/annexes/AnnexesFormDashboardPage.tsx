@@ -48,10 +48,10 @@ export default function AnnexesFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const loadingAnnexDetail = useStoreAnnexes((s) => s.loadingAnnexDetail)
+  const loadingAnnexDetail = useStoreAnnexes((s) => s.operationLoading.detail)
   const detailError = useStoreAnnexes((s) => s.operationStatus.detail.error)
-  const createAnnexSubmitting = useStoreAnnexes((s) => s.createAnnexSubmitting)
-  const updateAnnexSubmitting = useStoreAnnexes((s) => s.updateAnnexSubmitting)
+  const createAnnexSubmitting = useStoreAnnexes((s) => s.operationLoading.create)
+  const updateAnnexSubmitting = useStoreAnnexes((s) => s.operationLoading.update)
   const createStatus = useStoreAnnexes((s) => s.operationStatus.create)
   const updateStatus = useStoreAnnexes((s) => s.operationStatus.update)
   const getAnnexDetail = useStoreAnnexes((s) => s.getAnnexDetail)

@@ -14,6 +14,7 @@ import messages from '@/messages/messages'
 import type { UsersSortBy, UsersSortDir, UsersStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,24 +23,20 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
   let latestUsersRequestId = 0
   let latestUserDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
   usersRows: [...initialUsersRows],
   userDetail: null,
   pagination: { ...initialUsersPagination },
   queryParams: { ...initialUsersQueryParams },
-  loadingUsers: false,
-  loadingUserDetail: false,
-  createUserSubmitting: false,
-  updateUserSubmitting: false,
-  loadingToggleStatus: false,
+  operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
   getUsers: async () => {
     const requestId = ++latestUsersRequestId
     try {
-      set({ loadingUsers: true })
+      setOpLoading('list', true)
       clearOp('list')
       const data = await usersService.getUsers(get().queryParams)
       if (requestId !== latestUsersRequestId) return
@@ -54,7 +51,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
       setOpError('list', resolveErrorMessage(error, messages.users.status.errors.loadError), error)
     } finally {
       if (requestId === latestUsersRequestId) {
-        set({ loadingUsers: false })
+        setOpLoading('list', false)
       }
     }
   },
@@ -69,7 +66,8 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
     const requestId = ++latestUserDetailRequestId
 
     try {
-      set({ loadingUserDetail: true, userDetail: null })
+      setOpLoading('detail', true)
+        set({ userDetail: null })
       clearOp('detail')
       const data = await usersService.getUserDetail(parsedUserId)
       if (requestId !== latestUserDetailRequestId) return null
@@ -81,7 +79,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
       return null
     } finally {
       if (requestId === latestUserDetailRequestId) {
-        set({ loadingUserDetail: false })
+        setOpLoading('detail', false)
       }
     }
   },
@@ -153,7 +151,8 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
 
   clearUserDetail: () => {
     latestUserDetailRequestId += 1
-    set({ userDetail: null, loadingUserDetail: false })
+    set({ userDetail: null })
+      setOpLoading('detail', false)
     clearOp('detail')
   },
 
@@ -164,7 +163,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
     }
 
     try {
-      set({ createUserSubmitting: true })
+      setOpLoading('create', true)
       clearOp('create')
 
       const data = await usersService.createUser(payload)
@@ -174,7 +173,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
       setOpError('create', resolveErrorMessage(error, messages.users.status.errors.createUserError), error)
       return false
     } finally {
-      set({ createUserSubmitting: false })
+      setOpLoading('create', false)
     }
   },
 
@@ -190,7 +189,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
     }
 
     try {
-      set({ updateUserSubmitting: true })
+      setOpLoading('update', true)
       clearOp('update')
 
       await usersService.updateUser(payload)
@@ -200,7 +199,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
       setOpError('update', resolveErrorMessage(error, messages.users.status.errors.updateUserError), error)
       return false
     } finally {
-      set({ updateUserSubmitting: false })
+      setOpLoading('update', false)
     }
   },
 
@@ -218,7 +217,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
     }
 
     try {
-      set({ loadingToggleStatus: true })
+      setOpLoading('toggle', true)
       clearOp('toggle')
       set((state) => ({
         usersRows: state.usersRows.map((row) => {
@@ -243,7 +242,7 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
       setOpError('toggle', resolveErrorMessage(error, messages.users.status.errors.toggleStatusError), error)
       return false
     } finally {
-      set({ loadingToggleStatus: false })
+      setOpLoading('toggle', false)
     }
   },
 

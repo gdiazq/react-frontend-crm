@@ -14,6 +14,7 @@ import { safetyComplianceService } from '@/services'
 import type { SafetyComplianceStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
   let latestSafetyComplianceRequestId = 0
   let latestSafetyComplianceDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     safetyComplianceRaw: [],
@@ -30,17 +31,13 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
     safetyComplianceRows: [...initialSafetyComplianceRows],
     pagination: { ...initialSafetyCompliancePagination },
     queryParams: { ...initialSafetyComplianceQueryParams },
-    loadingSafetyCompliance: false,
-    loadingSafetyComplianceDetail: false,
-    createSafetyComplianceSubmitting: false,
-    updateSafetyComplianceSubmitting: false,
-    loadingToggleStatus: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getSafetyCompliance: async () => {
       const requestId = ++latestSafetyComplianceRequestId
       try {
-        set({ loadingSafetyCompliance: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await safetyComplianceService.getSafetyCompliance(get().queryParams)
         if (requestId !== latestSafetyComplianceRequestId) return
@@ -57,7 +54,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
         setOpError('list', resolveErrorMessage(error, messages.safetyCompliance.status.errors.loadError), error)
       } finally {
         if (requestId === latestSafetyComplianceRequestId) {
-          set({ loadingSafetyCompliance: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -72,7 +69,8 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
       const requestId = ++latestSafetyComplianceDetailRequestId
 
       try {
-        set({ loadingSafetyComplianceDetail: true, safetyComplianceDetail: null })
+        setOpLoading('detail', true)
+        set({ safetyComplianceDetail: null })
         clearOp('detail')
         const data = await safetyComplianceService.getSafetyComplianceDetail(parsedSafetyComplianceId)
         if (requestId != latestSafetyComplianceDetailRequestId) return null
@@ -84,7 +82,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
         return null
       } finally {
         if (requestId == latestSafetyComplianceDetailRequestId) {
-          set({ loadingSafetyComplianceDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
@@ -171,7 +169,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
       }
 
       try {
-        set({ createSafetyComplianceSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await safetyComplianceService.createSafetyCompliance(payload)
         setOpSuccess('create', messages.safetyCompliance.status.success.createSafetyComplianceSuccess)
@@ -180,7 +178,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
         setOpError('create', resolveErrorMessage(error, messages.safetyCompliance.status.errors.createError), error)
         return false
       } finally {
-        set({ createSafetyComplianceSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -196,7 +194,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
       }
 
       try {
-        set({ updateSafetyComplianceSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await safetyComplianceService.updateSafetyCompliance(payload)
         setOpSuccess('update', messages.safetyCompliance.status.success.updateSafetyComplianceSuccess)
@@ -205,7 +203,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
         setOpError('update', resolveErrorMessage(error, messages.safetyCompliance.status.errors.updateError), error)
         return false
       } finally {
-        set({ updateSafetyComplianceSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 
@@ -224,7 +222,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
       }
 
       try {
-        set({ loadingToggleStatus: true })
+        setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
           safetyComplianceRaw: state.safetyComplianceRaw.map((item) =>
@@ -278,7 +276,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
         setOpError('toggle', resolveErrorMessage(error, messages.safetyCompliance.status.errors.toggleStatusError), error)
         return false
       } finally {
-        set({ loadingToggleStatus: false })
+        setOpLoading('toggle', false)
       }
     },
 
@@ -286,7 +284,7 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
       set({ safetyComplianceDetail: null })
     },
 
-    clearOperationStatus: (key: OperationKey) => {
+    clearOperationStatus: (key) => {
       clearOp(key)
     },
 

@@ -17,11 +17,7 @@ export interface RolesStore {
   rolesRows: RoleTableRow[]
   pagination: RolesPagination
   queryParams: RolesQueryParams
-  loadingRoles: boolean
-  loadingRoleDetail: boolean
-  createRoleSubmitting: boolean
-  updateRoleSubmitting: boolean
-  loadingToggleStatus: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getRoles: () => Promise<void>
   getRoleDetail: (roleId: string) => Promise<RoleDetail | null>

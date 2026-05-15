@@ -17,12 +17,8 @@ export interface UsersStore {
   pagination: UsersPagination
   queryParams: UsersQueryParams
   // Loading
-  loadingUsers: boolean
-  loadingUserDetail: boolean
-  createUserSubmitting: boolean
-  updateUserSubmitting: boolean
-  loadingToggleStatus: boolean
   // Messages
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   // Actions
   getUsers: () => Promise<void>

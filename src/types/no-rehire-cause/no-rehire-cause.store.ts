@@ -17,11 +17,7 @@ export interface NoRehireCauseStore {
   noRehireCauseRows: NoRehireCauseTableRow[]
   pagination: NoRehireCausePagination
   queryParams: NoRehireCauseQueryParams
-  loadingNoRehireCause: boolean
-  loadingNoRehireCauseDetail: boolean
-  createNoRehireCauseSubmitting: boolean
-  updateNoRehireCauseSubmitting: boolean
-  loadingToggleStatus: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getNoRehireCause: () => Promise<void>
   getNoRehireCauseDetail: (id: string) => Promise<NoRehireCauseDetail | null>

@@ -14,6 +14,7 @@ import { noRehireCauseService } from '@/services'
 import type { NoRehireCauseStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
   let latestNoRehireCauseRequestId = 0
   let latestNoRehireCauseDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     noRehireCauseRaw: [],
@@ -30,17 +31,13 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
     noRehireCauseRows: [...initialNoRehireCauseRows],
     pagination: { ...initialNoRehireCausePagination },
     queryParams: { ...initialNoRehireCauseQueryParams },
-    loadingNoRehireCause: false,
-    loadingNoRehireCauseDetail: false,
-    createNoRehireCauseSubmitting: false,
-    updateNoRehireCauseSubmitting: false,
-    loadingToggleStatus: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getNoRehireCause: async () => {
       const requestId = ++latestNoRehireCauseRequestId
       try {
-        set({ loadingNoRehireCause: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await noRehireCauseService.getNoRehireCause(get().queryParams)
         if (requestId !== latestNoRehireCauseRequestId) return
@@ -57,7 +54,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
         setOpError('list', resolveErrorMessage(error, messages.noRehireCause.status.errors.loadError), error)
       } finally {
         if (requestId === latestNoRehireCauseRequestId) {
-          set({ loadingNoRehireCause: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -72,7 +69,8 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
       const requestId = ++latestNoRehireCauseDetailRequestId
 
       try {
-        set({ loadingNoRehireCauseDetail: true, noRehireCauseDetail: null })
+        setOpLoading('detail', true)
+        set({ noRehireCauseDetail: null })
         clearOp('detail')
         const data = await noRehireCauseService.getNoRehireCauseDetail(parsedNoRehireCauseId)
         if (requestId != latestNoRehireCauseDetailRequestId) return null
@@ -84,7 +82,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
         return null
       } finally {
         if (requestId == latestNoRehireCauseDetailRequestId) {
-          set({ loadingNoRehireCauseDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
@@ -171,7 +169,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
       }
 
       try {
-        set({ createNoRehireCauseSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await noRehireCauseService.createNoRehireCause(payload)
         setOpSuccess('create', messages.noRehireCause.status.success.createNoRehireCauseSuccess)
@@ -180,7 +178,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
         setOpError('create', resolveErrorMessage(error, messages.noRehireCause.status.errors.createError), error)
         return false
       } finally {
-        set({ createNoRehireCauseSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -196,7 +194,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
       }
 
       try {
-        set({ updateNoRehireCauseSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await noRehireCauseService.updateNoRehireCause(payload)
         setOpSuccess('update', messages.noRehireCause.status.success.updateNoRehireCauseSuccess)
@@ -205,7 +203,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
         setOpError('update', resolveErrorMessage(error, messages.noRehireCause.status.errors.updateError), error)
         return false
       } finally {
-        set({ updateNoRehireCauseSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 
@@ -224,7 +222,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
       }
 
       try {
-        set({ loadingToggleStatus: true })
+        setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
           noRehireCauseRaw: state.noRehireCauseRaw.map((item) =>
@@ -278,7 +276,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
         setOpError('toggle', resolveErrorMessage(error, messages.noRehireCause.status.errors.toggleStatusError), error)
         return false
       } finally {
-        set({ loadingToggleStatus: false })
+        setOpLoading('toggle', false)
       }
     },
 
@@ -286,7 +284,7 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
       set({ noRehireCauseDetail: null })
     },
 
-    clearOperationStatus: (key: OperationKey) => {
+    clearOperationStatus: (key) => {
       clearOp(key)
     },
 

@@ -17,11 +17,7 @@ export interface SafetyComplianceStore {
   safetyComplianceRows: SafetyComplianceTableRow[]
   pagination: SafetyCompliancePagination
   queryParams: SafetyComplianceQueryParams
-  loadingSafetyCompliance: boolean
-  loadingSafetyComplianceDetail: boolean
-  createSafetyComplianceSubmitting: boolean
-  updateSafetyComplianceSubmitting: boolean
-  loadingToggleStatus: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getSafetyCompliance: () => Promise<void>
   getSafetyComplianceDetail: (id: string) => Promise<SafetyComplianceDetail | null>

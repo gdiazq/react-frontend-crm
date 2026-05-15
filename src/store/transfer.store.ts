@@ -12,6 +12,7 @@ import messages from '@/messages/messages'
 import { transferService } from '@/services'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   downloadBlobFile,
   initialOperationStatus,
   resolveErrorMessage,
@@ -22,7 +23,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
   let latestTransfersRequestId = 0
   let latestDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     transferRaw: [],
@@ -30,16 +31,13 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
     transferRows: [...initialTransferRows],
     pagination: { ...initialTransferPagination },
     queryParams: { ...initialTransferQueryParams },
-    loadingTransfers: false,
-    loadingTransferDetail: false,
-    createTransferSubmitting: false,
-    updateTransferSubmitting: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getTransfers: async () => {
       const requestId = ++latestTransfersRequestId
       try {
-        set({ loadingTransfers: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await transferService.getTransfers(get().queryParams)
         if (requestId !== latestTransfersRequestId) return
@@ -55,7 +53,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
         setOpError('list', resolveErrorMessage(error, messages.transfer.status.errors.loadError), error)
       } finally {
         if (requestId === latestTransfersRequestId) {
-          set({ loadingTransfers: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -70,7 +68,8 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
       const requestId = ++latestDetailRequestId
 
       try {
-        set({ loadingTransferDetail: true, transferDetail: null })
+        setOpLoading('detail', true)
+        set({ transferDetail: null })
         clearOp('detail')
         const data = await transferService.getTransferDetail(parsedId)
         if (requestId !== latestDetailRequestId) return null
@@ -82,7 +81,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
         return null
       } finally {
         if (requestId === latestDetailRequestId) {
-          set({ loadingTransferDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
@@ -174,7 +173,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
 
     createTransfer: async (payload, files = []) => {
       try {
-        set({ createTransferSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await transferService.createTransfer(payload, files)
         setOpSuccess('create', messages.transfer.status.success.createSuccess)
@@ -183,7 +182,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
         setOpError('create', resolveErrorMessage(error, messages.transfer.status.errors.createError), error)
         return false
       } finally {
-        set({ createTransferSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -193,7 +192,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
         return false
       }
       try {
-        set({ updateTransferSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await transferService.updateTransfer(payload, files)
         setOpSuccess('update', messages.transfer.status.success.updateSuccess)
@@ -202,7 +201,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
         setOpError('update', resolveErrorMessage(error, messages.transfer.status.errors.updateError), error)
         return false
       } finally {
-        set({ updateTransferSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 
@@ -219,7 +218,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
       set({ transferDetail: null })
     },
 
-    clearOperationStatus: (key: OperationKey) => {
+    clearOperationStatus: (key) => {
       clearOp(key)
     },
 

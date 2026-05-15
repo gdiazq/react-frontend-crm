@@ -17,11 +17,7 @@ export interface ProjectsStore {
   projectsRows: ProjectTableRow[]
   pagination: ProjectsPagination
   queryParams: ProjectsQueryParams
-  loadingProjects: boolean
-  loadingProjectDetail: boolean
-  loadingToggleStatus: boolean
-  createProjectSubmitting: boolean
-  updateProjectSubmitting: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   createProject: (payload: ProjectCreatePayload) => Promise<boolean>
   updateProject: (payload: ProjectUpdatePayload) => Promise<boolean>

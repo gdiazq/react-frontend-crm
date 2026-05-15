@@ -14,9 +14,9 @@ export interface ProjectAssignmentsStore {
   costCenterProjectAssignments: ProjectAssignmentDetail[]
   pagination: ProjectAssignmentsPagination
   queryParams: ProjectAssignmentsQueryParams
-  loadingProjectAssignments: boolean
   loadingEmployeeProjectAssignments: boolean
   loadingCostCenterProjectAssignments: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getProjectAssignments: () => Promise<void>
   getProjectAssignmentsByEmployee: (employeeId: number) => Promise<void>

@@ -17,11 +17,7 @@ export interface QualityOfWorkStore {
   qualityOfWorkRows: QualityOfWorkTableRow[]
   pagination: QualityOfWorkPagination
   queryParams: QualityOfWorkQueryParams
-  loadingQualityOfWork: boolean
-  loadingQualityOfWorkDetail: boolean
-  createQualityOfWorkSubmitting: boolean
-  updateQualityOfWorkSubmitting: boolean
-  loadingToggleStatus: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getQualityOfWork: () => Promise<void>
   getQualityOfWorkDetail: (id: string) => Promise<QualityOfWorkDetail | null>

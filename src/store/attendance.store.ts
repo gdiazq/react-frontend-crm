@@ -13,6 +13,7 @@ import messages from '@/messages/messages'
 import type { AttendanceSortBy, AttendanceSortDir, AttendanceStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
   let latestAttendanceDetailRequestId = 0
   let latestAttendanceMarksRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     attendanceRows: [...initialAttendanceRows],
@@ -30,20 +31,16 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
     attendanceMarks: [],
     pagination: { ...initialAttendancePagination },
     queryParams: { ...initialAttendanceQueryParams },
-    loadingAttendance: false,
-    loadingAttendanceDetail: false,
     loadingAttendanceMarks: false,
-    createAttendanceSubmitting: false,
-    updateAttendanceSubmitting: false,
-    deleteAttendanceSubmitting: false,
     createAttendanceMarkSubmitting: false,
     updateAttendanceMarkSubmitting: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getAttendance: async () => {
       const requestId = ++latestAttendanceRequestId
       try {
-        set({ loadingAttendance: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await attendanceService.getAttendance(get().queryParams)
         if (requestId !== latestAttendanceRequestId) return
@@ -58,7 +55,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
         setOpError('list', resolveErrorMessage(error, messages.attendance.status.errors.loadError), error)
       } finally {
         if (requestId === latestAttendanceRequestId) {
-          set({ loadingAttendance: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -73,7 +70,8 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
       const requestId = ++latestAttendanceDetailRequestId
 
       try {
-        set({ loadingAttendanceDetail: true, attendanceDetail: null })
+        setOpLoading('detail', true)
+        set({ attendanceDetail: null })
         clearOp('detail')
         const data = await attendanceService.getAttendanceDetail(parsedAttendanceId)
         if (requestId !== latestAttendanceDetailRequestId) return null
@@ -85,14 +83,15 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
         return null
       } finally {
         if (requestId === latestAttendanceDetailRequestId) {
-          set({ loadingAttendanceDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
 
     clearAttendanceDetail: () => {
       latestAttendanceDetailRequestId += 1
-      set({ attendanceDetail: null, loadingAttendanceDetail: false })
+      set({ attendanceDetail: null })
+      setOpLoading('detail', false)
       clearOp('detail')
     },
 
@@ -188,7 +187,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
 
     createAttendance: async (payload) => {
       try {
-        set({ createAttendanceSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await attendanceService.createAttendance(payload)
         setOpSuccess('create', messages.attendance.status.success.createAttendanceSuccess)
@@ -197,7 +196,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
         setOpError('create', resolveErrorMessage(error, messages.attendance.status.errors.createAttendanceError), error)
         return false
       } finally {
-        set({ createAttendanceSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -208,7 +207,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
       }
 
       try {
-        set({ updateAttendanceSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await attendanceService.updateAttendance(payload)
         setOpSuccess('update', messages.attendance.status.success.updateAttendanceSuccess)
@@ -217,7 +216,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
         setOpError('update', resolveErrorMessage(error, messages.attendance.status.errors.updateAttendanceError), error)
         return false
       } finally {
-        set({ updateAttendanceSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 
@@ -229,7 +228,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
       }
 
       try {
-        set({ deleteAttendanceSubmitting: true })
+        setOpLoading('toggle', true)
         clearOp('toggle')
         await attendanceService.deleteAttendance(parsedAttendanceId)
         setOpSuccess('toggle', messages.attendance.status.success.deleteAttendanceSuccess)
@@ -239,7 +238,7 @@ export const useStoreAttendance = create<AttendanceStore>()((set, get) => {
         setOpError('toggle', resolveErrorMessage(error, messages.attendance.status.errors.deleteAttendanceError), error)
         return false
       } finally {
-        set({ deleteAttendanceSubmitting: false })
+        setOpLoading('toggle', false)
       }
     },
 

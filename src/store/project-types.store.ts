@@ -14,6 +14,7 @@ import { projectTypesService } from '@/services'
 import type { ProjectTypesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -22,7 +23,7 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
   let latestProjectTypesRequestId = 0
   let latestProjectTypeDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     projectTypesRaw: [],
@@ -30,17 +31,13 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
     projectTypesRows: [...initialProjectTypesRows],
     pagination: { ...initialProjectTypesPagination },
     queryParams: { ...initialProjectTypesQueryParams },
-    loadingProjectTypes: false,
-    loadingProjectTypeDetail: false,
-    createProjectTypeSubmitting: false,
-    updateProjectTypeSubmitting: false,
-    loadingToggleStatus: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getProjectTypes: async () => {
       const requestId = ++latestProjectTypesRequestId
       try {
-        set({ loadingProjectTypes: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await projectTypesService.getProjectTypes(get().queryParams)
         if (requestId !== latestProjectTypesRequestId) return
@@ -57,7 +54,7 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
         setOpError('list', resolveErrorMessage(error, messages.projectTypes.status.errors.loadError), error)
       } finally {
         if (requestId === latestProjectTypesRequestId) {
-          set({ loadingProjectTypes: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -72,7 +69,8 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
       const requestId = ++latestProjectTypeDetailRequestId
 
       try {
-        set({ loadingProjectTypeDetail: true, projectTypeDetail: null })
+        setOpLoading('detail', true)
+        set({ projectTypeDetail: null })
         clearOp('detail')
         const data = await projectTypesService.getProjectTypeDetail(parsedProjectTypeId)
         if (requestId != latestProjectTypeDetailRequestId) return null
@@ -84,7 +82,7 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
         return null
       } finally {
         if (requestId == latestProjectTypeDetailRequestId) {
-          set({ loadingProjectTypeDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
@@ -187,7 +185,7 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
       }
 
       try {
-        set({ createProjectTypeSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await projectTypesService.createProjectType(payload)
         setOpSuccess('create', messages.projectTypes.status.success.createProjectTypeSuccess)
@@ -196,7 +194,7 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
         setOpError('create', resolveErrorMessage(error, messages.projectTypes.status.errors.createProjectTypeError), error)
         return false
       } finally {
-        set({ createProjectTypeSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -212,7 +210,7 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
       }
 
       try {
-        set({ updateProjectTypeSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await projectTypesService.updateProjectType(payload)
         setOpSuccess('update', messages.projectTypes.status.success.updateProjectTypeSuccess)
@@ -221,7 +219,7 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
         setOpError('update', resolveErrorMessage(error, messages.projectTypes.status.errors.updateProjectTypeError), error)
         return false
       } finally {
-        set({ updateProjectTypeSubmitting: false })
+        setOpLoading('update', false)
       }
     },
 
@@ -240,7 +238,7 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
       }
 
       try {
-        set({ loadingToggleStatus: true })
+        setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
           projectTypesRaw: state.projectTypesRaw.map((item) => (item.id == parsedProjectTypeId ? { ...item, active: nextStatus } : item)),
@@ -267,13 +265,14 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
         setOpError('toggle', resolveErrorMessage(error, messages.projectTypes.status.errors.toggleStatusError), error)
         return false
       } finally {
-        set({ loadingToggleStatus: false })
+        setOpLoading('toggle', false)
       }
     },
 
     clearProjectTypeDetail: () => {
       latestProjectTypeDetailRequestId += 1
-      set({ projectTypeDetail: null, loadingProjectTypeDetail: false })
+      set({ projectTypeDetail: null })
+      setOpLoading('detail', false)
       clearOp('detail')
     },
 

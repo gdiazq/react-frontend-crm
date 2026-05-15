@@ -14,6 +14,7 @@ import { rolesService } from '@/services'
 import type { RoleDetail, RolesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   formatRoleLabel,
   initialOperationStatus,
   resolveErrorMessage,
@@ -24,7 +25,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   const inflightRoleDetailById = new Map<number, Promise<RoleDetail | null>>()
   const inflightRolesByParams = new Map<string, Promise<void>>()
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
   rolesRaw: [],
@@ -32,11 +33,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   rolesRows: [...initialRolesRows],
   pagination: { ...initialRolesPagination },
   queryParams: { ...initialRolesQueryParams },
-  loadingRoles: false,
-  loadingRoleDetail: false,
-  createRoleSubmitting: false,
-  updateRoleSubmitting: false,
-  loadingToggleStatus: false,
+  operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
   getRoles: async () => {
@@ -52,7 +49,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
       let appliedCurrentResponse = false
 
       try {
-        set({ loadingRoles: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await rolesService.getRoles(params)
         const pagination = mapperRolesPagination(data)
@@ -73,7 +70,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
       } finally {
         inflightRolesByParams.delete(paramsKey)
         if (appliedCurrentResponse || JSON.stringify(get().queryParams) === paramsKey || inflightRolesByParams.size === 0) {
-          set({ loadingRoles: false })
+          setOpLoading('list', false)
         }
       }
     })()
@@ -92,7 +89,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
 
     const existing = inflightRoleDetailById.get(parsedRoleId)
     if (existing) {
-      set({ loadingRoleDetail: true })
+      setOpLoading('detail', true)
       return existing
     }
 
@@ -100,7 +97,8 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
 
     const promise = (async () => {
       try {
-        set({ loadingRoleDetail: true, roleDetail: null })
+        setOpLoading('detail', true)
+        set({ roleDetail: null })
         clearOp('detail')
         const data = await rolesService.getRoleDetail(parsedRoleId)
         if (requestId !== latestRoleDetailRequestId) return null
@@ -112,7 +110,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
         return null
       } finally {
         if (requestId === latestRoleDetailRequestId) {
-          set({ loadingRoleDetail: false })
+          setOpLoading('detail', false)
         }
         inflightRoleDetailById.delete(parsedRoleId)
       }
@@ -184,7 +182,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
     }
 
     try {
-      set({ createRoleSubmitting: true })
+      setOpLoading('create', true)
       clearOp('create')
 
       const data = await rolesService.createRole(payload)
@@ -207,7 +205,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
       setOpError('create', resolveErrorMessage(error, messages.roles.status.errors.createRoleError), error)
       return false
     } finally {
-      set({ createRoleSubmitting: false })
+      setOpLoading('create', false)
     }
   },
 
@@ -228,7 +226,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
     }
 
     try {
-      set({ updateRoleSubmitting: true })
+      setOpLoading('update', true)
       clearOp('update')
 
       await rolesService.updateRole(payload)
@@ -244,7 +242,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
       setOpError('update', resolveErrorMessage(error, messages.roles.status.errors.updateRoleError), error)
       return false
     } finally {
-      set({ updateRoleSubmitting: false })
+      setOpLoading('update', false)
     }
   },
 
@@ -263,7 +261,7 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
     }
 
     try {
-      set({ loadingToggleStatus: true })
+      setOpLoading('toggle', true)
       clearOp('toggle')
       set((state) => ({
         rolesRaw: state.rolesRaw.map((role) => (role.id === parsedRoleId ? { ...role, enabled: nextStatus } : role)),
@@ -290,14 +288,15 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
       setOpError('toggle', resolveErrorMessage(error, messages.roles.status.errors.toggleStatusError), error)
       return false
     } finally {
-      set({ loadingToggleStatus: false })
+      setOpLoading('toggle', false)
     }
   },
 
   clearRoleDetail: () => {
     latestRoleDetailRequestId += 1
     inflightRoleDetailById.clear()
-    set({ roleDetail: null, loadingRoleDetail: false })
+    set({ roleDetail: null })
+      setOpLoading('detail', false)
     clearOp('detail')
   },
 

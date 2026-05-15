@@ -13,6 +13,7 @@ import messages from '@/messages/messages'
 import type { ContractsSortBy, ContractsSortDir, ContractsStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -21,24 +22,20 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
   let latestContractsRequestId = 0
   let latestContractDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
   contractsRows: [...initialContractsRows],
   contractDetail: null,
   pagination: { ...initialContractsPagination },
   queryParams: { ...initialContractsQueryParams },
-  loadingContracts: false,
-  loadingContractDetail: false,
-  loadingToggleStatus: false,
-  createContractSubmitting: false,
-  updateContractSubmitting: false,
+  operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
   getContracts: async () => {
     const requestId = ++latestContractsRequestId
     try {
-      set({ loadingContracts: true })
+      setOpLoading('list', true)
       clearOp('list')
       const data = await contractsService.getContracts(get().queryParams)
       if (requestId !== latestContractsRequestId) return
@@ -53,7 +50,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
       setOpError('list', resolveErrorMessage(error, messages.contracts.status.errors.loadError), error)
     } finally {
       if (requestId === latestContractsRequestId) {
-        set({ loadingContracts: false })
+        setOpLoading('list', false)
       }
     }
   },
@@ -68,7 +65,8 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
     const requestId = ++latestContractDetailRequestId
 
     try {
-      set({ loadingContractDetail: true, contractDetail: null })
+      setOpLoading('detail', true)
+        set({ contractDetail: null })
       clearOp('detail')
       const data = await contractsService.getContractDetail(parsedContractId)
       if (requestId !== latestContractDetailRequestId) return null
@@ -80,14 +78,15 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
       return null
     } finally {
       if (requestId === latestContractDetailRequestId) {
-        set({ loadingContractDetail: false })
+        setOpLoading('detail', false)
       }
     }
   },
 
   clearContractDetail: () => {
     latestContractDetailRequestId += 1
-    set({ contractDetail: null, loadingContractDetail: false })
+    set({ contractDetail: null })
+      setOpLoading('detail', false)
     clearOp('detail')
   },
 
@@ -205,7 +204,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
     }
 
     try {
-      set({ loadingToggleStatus: true })
+      setOpLoading('toggle', true)
       clearOp('toggle')
       await contractsService.toggleContractStatus(parsedContractId, nextStatus)
       return true
@@ -213,13 +212,13 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
       setOpError('toggle', resolveErrorMessage(error, messages.contracts.status.errors.toggleStatusError), error)
       return false
     } finally {
-      set({ loadingToggleStatus: false })
+      setOpLoading('toggle', false)
     }
   },
 
   createContract: async (payload, files = []) => {
     try {
-      set({ createContractSubmitting: true })
+      setOpLoading('create', true)
       clearOp('create')
       const data = await contractsService.createContract(payload, files)
       setOpSuccess('create', `${messages.contracts.status.success.createContractSuccess} (${data.name})`)
@@ -228,7 +227,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
       setOpError('create', resolveErrorMessage(error, messages.contracts.status.errors.createContractError), error)
       return false
     } finally {
-      set({ createContractSubmitting: false })
+      setOpLoading('create', false)
     }
   },
 
@@ -239,7 +238,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
     }
 
     try {
-      set({ updateContractSubmitting: true })
+      setOpLoading('update', true)
       clearOp('update')
       await contractsService.updateContract(payload, files)
       setOpSuccess('update', messages.contracts.status.success.updateContractSuccess)
@@ -248,7 +247,7 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
       setOpError('update', resolveErrorMessage(error, messages.contracts.status.errors.updateContractError), error)
       return false
     } finally {
-      set({ updateContractSubmitting: false })
+      setOpLoading('update', false)
     }
   },
 

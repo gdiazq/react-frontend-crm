@@ -13,6 +13,7 @@ import { settlementService } from '@/services'
 import type { SettlementStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
 } from '@/utils'
@@ -21,7 +22,7 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
   let latestSettlementsRequestId = 0
   let latestDetailRequestId = 0
 
-  const { setOpError, setOpSuccess, clearOp } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     settlementRaw: [],
@@ -29,16 +30,13 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
     settlementRows: [...initialSettlementRows],
     pagination: { ...initialSettlementPagination },
     queryParams: { ...initialSettlementQueryParams },
-    loadingSettlements: false,
-    loadingSettlementDetail: false,
-    createSettlementSubmitting: false,
-    updateSettlementSubmitting: false,
+    operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
     getSettlements: async () => {
       const requestId = ++latestSettlementsRequestId
       try {
-        set({ loadingSettlements: true })
+        setOpLoading('list', true)
         clearOp('list')
         const data = await settlementService.getSettlements(get().queryParams)
         if (requestId !== latestSettlementsRequestId) return
@@ -55,7 +53,7 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
         setOpError('list', resolveErrorMessage(error, messages.settlement.status.errors.loadError), error)
       } finally {
         if (requestId === latestSettlementsRequestId) {
-          set({ loadingSettlements: false })
+          setOpLoading('list', false)
         }
       }
     },
@@ -70,7 +68,8 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
       const requestId = ++latestDetailRequestId
 
       try {
-        set({ loadingSettlementDetail: true, settlementDetail: null })
+        setOpLoading('detail', true)
+        set({ settlementDetail: null })
         clearOp('detail')
         const data = await settlementService.getSettlementDetail(parsedId)
         if (requestId !== latestDetailRequestId) return null
@@ -82,7 +81,7 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
         return null
       } finally {
         if (requestId === latestDetailRequestId) {
-          set({ loadingSettlementDetail: false })
+          setOpLoading('detail', false)
         }
       }
     },
@@ -195,13 +194,13 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
       set({ settlementDetail: null })
     },
 
-    clearOperationStatus: (key: OperationKey) => {
+    clearOperationStatus: (key) => {
       clearOp(key)
     },
 
     createSettlement: async (payload, files = []) => {
       try {
-        set({ createSettlementSubmitting: true })
+        setOpLoading('create', true)
         clearOp('create')
         await settlementService.createSettlement(payload, files)
         setOpSuccess('create', messages.settlement.status.success.createSuccess)
@@ -210,7 +209,7 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
         setOpError('create', resolveErrorMessage(error, messages.settlement.status.errors.createError), error)
         return false
       } finally {
-        set({ createSettlementSubmitting: false })
+        setOpLoading('create', false)
       }
     },
 
@@ -221,7 +220,7 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
       }
 
       try {
-        set({ updateSettlementSubmitting: true })
+        setOpLoading('update', true)
         clearOp('update')
         await settlementService.updateSettlement(payload, files)
         setOpSuccess('update', messages.settlement.status.success.updateSuccess)
@@ -230,7 +229,7 @@ export const useStoreSettlement = create<SettlementStore>()((set, get) => {
         setOpError('update', resolveErrorMessage(error, messages.settlement.status.errors.updateError), error)
         return false
       } finally {
-        set({ updateSettlementSubmitting: false })
+        setOpLoading('update', false)
       }
     },
   }

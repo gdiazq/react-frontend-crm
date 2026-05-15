@@ -14,11 +14,25 @@ export const buildInitialOperationStatus = <K extends string>(
   return result
 }
 
+export const buildInitialOperationLoading = <K extends string>(
+  keys: readonly K[],
+): Record<K, boolean> => {
+  const result = {} as Record<K, boolean>
+  for (const key of keys) {
+    result[key] = false
+  }
+  return result
+}
+
 export const initialOperationStatus = (): Record<OperationKey, OperationStatus> =>
   buildInitialOperationStatus<OperationKey>(['list', 'detail', 'create', 'update', 'toggle'])
 
+export const initialOperationLoading = (): Record<OperationKey, boolean> =>
+  buildInitialOperationLoading<OperationKey>(['list', 'detail', 'create', 'update', 'toggle'])
+
 interface OperationStatusState<K extends string = OperationKey> {
   operationStatus: Record<K, OperationStatus>
+  operationLoading?: Record<K, boolean>
 }
 
 export const createOperationStatusHelpers = <
@@ -54,7 +68,13 @@ export const createOperationStatusHelpers = <
     }) as Partial<T>)
   }
 
-  return { setOpError, setOpSuccess, clearOp }
+  const setOpLoading = (key: K, value: boolean) => {
+    set((state) => ({
+      operationLoading: { ...state.operationLoading, [key]: value },
+    }) as Partial<T>)
+  }
+
+  return { setOpError, setOpSuccess, clearOp, setOpLoading }
 }
 
 export const resolveErrorMessage = (error: unknown, fallback: string): string => {

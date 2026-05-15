@@ -17,10 +17,7 @@ export interface SettlementStore {
   settlementRows: SettlementTableRow[]
   pagination: SettlementPagination
   queryParams: SettlementQueryParams
-  loadingSettlements: boolean
-  loadingSettlementDetail: boolean
-  createSettlementSubmitting: boolean
-  updateSettlementSubmitting: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
 
   getSettlements: () => Promise<void>

@@ -18,10 +18,7 @@ export interface AnnexesStore {
   loadingContractAnnexes: boolean
   pagination: AnnexesPagination
   queryParams: AnnexesQueryParams
-  loadingAnnexes: boolean
-  loadingAnnexDetail: boolean
-  createAnnexSubmitting: boolean
-  updateAnnexSubmitting: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getAnnexes: () => Promise<void>
   getAnnexDetail: (annexId: string) => Promise<AnnexDetail | null>

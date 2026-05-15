@@ -17,11 +17,7 @@ export interface ProjectStatusesStore {
   projectStatusesRows: ProjectStatusTableRow[]
   pagination: ProjectStatusesPagination
   queryParams: ProjectStatusesQueryParams
-  loadingProjectStatuses: boolean
-  loadingProjectStatusDetail: boolean
-  createProjectStatusSubmitting: boolean
-  updateProjectStatusSubmitting: boolean
-  loadingToggleStatus: boolean
+  operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getProjectStatuses: () => Promise<void>
   getProjectStatusDetail: (projectStatusId: string) => Promise<ProjectStatusDetail | null>
