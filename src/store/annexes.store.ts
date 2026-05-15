@@ -225,8 +225,9 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
         const data = await annexesService.getAnnexesByContract(contractId)
         if (requestId !== latestContractAnnexesRequestId) return
         set({ contractAnnexes: data })
-      } catch {
+      } catch (error) {
         if (requestId !== latestContractAnnexesRequestId) return
+        setOpError('list', resolveErrorMessage(error, messages.annexes.status.errors.loadError), error)
         set({ contractAnnexes: [] })
       } finally {
         if (requestId === latestContractAnnexesRequestId) {
