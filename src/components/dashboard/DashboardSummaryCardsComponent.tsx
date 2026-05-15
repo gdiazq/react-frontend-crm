@@ -1,5 +1,5 @@
-import type { DashboardSummaryTone } from './dashboard.types'
-import { formatDashboardCounter } from './dashboard.utils'
+import type { DashboardSummaryTone } from '@/types'
+import { formatDashboardCounter } from '@/utils'
 
 interface DashboardSummaryCardsComponentProps {
   visibleModulesCount: number

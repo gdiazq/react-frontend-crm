@@ -13,7 +13,7 @@ import {
   AUTH_ROUTE_USERS,
   PermissionModule,
 } from '@/constant'
-import type { DashboardModule } from './dashboard.types'
+import type { DashboardModule } from '@/types'
 
 const baseIconProps = {
   viewBox: '0 0 24 24',

@@ -1,6 +1,4 @@
 export * from './dashboard.constants'
-export * from './dashboard.types'
-export * from './dashboard.utils'
 export * from './DashboardFocusPanelComponent'
 export * from './DashboardHeroComponent'
 export * from './DashboardModulesGridComponent'

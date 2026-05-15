@@ -1,4 +1,4 @@
-import type { DashboardModule } from './dashboard.types'
+import type { DashboardModule } from '@/types'
 
 interface DashboardModulesGridComponentProps {
   modules: DashboardModule[]

@@ -1,5 +1,5 @@
 import { AUTH_ROUTE_SETTINGS } from '@/constant'
-import { formatDashboardCounter } from './dashboard.utils'
+import { formatDashboardCounter } from '@/utils'
 
 interface DashboardHeroComponentProps {
   userName: string

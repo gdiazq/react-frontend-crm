@@ -1,3 +1,4 @@
+export type { DashboardModule, DashboardSummaryTone } from './dashboard'
 export type {
   DashboardExampleKpiRaw,
   DashboardExamplePipelineStageRaw,
