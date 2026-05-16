@@ -1,2 +1,3 @@
-export * from './ProjectCostCenterEmployeesTabComponent'
-export * from './ProjectDetailComponent'
+export * from './detail'
+export * from './form'
+export * from './list'

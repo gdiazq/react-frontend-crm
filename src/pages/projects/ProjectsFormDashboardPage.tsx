@@ -3,11 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DatePickerComponent,
-  DetailSectionHeaderComponent,
-  InputComponent,
+  ProjectsFormBaseSectionComponent,
+  ProjectsFormClassificationSectionComponent,
+  ProjectsFormDatesSectionComponent,
+  ProjectsFormStaffSectionComponent,
   SaveConfirmComponent,
-  SelectComponent,
 } from '@/components'
 import { AUTH_ROUTE_PROJECTS } from '@/constant'
 import { initialCreateProjectForm } from '@/factories'
@@ -25,16 +25,6 @@ type PendingAction =
 
 const toSelectOptions = (options: { id: number, name: string }[]) =>
   options.map((option) => ({ label: option.name, value: String(option.id) }))
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
-  )
-}
 
 export default function ProjectsFormDashboardPage() {
   const navigate = useNavigate()
@@ -300,129 +290,40 @@ export default function ProjectsFormDashboardPage() {
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del proyecto…</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos básicos" />
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Identificación y ubicación" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <InputComponent
-                value={form.costCenter}
-                label="Centro de costo"
-                type="number"
-                placeholder="Ingresa el centro de costo"
-                error={errors.costCenter}
-                onValueChange={handleFieldValueChange('costCenter')}
-                onBlur={onValidation('costCenter')}
-                required
-              />
-              <InputComponent
-                value={form.name}
-                label="Nombre"
-                type="text"
-                placeholder="Ingresa el nombre del proyecto"
-                error={errors.name}
-                onValueChange={handleFieldValueChange('name')}
-                onBlur={onValidation('name')}
-                required
-              />
-              <InputComponent
-                value={form.address}
-                label="Dirección"
-                type="text"
-                placeholder="Ingresa la dirección"
-                onValueChange={handleFieldValueChange('address')}
-              />
-              <InputComponent
-                value={form.description}
-                label="Descripción"
-                type="text"
-                placeholder="Ingresa una descripción"
-                onValueChange={handleFieldValueChange('description')}
-              />
-            </div>
-          </div>
-        </section>
+        <ProjectsFormBaseSectionComponent
+          form={form}
+          errors={errors}
+          onChangeField={handleFieldValueChange}
+          onValidation={onValidation}
+        />
 
-        <section className="space-y-4">
-          <DetailSectionHeaderComponent number="02" title="Clasificación" />
-          <div className="grid gap-4 md:grid-cols-3">
-            <SelectComponent
-              value={form.typeId}
-              label="Tipo de proyecto"
-              options={selectTypes}
-              loading={loadingProjectTypeOptions}
-              onValueChange={handleFieldValueChange('typeId')}
-            />
-            <SelectComponent
-              value={form.statusId}
-              label="Vigencia"
-              options={selectStatuses}
-              loading={loadingProjectStatusOptions}
-              onValueChange={handleFieldValueChange('statusId')}
-            />
-            <SelectComponent
-              value={form.specialtyId}
-              label="Especialidad"
-              options={selectSpecialties}
-              loading={loadingProjectSpecialtyOptions}
-              onValueChange={handleFieldValueChange('specialtyId')}
-            />
-          </div>
-        </section>
+        <ProjectsFormClassificationSectionComponent
+          form={form}
+          typeOptions={selectTypes}
+          statusOptions={selectStatuses}
+          specialtyOptions={selectSpecialties}
+          loadingTypeOptions={loadingProjectTypeOptions}
+          loadingStatusOptions={loadingProjectStatusOptions}
+          loadingSpecialtyOptions={loadingProjectSpecialtyOptions}
+          onChangeField={handleFieldValueChange}
+        />
 
-        <section className="space-y-4">
-          <DetailSectionHeaderComponent number="03" title="Personal asignado" />
-          <div className="grid gap-4 md:grid-cols-3">
-            <SelectComponent
-              value={form.visitorId}
-              label="Visitador"
-              options={selectVisitors}
-              loading={loadingVisitorOptions}
-              onValueChange={handleFieldValueChange('visitorId')}
-            />
-            <SelectComponent
-              value={form.supervisorId}
-              label="Supervisor"
-              options={selectSupervisors}
-              loading={loadingSupervisorOptions}
-              onValueChange={handleFieldValueChange('supervisorId')}
-            />
-            <SelectComponent
-              values={form.companyRepresentativeIds}
-              label="Representantes de empresa"
-              options={selectRepresentatives}
-              loading={loadingCompanyRepresentativeOptions}
-              multiple
-              onValuesChange={handleRepresentativesChange}
-            />
-          </div>
-        </section>
+        <ProjectsFormStaffSectionComponent
+          form={form}
+          visitorOptions={selectVisitors}
+          supervisorOptions={selectSupervisors}
+          representativeOptions={selectRepresentatives}
+          loadingVisitorOptions={loadingVisitorOptions}
+          loadingSupervisorOptions={loadingSupervisorOptions}
+          loadingRepresentativeOptions={loadingCompanyRepresentativeOptions}
+          onChangeField={handleFieldValueChange}
+          onRepresentativesChange={handleRepresentativesChange}
+        />
 
-        <section className="space-y-4">
-          <DetailSectionHeaderComponent number="04" title="Fechas" />
-          <div className="grid gap-4 md:grid-cols-2">
-            <DatePickerComponent
-              value={form.startDate}
-              label="Fecha inicio"
-              onValueChange={handleFieldValueChange('startDate')}
-            />
-            <DatePickerComponent
-              value={form.realStartDate}
-              label="Fecha inicio real"
-              onValueChange={handleFieldValueChange('realStartDate')}
-            />
-            <DatePickerComponent
-              value={form.endDate}
-              label="Fecha fin"
-              onValueChange={handleFieldValueChange('endDate')}
-            />
-            <DatePickerComponent
-              value={form.realEndDate}
-              label="Fecha fin real"
-              onValueChange={handleFieldValueChange('realEndDate')}
-            />
-          </div>
-        </section>
+        <ProjectsFormDatesSectionComponent
+          form={form}
+          onChangeField={handleFieldValueChange}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
