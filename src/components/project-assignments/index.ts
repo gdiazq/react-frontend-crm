@@ -1,2 +1,2 @@
-export * from './ProjectAssignmentCostCenterDetailComponent'
-export * from './ProjectAssignmentEmployeeDetailComponent'
+export * from './detail'
+export * from './list'
