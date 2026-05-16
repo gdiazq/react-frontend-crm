@@ -1,0 +1,6 @@
+export * from './EmployeesFormAddressSectionComponent'
+export * from './EmployeesFormContactSectionComponent'
+export * from './EmployeesFormEmergencyContactSectionComponent'
+export * from './EmployeesFormHealthSectionComponent'
+export * from './EmployeesFormPaymentSectionComponent'
+export * from './EmployeesFormPersonalSectionComponent'
