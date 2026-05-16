@@ -85,7 +85,7 @@ const OvertimeDashboardPage = lazy(() => import('@/pages/overtime/OvertimeDashbo
 const OvertimeFormDashboardPage = lazy(() => import('@/pages/overtime/OvertimeFormDashboardPage'))
 const TransfersDashboardPage = lazy(() => import('@/pages/transfer/TransfersDashboardPage'))
 const ProjectsDashboardPage = lazy(() => import('@/pages/projects/main/ProjectsDashboardPage'))
-const ProjectAssignmentsDashboardPage = lazy(() => import('@/pages/projects/ProjectAssignmentsDashboardPage'))
+const ProjectAssignmentsDashboardPage = lazy(() => import('@/pages/projects/assignments/ProjectAssignmentsDashboardPage'))
 const ProjectStatusesDashboardPage = lazy(() => import('@/pages/projects/ProjectStatusesDashboardPage'))
 const ProjectStatusesFormDashboardPage = lazy(() => import('@/pages/projects/ProjectStatusesFormDashboardPage'))
 const ProjectSpecialtiesDashboardPage = lazy(() => import('@/pages/projects/ProjectSpecialtiesDashboardPage'))

@@ -1,4 +1,4 @@
-export { default as ProjectAssignmentsDashboardPage } from './ProjectAssignmentsDashboardPage'
+export * from './assignments'
 export * from './main'
 export { default as ProjectSpecialtiesDashboardPage } from './ProjectSpecialtiesDashboardPage'
 export { default as ProjectSpecialtiesFormDashboardPage } from './ProjectSpecialtiesFormDashboardPage'
