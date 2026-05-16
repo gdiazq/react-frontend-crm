@@ -1,1 +1,3 @@
-export * from './EmployeeDetailComponent'
+export * from './detail'
+export * from './form'
+export * from './list'
