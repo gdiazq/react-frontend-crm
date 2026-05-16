@@ -3,12 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DatePickerComponent,
-  DetailSectionHeaderComponent,
-  FileDropzoneComponent,
-  InputComponent,
+  LeavesFormAttachmentsSectionComponent,
+  LeavesFormDataSectionComponent,
   SaveConfirmComponent,
-  SelectComponent,
 } from '@/components'
 import { AUTH_ROUTE_LEAVES } from '@/constant'
 import { initialCreateLeaveForm, LEAVE_FILE_MAX_SIZE_BYTES, LEAVE_FILES_MAX_COUNT } from '@/factories'
@@ -19,22 +16,7 @@ import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
 import type { LeaveCreatePayload, LeaveUpdatePayload } from '@/types'
 import { leavesCreateValidationRules } from '@/validators'
 
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
-  )
-}
-
 const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
-
-const halfDayOptions = [
-  { label: 'No', value: 'false' },
-  { label: 'Sí', value: 'true' },
-]
 
 type PendingAction =
   | { mode: 'create', payload: LeaveCreatePayload, files: File[] }
@@ -250,115 +232,62 @@ export default function LeavesFormDashboardPage() {
       </header>
 
       {leaveFormOptionsErrorMessage && (
-        <AlertMessageComponent message={leaveFormOptionsErrorMessage} tone="error" onClose={clearLeaveFormOptionsStatus} />
+        <AlertMessageComponent 
+          message={leaveFormOptionsErrorMessage} 
+          tone="error" 
+          onClose={clearLeaveFormOptionsStatus} 
+        />
       )}
+
       {isEditMode && detailError && (
-        <AlertMessageComponent message={detailError} tone="error" onClose={() => clearOperationStatus('detail')} />
+        <AlertMessageComponent 
+          message={detailError} 
+          tone="error" 
+          onClose={() => clearOperationStatus('detail')} 
+        />
       )}
+      
       {submitErrorMessage && (
-        <AlertMessageComponent message={submitErrorMessage} tone="error" onClose={clearSubmitStatus} />
+        <AlertMessageComponent 
+          message={submitErrorMessage} 
+          tone="error" 
+          onClose={clearSubmitStatus} 
+        />
       )}
       {submitSuccessMessage && (
-        <AlertMessageComponent message={submitSuccessMessage} tone="success" onClose={clearSubmitStatus} />
+        <AlertMessageComponent 
+          message={submitSuccessMessage} 
+          tone="success" 
+          onClose={clearSubmitStatus} 
+        />
       )}
 
-      <form className="space-y-10" onSubmit={handleSubmit}>
-        {isEditMode && loadingLeaveDetail && (
-          <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del permiso...</p>
-        )}
+      <form className="space-y-10" 
+        onSubmit={handleSubmit}>
+          {isEditMode && loadingLeaveDetail && (
+            <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del permiso...</p>
+          )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos del permiso" />
+        <LeavesFormDataSectionComponent
+          form={form}
+          errors={errors}
+          dateRangeError={dateRangeError}
+          isEditMode={isEditMode}
+          employeeOptions={employeeWithContractSelectOptions}
+          leaveTypeOptions={leaveTypeSelectOptions}
+          loadingFormOptions={loadingLeaveFormOptions}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+        />
 
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Relación contractual" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <SelectComponent
-                value={form.employeeId}
-                label="Trabajador"
-                options={employeeWithContractSelectOptions}
-                loading={loadingLeaveFormOptions}
-                error={errors.employeeId}
-                disabled={isEditMode}
-                onValueChange={handleChangeField('employeeId')}
-                onValidation={onValidation('employeeId')}
-                required
-              />
-              <SelectComponent
-                value={form.leaveTypeId}
-                label="Tipo de permiso"
-                options={leaveTypeSelectOptions}
-                loading={loadingLeaveFormOptions}
-                error={errors.leaveTypeId}
-                onValueChange={handleChangeField('leaveTypeId')}
-                onValidation={onValidation('leaveTypeId')}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <SubSectionLabel number="01.2" title="Vigencia" />
-            <div className="grid gap-4 md:grid-cols-3">
-              <DatePickerComponent
-                value={form.startDate}
-                label="Inicio"
-                error={errors.startDate || dateRangeError}
-                onValueChange={handleChangeField('startDate')}
-                onValidation={onValidation('startDate')}
-                required
-              />
-              <DatePickerComponent
-                value={form.endDate}
-                label="Fin"
-                error={errors.endDate || dateRangeError}
-                onValueChange={handleChangeField('endDate')}
-                onValidation={onValidation('endDate')}
-                required
-              />
-              <SelectComponent
-                value={form.halfDay}
-                label="Medio día"
-                options={halfDayOptions}
-                error={errors.halfDay}
-                onValueChange={handleChangeField('halfDay')}
-                onValidation={onValidation('halfDay')}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <SubSectionLabel number="01.3" title="Motivo" />
-            <InputComponent
-              value={form.reason}
-              label="Motivo"
-              type="text"
-              placeholder="Ej: Licencia médica"
-              error={errors.reason}
-              onValueChange={handleChangeField('reason')}
-              onBlur={onValidation('reason')}
-              required
-            />
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <DetailSectionHeaderComponent number="02" title="Adjuntos" />
-          <div className="space-y-3">
-            <SubSectionLabel number="02.1" title="Documentos del permiso" />
-            <FileDropzoneComponent
-              files={leaveFiles}
-              error={filesError}
-              maxFiles={LEAVE_FILES_MAX_COUNT}
-              disabled={saving}
-              helperText="Opcional. Máximo 5 archivos y 10 MB por archivo."
-              onAddFiles={handleAddFiles}
-              onRemoveFile={handleRemoveFile}
-              onClearFiles={handleClearFiles}
-            />
-          </div>
-        </section>
+        <LeavesFormAttachmentsSectionComponent
+          files={leaveFiles}
+          filesError={filesError}
+          saving={saving}
+          onAddFiles={handleAddFiles}
+          onRemoveFile={handleRemoveFile}
+          onClearFiles={handleClearFiles}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
