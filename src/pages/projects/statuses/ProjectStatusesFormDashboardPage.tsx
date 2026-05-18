@@ -3,8 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DetailSectionHeaderComponent,
-  InputComponent,
+  ProjectStatusesFormDataSectionComponent,
   SaveConfirmComponent,
 } from '@/components'
 import { AUTH_ROUTE_PROJECT_STATUSES } from '@/constant'
@@ -19,16 +18,6 @@ type PendingAction =
   | { mode: 'create', payload: ProjectStatusCreatePayload }
   | { mode: 'update', payload: ProjectStatusUpdatePayload }
   | null
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
-  )
-}
 
 export default function ProjectStatusesFormDashboardPage() {
   const navigate = useNavigate()
@@ -104,12 +93,10 @@ export default function ProjectStatusesFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateProjectStatusForm, value: string) => {
+  const handleChangeField = (field: keyof typeof initialCreateProjectStatusForm) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
-  const handleProjectStatusNameChange = (value: string) => handleChangeField('name', value)
-  const handleProjectStatusDescriptionChange = (value: string) => handleChangeField('description', value)
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
@@ -200,34 +187,12 @@ export default function ProjectStatusesFormDashboardPage() {
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos de la vigencia de proyecto…</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos de la vigencia" />
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Identificación" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <InputComponent
-                value={form.name}
-                label="Nombre vigencia proyecto"
-                type="text"
-                placeholder="Ingresa el nombre de la vigencia de proyecto"
-                autoComplete="off"
-                error={errors.name}
-                onValueChange={handleProjectStatusNameChange}
-                onBlur={onValidation('name')}
-                required
-              />
-
-              <InputComponent
-                value={form.description}
-                label="Descripción"
-                type="text"
-                placeholder="Ingresa la descripción de la vigencia de proyecto"
-                autoComplete="off"
-                onValueChange={handleProjectStatusDescriptionChange}
-              />
-            </div>
-          </div>
-        </section>
+        <ProjectStatusesFormDataSectionComponent
+          form={form}
+          errors={errors}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
