@@ -1,7 +1,6 @@
 export * from './assignments'
 export * from './main'
 export * from './specialties'
-export { default as ProjectStatusesDashboardPage } from './ProjectStatusesDashboardPage'
-export { default as ProjectStatusesFormDashboardPage } from './ProjectStatusesFormDashboardPage'
+export * from './statuses'
 export { default as ProjectTypesDashboardPage } from './ProjectTypesDashboardPage'
 export { default as ProjectTypesFormDashboardPage } from './ProjectTypesFormDashboardPage'
