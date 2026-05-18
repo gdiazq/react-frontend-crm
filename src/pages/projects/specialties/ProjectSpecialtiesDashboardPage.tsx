@@ -1,225 +1,46 @@
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import {
   AlertMessageComponent,
-  ButtonComponent,
-  DateRangePickerComponent,
-  DetailSidebarComponent,
-  InputComponent,
-  PaginationComponent,
-  ProjectSpecialtyDetailComponent,
-  RightSidebarComponent,
+  ProjectSpecialtiesListDetailSidebarComponent,
+  ProjectSpecialtiesListFiltersSidebarComponent,
+  ProjectSpecialtiesListTableComponent,
+  ProjectSpecialtiesListToolbarComponent,
   SaveConfirmComponent,
-  SelectComponent,
   StatsOverviewCardsComponent,
-  TableComponent,
-  ToolbarActionsDropdownComponent,
 } from '@/components'
-import {
-  AUTH_ROUTE_PROJECT_SPECIALTIES,
-  AUTH_ROUTE_PROJECT_SPECIALTIES_CREATE,
-  AUTH_ROUTE_PROJECT_SPECIALTIES_EDIT,
-  PermissionAction,
-  PermissionModule,
-  SortDirection,
-} from '@/constant'
-import {
-  projectSpecialtiesTableColumns,
-  projectSpecialtiesTableColumnIndex,
-  projectSpecialtiesTableSortByColumn,
-} from '@/factories'
-import { mapperProjectSpecialtyDetailView } from '@/mappers'
+import { projectSpecialtiesTableColumnIndex } from '@/factories'
 import messages from '@/messages/messages'
-import { projectSpecialtiesService } from '@/services'
-import { useStoreAuth, useStoreProjectSpecialties, useStoreSelects } from '@/store'
-import type { ProjectSpecialtyTableRow, TableRow, TableSortState } from '@/types'
-import {
-  createProjectSpecialtiesActions,
-  createTableCustomRenderer,
-  renderStatusBadge,
-  renderViewDetailButton,
-  downloadBlobFile,
-  formatCsvImportSummary,
-} from '@/utils'
-import type { DropdownAction } from '@/utils'
+import { useStoreProjectSpecialties, useStoreSelects } from '@/store'
+import type { ProjectSpecialtyTableRow } from '@/types'
 
-const PROJECT_SPECIALTY_NAME_COLUMN_INDEX = projectSpecialtiesTableColumnIndex.name
-const PROJECT_SPECIALTY_STATUS_COLUMN_INDEX = projectSpecialtiesTableColumnIndex.status
-const ACTIONS_COLUMN_INDEX = projectSpecialtiesTableColumns.length - 1
-const PROJECT_SPECIALTIES_SORTABLE_COLUMNS = Object.keys(projectSpecialtiesTableSortByColumn).map((index) => Number(index))
+const NAME_COLUMN_INDEX = projectSpecialtiesTableColumnIndex.name
 
 export default function ProjectSpecialtiesDashboardPage() {
-  const navigate = useNavigate()
-  const projectSpecialtiesRows = useStoreProjectSpecialties((s) => s.projectSpecialtiesRows)
-  const projectSpecialtyDetail = useStoreProjectSpecialties((s) => s.projectSpecialtyDetail)
   const pagination = useStoreProjectSpecialties((s) => s.pagination)
-  const queryParams = useStoreProjectSpecialties((s) => s.queryParams)
-  const loadingProjectSpecialties = useStoreProjectSpecialties((s) => s.operationLoading.list)
-  const loadingProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.operationLoading.detail)
   const loadingToggleStatus = useStoreProjectSpecialties((s) => s.operationLoading.toggle)
   const listError = useStoreProjectSpecialties((s) => s.operationStatus.list.error)
-  const detailError = useStoreProjectSpecialties((s) => s.operationStatus.detail.error)
   const toggleError = useStoreProjectSpecialties((s) => s.operationStatus.toggle.error)
   const clearOperationStatus = useStoreProjectSpecialties((s) => s.clearOperationStatus)
   const getProjectSpecialties = useStoreProjectSpecialties((s) => s.getProjectSpecialties)
-  const getProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.getProjectSpecialtyDetail)
-  const goToPage = useStoreProjectSpecialties((s) => s.goToPage)
-  const setSearch = useStoreProjectSpecialties((s) => s.setSearch)
-  const searchProjectSpecialties = useStoreProjectSpecialties((s) => s.searchProjectSpecialties)
-  const sortProjectSpecialties = useStoreProjectSpecialties((s) => s.sortProjectSpecialties)
-  const setActiveFilter = useStoreProjectSpecialties((s) => s.setActiveFilter)
-  const setCreatedDateRange = useStoreProjectSpecialties((s) => s.setCreatedDateRange)
-  const setUpdatedDateRange = useStoreProjectSpecialties((s) => s.setUpdatedDateRange)
-  const clearActiveFilter = useStoreProjectSpecialties((s) => s.clearActiveFilter)
-  const clearCreatedDateRange = useStoreProjectSpecialties((s) => s.clearCreatedDateRange)
-  const clearUpdatedDateRange = useStoreProjectSpecialties((s) => s.clearUpdatedDateRange)
   const toggleProjectSpecialtyStatus = useStoreProjectSpecialties((s) => s.toggleProjectSpecialtyStatus)
-  const clearProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.clearProjectSpecialtyDetail)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleProjectSpecialtyStatus = hasPermission(PermissionModule.ProjectSpecialty, PermissionAction.Update)
-
-  const statusOptions = useStoreSelects((s) => s.statusOptions)
-  const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
   const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
   const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
   const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
 
-  const { actionViewDetail, actionUpdateProjectSpecialty, actionToggleStatus } = createProjectSpecialtiesActions()
-
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [filters, setFilters] = useState(() => ({
-    activeId: queryParams.active,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    updatedFrom: queryParams.updatedFrom,
-    updatedTo: queryParams.updatedTo,
-  }))
-  const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<ProjectSpecialtyTableRow | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const [uploadingBulk, setUploadingBulk] = useState(false)
-  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
-
-  const projectSpecialtyDetailView = mapperProjectSpecialtyDetailView(projectSpecialtyDetail)
-  const currentPage = pagination.page + 1
-  const totalPages = pagination.totalPages
-  const totalItems = pagination.totalElements
-  const pageSize = pagination.size
-  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const activeSortColumn = PROJECT_SPECIALTIES_SORTABLE_COLUMNS.find((index) => projectSpecialtiesTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = {
-    columnIndex: activeSortColumn,
-    direction: queryParams.sortDir,
-  }
 
   useEffect(() => {
     void getProjectSpecialties()
     void getStatusOptions()
   }, [getProjectSpecialties, getStatusOptions])
 
-  const handleViewDetail = (row: ProjectSpecialtyTableRow) => {
-    setSelectedDetailRowId(row.id)
-    setDetailOpen(true)
-    void getProjectSpecialtyDetail(row.id)
-  }
-
-  const handleCloseDetail = () => {
-    setDetailOpen(false)
-    setSelectedDetailRowId(null)
-    clearProjectSpecialtyDetail()
-  }
-
-  const handleRetryDetail = () => {
-    if (!selectedDetailRowId) return
-    void getProjectSpecialtyDetail(selectedDetailRowId)
-  }
-
-  const handleUpdateProjectSpecialty = (row: ProjectSpecialtyTableRow) => {
-    navigate(`${AUTH_ROUTE_PROJECT_SPECIALTIES_EDIT}=${row.id}`)
-  }
-
   const handleToggleStatus = (row: ProjectSpecialtyTableRow) => {
     setPendingToggleRow(row)
     setConfirmOpen(true)
-  }
-
-  const resolveRowActions = (row: ProjectSpecialtyTableRow): DropdownAction[] => {
-    const actions: DropdownAction[] = [
-      actionViewDetail(() => handleViewDetail(row)),
-      actionUpdateProjectSpecialty(() => handleUpdateProjectSpecialty(row)),
-    ]
-
-    if (canToggleProjectSpecialtyStatus) {
-      actions.push(actionToggleStatus(row.active === true, () => handleToggleStatus(row)))
-    }
-
-    return actions
-  }
-
-  const findProjectSpecialtyRowById = (rowId: string) => projectSpecialtiesRows.find((row) => row.id === rowId) ?? null
-  const handleViewDetailById = (rowId: string) => {
-    const projectSpecialtyRow = findProjectSpecialtyRowById(rowId)
-    if (!projectSpecialtyRow) return
-    handleViewDetail(projectSpecialtyRow)
-  }
-  const getProjectSpecialtyStatusEnabled = (rowId: string) => Boolean(findProjectSpecialtyRowById(rowId)?.active)
-  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const projectSpecialtyRow = findProjectSpecialtyRowById(tableRow.id)
-    if (!projectSpecialtyRow) return []
-    return resolveRowActions(projectSpecialtyRow)
-  }
-
-  const renderCustomCell = createTableCustomRenderer({
-    [PROJECT_SPECIALTY_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
-    [PROJECT_SPECIALTY_STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getProjectSpecialtyStatusEnabled(row.id)),
-  })
-
-  const handleSortChange = async (columnIndex: number) => {
-    const sortBy = projectSpecialtiesTableSortByColumn[columnIndex]
-    if (!sortBy) return
-
-    const currentSortBy = queryParams.sortBy
-    const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
-
-    await sortProjectSpecialties(sortBy, nextSortDir)
-  }
-
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
-    setFilters((prev) => ({ ...prev, [field]: value }))
-  }
-  const handleActiveFilterChange = (value: string) => handleChangeFilter('activeId', value)
-  const handleApplyFilters = async () => {
-    const selectedStatus = statusOptions.find((option) => String(option.id) === filters.activeId)
-    setActiveFilter(selectedStatus ? String(selectedStatus.id) : '')
-    setCreatedDateRange({
-      createdFrom: filters.createdFrom.trim(),
-      createdTo: filters.createdTo.trim(),
-    })
-    setUpdatedDateRange({
-      updatedFrom: filters.updatedFrom.trim(),
-      updatedTo: filters.updatedTo.trim(),
-    })
-    await searchProjectSpecialties()
-    setFiltersOpen(false)
-  }
-
-  const handleClearFilters = async () => {
-    setFilters({
-      activeId: '',
-      createdFrom: '',
-      createdTo: '',
-      updatedFrom: '',
-      updatedTo: '',
-    })
-    clearActiveFilter()
-    clearCreatedDateRange()
-    clearUpdatedDateRange()
-    await searchProjectSpecialties()
-    setFiltersOpen(false)
   }
 
   const handleCloseConfirm = () => {
@@ -230,75 +51,27 @@ export default function ProjectSpecialtiesDashboardPage() {
 
   const handleConfirmToggleStatus = async () => {
     if (!pendingToggleRow || loadingToggleStatus) return
-
     const nextStatus = pendingToggleRow.active !== true
-    const projectSpecialtyName = pendingToggleRow.values[PROJECT_SPECIALTY_NAME_COLUMN_INDEX]
+    const projectSpecialtyName = pendingToggleRow.values[NAME_COLUMN_INDEX]
     const success = await toggleProjectSpecialtyStatus(pendingToggleRow.id, nextStatus)
-    if (success) {
-      setConfirmOpen(false)
-      setPendingToggleRow(null)
-      await getProjectSpecialties()
-      navigate(AUTH_ROUTE_PROJECT_SPECIALTIES)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      setActionsMessage(
-        `${projectSpecialtyName} ${
-          nextStatus ? messages.projectSpecialties.status.success.toggleEnabledSuccess : messages.projectSpecialties.status.success.toggleDisabledSuccess
-        }`,
-      )
-    }
-  }
+    if (!success) return
 
-  const handleDownloadReport = async () => {
-    if (downloadingReport) return
-
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await projectSpecialtiesService.exportProjectSpecialtiesCsv()
-      downloadBlobFile(csvBlob, 'project-specialties.csv')
-      setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (projectSpecialtiesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
-    }
-  }
-
-  const handleBulkUpload = () => {
-    if (uploadingBulk) return
-    bulkUploadInputRef.current?.click()
-  }
-
-  const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file || uploadingBulk) return
-
-    try {
-      setUploadingBulk(true)
-      const result = await projectSpecialtiesService.importProjectSpecialtiesCsv(file)
-      setActionsMessage(formatCsvImportSummary(result))
-      await getProjectSpecialties()
-    } catch (error) {
-      if (projectSpecialtiesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
-      } else {
-        setActionsMessage('No se pudo realizar la carga masiva.')
-      }
-    } finally {
-      setUploadingBulk(false)
-    }
+    setConfirmOpen(false)
+    setPendingToggleRow(null)
+    await getProjectSpecialties()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setActionsMessage(
+      `${projectSpecialtyName} ${
+        nextStatus
+          ? messages.projectSpecialties.status.success.toggleEnabledSuccess
+          : messages.projectSpecialties.status.success.toggleDisabledSuccess
+      }`,
+    )
   }
 
   const confirmMessage = pendingToggleRow
-    ? `¿Seguro que deseas ${pendingToggleRow.active === true ? 'deshabilitar' : 'habilitar'} la especialidad ${pendingToggleRow.values[PROJECT_SPECIALTY_NAME_COLUMN_INDEX]}?`
+    ? `¿Seguro que deseas ${pendingToggleRow.active === true ? 'deshabilitar' : 'habilitar'} la especialidad ${pendingToggleRow.values[NAME_COLUMN_INDEX]}?`
     : ''
-  const detailTitle = projectSpecialtyDetailView
-    ? `Detalle de ${projectSpecialtyDetailView.nameDisplay}`
-    : messages.projectSpecialties.ui.detailTitleFallback
 
   return (
     <section className="min-w-0 space-y-4">
@@ -338,79 +111,9 @@ export default function ProjectSpecialtiesDashboardPage() {
         />
       )}
 
-      <form
-        className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
-        onSubmit={(event) => {
-          event.preventDefault()
-          void searchProjectSpecialties()
-        }}
-      >
-        <div className="flex items-center gap-2 md:col-start-1 md:row-start-1">
-          <ButtonComponent
-            type="button"
-            variant="outline"
-            disabled={loadingProjectSpecialties || loadingToggleStatus}
-            label="Filtro"
-            onClick={() => setFiltersOpen(true)}
-          />
-          <div className="min-w-0 flex-1">
-            <InputComponent
-              value={queryParams.search}
-              type="text"
-              placeholder="Buscar por nombre o descripcion"
-              onValueChange={setSearch}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 md:col-start-2 md:row-start-1 md:justify-end">
-          <ButtonComponent
-            type="submit"
-            variant="primary"
-            disabled={loadingProjectSpecialties || loadingToggleStatus}
-            className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
-            label={loadingProjectSpecialties ? 'Buscando...' : 'Buscar'}
-          />
-          <ButtonComponent
-            type="button"
-            variant="success"
-            disabled={loadingProjectSpecialties || loadingToggleStatus}
-            className="flex-1 md:flex-none"
-            label="Nueva especialidad"
-            onClick={() => navigate(AUTH_ROUTE_PROJECT_SPECIALTIES_CREATE)}
-          />
-          <ToolbarActionsDropdownComponent
-            disabled={loadingProjectSpecialties || loadingToggleStatus || downloadingReport || uploadingBulk}
-            onDownloadReport={() => { void handleDownloadReport() }}
-            onBulkUpload={handleBulkUpload}
-          />
-        </div>
-      </form>
-
-      <input
-        ref={bulkUploadInputRef}
-        type="file"
-        accept=".csv,text/csv"
-        className="hidden"
-        onChange={(event) => { void handleBulkUploadFileChange(event) }}
-      />
-
-      <TableComponent
-        columns={projectSpecialtiesTableColumns}
-        rows={projectSpecialtiesRows}
-        loading={loadingProjectSpecialties}
-        emptyMessage="No hay especialidades de proyecto registradas."
-        customRenderer={renderCustomCell}
-        actionsConfig={{
-          columnIndex: ACTIONS_COLUMN_INDEX,
-          resolveRowActions: resolveRowActionsFromTableRow,
-          resolveOpenDirection: (activeRowIndex, rowsLength) => (
-            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
-          ),
-        }}
-        sortableColumnIndexes={PROJECT_SPECIALTIES_SORTABLE_COLUMNS}
-        sortState={sortState}
-        onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}
+      <ProjectSpecialtiesListToolbarComponent
+        onOpenFilters={() => setFiltersOpen(true)}
+        disabled={loadingToggleStatus}
       />
 
       {actionsMessage && (
@@ -421,93 +124,21 @@ export default function ProjectSpecialtiesDashboardPage() {
         />
       )}
 
-      <div className="flex justify-end">
-        <PaginationComponent
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          pageSize={pageSize}
-          loading={loadingProjectSpecialties || loadingToggleStatus}
-          onPageChange={(page) => goToPage(page - 1)}
-        />
-      </div>
+      <ProjectSpecialtiesListTableComponent
+        onViewDetail={(row) => setSelectedDetailRowId(row.id)}
+        onToggleStatus={handleToggleStatus}
+        loadingExtra={loadingToggleStatus}
+      />
 
-      <RightSidebarComponent
+      <ProjectSpecialtiesListFiltersSidebarComponent
         open={filtersOpen}
-        title="Filtros"
         onClose={() => setFiltersOpen(false)}
-      >
-        <div className="space-y-4">
-          <SelectComponent
-            value={filters.activeId}
-            label="Estado"
-            options={statusSelectOptions}
-            onValueChange={handleActiveFilterChange}
-          />
-          <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-              Fecha creación
-            </p>
-            <DateRangePickerComponent
-              fromValue={filters.createdFrom}
-              toValue={filters.createdTo}
-              label="Rango de creación"
-              onRangeChange={({ from, to }) => {
-                setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
-              }}
-            />
-          </div>
-          <div className="space-y-3 rounded-xl border border-amber-500/35 bg-amber-50/15 p-3 dark:border-amber-400/25 dark:bg-amber-950/10">
-            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
-              Fecha actualización
-            </p>
-            <DateRangePickerComponent
-              fromValue={filters.updatedFrom}
-              toValue={filters.updatedTo}
-              label="Rango de actualización"
-              onRangeChange={({ from, to }) => {
-                setFilters((prev) => ({ ...prev, updatedFrom: from, updatedTo: to }))
-              }}
-            />
-          </div>
-          <div className="flex flex-wrap justify-end gap-2 pt-2">
-            <ButtonComponent
-              type="button"
-              variant="outline"
-              disabled={loadingProjectSpecialties || loadingToggleStatus || loadingStatusOptions}
-              label="Limpiar"
-              onClick={() => { void handleClearFilters() }}
-            />
-            <ButtonComponent
-              type="button"
-              variant="primary"
-              disabled={loadingProjectSpecialties || loadingToggleStatus || loadingStatusOptions}
-              className="text-white dark:text-white"
-              label={loadingStatusOptions ? 'Aplicando...' : 'Aplicar'}
-              onClick={() => { void handleApplyFilters() }}
-            />
-          </div>
-        </div>
-      </RightSidebarComponent>
+      />
 
-      <DetailSidebarComponent
-        open={detailOpen}
-        title={detailTitle}
-        onClose={handleCloseDetail}
-      >
-        <ProjectSpecialtyDetailComponent
-          key={selectedDetailRowId ?? 'empty-project-specialty-detail'}
-          detail={projectSpecialtyDetailView}
-          loading={loadingProjectSpecialtyDetail}
-          errorMessage={detailError}
-          onRetry={handleRetryDetail}
-          onEdit={
-            selectedDetailRowId
-              ? () => navigate(`${AUTH_ROUTE_PROJECT_SPECIALTIES_EDIT}=${selectedDetailRowId}`)
-              : undefined
-          }
-        />
-      </DetailSidebarComponent>
+      <ProjectSpecialtiesListDetailSidebarComponent
+        rowId={selectedDetailRowId}
+        onClose={() => setSelectedDetailRowId(null)}
+      />
 
       <SaveConfirmComponent
         open={confirmOpen}

@@ -1,1 +1,3 @@
-export * from './ProjectSpecialtyDetailComponent'
+export * from './detail'
+export * from './form'
+export * from './list'

@@ -3,8 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DetailSectionHeaderComponent,
-  InputComponent,
+  ProjectSpecialtiesFormDataSectionComponent,
   SaveConfirmComponent,
 } from '@/components'
 import { AUTH_ROUTE_PROJECT_SPECIALTIES } from '@/constant'
@@ -19,16 +18,6 @@ type PendingAction =
   | { mode: 'create', payload: ProjectSpecialtyCreatePayload }
   | { mode: 'update', payload: ProjectSpecialtyUpdatePayload }
   | null
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
-  )
-}
 
 export default function ProjectSpecialtiesFormDashboardPage() {
   const navigate = useNavigate()
@@ -104,12 +93,10 @@ export default function ProjectSpecialtiesFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateProjectSpecialtyForm, value: string) => {
+  const handleChangeField = (field: keyof typeof initialCreateProjectSpecialtyForm) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
-  const handleProjectSpecialtyNameChange = (value: string) => handleChangeField('name', value)
-  const handleProjectSpecialtyDescriptionChange = (value: string) => handleChangeField('description', value)
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
@@ -200,34 +187,12 @@ export default function ProjectSpecialtiesFormDashboardPage() {
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos de la especialidad de proyecto…</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos de la especialidad" />
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Identificación" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <InputComponent
-                value={form.name}
-                label="Nombre especialidad proyecto"
-                type="text"
-                placeholder="Ingresa el nombre de la especialidad de proyecto"
-                autoComplete="off"
-                error={errors.name}
-                onValueChange={handleProjectSpecialtyNameChange}
-                onBlur={onValidation('name')}
-                required
-              />
-
-              <InputComponent
-                value={form.description}
-                label="Descripción"
-                type="text"
-                placeholder="Ingresa la descripción de la especialidad de proyecto"
-                autoComplete="off"
-                onValueChange={handleProjectSpecialtyDescriptionChange}
-              />
-            </div>
-          </div>
-        </section>
+        <ProjectSpecialtiesFormDataSectionComponent
+          form={form}
+          errors={errors}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
