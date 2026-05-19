@@ -1,221 +1,46 @@
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import {
   AlertMessageComponent,
-  ButtonComponent,
-  DateRangePickerComponent,
-  DetailSidebarComponent,
-  InputComponent,
-  PaginationComponent,
-  ProjectTypeDetailComponent,
-  RightSidebarComponent,
+  ProjectTypesListDetailSidebarComponent,
+  ProjectTypesListFiltersSidebarComponent,
+  ProjectTypesListTableComponent,
+  ProjectTypesListToolbarComponent,
   SaveConfirmComponent,
-  SelectComponent,
   StatsOverviewCardsComponent,
-  TableComponent,
-  ToolbarActionsDropdownComponent,
 } from '@/components'
-import {
-  AUTH_ROUTE_PROJECT_TYPES,
-  AUTH_ROUTE_PROJECT_TYPES_CREATE,
-  AUTH_ROUTE_PROJECT_TYPES_EDIT,
-  PermissionAction,
-  PermissionModule,
-  SortDirection,
-} from '@/constant'
-import { projectTypesTableColumns, projectTypesTableColumnIndex, projectTypesTableSortByColumn } from '@/factories'
-import { mapperProjectTypeDetailView } from '@/mappers'
+import { projectTypesTableColumnIndex } from '@/factories'
 import messages from '@/messages/messages'
-import { projectTypesService } from '@/services'
-import { useStoreAuth, useStoreProjectTypes, useStoreSelects } from '@/store'
-import type { ProjectTypeTableRow, TableRow, TableSortState } from '@/types'
-import {
-  createProjectTypesActions,
-  createTableCustomRenderer,
-  renderStatusBadge,
-  renderViewDetailButton,
-  downloadBlobFile,
-  formatCsvImportSummary,
-} from '@/utils'
-import type { DropdownAction } from '@/utils'
+import { useStoreProjectTypes, useStoreSelects } from '@/store'
+import type { ProjectTypeTableRow } from '@/types'
 
-const PROJECT_TYPE_NAME_COLUMN_INDEX = projectTypesTableColumnIndex.name
-const PROJECT_TYPE_STATUS_COLUMN_INDEX = projectTypesTableColumnIndex.status
-const ACTIONS_COLUMN_INDEX = projectTypesTableColumns.length - 1
-const PROJECT_TYPES_SORTABLE_COLUMNS = Object.keys(projectTypesTableSortByColumn).map((index) => Number(index))
+const NAME_COLUMN_INDEX = projectTypesTableColumnIndex.name
 
 export default function ProjectTypesDashboardPage() {
-  const navigate = useNavigate()
-  const projectTypesRows = useStoreProjectTypes((s) => s.projectTypesRows)
-  const projectTypeDetail = useStoreProjectTypes((s) => s.projectTypeDetail)
   const pagination = useStoreProjectTypes((s) => s.pagination)
-  const queryParams = useStoreProjectTypes((s) => s.queryParams)
-  const loadingProjectTypes = useStoreProjectTypes((s) => s.operationLoading.list)
-  const loadingProjectTypeDetail = useStoreProjectTypes((s) => s.operationLoading.detail)
   const loadingToggleStatus = useStoreProjectTypes((s) => s.operationLoading.toggle)
   const listError = useStoreProjectTypes((s) => s.operationStatus.list.error)
-  const detailError = useStoreProjectTypes((s) => s.operationStatus.detail.error)
   const toggleError = useStoreProjectTypes((s) => s.operationStatus.toggle.error)
   const clearOperationStatus = useStoreProjectTypes((s) => s.clearOperationStatus)
   const getProjectTypes = useStoreProjectTypes((s) => s.getProjectTypes)
-  const getProjectTypeDetail = useStoreProjectTypes((s) => s.getProjectTypeDetail)
-  const goToPage = useStoreProjectTypes((s) => s.goToPage)
-  const setSearch = useStoreProjectTypes((s) => s.setSearch)
-  const searchProjectTypes = useStoreProjectTypes((s) => s.searchProjectTypes)
-  const sortProjectTypes = useStoreProjectTypes((s) => s.sortProjectTypes)
-  const setActiveFilter = useStoreProjectTypes((s) => s.setActiveFilter)
-  const setCreatedDateRange = useStoreProjectTypes((s) => s.setCreatedDateRange)
-  const setUpdatedDateRange = useStoreProjectTypes((s) => s.setUpdatedDateRange)
-  const clearActiveFilter = useStoreProjectTypes((s) => s.clearActiveFilter)
-  const clearCreatedDateRange = useStoreProjectTypes((s) => s.clearCreatedDateRange)
-  const clearUpdatedDateRange = useStoreProjectTypes((s) => s.clearUpdatedDateRange)
   const toggleProjectTypeStatus = useStoreProjectTypes((s) => s.toggleProjectTypeStatus)
-  const clearProjectTypeDetail = useStoreProjectTypes((s) => s.clearProjectTypeDetail)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleProjectTypeStatus = hasPermission(PermissionModule.ProjectType, PermissionAction.Update)
-
-  const statusOptions = useStoreSelects((s) => s.statusOptions)
-  const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
   const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
   const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
   const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
 
-  const { actionViewDetail, actionUpdateProjectType, actionToggleStatus } = createProjectTypesActions()
-
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [filters, setFilters] = useState(() => ({
-    activeId: queryParams.active,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    updatedFrom: queryParams.updatedFrom,
-    updatedTo: queryParams.updatedTo,
-  }))
-  const [detailOpen, setDetailOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<ProjectTypeTableRow | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const [uploadingBulk, setUploadingBulk] = useState(false)
-  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
-
-  const projectTypeDetailView = mapperProjectTypeDetailView(projectTypeDetail)
-  const currentPage = pagination.page + 1
-  const totalPages = pagination.totalPages
-  const totalItems = pagination.totalElements
-  const pageSize = pagination.size
-  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const activeSortColumn = PROJECT_TYPES_SORTABLE_COLUMNS.find((index) => projectTypesTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = {
-    columnIndex: activeSortColumn,
-    direction: queryParams.sortDir,
-  }
 
   useEffect(() => {
     void getProjectTypes()
     void getStatusOptions()
   }, [getProjectTypes, getStatusOptions])
 
-  const handleViewDetail = (row: ProjectTypeTableRow) => {
-    setSelectedDetailRowId(row.id)
-    setDetailOpen(true)
-    void getProjectTypeDetail(row.id)
-  }
-
-  const handleCloseDetail = () => {
-    setDetailOpen(false)
-    setSelectedDetailRowId(null)
-    clearProjectTypeDetail()
-  }
-
-  const handleRetryDetail = () => {
-    if (!selectedDetailRowId) return
-    void getProjectTypeDetail(selectedDetailRowId)
-  }
-
-  const handleUpdateProjectType = (row: ProjectTypeTableRow) => {
-    navigate(`${AUTH_ROUTE_PROJECT_TYPES_EDIT}=${row.id}`)
-  }
-
   const handleToggleStatus = (row: ProjectTypeTableRow) => {
     setPendingToggleRow(row)
     setConfirmOpen(true)
-  }
-
-  const resolveRowActions = (row: ProjectTypeTableRow): DropdownAction[] => {
-    const actions: DropdownAction[] = [
-      actionViewDetail(() => handleViewDetail(row)),
-      actionUpdateProjectType(() => handleUpdateProjectType(row)),
-    ]
-
-    if (canToggleProjectTypeStatus) {
-      actions.push(actionToggleStatus(row.active === true, () => handleToggleStatus(row)))
-    }
-
-    return actions
-  }
-
-  const findProjectTypeRowById = (rowId: string) => projectTypesRows.find((row) => row.id === rowId) ?? null
-  const handleViewDetailById = (rowId: string) => {
-    const projectTypeRow = findProjectTypeRowById(rowId)
-    if (!projectTypeRow) return
-    handleViewDetail(projectTypeRow)
-  }
-  const getProjectTypeStatusEnabled = (rowId: string) => Boolean(findProjectTypeRowById(rowId)?.active)
-  const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const projectTypeRow = findProjectTypeRowById(tableRow.id)
-    if (!projectTypeRow) return []
-    return resolveRowActions(projectTypeRow)
-  }
-
-  const renderCustomCell = createTableCustomRenderer({
-    [PROJECT_TYPE_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => handleViewDetailById(row.id)),
-    [PROJECT_TYPE_STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(getProjectTypeStatusEnabled(row.id)),
-  })
-
-  const handleSortChange = async (columnIndex: number) => {
-    const sortBy = projectTypesTableSortByColumn[columnIndex]
-    if (!sortBy) return
-
-    const currentSortBy = queryParams.sortBy
-    const currentSortDir = queryParams.sortDir
-    const nextSortDir = currentSortBy === sortBy && currentSortDir === SortDirection.Asc ? SortDirection.Desc : SortDirection.Asc
-
-    await sortProjectTypes(sortBy, nextSortDir)
-  }
-
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
-    setFilters((prev) => ({ ...prev, [field]: value }))
-  }
-  const handleActiveFilterChange = (value: string) => handleChangeFilter('activeId', value)
-  const handleApplyFilters = async () => {
-    const selectedStatus = statusOptions.find((option) => String(option.id) === filters.activeId)
-    setActiveFilter(selectedStatus ? String(selectedStatus.id) : '')
-    setCreatedDateRange({
-      createdFrom: filters.createdFrom.trim(),
-      createdTo: filters.createdTo.trim(),
-    })
-    setUpdatedDateRange({
-      updatedFrom: filters.updatedFrom.trim(),
-      updatedTo: filters.updatedTo.trim(),
-    })
-    await searchProjectTypes()
-    setFiltersOpen(false)
-  }
-
-  const handleClearFilters = async () => {
-    setFilters({
-      activeId: '',
-      createdFrom: '',
-      createdTo: '',
-      updatedFrom: '',
-      updatedTo: '',
-    })
-    clearActiveFilter()
-    clearCreatedDateRange()
-    clearUpdatedDateRange()
-    await searchProjectTypes()
-    setFiltersOpen(false)
   }
 
   const handleCloseConfirm = () => {
@@ -226,81 +51,33 @@ export default function ProjectTypesDashboardPage() {
 
   const handleConfirmToggleStatus = async () => {
     if (!pendingToggleRow || loadingToggleStatus) return
-
     const nextStatus = pendingToggleRow.active !== true
-    const projectTypeName = pendingToggleRow.values[PROJECT_TYPE_NAME_COLUMN_INDEX]
+    const projectTypeName = pendingToggleRow.values[NAME_COLUMN_INDEX]
     const success = await toggleProjectTypeStatus(pendingToggleRow.id, nextStatus)
-    if (success) {
-      setConfirmOpen(false)
-      setPendingToggleRow(null)
-      await getProjectTypes()
-      navigate(AUTH_ROUTE_PROJECT_TYPES)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      setActionsMessage(
-        `${projectTypeName} ${
-          nextStatus ? messages.projectTypes.status.success.toggleEnabledSuccess : messages.projectTypes.status.success.toggleDisabledSuccess
-        }`,
-      )
-    }
-  }
+    if (!success) return
 
-  const handleDownloadReport = async () => {
-    if (downloadingReport) return
-
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await projectTypesService.exportProjectTypesCsv()
-      downloadBlobFile(csvBlob, 'project-types.csv')
-      setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (projectTypesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
-    }
-  }
-
-  const handleBulkUpload = () => {
-    if (uploadingBulk) return
-    bulkUploadInputRef.current?.click()
-  }
-
-  const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file || uploadingBulk) return
-
-    try {
-      setUploadingBulk(true)
-      const result = await projectTypesService.importProjectTypesCsv(file)
-      setActionsMessage(formatCsvImportSummary(result))
-      await getProjectTypes()
-    } catch (error) {
-      if (projectTypesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
-      } else {
-        setActionsMessage('No se pudo realizar la carga masiva.')
-      }
-    } finally {
-      setUploadingBulk(false)
-    }
+    setConfirmOpen(false)
+    setPendingToggleRow(null)
+    await getProjectTypes()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setActionsMessage(
+      `${projectTypeName} ${
+        nextStatus
+          ? messages.projectTypes.status.success.toggleEnabledSuccess
+          : messages.projectTypes.status.success.toggleDisabledSuccess
+      }`,
+    )
   }
 
   const confirmMessage = pendingToggleRow
-    ? `¿Seguro que deseas ${pendingToggleRow.active === true ? 'deshabilitar' : 'habilitar'} al tipo ${pendingToggleRow.values[PROJECT_TYPE_NAME_COLUMN_INDEX]}?`
+    ? `¿Seguro que deseas ${pendingToggleRow.active === true ? 'deshabilitar' : 'habilitar'} el tipo ${pendingToggleRow.values[NAME_COLUMN_INDEX]}?`
     : ''
-  const detailTitle = projectTypeDetailView
-    ? `Detalle de ${projectTypeDetailView.nameDisplay}`
-    : messages.projectTypes.ui.detailTitleFallback
 
   return (
     <section className="min-w-0 space-y-4">
       <header className="border-b border-slate-200 pb-5 dark:border-white/10">
         <div className="flex items-center gap-3 text-[10.5px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-          <span className="num">ÍNDICE · TIPOS DE PROYECTO</span>
+          <span className="num">ÍNDICE · TIPOS</span>
         </div>
         <h1 className="display mt-3 text-[34px] leading-[1.05] text-slate-900 dark:text-slate-50">
           Dashboard
@@ -334,79 +111,9 @@ export default function ProjectTypesDashboardPage() {
         />
       )}
 
-      <form
-        className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
-        onSubmit={(event) => {
-          event.preventDefault()
-          void searchProjectTypes()
-        }}
-      >
-        <div className="flex items-center gap-2 md:col-start-1 md:row-start-1">
-          <ButtonComponent
-            type="button"
-            variant="outline"
-            disabled={loadingProjectTypes || loadingToggleStatus}
-            label="Filtro"
-            onClick={() => setFiltersOpen(true)}
-          />
-          <div className="min-w-0 flex-1">
-            <InputComponent
-              value={queryParams.search}
-              type="text"
-              placeholder="Buscar por nombre o descripcion"
-              onValueChange={setSearch}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 md:col-start-2 md:row-start-1 md:justify-end">
-          <ButtonComponent
-            type="submit"
-            variant="primary"
-            disabled={loadingProjectTypes || loadingToggleStatus}
-            className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
-            label={loadingProjectTypes ? 'Buscando...' : 'Buscar'}
-          />
-          <ButtonComponent
-            type="button"
-            variant="success"
-            disabled={loadingProjectTypes || loadingToggleStatus}
-            className="flex-1 md:flex-none"
-            label="Nuevo tipo"
-            onClick={() => navigate(AUTH_ROUTE_PROJECT_TYPES_CREATE)}
-          />
-          <ToolbarActionsDropdownComponent
-            disabled={loadingProjectTypes || loadingToggleStatus || downloadingReport || uploadingBulk}
-            onDownloadReport={() => { void handleDownloadReport() }}
-            onBulkUpload={handleBulkUpload}
-          />
-        </div>
-      </form>
-
-      <input
-        ref={bulkUploadInputRef}
-        type="file"
-        accept=".csv,text/csv"
-        className="hidden"
-        onChange={(event) => { void handleBulkUploadFileChange(event) }}
-      />
-
-      <TableComponent
-        columns={projectTypesTableColumns}
-        rows={projectTypesRows}
-        loading={loadingProjectTypes}
-        emptyMessage="No hay tipos de proyecto registrados."
-        customRenderer={renderCustomCell}
-        actionsConfig={{
-          columnIndex: ACTIONS_COLUMN_INDEX,
-          resolveRowActions: resolveRowActionsFromTableRow,
-          resolveOpenDirection: (activeRowIndex, rowsLength) => (
-            activeRowIndex >= Math.max(rowsLength - 2, 0) ? 'up' : 'down'
-          ),
-        }}
-        sortableColumnIndexes={PROJECT_TYPES_SORTABLE_COLUMNS}
-        sortState={sortState}
-        onSortChange={(columnIndex) => { void handleSortChange(columnIndex) }}
+      <ProjectTypesListToolbarComponent
+        onOpenFilters={() => setFiltersOpen(true)}
+        disabled={loadingToggleStatus}
       />
 
       {actionsMessage && (
@@ -417,93 +124,21 @@ export default function ProjectTypesDashboardPage() {
         />
       )}
 
-      <div className="flex justify-end">
-        <PaginationComponent
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          pageSize={pageSize}
-          loading={loadingProjectTypes || loadingToggleStatus}
-          onPageChange={(page) => goToPage(page - 1)}
-        />
-      </div>
+      <ProjectTypesListTableComponent
+        onViewDetail={(row) => setSelectedDetailRowId(row.id)}
+        onToggleStatus={handleToggleStatus}
+        loadingExtra={loadingToggleStatus}
+      />
 
-      <RightSidebarComponent
+      <ProjectTypesListFiltersSidebarComponent
         open={filtersOpen}
-        title="Filtros"
         onClose={() => setFiltersOpen(false)}
-      >
-        <div className="space-y-4">
-          <SelectComponent
-            value={filters.activeId}
-            label="Estado"
-            options={statusSelectOptions}
-            onValueChange={handleActiveFilterChange}
-          />
-          <div className="space-y-3 rounded-xl border border-emerald-500/35 bg-emerald-50/20 p-3 dark:border-emerald-400/25 dark:bg-emerald-950/10">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-              Fecha creación
-            </p>
-            <DateRangePickerComponent
-              fromValue={filters.createdFrom}
-              toValue={filters.createdTo}
-              label="Rango de creación"
-              onRangeChange={({ from, to }) => {
-                setFilters((prev) => ({ ...prev, createdFrom: from, createdTo: to }))
-              }}
-            />
-          </div>
-          <div className="space-y-3 rounded-xl border border-amber-500/35 bg-amber-50/15 p-3 dark:border-amber-400/25 dark:bg-amber-950/10">
-            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
-              Fecha actualización
-            </p>
-            <DateRangePickerComponent
-              fromValue={filters.updatedFrom}
-              toValue={filters.updatedTo}
-              label="Rango de actualización"
-              onRangeChange={({ from, to }) => {
-                setFilters((prev) => ({ ...prev, updatedFrom: from, updatedTo: to }))
-              }}
-            />
-          </div>
-          <div className="flex flex-wrap justify-end gap-2 pt-2">
-            <ButtonComponent
-              type="button"
-              variant="outline"
-              disabled={loadingProjectTypes || loadingToggleStatus || loadingStatusOptions}
-              label="Limpiar"
-              onClick={() => { void handleClearFilters() }}
-            />
-            <ButtonComponent
-              type="button"
-              variant="primary"
-              disabled={loadingProjectTypes || loadingToggleStatus || loadingStatusOptions}
-              className="text-white dark:text-white"
-              label={loadingStatusOptions ? 'Aplicando...' : 'Aplicar'}
-              onClick={() => { void handleApplyFilters() }}
-            />
-          </div>
-        </div>
-      </RightSidebarComponent>
+      />
 
-      <DetailSidebarComponent
-        open={detailOpen}
-        title={detailTitle}
-        onClose={handleCloseDetail}
-      >
-        <ProjectTypeDetailComponent
-          key={selectedDetailRowId ?? 'empty-project-type-detail'}
-          detail={projectTypeDetailView}
-          loading={loadingProjectTypeDetail}
-          errorMessage={detailError}
-          onRetry={handleRetryDetail}
-          onEdit={
-            selectedDetailRowId
-              ? () => navigate(`${AUTH_ROUTE_PROJECT_TYPES_EDIT}=${selectedDetailRowId}`)
-              : undefined
-          }
-        />
-      </DetailSidebarComponent>
+      <ProjectTypesListDetailSidebarComponent
+        rowId={selectedDetailRowId}
+        onClose={() => setSelectedDetailRowId(null)}
+      />
 
       <SaveConfirmComponent
         open={confirmOpen}

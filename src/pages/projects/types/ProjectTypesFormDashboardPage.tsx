@@ -3,8 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DetailSectionHeaderComponent,
-  InputComponent,
+  ProjectTypesFormDataSectionComponent,
   SaveConfirmComponent,
 } from '@/components'
 import { AUTH_ROUTE_PROJECT_TYPES } from '@/constant'
@@ -19,16 +18,6 @@ type PendingAction =
   | { mode: 'create', payload: ProjectTypeCreatePayload }
   | { mode: 'update', payload: ProjectTypeUpdatePayload }
   | null
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
-  )
-}
 
 export default function ProjectTypesFormDashboardPage() {
   const navigate = useNavigate()
@@ -104,12 +93,10 @@ export default function ProjectTypesFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateProjectTypeForm, value: string) => {
+  const handleChangeField = (field: keyof typeof initialCreateProjectTypeForm) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
-  const handleProjectTypeNameChange = (value: string) => handleChangeField('name', value)
-  const handleProjectTypeDescriptionChange = (value: string) => handleChangeField('description', value)
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
@@ -200,34 +187,12 @@ export default function ProjectTypesFormDashboardPage() {
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del tipo de proyecto…</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos del tipo" />
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Identificación" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <InputComponent
-                value={form.name}
-                label="Nombre tipo proyecto"
-                type="text"
-                placeholder="Ingresa el nombre del tipo de proyecto"
-                autoComplete="off"
-                error={errors.name}
-                onValueChange={handleProjectTypeNameChange}
-                onBlur={onValidation('name')}
-                required
-              />
-
-              <InputComponent
-                value={form.description}
-                label="Descripción"
-                type="text"
-                placeholder="Ingresa la descripción del tipo de proyecto"
-                autoComplete="off"
-                onValueChange={handleProjectTypeDescriptionChange}
-              />
-            </div>
-          </div>
-        </section>
+        <ProjectTypesFormDataSectionComponent
+          form={form}
+          errors={errors}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
