@@ -6,6 +6,7 @@ export type {
   RoleUpdatePayload,
   RoleDetailView,
   RolePermission,
+  RolePermissionDetailView,
   RoleRaw,
   RoleTableRow,
   RolesSortBy,

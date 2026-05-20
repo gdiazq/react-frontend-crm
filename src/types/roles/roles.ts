@@ -25,15 +25,19 @@ export interface RoleDetail {
   updatedAt: string
 }
 
+export interface RolePermissionDetailView {
+  id: number
+  name: string
+  description: string
+  resourceDisplay: string
+  actionDisplay: string
+}
+
 export interface RoleDetailView {
   roleNameDisplay: string
   descriptionDisplay: string
   enabled: boolean
-  permissionsDisplay: Array<{
-    id: number
-    name: string
-    description: string
-  }>
+  permissionsDisplay: RolePermissionDetailView[]
   createdAtDisplay: string
   updatedAtDisplay: string
 }

@@ -15,16 +15,18 @@ interface RoleDetailComponentProps {
   onEdit?: () => void
 }
 
-interface ParsedPermission {
-  resource: string
-  action: string
+interface RoleDetailContentProps {
+  detail: RoleDetailView
+  onEdit?: () => void
 }
 
-function parsePermissionName(permissionName: string): ParsedPermission {
-  const [resourceRaw, actionRaw] = permissionName.split(':')
-  const resource = resourceRaw?.trim() || 'GENERAL'
-  const action = actionRaw?.trim() || 'ACCESS'
-  return { resource, action }
+interface HeroActionButtonProps {
+  onEdit: () => void
+}
+
+interface TimelineItemProps {
+  label: string
+  value: string
 }
 
 export function RoleDetailComponent({
@@ -46,11 +48,6 @@ export function RoleDetailComponent({
       {detail && <RoleDetailContent detail={detail} onEdit={onEdit} />}
     </DetailStateWrapperComponent>
   )
-}
-
-interface RoleDetailContentProps {
-  detail: RoleDetailView
-  onEdit?: () => void
 }
 
 function RoleDetailContent({ detail, onEdit }: RoleDetailContentProps) {
@@ -116,37 +113,29 @@ function RoleDetailContent({ detail, onEdit }: RoleDetailContentProps) {
           </div>
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
-            {detail.permissionsDisplay.map((permission) => {
-              const parsedPermission = parsePermissionName(permission.name)
-
-              return (
-                <article
-                  key={permission.id}
-                  className="r-lg soft-ring border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900/50"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="num min-w-0 break-all text-[12px] font-semibold accent-text">
-                      {permission.name}
-                    </p>
-                    <div className="flex shrink-0 flex-wrap justify-end gap-1">
-                      <DetailBadgeComponent 
-                        tone="neutral"
-                      >
-                        {parsedPermission.resource}
-                      </DetailBadgeComponent>
-                      <DetailBadgeComponent 
-                        tone="ok"
-                      >
-                        {parsedPermission.action}
-                      </DetailBadgeComponent>
-                    </div>
-                  </div>
-                  <p className="mt-3 r-md bg-slate-50 px-3 py-2 text-[12px] leading-relaxed text-slate-600 dark:bg-slate-800/70 dark:text-slate-300">
-                    {messages.roles.ui.detailPermissionDescriptionLabel}: {permission.description || '—'}
+            {detail.permissionsDisplay.map((permission) => (
+              <article
+                key={permission.id}
+                className="r-lg soft-ring border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900/50"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p className="num min-w-0 break-all text-[12px] font-semibold accent-text">
+                    {permission.name}
                   </p>
-                </article>
-              )
-            })}
+                  <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                    <DetailBadgeComponent tone="neutral">
+                      {permission.resourceDisplay}
+                    </DetailBadgeComponent>
+                    <DetailBadgeComponent tone="ok">
+                      {permission.actionDisplay}
+                    </DetailBadgeComponent>
+                  </div>
+                </div>
+                <p className="mt-3 r-md bg-slate-50 px-3 py-2 text-[12px] leading-relaxed text-slate-600 dark:bg-slate-800/70 dark:text-slate-300">
+                  {messages.roles.ui.detailPermissionDescriptionLabel}: {permission.description || '—'}
+                </p>
+              </article>
+            ))}
           </div>
         )}
       </section>
@@ -168,7 +157,7 @@ function RoleDetailContent({ detail, onEdit }: RoleDetailContentProps) {
   )
 }
 
-function HeroActionButton({ onEdit }: { onEdit: () => void }) {
+function HeroActionButton({ onEdit }: HeroActionButtonProps) {
   return (
     <button
       type="button"
@@ -181,7 +170,7 @@ function HeroActionButton({ onEdit }: { onEdit: () => void }) {
   )
 }
 
-function TimelineItem({ label, value }: { label: string, value: string }) {
+function TimelineItem({ label, value }: TimelineItemProps) {
   return (
     <li className="relative">
       <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
