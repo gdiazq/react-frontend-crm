@@ -1,1 +1,1 @@
-export * from './RequestDetailComponent'
+export * from './detail'
