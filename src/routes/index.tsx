@@ -60,14 +60,14 @@ import {
 } from '@/constant'
 
 // Lazy-load pages
-const LoginPage = lazy(() => import('@/pages/public/LoginPage'))
-const LoginCredentialsPage = lazy(() => import('@/pages/public/LoginCredentialsPage'))
-const RegisterPage = lazy(() => import('@/pages/public/RegisterPage'))
-const RecoveryPage = lazy(() => import('@/pages/public/RecoveryPage'))
-const VerifyEmailPage = lazy(() => import('@/pages/public/VerifyEmailPage'))
-const CreatePasswordPage = lazy(() => import('@/pages/public/CreatePasswordPage'))
-const LogoutPage = lazy(() => import('@/pages/public/LogoutPage'))
-const DashboardExamplePage = lazy(() => import('@/pages/public/DashboardExamplePage'))
+const LoginPage = lazy(() => import('@/pages/public/login/LoginPage'))
+const LoginCredentialsPage = lazy(() => import('@/pages/public/login-credentials/LoginCredentialsPage'))
+const RegisterPage = lazy(() => import('@/pages/public/register/RegisterPage'))
+const RecoveryPage = lazy(() => import('@/pages/public/recovery/RecoveryPage'))
+const VerifyEmailPage = lazy(() => import('@/pages/public/verify-email/VerifyEmailPage'))
+const CreatePasswordPage = lazy(() => import('@/pages/public/create-password/CreatePasswordPage'))
+const LogoutPage = lazy(() => import('@/pages/public/logout/LogoutPage'))
+const DashboardExamplePage = lazy(() => import('@/pages/public/dashboard-example/DashboardExamplePage'))
 const HomePage = lazy(() => import('@/pages/frontpage/HomePage'))
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'))
 const SettingsPage = lazy(() => import('@/pages/settings/SettingsPage'))
