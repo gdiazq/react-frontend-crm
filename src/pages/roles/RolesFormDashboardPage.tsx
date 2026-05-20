@@ -3,10 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DetailSectionHeaderComponent,
-  InputComponent,
+  RolesFormDataSectionComponent,
+  RolesFormPermissionsSectionComponent,
   SaveConfirmComponent,
-  SelectComponent,
 } from '@/components'
 import { AUTH_ROUTE_ROLES } from '@/constant'
 import { initialCreateRoleForm } from '@/factories'
@@ -48,6 +47,7 @@ export default function RolesFormDashboardPage() {
   const createRole = useStoreRoles((s) => s.createRole)
   const updateRole = useStoreRoles((s) => s.updateRole)
   const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
+
   const permissionOptions = useStoreSelects((s) => s.permissionOptions)
   const loadingPermissionOptions = useStoreSelects((s) => s.loadingPermissionOptions)
   const permissionOptionsErrorMessage = useStoreSelects((s) => s.permissionOptionsErrorMessage)
@@ -57,7 +57,6 @@ export default function RolesFormDashboardPage() {
   const { errors, validateAll, onValidation } = useFormValidation(form, rolesCreateValidationRules)
 
   const saving = createRoleSubmitting || updateRoleSubmitting
-
   const headerTitle = isEditMode ? 'Editar rol' : 'Crear rol'
   const headerDescription = isEditMode
     ? 'Actualiza los datos del rol seleccionado.'
@@ -121,12 +120,10 @@ export default function RolesFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateRoleForm, value: string) => {
+  const handleChangeField = (field: keyof typeof initialCreateRoleForm) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
-  const handleRoleNameChange = (value: string) => handleChangeField('name', value)
-  const handleRoleDescriptionChange = (value: string) => handleChangeField('description', value)
 
   const handlePermissionsValuesChange = (values: string[]) => {
     setSelectedPermissionValues(values)
@@ -236,62 +233,26 @@ export default function RolesFormDashboardPage() {
         />
       )}
 
-      <form
-        className="space-y-10"
-        onSubmit={handleSubmit}
-      >
+      <form className="space-y-10" onSubmit={handleSubmit}>
         {isEditMode && loadingRoleDetail && (
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del rol...</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos del rol" />
+        <RolesFormDataSectionComponent
+          form={form}
+          errors={errors}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+        />
 
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Identificación" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <InputComponent
-                value={form.name}
-                label="Nombre del rol"
-                type="text"
-                placeholder="Ingresa el nombre del rol"
-                autoComplete="off"
-                error={errors.name}
-                onValueChange={handleRoleNameChange}
-                onBlur={onValidation('name')}
-                required
-              />
-
-              <InputComponent
-                value={form.description}
-                label="Descripción"
-                type="text"
-                placeholder="Ingresa la descripción"
-                autoComplete="off"
-                onValueChange={handleRoleDescriptionChange}
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <DetailSectionHeaderComponent number="02" title="Permisos" />
-          <div className="space-y-3">
-            <SubSectionLabel number="02.1" title="Accesos asociados" />
-            <SelectComponent
-              label="Permisos"
-              multiple
-              disabled={saving || loadingPermissionOptions}
-              options={permissionSelectOptions}
-              values={selectedPermissionValues}
-              placeholder="Selecciona permisos"
-              helperText="Selecciona al menos un permiso para este rol."
-              error={permissionsError}
-              loading={loadingPermissionOptions}
-              onValuesChange={handlePermissionsValuesChange}
-            />
-          </div>
-        </section>
+        <RolesFormPermissionsSectionComponent
+          values={selectedPermissionValues}
+          options={permissionSelectOptions}
+          error={permissionsError}
+          loading={loadingPermissionOptions}
+          disabled={saving || loadingPermissionOptions}
+          onValuesChange={handlePermissionsValuesChange}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
@@ -326,15 +287,5 @@ export default function RolesFormDashboardPage() {
         onConfirm={() => { void handleConfirmSave() }}
       />
     </section>
-  )
-}
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
   )
 }
