@@ -94,7 +94,6 @@ export function mapperRequestDetailView(detail: HrRequestDetailRaw | null): Requ
   return {
     fullName,
     identification: detail.identification,
-    moduleDisplay: `Modulo ${detail.idModule}`,
     requestTypeName: detail.requestType.name,
     actionDisplay: resolveActionLabel(detail.action),
     statusName: detail.status.name,
@@ -103,7 +102,7 @@ export function mapperRequestDetailView(detail: HrRequestDetailRaw | null): Requ
     approvalDateDisplay: formatDateTime(detail.approvalDate || '', messages.requests.ui.noApprovalDate),
     hhrrApproverName: detail.hhrrApprover?.name ?? messages.requests.ui.unassignedApprover,
     hhrrApprovalDateDisplay: formatDateTime(detail.hhrrApprovalDate || '', messages.requests.ui.noApprovalDate),
-    rejectionDetailDisplay: detail.rejectionDetail?.trim() || 'Sin registro',
+    rejectionDetailDisplay: detail.rejectionDetail?.trim() || '',
     createdAtDisplay: formatDateTime(detail.createdAt, 'Sin registro'),
     updatedAtDisplay: formatDateTime(detail.updatedAt, 'Sin registro'),
   }

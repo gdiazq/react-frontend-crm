@@ -110,7 +110,6 @@ export interface HrRequestDetailRaw {
 export interface RequestDetailView {
   fullName: string
   identification: string
-  moduleDisplay: string
   requestTypeName: string
   actionDisplay: string
   statusName: string

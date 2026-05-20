@@ -5,8 +5,7 @@ import { DetailSectionHeaderComponent } from '@/components/ui/detail/DetailSecti
 import { DetailStateWrapperComponent } from '@/components/ui/detail/DetailStateWrapperComponent'
 import { DropdownActionsMenuComponent } from '@/components/ui/dropdown/DropdownActionsMenuComponent'
 import type { RequestDetailView } from '@/types'
-import type { DropdownAction } from '@/utils'
-import { resolveApprovalTone } from '@/utils'
+import { resolveApprovalTone, type DropdownAction } from '@/utils'
 
 interface RequestDetailComponentProps {
   detail: RequestDetailView | null
@@ -68,7 +67,7 @@ function RequestDetailContent({ detail, onApprove, onReject, moreActions }: Requ
   return (
     <section className="space-y-12">
       <DetailHeroComponent
-        eyebrowLabel={detail.moduleDisplay || 'Solicitud'}
+        eyebrowLabel="Solicitud"
         eyebrowId={detail.identification}
         displayName={detail.fullName}
         description={description}
@@ -88,19 +87,40 @@ function RequestDetailContent({ detail, onApprove, onReject, moreActions }: Requ
       <section>
         <DetailSectionHeaderComponent number="01" title="Solicitud" />
         <div className="grid gap-x-10 md:grid-cols-2">
-          <DetailFieldCardComponent title="Tipo de solicitud" value={detail.requestTypeName} />
-          <DetailFieldCardComponent title="Operación" value={detail.actionDisplay} />
-          <DetailFieldCardComponent title="Requiere aprobación" value={detail.requireApprovalLabel} />
+          <DetailFieldCardComponent 
+            title="Tipo de solicitud" 
+            value={detail.requestTypeName} 
+          />
+          <DetailFieldCardComponent 
+            title="Operación" 
+            value={detail.actionDisplay} 
+          />
+          <DetailFieldCardComponent 
+            title="Requiere aprobación" 
+            value={detail.requireApprovalLabel} 
+          />
         </div>
       </section>
 
       <section>
         <DetailSectionHeaderComponent number="02" title="Aprobación" />
         <div className="grid gap-x-10 md:grid-cols-2">
-          <DetailFieldCardComponent title="Aprobador" value={detail.approverName} />
-          <DetailFieldCardComponent title="Fecha aprobación" value={detail.approvalDateDisplay} />
-          <DetailFieldCardComponent title="Aprobador RRHH" value={detail.hhrrApproverName} />
-          <DetailFieldCardComponent title="Fecha aprobación RRHH" value={detail.hhrrApprovalDateDisplay} />
+          <DetailFieldCardComponent 
+            title="Aprobador" 
+            value={detail.approverName} 
+          />
+          <DetailFieldCardComponent 
+            title="Fecha aprobación" 
+            value={detail.approvalDateDisplay} 
+          />
+          <DetailFieldCardComponent 
+            title="Aprobador RRHH" 
+            value={detail.hhrrApproverName} 
+          />
+          <DetailFieldCardComponent 
+            title="Fecha aprobación RRHH" 
+            value={detail.hhrrApprovalDateDisplay} 
+          />
         </div>
       </section>
 
@@ -113,7 +133,9 @@ function RequestDetailContent({ detail, onApprove, onReject, moreActions }: Requ
             valueClassName="whitespace-pre-line"
           />
         ) : (
-          <p className="text-[12.5px] text-slate-500 dark:text-slate-400">Sin motivo de rechazo registrado.</p>
+          <p className="text-[12.5px] text-slate-500 dark:text-slate-400">
+            Sin motivo de rechazo registrado.
+          </p>
         )}
       </section>
 
@@ -147,11 +169,11 @@ interface HeroActionButtonsProps {
 }
 
 function HeroActionButtons({ onApprove, onReject, moreActions }: HeroActionButtonsProps) {
+  const hasMoreActions = Boolean(moreActions?.length)
+  const hasAnyAction = Boolean(onApprove || onReject || hasMoreActions)
   const secondaryBtn =
     'inline-flex items-center gap-1.5 r-md border border-slate-200 bg-white px-2.5 h-9 text-[12.5px] text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60'
-
-  if (!onApprove && !onReject && (!moreActions || moreActions.length === 0)) return null
-
+  if (!hasAnyAction) return null
   return (
     <>
       {onReject && (
@@ -163,8 +185,8 @@ function HeroActionButtons({ onApprove, onReject, moreActions }: HeroActionButto
           Rechazar
         </button>
       )}
-      {moreActions && moreActions.length > 0 && (
-        <DropdownActionsMenuComponent actions={moreActions} triggerClassName={secondaryBtn} />
+      {hasMoreActions && (
+        <DropdownActionsMenuComponent actions={moreActions ?? []} triggerClassName={secondaryBtn} />
       )}
       {onApprove && (
         <button
