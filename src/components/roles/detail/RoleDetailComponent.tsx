@@ -66,10 +66,16 @@ function RoleDetailContent({ detail, onEdit }: RoleDetailContentProps) {
         description={description}
         badges={
           <>
-            <DetailBadgeComponent tone={statusTone} dot>
+            <DetailBadgeComponent 
+              tone={statusTone} 
+              dot
+            >
               {statusLabel}
             </DetailBadgeComponent>
-            <DetailBadgeComponent tone={permissionCount > 0 ? 'accent' : 'neutral'} dot>
+            <DetailBadgeComponent 
+              tone={permissionCount > 0 ? 'accent' : 'neutral'} 
+              dot
+            >
               {permissionCount} permisos
             </DetailBadgeComponent>
           </>
@@ -85,8 +91,14 @@ function RoleDetailContent({ detail, onEdit }: RoleDetailContentProps) {
       <section>
         <DetailSectionHeaderComponent number="01" title="Resumen" />
         <div className="grid gap-x-10 md:grid-cols-2">
-          <DetailFieldCardComponent title="Rol" value={detail.roleNameDisplay} />
-          <DetailFieldCardComponent title={messages.roles.ui.detailStatusLabel} value={statusLabel} />
+          <DetailFieldCardComponent 
+            title="Rol" 
+            value={detail.roleNameDisplay} 
+          />
+          <DetailFieldCardComponent 
+            title={messages.roles.ui.detailStatusLabel} 
+            value={statusLabel} 
+          />
           <DetailFieldCardComponent
             title={messages.roles.ui.detailDescriptionLabel}
             value={detail.descriptionDisplay}
@@ -117,8 +129,16 @@ function RoleDetailContent({ detail, onEdit }: RoleDetailContentProps) {
                       {permission.name}
                     </p>
                     <div className="flex shrink-0 flex-wrap justify-end gap-1">
-                      <DetailBadgeComponent tone="neutral">{parsedPermission.resource}</DetailBadgeComponent>
-                      <DetailBadgeComponent tone="ok">{parsedPermission.action}</DetailBadgeComponent>
+                      <DetailBadgeComponent 
+                        tone="neutral"
+                      >
+                        {parsedPermission.resource}
+                      </DetailBadgeComponent>
+                      <DetailBadgeComponent 
+                        tone="ok"
+                      >
+                        {parsedPermission.action}
+                      </DetailBadgeComponent>
                     </div>
                   </div>
                   <p className="mt-3 r-md bg-slate-50 px-3 py-2 text-[12px] leading-relaxed text-slate-600 dark:bg-slate-800/70 dark:text-slate-300">
@@ -134,8 +154,14 @@ function RoleDetailContent({ detail, onEdit }: RoleDetailContentProps) {
       <section>
         <DetailSectionHeaderComponent number="03" title="Fechas" />
         <ol className="relative space-y-3 border-l border-slate-200 pl-5 dark:border-white/10">
-          <TimelineItem label={messages.roles.ui.detailCreatedAtLabel} value={detail.createdAtDisplay} />
-          <TimelineItem label={messages.roles.ui.detailUpdatedAtLabel} value={detail.updatedAtDisplay} />
+          <TimelineItem 
+            label={messages.roles.ui.detailCreatedAtLabel} 
+            value={detail.createdAtDisplay} 
+          />
+          <TimelineItem 
+            label={messages.roles.ui.detailUpdatedAtLabel} 
+            value={detail.updatedAtDisplay} 
+          />
         </ol>
       </section>
     </section>
