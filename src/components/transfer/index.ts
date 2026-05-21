@@ -1,1 +1,3 @@
-export * from './TransferDetailComponent'
+export * from './detail'
+export * from './form'
+export * from './list'
