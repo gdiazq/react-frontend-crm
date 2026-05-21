@@ -1,6 +1,5 @@
-export { default as SettlementFormDashboardPage } from './SettlementFormDashboardPage'
-export { default as SettlementsDashboardPage } from './SettlementsDashboardPage'
 export * from './legal-termination-causes'
+export * from './main'
 export * from './no-rehire-cause'
 export * from './quality-of-work'
 export * from './safety-compliance'

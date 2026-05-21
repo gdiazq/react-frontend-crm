@@ -3,11 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DatePickerComponent,
-  DetailSectionHeaderComponent,
-  FileDropzoneComponent,
   SaveConfirmComponent,
-  SelectComponent,
+  SettlementFormAdditionalSectionComponent,
+  SettlementFormAttachmentsSectionComponent,
+  SettlementFormCausesSectionComponent,
+  SettlementFormDataSectionComponent,
+  SettlementFormQuizSectionComponent,
 } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS } from '@/constant'
 import { initialCreateSettlementForm } from '@/factories'
@@ -27,16 +28,6 @@ import type {
   SettlementUpdatePayload,
 } from '@/types'
 import { settlementsCreateValidationRules } from '@/validators'
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
-  )
-}
 
 const toSelectOptions = (options: ContractSelectOption[]) =>
   options.map((option) => ({ label: option.name, value: String(option.id) }))
@@ -342,7 +333,6 @@ export default function SettlementFormDashboardPage() {
   const titleWords = headerTitle.trim().split(/\s+/).filter(Boolean)
   const titleLeading = titleWords.slice(0, 2).join(' ')
   const titleTrailing = titleWords.slice(2).join(' ')
-  const textareaClassName = 'r-md min-h-28 w-full resize-y border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[color:var(--accent-400)] focus:ring-2 focus:ring-[color:var(--accent-400)]/20 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-100 dark:placeholder:text-slate-500'
 
   return (
     <section className="space-y-6">
@@ -400,183 +390,65 @@ export default function SettlementFormDashboardPage() {
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del finiquito…</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos del trabajador" />
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Trabajador y cierre" />
-            <div className="grid gap-4 md:grid-cols-3">
-              <SelectComponent
-                value={form.employeeId}
-                label="Trabajador"
-                options={selectEmployeesWithCurrent}
-                error={errors.employeeId}
-                disabled={isEditMode}
-                onValueChange={handleEmployeeChange}
-                onValidation={onValidation('employeeId')}
-                required
-              />
+        <SettlementFormDataSectionComponent
+          form={form}
+          errors={errors}
+          isEditMode={isEditMode}
+          employeeOptions={selectEmployeesWithCurrent}
+          rehireOptions={REHIRE_OPTIONS}
+          onEmployeeChange={handleEmployeeChange}
+          onChangeField={handleFieldValueChange}
+          onValidation={onValidation}
+          onRehireEligibleChange={(value) => {
+            if (value === 'true') {
+              setForm((prev) => ({ ...prev, rehireEligible: value, noReHiredCauseId: '' }))
+            } else {
+              handleFieldValueChange('rehireEligible')(value)
+            }
+          }}
+        />
 
-              <DatePickerComponent
-                value={form.endDate}
-                label="Fecha finiquito"
-                
-                error={errors.endDate}
-                onValueChange={handleFieldValueChange('endDate')}
-                onValidation={onValidation('endDate')}
-                required
-              />
-
-              <SelectComponent
-                value={form.rehireEligible}
-                label="Recontratable"
-                options={REHIRE_OPTIONS}
-                error={errors.rehireEligible}
-                onValueChange={(value) => {
-                  if (value === 'true') {
-                    setForm((prev) => ({ ...prev, rehireEligible: value, noReHiredCauseId: '' }))
-                  } else {
-                    handleFieldValueChange('rehireEligible')(value)
-                  }
-                }}
-                onValidation={onValidation('rehireEligible')}
-                required
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="02" title="Causas del finiquito" />
-          <div className="space-y-3">
-            <SubSectionLabel number="02.1" title="Evaluación de salida" />
-            <div className="grid gap-4 md:grid-cols-3">
-
-              <SelectComponent
-                value={form.legalTerminationCauseId}
-                label="Causa terminación"
-                options={selectLegalTerminationCauses}
-                error={errors.legalTerminationCauseId}
-                onValueChange={handleFieldValueChange('legalTerminationCauseId')}
-                onValidation={onValidation('legalTerminationCauseId')}
-                required
-              />
-
-              <SelectComponent
-                value={form.qualityOfWorkId}
-                label="Calidad del trabajo"
-                options={selectQualityOfWork}
-                error={errors.qualityOfWorkId}
-                onValueChange={handleFieldValueChange('qualityOfWorkId')}
-                onValidation={onValidation('qualityOfWorkId')}
-                required
-              />
-
-              <SelectComponent
-                value={form.safetyComplianceId}
-                label="Cumplimiento seguridad"
-                options={selectSafetyCompliance}
-                error={errors.safetyComplianceId}
-                onValueChange={handleFieldValueChange('safetyComplianceId')}
-                onValidation={onValidation('safetyComplianceId')}
-                required
-              />
-
-              {form.rehireEligible === 'false' && (
-                <SelectComponent
-                  value={form.noReHiredCauseId}
-                  label="Causa no recontratación"
-                  options={selectNoRehireCauses}
-                  onValueChange={handleFieldValueChange('noReHiredCauseId')}
-                />
-              )}
-            </div>
-          </div>
-        </section>
+        <SettlementFormCausesSectionComponent
+          form={form}
+          errors={errors}
+          legalTerminationCauseOptions={selectLegalTerminationCauses}
+          qualityOfWorkOptions={selectQualityOfWork}
+          safetyComplianceOptions={selectSafetyCompliance}
+          noRehireCauseOptions={selectNoRehireCauses}
+          onChangeField={handleFieldValueChange}
+          onValidation={onValidation}
+        />
 
         {!isEditMode && (
-          <section className="space-y-4">
-            <DetailSectionHeaderComponent number="03" title="Quiz de salida" />
-            {terminationQuizQuestionGroupsErrorMessage && (
-              <AlertMessageComponent
-                message={terminationQuizQuestionGroupsErrorMessage}
-                tone="error"
-                onClose={clearTerminationQuizQuestionGroupsStatus}
-              />
-            )}
-
-            {loadingTerminationQuizQuestionGroups && (
-              <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando preguntas del quiz de salida...</p>
-            )}
-
-            {!loadingTerminationQuizQuestionGroups && terminationQuizQuestionGroups.length === 0 && (
-              <p className="text-[13px] text-slate-600 dark:text-slate-300">No hay preguntas configuradas para este trabajador.</p>
-            )}
-
-            {!loadingTerminationQuizQuestionGroups && terminationQuizQuestionGroups.length > 0 && (
-              <div className="space-y-5">
-                {terminationQuizQuestionGroups.map((group, index) => (
-                  <article key={group.groupId} className="r-lg space-y-3 border border-slate-200 bg-white/70 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/30">
-                    <SubSectionLabel number={`03.${index + 1}`} title={group.groupName} />
-                    <div className="grid gap-4">
-                      {group.questions.map((question) => (
-                        <div key={question.id} className="flex flex-col gap-1">
-                          <label
-                            htmlFor={`settlement-quiz-answer-${question.id}`}
-                            className="text-[13px] font-semibold text-slate-700 dark:text-slate-200"
-                          >
-                            {question.name}
-                          </label>
-                          <textarea
-                            id={`settlement-quiz-answer-${question.id}`}
-                            value={quizAnswersByQuestionId[question.id] || ''}
-                            placeholder="Ingresa tu respuesta"
-                            rows={3}
-                            className={textareaClassName}
-                            onChange={(event) => handleQuizAnswerChange(question.id, event.target.value)}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
+          <SettlementFormQuizSectionComponent
+            groups={terminationQuizQuestionGroups}
+            answersByQuestionId={quizAnswersByQuestionId}
+            loading={loadingTerminationQuizQuestionGroups}
+            errorMessage={terminationQuizQuestionGroupsErrorMessage}
+            onAnswerChange={handleQuizAnswerChange}
+            onClearError={clearTerminationQuizQuestionGroupsStatus}
+          />
         )}
 
-        <section className="space-y-4">
-          <DetailSectionHeaderComponent number={isEditMode ? '03' : '04'} title="Datos adicionales" />
-          <div className="flex flex-col gap-1">
-            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-200">
-              Observaciones
-            </label>
-            <textarea
-              value={form.observations}
-              placeholder="Ingresa observaciones (opcional)"
-              rows={4}
-              className={textareaClassName}
-              onChange={(e) => handleFieldValueChange('observations')(e.target.value)}
-            />
-          </div>
-        </section>
+        <SettlementFormAdditionalSectionComponent
+          sectionNumber={isEditMode ? '03' : '04'}
+          observations={form.observations}
+          onObservationsChange={handleFieldValueChange('observations')}
+        />
 
-        <section className="space-y-4">
-          <DetailSectionHeaderComponent number={isEditMode ? '04' : '05'} title="Documentos" />
-
-          <FileDropzoneComponent
-            files={settlementFiles}
-            existingFiles={existingDocuments}
-            error={filesError}
-            maxFiles={SETTLEMENT_FILES_MAX_COUNT}
-            disabled={saving}
-            helperText="Opcional. Máximo 5 archivos y 10 MB por archivo."
-            onAddFiles={handleAddFiles}
-            onRemoveFile={handleRemoveFile}
-            onRemoveExistingFile={handleRemoveExistingFile}
-            onClearFiles={handleClearFiles}
-            onClearExistingFiles={handleClearExistingFiles}
-          />
-        </section>
+        <SettlementFormAttachmentsSectionComponent
+          sectionNumber={isEditMode ? '04' : '05'}
+          files={settlementFiles}
+          existingDocuments={existingDocuments}
+          filesError={filesError}
+          saving={saving}
+          maxFiles={SETTLEMENT_FILES_MAX_COUNT}
+          onAddFiles={handleAddFiles}
+          onRemoveFile={handleRemoveFile}
+          onRemoveExistingFile={handleRemoveExistingFile}
+          onClearFiles={handleClearFiles}
+          onClearExistingFiles={handleClearExistingFiles}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">

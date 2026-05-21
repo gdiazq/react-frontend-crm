@@ -1,0 +1,5 @@
+export * from './SettlementFormAdditionalSectionComponent'
+export * from './SettlementFormAttachmentsSectionComponent'
+export * from './SettlementFormCausesSectionComponent'
+export * from './SettlementFormDataSectionComponent'
+export * from './SettlementFormQuizSectionComponent'
