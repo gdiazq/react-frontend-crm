@@ -27,12 +27,11 @@ import type {
   TransferUpdatePayload,
   TransferDocument,
 } from '@/types'
+import { mergeUniqueFiles } from '@/utils'
 import { transferCreateValidationRules } from '@/validators'
 
 const toSelectOptions = (options: Array<{ id: number, name: string }>) =>
   options.map((option) => ({ label: option.name, value: String(option.id) }))
-
-const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
 
 type PendingAction =
   | { mode: 'create', payload: TransferCreatePayload, files: File[] }
@@ -219,42 +218,21 @@ export default function TransferFormDashboardPage() {
 
   const handleAddFiles = (incomingFiles: File[]) => {
     const maxNewFiles = Math.max(0, TRANSFER_FILES_MAX_COUNT - existingDocuments.length)
-    if (maxNewFiles === 0) {
-      setFilesError(messages.transfer.status.errors.filesMaxCountError)
-      return
-    }
-
-    const nextFiles: File[] = []
-    const existingKeys = new Set<string>()
-    let hasFileSizeError = false
-
-    transferFiles.forEach((file) => {
-      const key = fileKey(file)
-      if (!existingKeys.has(key)) {
-        existingKeys.add(key)
-        nextFiles.push(file)
-      }
+    const result = mergeUniqueFiles({
+      currentFiles: transferFiles,
+      incomingFiles,
+      maxFiles: maxNewFiles,
+      maxFileSizeBytes: TRANSFER_FILE_MAX_SIZE_BYTES,
     })
 
-    incomingFiles.forEach((file) => {
-      if (file.size > TRANSFER_FILE_MAX_SIZE_BYTES) {
-        hasFileSizeError = true
-        return
-      }
-      const key = fileKey(file)
-      if (existingKeys.has(key)) return
-      existingKeys.add(key)
-      nextFiles.push(file)
-    })
-
-    if (nextFiles.length > maxNewFiles) {
-      setTransferFiles(nextFiles.slice(0, maxNewFiles))
+    if (result.exceededMaxFiles) {
+      setTransferFiles(result.files)
       setFilesError(messages.transfer.status.errors.filesMaxCountError)
-    } else if (hasFileSizeError) {
-      setTransferFiles(nextFiles)
+    } else if (result.exceededFileSize) {
+      setTransferFiles(result.files)
       setFilesError(messages.transfer.status.errors.filesMaxSizeError)
     } else {
-      setTransferFiles(nextFiles)
+      setTransferFiles(result.files)
       setFilesError(null)
     }
 

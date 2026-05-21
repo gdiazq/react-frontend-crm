@@ -14,9 +14,8 @@ import { mapperCreateLeavePayload, mapperLeaveDetailToForm, mapperUpdateLeavePay
 import messages from '@/messages/messages'
 import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
 import type { LeaveCreatePayload, LeaveUpdatePayload } from '@/types'
+import { mergeUniqueFiles } from '@/utils'
 import { leavesCreateValidationRules } from '@/validators'
-
-const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
 
 type PendingAction =
   | { mode: 'create', payload: LeaveCreatePayload, files: File[] }
@@ -157,37 +156,21 @@ export default function LeavesFormDashboardPage() {
   }
 
   const handleAddFiles = (incomingFiles: File[]) => {
-    const nextFiles: File[] = []
-    const existingKeys = new Set<string>()
-    let hasFileSizeError = false
-
-    leaveFiles.forEach((file) => {
-      const key = fileKey(file)
-      if (!existingKeys.has(key)) {
-        existingKeys.add(key)
-        nextFiles.push(file)
-      }
+    const result = mergeUniqueFiles({
+      currentFiles: leaveFiles,
+      incomingFiles,
+      maxFiles: LEAVE_FILES_MAX_COUNT,
+      maxFileSizeBytes: LEAVE_FILE_MAX_SIZE_BYTES,
     })
 
-    incomingFiles.forEach((file) => {
-      if (file.size > LEAVE_FILE_MAX_SIZE_BYTES) {
-        hasFileSizeError = true
-        return
-      }
-      const key = fileKey(file)
-      if (existingKeys.has(key)) return
-      existingKeys.add(key)
-      nextFiles.push(file)
-    })
-
-    if (nextFiles.length > LEAVE_FILES_MAX_COUNT) {
-      setLeaveFiles(nextFiles.slice(0, LEAVE_FILES_MAX_COUNT))
+    if (result.exceededMaxFiles) {
+      setLeaveFiles(result.files)
       setFilesError(messages.leaves.status.errors.filesMaxCountError)
-    } else if (hasFileSizeError) {
-      setLeaveFiles(nextFiles)
+    } else if (result.exceededFileSize) {
+      setLeaveFiles(result.files)
       setFilesError(messages.leaves.status.errors.filesMaxSizeError)
     } else {
-      setLeaveFiles(nextFiles)
+      setLeaveFiles(result.files)
       setFilesError(null)
     }
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()

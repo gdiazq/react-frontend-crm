@@ -14,9 +14,8 @@ import { mapperAnnexDetailToForm, mapperCreateAnnexPayload, mapperUpdateAnnexPay
 import messages from '@/messages/messages'
 import { useStoreAnnexes, useStoreAnnexSelects } from '@/store'
 import type { AnnexCreatePayload, AnnexUpdatePayload } from '@/types'
+import { mergeUniqueFiles } from '@/utils'
 import { annexesCreateValidationRules } from '@/validators'
-
-const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
 
 type PendingAction =
   | { mode: 'create', payload: AnnexCreatePayload, files: File[] }
@@ -140,31 +139,21 @@ export default function AnnexesFormDashboardPage() {
   }
 
   const handleAddFiles = (incomingFiles: File[]) => {
-    const nextFiles: File[] = []
-    const existingKeys = new Set<string>()
-    let hasFileSizeError = false
-
-    annexFiles.forEach((file) => {
-      const key = fileKey(file)
-      if (!existingKeys.has(key)) { existingKeys.add(key); nextFiles.push(file) }
+    const result = mergeUniqueFiles({
+      currentFiles: annexFiles,
+      incomingFiles,
+      maxFiles: ANNEX_FILES_MAX_COUNT,
+      maxFileSizeBytes: ANNEX_FILE_MAX_SIZE_BYTES,
     })
 
-    incomingFiles.forEach((file) => {
-      if (file.size > ANNEX_FILE_MAX_SIZE_BYTES) { hasFileSizeError = true; return }
-      const key = fileKey(file)
-      if (existingKeys.has(key)) return
-      existingKeys.add(key)
-      nextFiles.push(file)
-    })
-
-    if (nextFiles.length > ANNEX_FILES_MAX_COUNT) {
-      setAnnexFiles(nextFiles.slice(0, ANNEX_FILES_MAX_COUNT))
+    if (result.exceededMaxFiles) {
+      setAnnexFiles(result.files)
       setFilesError(messages.annexes.status.errors.filesMaxCountError)
-    } else if (hasFileSizeError) {
-      setAnnexFiles(nextFiles)
+    } else if (result.exceededFileSize) {
+      setAnnexFiles(result.files)
       setFilesError(messages.annexes.status.errors.filesMaxSizeError)
     } else {
-      setAnnexFiles(nextFiles)
+      setAnnexFiles(result.files)
       setFilesError(null)
     }
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()

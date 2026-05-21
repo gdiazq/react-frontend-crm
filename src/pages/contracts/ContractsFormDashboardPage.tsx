@@ -21,6 +21,7 @@ import { mapperContractDetailToForm, mapperCreateContractPayload, mapperUpdateCo
 import messages from '@/messages/messages'
 import { useStoreContractSelects, useStoreContracts } from '@/store'
 import type { ContractCreatePayload, ContractSelectOption, ContractUpdatePayload } from '@/types'
+import { mergeUniqueFiles } from '@/utils'
 import { contractsCreateValidationRules } from '@/validators'
 
 const toSelectOptions = (options: ContractSelectOption[]) =>
@@ -29,8 +30,6 @@ const toSelectOptions = (options: ContractSelectOption[]) =>
 function isIndefiniteContractType(label: string): boolean {
   return label.trim().toLowerCase().includes('indefinido')
 }
-
-const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
 
 type PendingAction =
   | { mode: 'create', payload: ContractCreatePayload, files: File[] }
@@ -207,39 +206,21 @@ export default function ContractsFormDashboardPage() {
   }
 
   const handleAddFiles = (incomingFiles: File[]) => {
-    const maxNewFiles = CONTRACT_FILES_MAX_COUNT
-
-    const nextFiles: File[] = []
-    const existingKeys = new Set<string>()
-    let hasFileSizeError = false
-
-    contractFiles.forEach((file) => {
-      const key = fileKey(file)
-      if (!existingKeys.has(key)) {
-        existingKeys.add(key)
-        nextFiles.push(file)
-      }
+    const result = mergeUniqueFiles({
+      currentFiles: contractFiles,
+      incomingFiles,
+      maxFiles: CONTRACT_FILES_MAX_COUNT,
+      maxFileSizeBytes: CONTRACT_FILE_MAX_SIZE_BYTES,
     })
 
-    incomingFiles.forEach((file) => {
-      if (file.size > CONTRACT_FILE_MAX_SIZE_BYTES) {
-        hasFileSizeError = true
-        return
-      }
-      const key = fileKey(file)
-      if (existingKeys.has(key)) return
-      existingKeys.add(key)
-      nextFiles.push(file)
-    })
-
-    if (nextFiles.length > maxNewFiles) {
-      setContractFiles(nextFiles.slice(0, maxNewFiles))
+    if (result.exceededMaxFiles) {
+      setContractFiles(result.files)
       setFilesError(messages.contracts.status.errors.filesMaxCountError)
-    } else if (hasFileSizeError) {
-      setContractFiles(nextFiles)
+    } else if (result.exceededFileSize) {
+      setContractFiles(result.files)
       setFilesError(messages.contracts.status.errors.filesMaxSizeError)
     } else {
-      setContractFiles(nextFiles)
+      setContractFiles(result.files)
       setFilesError(null)
     }
 
