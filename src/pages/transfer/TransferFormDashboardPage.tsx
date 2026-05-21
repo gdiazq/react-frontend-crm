@@ -3,11 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DatePickerComponent,
-  DetailSectionHeaderComponent,
-  FileDropzoneComponent,
   SaveConfirmComponent,
-  SelectComponent,
+  TransferFormAttachmentsSectionComponent,
+  TransferFormDataSectionComponent,
 } from '@/components'
 import { AUTH_ROUTE_TRANSFERS } from '@/constant'
 import {
@@ -19,6 +17,7 @@ import { useFormValidation } from '@/hooks'
 import {
   mapperTransferDetailToForm,
   mapperCreateTransferPayload,
+  mapperTransferExistingFiles,
   mapperUpdateTransferPayload,
 } from '@/mappers'
 import messages from '@/messages/messages'
@@ -30,21 +29,14 @@ import type {
 } from '@/types'
 import { transferCreateValidationRules } from '@/validators'
 
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-      <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-    </div>
-  )
-}
+const toSelectOptions = (options: Array<{ id: number, name: string }>) =>
+  options.map((option) => ({ label: option.name, value: String(option.id) }))
 
 const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
 
 type PendingAction =
-  | { mode: 'create'; payload: TransferCreatePayload; files: File[] }
-  | { mode: 'update'; payload: TransferUpdatePayload; files: File[] }
+  | { mode: 'create', payload: TransferCreatePayload, files: File[] }
+  | { mode: 'update', payload: TransferUpdatePayload, files: File[] }
   | null
 
 export default function TransferFormDashboardPage() {
@@ -88,13 +80,7 @@ export default function TransferFormDashboardPage() {
   const getProjectCostCenterOption = useStoreEmployeeSelects((s) => s.getProjectCostCenterOption)
   const clearCostCenterOptionsStatus = useStoreEmployeeSelects((s) => s.clearFormOptionsStatus)
 
-  const validatableForm = {
-    employeeId: form.employeeId,
-    toCostCenter: form.toCostCenter,
-    effectiveDate: form.effectiveDate,
-    reason: form.reason,
-  }
-  const { errors, validateAll, onValidation } = useFormValidation(validatableForm, transferCreateValidationRules)
+  const { errors, validateAll, onValidation } = useFormValidation(form, transferCreateValidationRules)
 
   const saving = createTransferSubmitting || updateTransferSubmitting
   const submitLabel = isEditMode ? 'Guardar cambios' : 'Crear traspaso'
@@ -108,7 +94,7 @@ export default function TransferFormDashboardPage() {
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingEmployeeWithContractOptions && !loadingCostCenterOptions
 
-  const selectEmployees = employeeWithContractOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const selectEmployees = toSelectOptions(employeeWithContractOptions)
   const shouldIncludeCurrentEmployee = isEditMode
     && form.employeeId.trim().length > 0
     && !selectEmployees.some((option) => option.value === form.employeeId)
@@ -116,13 +102,14 @@ export default function TransferFormDashboardPage() {
     ? [{ label: editEmployeeLabel || `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployees]
     : selectEmployees
 
-  const selectCostCenters = projectCostCenterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const selectCostCenters = toSelectOptions(projectCostCenterOptions)
   const shouldIncludeCurrentCostCenter = isEditMode
     && form.toCostCenter.trim().length > 0
     && !selectCostCenters.some((option) => option.value === form.toCostCenter)
   const selectCostCentersWithCurrent = shouldIncludeCurrentCostCenter
     ? [{ label: editCostCenterLabel || `Centro #${form.toCostCenter}`, value: form.toCostCenter }, ...selectCostCenters]
     : selectCostCenters
+  const existingFiles = mapperTransferExistingFiles(existingDocuments)
 
   useEffect(() => {
     void getEmployeeWithContractOptions()
@@ -371,88 +358,29 @@ export default function TransferFormDashboardPage() {
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos del traspaso…</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos del traspaso" />
+        <TransferFormDataSectionComponent
+          form={form}
+          errors={errors}
+          isEditMode={isEditMode}
+          employeeOptions={selectEmployeesWithCurrent}
+          costCenterOptions={selectCostCentersWithCurrent}
+          loadingEmployeeOptions={loadingEmployeeWithContractOptions}
+          loadingCostCenterOptions={loadingCostCenterOptions}
+          onChangeField={handleFieldValueChange}
+          onValidation={onValidation}
+        />
 
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Trabajador y destino" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <SelectComponent
-                value={form.employeeId}
-                label="Trabajador"
-                options={selectEmployeesWithCurrent}
-                error={errors.employeeId}
-                disabled={isEditMode}
-                loading={loadingEmployeeWithContractOptions}
-                onValueChange={handleFieldValueChange('employeeId')}
-                onValidation={onValidation('employeeId')}
-                required
-              />
-
-              <SelectComponent
-                value={form.toCostCenter}
-                label="Centro de costo destino"
-                options={selectCostCentersWithCurrent}
-                error={errors.toCostCenter}
-                loading={loadingCostCenterOptions}
-                onValueChange={handleFieldValueChange('toCostCenter')}
-                onValidation={onValidation('toCostCenter')}
-                required
-              />
-
-              <DatePickerComponent
-                value={form.effectiveDate}
-                label="Fecha efectiva"
-                
-                error={errors.effectiveDate}
-                onValueChange={handleFieldValueChange('effectiveDate')}
-                onValidation={onValidation('effectiveDate')}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <SubSectionLabel number="01.2" title="Motivo del traspaso" />
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10.5px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-                Motivo <span className="ml-0.5 accent-text">*</span>
-              </label>
-              <textarea
-                value={form.reason}
-                placeholder="Ingresa el motivo del traspaso"
-                rows={4}
-                className={`r-md w-full resize-y border px-2.5 py-2 text-[13px] outline-none transition placeholder:text-slate-400 focus:ring-2 focus:ring-[var(--accent-400)]/30 dark:placeholder:text-slate-500 ${
-                  errors.reason
-                    ? 'border-rose-400 bg-rose-50/40 text-rose-900 focus:border-rose-500 focus:ring-rose-400/30 dark:border-rose-500/60 dark:bg-rose-950/20 dark:text-rose-200'
-                    : 'border-slate-200 bg-white text-slate-800 focus:border-[var(--accent-500)] dark:border-white/10 dark:bg-slate-900/40 dark:text-slate-100'
-                }`}
-                onChange={(e) => handleFieldValueChange('reason')(e.target.value)}
-                onBlur={onValidation('reason')}
-              />
-              {errors.reason && (
-                <p className="num text-[11px] text-rose-500 dark:text-rose-400">{errors.reason}</p>
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <DetailSectionHeaderComponent number="02" title="Documentos" />
-          <FileDropzoneComponent
-            files={transferFiles}
-            existingFiles={existingDocuments.map((doc) => ({ id: doc.id, fileName: doc.fileName, size: 0, url: doc.url }))}
-            error={filesError}
-            maxFiles={TRANSFER_FILES_MAX_COUNT}
-            disabled={saving}
-            helperText="Opcional. Máximo 5 archivos y 10 MB por archivo."
-            onAddFiles={handleAddFiles}
-            onRemoveFile={handleRemoveFile}
-            onRemoveExistingFile={handleRemoveExistingFile}
-            onClearFiles={handleClearFiles}
-            onClearExistingFiles={handleClearExistingFiles}
-          />
-        </section>
+        <TransferFormAttachmentsSectionComponent
+          transferFiles={transferFiles}
+          existingFiles={existingFiles}
+          filesError={filesError}
+          saving={saving}
+          onAddFiles={handleAddFiles}
+          onRemoveFile={handleRemoveFile}
+          onRemoveExistingFile={handleRemoveExistingFile}
+          onClearFiles={handleClearFiles}
+          onClearExistingFiles={handleClearExistingFiles}
+        />
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-5 dark:border-white/10">
           <p className="num text-[10.5px] uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
