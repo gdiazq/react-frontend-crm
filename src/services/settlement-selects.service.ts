@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
-import type { ContractSelectOption, SettlementQuizQuestionGroup } from '@/types'
+import type { ContractSelectOption, SettlementQuizQuestionGroup, SettlementYesNoOption } from '@/types'
 
 const RRHH_SELECT_BASE = '/rrhh/select'
 const RRHH_EMPLOYEE_SELECT = '/rrhh/employee/select'
@@ -29,6 +29,11 @@ export const settlementSelectsService = {
 
   getNoRehireCauseOptions: async () => {
     const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECT_BASE}/no-re-hired-causes`)
+    return data
+  },
+
+  getYesNoOptions: async () => {
+    const { data } = await axiosInstance.get<SettlementYesNoOption[]>(`${RRHH_SELECT_BASE}/yes-no`)
     return data
   },
 

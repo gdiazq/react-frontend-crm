@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { ButtonComponent, DateRangePickerComponent, RightSidebarComponent, SelectComponent } from '@/components'
 import { useStoreEmployeeSelects, useStoreSettlement, useStoreSettlementSelects } from '@/store'
+import type { SettlementYesNoOption } from '@/types'
 
-const REHIRE_ELIGIBLE_OPTIONS = [
-  { label: 'Si', value: 'true' },
-  { label: 'No', value: 'false' },
-]
+const toYesNoSelectOptions = (options: SettlementYesNoOption[]) =>
+  options.map((option) => ({ label: option.name ? 'Sí' : 'No', value: String(option.name) }))
 
 interface SettlementsListFiltersSidebarComponentProps {
   open: boolean
@@ -39,6 +38,7 @@ export function SettlementsListFiltersSidebarComponent({ open, onClose }: Settle
   const qualityOfWorkFilterOptions = useStoreSettlementSelects((s) => s.qualityOfWorkFilterOptions)
   const safetyComplianceFilterOptions = useStoreSettlementSelects((s) => s.safetyComplianceFilterOptions)
   const noRehireCauseFilterOptions = useStoreSettlementSelects((s) => s.noRehireCauseFilterOptions)
+  const yesNoFilterOptions = useStoreSettlementSelects((s) => s.yesNoFilterOptions)
   const loadingFilterOptions = useStoreSettlementSelects((s) => s.loadingFilterOptions)
 
   const [filters, setFilters] = useState(() => ({
@@ -59,6 +59,7 @@ export function SettlementsListFiltersSidebarComponent({ open, onClose }: Settle
   const qualityOfWorkSelectOptions = qualityOfWorkFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const safetyComplianceSelectOptions = safetyComplianceFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const noRehireCauseSelectOptions = noRehireCauseFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const rehireEligibleSelectOptions = toYesNoSelectOptions(yesNoFilterOptions)
   const loadingAny = loadingSettlements || loadingApprovalEmployeeStatusOptions || loadingFilterOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
@@ -101,7 +102,7 @@ export function SettlementsListFiltersSidebarComponent({ open, onClose }: Settle
     <RightSidebarComponent open={open} title="Filtros" onClose={onClose}>
       <div className="space-y-4">
         <SelectComponent value={filters.statusId} label="Estado" options={statusSelectOptions} loading={loadingApprovalEmployeeStatusOptions} onValueChange={(value) => handleChangeFilter('statusId', value)} />
-        <SelectComponent value={filters.rehireEligible} label="Recontratable" options={REHIRE_ELIGIBLE_OPTIONS} onValueChange={(value) => handleChangeFilter('rehireEligible', value)} />
+        <SelectComponent value={filters.rehireEligible} label="Recontratable" options={rehireEligibleSelectOptions} loading={loadingFilterOptions} onValueChange={(value) => handleChangeFilter('rehireEligible', value)} />
         <SelectComponent value={filters.legalTerminationCauseId} label="Causa terminación" options={legalCauseSelectOptions} loading={loadingFilterOptions} onValueChange={(value) => handleChangeFilter('legalTerminationCauseId', value)} />
         <SelectComponent value={filters.qualityOfWorkId} label="Calidad del trabajo" options={qualityOfWorkSelectOptions} loading={loadingFilterOptions} onValueChange={(value) => handleChangeFilter('qualityOfWorkId', value)} />
         <SelectComponent value={filters.safetyComplianceId} label="Cumplimiento seguridad" options={safetyComplianceSelectOptions} loading={loadingFilterOptions} onValueChange={(value) => handleChangeFilter('safetyComplianceId', value)} />

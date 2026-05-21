@@ -15,6 +15,8 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
   qualityOfWorkOptions: [],
   safetyComplianceOptions: [],
   noRehireCauseOptions: [],
+  yesNoOptions: [],
+  yesNoFilterOptions: [],
   employeeWithContractOptions: [],
   contractsByEmployeeOptions: [],
   loadingQuizQuestionGroupOptions: false,
@@ -111,12 +113,14 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
         qualityOfWork,
         safetyCompliance,
         noRehireCauses,
+        yesNoOptions,
         employeesWithContract,
       ] = await Promise.all([
         settlementSelectsService.getLegalTerminationCauseOptions(),
         settlementSelectsService.getQualityOfWorkOptions(),
         settlementSelectsService.getSafetyComplianceOptions(),
         settlementSelectsService.getNoRehireCauseOptions(),
+        settlementSelectsService.getYesNoOptions(),
         settlementSelectsService.getEmployeeWithContractOptions(),
       ])
 
@@ -125,6 +129,7 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
         qualityOfWorkOptions: mapperContractSelectOptions(qualityOfWork),
         safetyComplianceOptions: mapperContractSelectOptions(safetyCompliance),
         noRehireCauseOptions: mapperContractSelectOptions(noRehireCauses),
+        yesNoOptions,
         employeeWithContractOptions: mapperContractSelectOptions(employeesWithContract),
       })
     } catch (error) {
@@ -191,17 +196,20 @@ export const useStoreSettlementSelects = create<SettlementSelectsStore>()((set) 
         qualityOfWork,
         safetyCompliance,
         noRehireCauses,
+        yesNoOptions,
       ] = await Promise.all([
         settlementSelectsService.getLegalTerminationCauseOptions(),
         settlementSelectsService.getQualityOfWorkOptions(),
         settlementSelectsService.getSafetyComplianceOptions(),
         settlementSelectsService.getNoRehireCauseOptions(),
+        settlementSelectsService.getYesNoOptions(),
       ])
       set({
         legalTerminationCauseFilterOptions: mapperContractSelectOptions(legalTerminationCauses),
         qualityOfWorkFilterOptions: mapperContractSelectOptions(qualityOfWork),
         safetyComplianceFilterOptions: mapperContractSelectOptions(safetyCompliance),
         noRehireCauseFilterOptions: mapperContractSelectOptions(noRehireCauses),
+        yesNoFilterOptions: yesNoOptions,
       })
     } catch (error) {
       if (settlementSelectsService.isAxiosError(error)) {

@@ -11,6 +11,11 @@ export interface SettlementQuizQuestionGroup {
   questions: SettlementQuizQuestionGroupItem[]
 }
 
+export interface SettlementYesNoOption {
+  id: number
+  name: boolean
+}
+
 export interface SettlementSelectsStore {
   quizQuestionGroupOptions: ContractSelectOption[]
   terminationQuizQuestionGroups: SettlementQuizQuestionGroup[]
@@ -22,6 +27,8 @@ export interface SettlementSelectsStore {
   qualityOfWorkOptions: ContractSelectOption[]
   safetyComplianceOptions: ContractSelectOption[]
   noRehireCauseOptions: ContractSelectOption[]
+  yesNoOptions: SettlementYesNoOption[]
+  yesNoFilterOptions: SettlementYesNoOption[]
   employeeWithContractOptions: ContractSelectOption[]
   contractsByEmployeeOptions: ContractSelectOption[]
   loadingQuizQuestionGroupOptions: boolean

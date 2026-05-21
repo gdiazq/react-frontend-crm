@@ -26,16 +26,15 @@ import type {
   SettlementDocument,
   SettlementQuizAnswerPayload,
   SettlementUpdatePayload,
+  SettlementYesNoOption,
 } from '@/types'
 import { settlementsCreateValidationRules } from '@/validators'
 
 const toSelectOptions = (options: ContractSelectOption[]) =>
   options.map((option) => ({ label: option.name, value: String(option.id) }))
 
-const REHIRE_OPTIONS = [
-  { label: 'Si', value: 'true' },
-  { label: 'No', value: 'false' },
-]
+const toYesNoSelectOptions = (options: SettlementYesNoOption[]) =>
+  options.map((option) => ({ label: option.name ? 'Sí' : 'No', value: String(option.name) }))
 
 const SETTLEMENT_FILES_MAX_COUNT = 5
 const SETTLEMENT_FILE_MAX_SIZE_BYTES = 10 * 1024 * 1024
@@ -79,6 +78,7 @@ export default function SettlementFormDashboardPage() {
   const qualityOfWorkOptions = useStoreSettlementSelects((s) => s.qualityOfWorkOptions)
   const safetyComplianceOptions = useStoreSettlementSelects((s) => s.safetyComplianceOptions)
   const noRehireCauseOptions = useStoreSettlementSelects((s) => s.noRehireCauseOptions)
+  const yesNoOptions = useStoreSettlementSelects((s) => s.yesNoOptions)
   const employeeWithContractOptions = useStoreSettlementSelects((s) => s.employeeWithContractOptions)
   const terminationQuizQuestionGroups = useStoreSettlementSelects((s) => s.terminationQuizQuestionGroups)
   const loadingTerminationQuizQuestionGroups = useStoreSettlementSelects((s) => s.loadingTerminationQuizQuestionGroups)
@@ -117,6 +117,7 @@ export default function SettlementFormDashboardPage() {
   const selectQualityOfWork = toSelectOptions(qualityOfWorkOptions)
   const selectSafetyCompliance = toSelectOptions(safetyComplianceOptions)
   const selectNoRehireCauses = toSelectOptions(noRehireCauseOptions)
+  const selectRehireOptions = toYesNoSelectOptions(yesNoOptions)
 
   useEffect(() => {
     void getFormOptions()
@@ -395,7 +396,7 @@ export default function SettlementFormDashboardPage() {
           errors={errors}
           isEditMode={isEditMode}
           employeeOptions={selectEmployeesWithCurrent}
-          rehireOptions={REHIRE_OPTIONS}
+          rehireOptions={selectRehireOptions}
           onEmployeeChange={handleEmployeeChange}
           onChangeField={handleFieldValueChange}
           onValidation={onValidation}
