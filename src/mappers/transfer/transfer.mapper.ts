@@ -4,6 +4,7 @@ import type {
   TransferDetail,
   TransferDetailView,
   TransferDocumentView,
+  TransferExistingFileView,
   TransferPagedResponse,
   TransferPagination,
   TransferQueryParams,
@@ -75,6 +76,16 @@ function mapperTransferDocuments(documents: TransferDetail['documents']): Transf
     id: doc.id,
     fileName: doc.fileName,
     url: doc.url?.trim() ?? '',
+  }))
+}
+
+export function mapperTransferExistingFiles(documents: TransferDetail['documents']): TransferExistingFileView[] {
+  if (!documents || documents.length === 0) return []
+  return documents.map((doc) => ({
+    id: doc.id,
+    fileName: doc.fileName,
+    size: 0,
+    url: doc.url,
   }))
 }
 

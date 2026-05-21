@@ -13,6 +13,13 @@ export interface TransferDocumentView {
   url: string
 }
 
+export interface TransferExistingFileView {
+  id: number
+  fileName: string
+  size: number
+  url: string | null
+}
+
 export interface TransferRaw {
   id: number
   status: string
