@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { ButtonComponent, DateRangePickerComponent, RightSidebarComponent, SelectComponent } from '@/components'
+import { mapperSettlementSelectOptions, mapperSettlementYesNoSelectOptions } from '@/mappers'
 import { useStoreEmployeeSelects, useStoreSettlement, useStoreSettlementSelects } from '@/store'
-import type { SettlementYesNoOption } from '@/types'
-
-const toYesNoSelectOptions = (options: SettlementYesNoOption[]) =>
-  options.map((option) => ({ label: option.name ? 'Sí' : 'No', value: String(option.name) }))
 
 interface SettlementsListFiltersSidebarComponentProps {
   open: boolean
@@ -54,12 +51,12 @@ export function SettlementsListFiltersSidebarComponent({ open, onClose }: Settle
     createdTo: queryParams.createdTo,
   }))
 
-  const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const legalCauseSelectOptions = legalTerminationCauseFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const qualityOfWorkSelectOptions = qualityOfWorkFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const safetyComplianceSelectOptions = safetyComplianceFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const noRehireCauseSelectOptions = noRehireCauseFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const rehireEligibleSelectOptions = toYesNoSelectOptions(yesNoFilterOptions)
+  const statusSelectOptions = mapperSettlementSelectOptions(approvalEmployeeStatusOptions)
+  const legalCauseSelectOptions = mapperSettlementSelectOptions(legalTerminationCauseFilterOptions)
+  const qualityOfWorkSelectOptions = mapperSettlementSelectOptions(qualityOfWorkFilterOptions)
+  const safetyComplianceSelectOptions = mapperSettlementSelectOptions(safetyComplianceFilterOptions)
+  const noRehireCauseSelectOptions = mapperSettlementSelectOptions(noRehireCauseFilterOptions)
+  const rehireEligibleSelectOptions = mapperSettlementYesNoSelectOptions(yesNoFilterOptions)
   const loadingAny = loadingSettlements || loadingApprovalEmployeeStatusOptions || loadingFilterOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {

@@ -13,11 +13,21 @@ import type {
   SettlementTableRow,
   SettlementUpdatePayload,
   SettlementQuizAnswerPayload,
+  SettlementYesNoOption,
+  ContractSelectOption,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendParsedId, appendBooleanString } from '../shared/queryParams.mapper'
 import { parseRequiredNumber, parseNullableId, parseNullableString, normalizeDateValue } from '../shared/form.mapper'
 import { formatDate, resolveFileSize } from '@/utils'
+
+export function mapperSettlementSelectOptions(options: ContractSelectOption[]) {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperSettlementYesNoSelectOptions(options: SettlementYesNoOption[]) {
+  return options.map((option) => ({ label: option.name ? 'Sí' : 'No', value: String(option.name) }))
+}
 
 export function mapperSettlementRows(result: SettlementRaw[]): SettlementTableRow[] {
   return result.map((item) => ({

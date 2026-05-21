@@ -16,30 +16,23 @@ import { useFormValidation } from '@/hooks'
 import {
   mapperSettlementDetailToForm,
   mapperCreateSettlementPayload,
+  mapperSettlementSelectOptions,
+  mapperSettlementYesNoSelectOptions,
   mapperUpdateSettlementPayload,
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreSettlement, useStoreSettlementSelects } from '@/store'
 import type {
-  ContractSelectOption,
   SettlementCreatePayload,
   SettlementDocument,
   SettlementQuizAnswerPayload,
   SettlementUpdatePayload,
-  SettlementYesNoOption,
 } from '@/types'
+import { mergeUniqueFiles } from '@/utils'
 import { settlementsCreateValidationRules } from '@/validators'
-
-const toSelectOptions = (options: ContractSelectOption[]) =>
-  options.map((option) => ({ label: option.name, value: String(option.id) }))
-
-const toYesNoSelectOptions = (options: SettlementYesNoOption[]) =>
-  options.map((option) => ({ label: option.name ? 'Sí' : 'No', value: String(option.name) }))
 
 const SETTLEMENT_FILES_MAX_COUNT = 5
 const SETTLEMENT_FILE_MAX_SIZE_BYTES = 10 * 1024 * 1024
-
-const fileKey = (file: File) => `${file.name}-${file.size}-${file.lastModified}`
 
 type PendingAction =
   | { mode: 'create', payload: SettlementCreatePayload, files: File[] }
@@ -105,7 +98,7 @@ export default function SettlementFormDashboardPage() {
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingFormOptions
 
-  const selectEmployees = toSelectOptions(employeeWithContractOptions)
+  const selectEmployees = mapperSettlementSelectOptions(employeeWithContractOptions)
   const shouldIncludeCurrentEmployee = isEditMode
     && form.employeeId.trim().length > 0
     && !selectEmployees.some((option) => option.value === form.employeeId)
@@ -113,11 +106,11 @@ export default function SettlementFormDashboardPage() {
     ? [{ label: editEmployeeLabel || `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployees]
     : selectEmployees
 
-  const selectLegalTerminationCauses = toSelectOptions(legalTerminationCauseOptions)
-  const selectQualityOfWork = toSelectOptions(qualityOfWorkOptions)
-  const selectSafetyCompliance = toSelectOptions(safetyComplianceOptions)
-  const selectNoRehireCauses = toSelectOptions(noRehireCauseOptions)
-  const selectRehireOptions = toYesNoSelectOptions(yesNoOptions)
+  const selectLegalTerminationCauses = mapperSettlementSelectOptions(legalTerminationCauseOptions)
+  const selectQualityOfWork = mapperSettlementSelectOptions(qualityOfWorkOptions)
+  const selectSafetyCompliance = mapperSettlementSelectOptions(safetyComplianceOptions)
+  const selectNoRehireCauses = mapperSettlementSelectOptions(noRehireCauseOptions)
+  const selectRehireOptions = mapperSettlementYesNoSelectOptions(yesNoOptions)
 
   useEffect(() => {
     void getFormOptions()
@@ -260,42 +253,21 @@ export default function SettlementFormDashboardPage() {
 
   const handleAddFiles = (incomingFiles: File[]) => {
     const maxNewFiles = Math.max(0, SETTLEMENT_FILES_MAX_COUNT - existingDocuments.length)
-    if (maxNewFiles === 0) {
-      setFilesError(messages.settlement.status.errors.filesMaxCountError)
-      return
-    }
-
-    const nextFiles: File[] = []
-    const existingKeys = new Set<string>()
-    let hasFileSizeError = false
-
-    settlementFiles.forEach((file) => {
-      const key = fileKey(file)
-      if (!existingKeys.has(key)) {
-        existingKeys.add(key)
-        nextFiles.push(file)
-      }
+    const result = mergeUniqueFiles({
+      currentFiles: settlementFiles,
+      incomingFiles,
+      maxFiles: maxNewFiles,
+      maxFileSizeBytes: SETTLEMENT_FILE_MAX_SIZE_BYTES,
     })
 
-    incomingFiles.forEach((file) => {
-      if (file.size > SETTLEMENT_FILE_MAX_SIZE_BYTES) {
-        hasFileSizeError = true
-        return
-      }
-      const key = fileKey(file)
-      if (existingKeys.has(key)) return
-      existingKeys.add(key)
-      nextFiles.push(file)
-    })
-
-    if (nextFiles.length > maxNewFiles) {
-      setSettlementFiles(nextFiles.slice(0, maxNewFiles))
+    if (result.exceededMaxFiles) {
+      setSettlementFiles(result.files)
       setFilesError(messages.settlement.status.errors.filesMaxCountError)
-    } else if (hasFileSizeError) {
-      setSettlementFiles(nextFiles)
+    } else if (result.exceededFileSize) {
+      setSettlementFiles(result.files)
       setFilesError(messages.settlement.status.errors.filesMaxSizeError)
     } else {
-      setSettlementFiles(nextFiles)
+      setSettlementFiles(result.files)
       setFilesError(null)
     }
 
