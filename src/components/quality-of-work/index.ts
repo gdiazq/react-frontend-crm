@@ -1,1 +1,3 @@
-export * from './QualityOfWorkDetailComponent'
+export * from './detail'
+export * from './form'
+export * from './list'
