@@ -3,10 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DetailSectionHeaderComponent,
-  InputComponent,
   SaveConfirmComponent,
-  SelectComponent,
+  TerminationQuizQuestionFormDataSectionComponent,
 } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION } from '@/constant'
 import { initialCreateTerminationQuizQuestionForm } from '@/factories'
@@ -16,7 +14,7 @@ import {
   mapperTerminationQuizQuestionToForm,
   mapperUpdateTerminationQuizQuestionPayload,
 } from '@/mappers'
-import { useStoreTerminationQuizQuestion, useStoreSettlementSelects } from '@/store'
+import { useStoreSettlementSelects, useStoreTerminationQuizQuestion } from '@/store'
 import type {
   TerminationQuizQuestionCreateForm,
   TerminationQuizQuestionCreatePayload,
@@ -28,15 +26,6 @@ type PendingAction =
   | { mode: 'create', payload: TerminationQuizQuestionCreatePayload }
   | { mode: 'update', payload: TerminationQuizQuestionUpdatePayload }
   | null
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-    </div>
-  )
-}
 
 export default function TerminationQuizQuestionFormDashboardPage() {
   const navigate = useNavigate()
@@ -75,7 +64,12 @@ export default function TerminationQuizQuestionFormDashboardPage() {
     ? [{ label: `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployees]
     : selectEmployees
 
-  const validatableForm = { question: form.question, questionGroup: form.questionGroup, required: form.required, employeeId: form.employeeId }
+  const validatableForm = {
+    question: form.question,
+    questionGroup: form.questionGroup,
+    required: form.required,
+    employeeId: form.employeeId,
+  }
   const { errors, validateAll, onValidation } = useFormValidation(validatableForm, terminationQuizQuestionCreateValidationRules)
 
   const saving = createSubmitting || updateSubmitting
@@ -127,7 +121,7 @@ export default function TerminationQuizQuestionFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof TerminationQuizQuestionCreateForm, value: string) => {
+  const handleChangeField = (field: keyof TerminationQuizQuestionCreateForm) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
@@ -219,101 +213,19 @@ export default function TerminationQuizQuestionFormDashboardPage() {
         />
       )}
 
-      <form
-        className="space-y-10"
-        onSubmit={handleSubmit}
-      >
+      <form className="space-y-10" onSubmit={handleSubmit}>
         {isEditMode && loadingDetail && (
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos de la pregunta...</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos de la pregunta" />
-
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Contenido" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <InputComponent
-                value={form.question}
-                label="Pregunta"
-                type="text"
-                placeholder="Ingresa el texto de la pregunta"
-                autoComplete="off"
-                error={errors.question}
-                onValueChange={(v) => handleChangeField('question', v)}
-                onBlur={onValidation('question')}
-                required
-              />
-              <InputComponent
-                value={form.questionGroup}
-                label="Grupo de pregunta"
-                type="text"
-                placeholder="Ingresa el grupo de pregunta"
-                error={errors.questionGroup}
-                onValueChange={(v) => handleChangeField('questionGroup', v)}
-                onBlur={onValidation('questionGroup')}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <SubSectionLabel number="01.2" title="Alcance y obligatoriedad" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <SelectComponent
-                value={form.employeeId}
-                label="Empleado"
-                options={selectEmployeesWithCurrent}
-                disabled={loadingFormOptions}
-                onValueChange={(v) => handleChangeField('employeeId', v)}
-              />
-
-              <div className="space-y-1.5">
-                <label className="block text-[10.5px] font-medium uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-                  Requerida
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  <label
-                    className={`r-full inline-flex h-9 cursor-pointer items-center gap-2 border px-3 text-[12.5px] font-medium transition ${
-                      form.required === 'true'
-                        ? 'border-[color:var(--accent-400)] accent-bg-soft accent-text'
-                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:border-white/20'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="required"
-                      value="true"
-                      checked={form.required === 'true'}
-                      onChange={() => handleChangeField('required', 'true')}
-                      className="sr-only"
-                    />
-                    <span className={`h-1.5 w-1.5 r-full ${form.required === 'true' ? 'accent-bg' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                    Sí
-                  </label>
-                  <label
-                    className={`r-full inline-flex h-9 cursor-pointer items-center gap-2 border px-3 text-[12.5px] font-medium transition ${
-                      form.required === 'false'
-                        ? 'border-[color:var(--accent-400)] accent-bg-soft accent-text'
-                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:border-white/20'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="required"
-                      value="false"
-                      checked={form.required === 'false'}
-                      onChange={() => handleChangeField('required', 'false')}
-                      className="sr-only"
-                    />
-                    <span className={`h-1.5 w-1.5 r-full ${form.required === 'false' ? 'accent-bg' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                    No
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <TerminationQuizQuestionFormDataSectionComponent
+          form={form}
+          errors={errors}
+          employeeOptions={selectEmployeesWithCurrent}
+          loadingEmployeeOptions={loadingFormOptions}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+        />
 
         <div className="flex flex-wrap justify-end gap-2 border-t border-slate-200 pt-5 dark:border-white/10">
           <ButtonComponent
