@@ -3,8 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
-  DetailSectionHeaderComponent,
-  InputComponent,
+  NoRehireCauseFormDataSectionComponent,
   SaveConfirmComponent,
 } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE } from '@/constant'
@@ -23,15 +22,6 @@ type PendingAction =
   | { mode: 'create', payload: NoRehireCauseCreatePayload }
   | { mode: 'update', payload: NoRehireCauseUpdatePayload }
   | null
-
-function SubSectionLabel({ number, title }: { number: string, title: string }) {
-  return (
-    <div className="flex items-center gap-2 text-[10.5px] uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-      <span className="num accent-text">{number}</span>
-      <span>{title}</span>
-    </div>
-  )
-}
 
 export default function NoRehireCauseFormDashboardPage() {
   const navigate = useNavigate()
@@ -103,12 +93,10 @@ export default function NoRehireCauseFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateNoRehireCauseForm, value: string) => {
-    setForm((prev: typeof initialCreateNoRehireCauseForm) => ({ ...prev, [field]: value }))
+  const handleChangeField = (field: keyof typeof initialCreateNoRehireCauseForm) => (value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
-  const handleNoRehireCauseNameChange = (value: string) => handleChangeField('name', value)
-  const handleNoRehireCauseDescriptionChange = (value: string) => handleChangeField('description', value)
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
@@ -189,51 +177,17 @@ export default function NoRehireCauseFormDashboardPage() {
         />
       )}
 
-      <form
-        className="space-y-10"
-        onSubmit={handleSubmit}
-      >
+      <form className="space-y-10" onSubmit={handleSubmit}>
         {isEditMode && loadingNoRehireCauseDetail && (
           <p className="num text-[12px] text-slate-500 dark:text-slate-400">Cargando datos de la causa de no recontratación...</p>
         )}
 
-        <section className="space-y-6">
-          <DetailSectionHeaderComponent number="01" title="Datos de no recontratación" />
-
-          <div className="space-y-3">
-            <SubSectionLabel number="01.1" title="Identificación de la causa" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <InputComponent
-                value={form.name}
-                label="Nombre causa de no recontratación"
-                type="text"
-                placeholder="Ingresa el nombre de la causa de no recontratación"
-                autoComplete="off"
-                error={errors.name}
-                onValueChange={handleNoRehireCauseNameChange}
-                onBlur={onValidation('name')}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <SubSectionLabel number="01.2" title="Descripción operativa" />
-            <div className="space-y-1.5">
-              <label className="block text-[10.5px] font-medium uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
-                Descripción
-              </label>
-              <textarea
-                value={form.description}
-                placeholder="Ingresa la descripción de la causa de no recontratación"
-                autoComplete="off"
-                rows={5}
-                className="r-md min-h-28 w-full resize-y border border-slate-200 bg-white px-3 py-2.5 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[color:var(--accent-400)] focus:ring-2 focus:ring-[color:var(--accent-400)]/20 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-100 dark:placeholder:text-slate-500"
-                onChange={(event) => handleNoRehireCauseDescriptionChange(event.target.value)}
-              />
-            </div>
-          </div>
-        </section>
+        <NoRehireCauseFormDataSectionComponent
+          form={form}
+          errors={errors}
+          onChangeField={handleChangeField}
+          onValidation={onValidation}
+        />
 
         <div className="flex flex-wrap justify-end gap-2 border-t border-slate-200 pt-5 dark:border-white/10">
           <ButtonComponent
