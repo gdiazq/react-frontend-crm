@@ -1,2 +1,5 @@
+export * from './ProjectCostCenterEmployeesFiltersSidebarComponent'
 export * from './ProjectCostCenterEmployeesTabComponent'
+export * from './ProjectCostCenterEmployeesTableComponent'
+export * from './ProjectCostCenterEmployeesToolbarComponent'
 export * from './ProjectDetailComponent'
