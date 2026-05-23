@@ -2,7 +2,6 @@ export {
   leavesTableColumns,
   leavesTableColumnIndex,
   leavesTableSortByColumn,
-  leaveStatusFilterOptions,
   initialLeavesRows,
   initialLeavesPagination,
   initialLeavesQueryParams,

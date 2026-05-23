@@ -8,7 +8,7 @@ import {
   StatsOverviewCardsComponent,
 } from '@/components'
 import { leavesTableColumnIndex } from '@/factories'
-import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
+import { useStoreEmployeeSelects, useStoreLeaveSelects, useStoreLeaves } from '@/store'
 import type { LeaveTableRow } from '@/types'
 
 const EMPLOYEE_NAME_COLUMN_INDEX = leavesTableColumnIndex.employeeName
@@ -26,11 +26,15 @@ export default function LeavesDashboardPage() {
   const leaveFormOptionsError = useStoreLeaveSelects((s) => s.leaveFormOptionsErrorMessage)
   const getLeaveFormOptions = useStoreLeaveSelects((s) => s.getLeaveFormOptions)
   const clearLeaveFormOptionsStatus = useStoreLeaveSelects((s) => s.clearLeaveFormOptionsStatus)
+  const approvalEmployeeStatusOptionsError = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
+  const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
+  const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
 
   useEffect(() => {
     void getLeaves()
     void getLeaveFormOptions()
-  }, [getLeaveFormOptions, getLeaves])
+    void getApprovalEmployeeStatusOptions()
+  }, [getApprovalEmployeeStatusOptions, getLeaveFormOptions, getLeaves])
 
   const handleViewDetail = (row: LeaveTableRow) => {
     setDetailRowId(row.id)
@@ -70,6 +74,13 @@ export default function LeavesDashboardPage() {
           message={leaveFormOptionsError} 
           tone="error" 
           onClose={clearLeaveFormOptionsStatus} 
+        />
+      }
+      {approvalEmployeeStatusOptionsError && 
+        <AlertMessageComponent 
+          message={approvalEmployeeStatusOptionsError} 
+          tone="error" 
+          onClose={clearApprovalEmployeeStatusOptionsStatus} 
         />
       }
 

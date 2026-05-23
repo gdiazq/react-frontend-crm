@@ -5,9 +5,8 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
-import { leaveStatusFilterOptions } from '@/factories'
-import { mapperLeaveSelectOptions } from '@/mappers'
-import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
+import { mapperLeaveSelectOptions, mapperLeaveStatusFilterOptions } from '@/mappers'
+import { useStoreEmployeeSelects, useStoreLeaveSelects, useStoreLeaves } from '@/store'
 
 interface LeavesListFiltersSidebarComponentProps {
   open: boolean
@@ -36,7 +35,10 @@ export function LeavesListFiltersSidebarComponent({ open, onClose }: LeavesListF
   const employeeWithContractOptions = useStoreLeaveSelects((s) => s.employeeWithContractOptions)
   const leaveTypeOptions = useStoreLeaveSelects((s) => s.leaveTypeOptions)
   const loadingLeaveFormOptions = useStoreLeaveSelects((s) => s.loadingLeaveFormOptions)
+  const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
+  const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
 
+  const statusSelectOptions = mapperLeaveStatusFilterOptions(approvalEmployeeStatusOptions)
   const [filters, setFilters] = useState(() => ({
     status: queryParams.status,
     leaveTypeId: queryParams.leaveTypeId,
@@ -53,7 +55,7 @@ export function LeavesListFiltersSidebarComponent({ open, onClose }: LeavesListF
 
   const employeeSelectOptions = mapperLeaveSelectOptions(employeeWithContractOptions)
   const leaveTypeSelectOptions = mapperLeaveSelectOptions(leaveTypeOptions)
-  const loadingAny = loadingLeaves || loadingLeaveFormOptions
+  const loadingAny = loadingLeaves || loadingLeaveFormOptions || loadingApprovalEmployeeStatusOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
@@ -87,7 +89,7 @@ export function LeavesListFiltersSidebarComponent({ open, onClose }: LeavesListF
   return (
     <RightSidebarComponent open={open} title="Filtros" onClose={onClose}>
       <div className="space-y-4">
-        <SelectComponent value={filters.status} label="Estado" options={leaveStatusFilterOptions} onValueChange={(v) => handleChangeFilter('status', v)} />
+        <SelectComponent value={filters.status} label="Estado" options={statusSelectOptions} loading={loadingApprovalEmployeeStatusOptions} onValueChange={(v) => handleChangeFilter('status', v)} />
         <SelectComponent value={filters.leaveTypeId} label="Tipo de permiso" options={leaveTypeSelectOptions} loading={loadingLeaveFormOptions} onValueChange={(v) => handleChangeFilter('leaveTypeId', v)} />
         <SelectComponent value={filters.employeeId} label="Trabajador" options={employeeSelectOptions} loading={loadingLeaveFormOptions} onValueChange={(v) => handleChangeFilter('employeeId', v)} />
 

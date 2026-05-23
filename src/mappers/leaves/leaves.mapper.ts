@@ -1,4 +1,5 @@
 import type {
+  EmployeeSelectOption,
   LeaveCreateForm,
   LeaveCreatePayload,
   LeaveDetail,
@@ -24,6 +25,10 @@ export function mapperLeaveSelectOptions(options: LeaveSelectOption[]) {
 
 export function mapperLeaveYesNoSelectOptions(options: LeaveYesNoOption[]) {
   return options.map((option) => ({ label: option.name ? 'Sí' : 'No', value: String(option.name) }))
+}
+
+export function mapperLeaveStatusFilterOptions(options: EmployeeSelectOption[]) {
+  return options.map((option) => ({ label: option.name, value: option.name }))
 }
 
 export function mapperLeavesRows(result: LeaveRaw[]): LeaveTableRow[] {

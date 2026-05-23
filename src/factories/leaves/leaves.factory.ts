@@ -31,13 +31,6 @@ export const leavesTableSortByColumn: Partial<Record<number, LeavesSortBy>> = {
   7: 'createdAt',
 }
 
-export const leaveStatusFilterOptions = [
-  { label: 'Pendiente de revisión', value: 'Pendiente de revisión' },
-  { label: 'Pendiente de aprobación', value: 'Pendiente de aprobación' },
-  { label: 'Aprobado', value: 'Aprobado' },
-  { label: 'Rechazado', value: 'Rechazado' },
-]
-
 export const initialLeavesRows: LeaveTableRow[] = []
 
 export const initialLeavesPagination: LeavesPagination = {
