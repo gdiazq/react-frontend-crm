@@ -80,6 +80,13 @@ export interface ProjectTableRow {
   specialtyId?: number | null
 }
 
+export interface ProjectCostCenterEmployeeTableRow {
+  id: string
+  values: string[]
+  active?: boolean
+  hasContract?: boolean
+}
+
 export type ProjectsSortBy =
   | 'costCenter'
   | 'name'
@@ -164,6 +171,10 @@ export interface ProjectCostCenterEmployeesQueryParams {
   statusId: string
   sortBy: ProjectCostCenterEmployeesSortBy
   sortDir: ProjectCostCenterEmployeesSortDir
+}
+
+export interface ProjectCostCenterEmployeesPagination extends Pagination {
+  pending: number
 }
 
 export interface ProjectCostCenterEmployeesPagedResponse {

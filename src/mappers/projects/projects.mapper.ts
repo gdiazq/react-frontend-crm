@@ -1,6 +1,7 @@
 import messages from '@/messages/messages'
 import type {
   ProjectCreateForm,
+  ProjectCostCenterEmployeeTableRow,
   ProjectCostCenterEmployeeRaw,
   ProjectCostCenterEmployeesPagedResponse,
   ProjectCostCenterEmployeesQueryParams,
@@ -14,7 +15,7 @@ import type {
   ProjectsQueryParams,
   ProjectTableRow,
   SelectActiveInactiveOption,
-  TableRow,
+  SelectEmployeeStatusOption,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendBooleanString, appendParsedId } from '../shared/queryParams.mapper'
@@ -68,13 +69,19 @@ export function mapperProjectActiveFilterOptions(options: SelectActiveInactiveOp
   return options.map((option) => ({ label: option.name, value: String(option.value) }))
 }
 
+export function mapperProjectEmployeeStatusFilterOptions(options: SelectEmployeeStatusOption[]) {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
 function resolveEmployeeFullName(item: ProjectCostCenterEmployeeRaw): string {
   return [item.firstName, item.paternalLastName, item.maternalLastName].filter(Boolean).join(' ').trim() || '-'
 }
 
-export function mapperProjectCostCenterEmployeesRows(result: ProjectCostCenterEmployeeRaw[]): TableRow[] {
+export function mapperProjectCostCenterEmployeesRows(result: ProjectCostCenterEmployeeRaw[]): ProjectCostCenterEmployeeTableRow[] {
   return result.map((item) => ({
     id: String(item.id),
+    active: item.active,
+    hasContract: item.hasContract,
     values: [
       item.identification || '-',
       resolveEmployeeFullName(item),

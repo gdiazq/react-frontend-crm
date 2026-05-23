@@ -1,5 +1,10 @@
 import type {
   ProjectCreatePayload,
+  ProjectCostCenterEmployeeTableRow,
+  ProjectCostCenterEmployeesPagination,
+  ProjectCostCenterEmployeesQueryParams,
+  ProjectCostCenterEmployeesSortBy,
+  ProjectCostCenterEmployeesSortDir,
   ProjectDetail,
   ProjectPagedResponse,
   ProjectUpdatePayload,
@@ -17,6 +22,11 @@ export interface ProjectsStore {
   projectsRows: ProjectTableRow[]
   pagination: ProjectsPagination
   queryParams: ProjectsQueryParams
+  costCenterEmployeesRows: ProjectCostCenterEmployeeTableRow[]
+  costCenterEmployeesPagination: ProjectCostCenterEmployeesPagination
+  costCenterEmployeesQueryParams: ProjectCostCenterEmployeesQueryParams
+  loadingCostCenterEmployees: boolean
+  costCenterEmployeesErrorMessage: string | null
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   createProject: (payload: ProjectCreatePayload) => Promise<boolean>
@@ -25,6 +35,16 @@ export interface ProjectsStore {
   getProjectDetail: (projectId: string) => Promise<ProjectDetail | null>
   clearProjectDetail: () => void
   getProjects: () => Promise<void>
+  getCostCenterEmployees: (costCenter: number) => Promise<void>
+  resetCostCenterEmployees: () => void
+  setCostCenterEmployeesSearch: (search: string) => void
+  setCostCenterEmployeesActiveFilter: (active: string) => void
+  setCostCenterEmployeesStatusFilter: (statusId: string) => void
+  clearCostCenterEmployeesFilters: () => void
+  searchCostCenterEmployees: (costCenter: number) => Promise<void>
+  sortCostCenterEmployees: (costCenter: number, sortBy: ProjectCostCenterEmployeesSortBy, sortDir: ProjectCostCenterEmployeesSortDir) => Promise<void>
+  goToCostCenterEmployeesPage: (costCenter: number, page: number) => Promise<void>
+  clearCostCenterEmployeesError: () => void
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>

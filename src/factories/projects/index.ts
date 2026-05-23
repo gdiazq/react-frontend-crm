@@ -5,5 +5,11 @@ export {
   initialProjectsRows,
   initialProjectsPagination,
   initialProjectsQueryParams,
+  projectCostCenterEmployeesTableColumns,
+  projectCostCenterEmployeesTableColumnIndex,
+  projectCostCenterEmployeesTableSortByColumn,
+  initialProjectCostCenterEmployeesRows,
+  initialProjectCostCenterEmployeesPagination,
+  initialProjectCostCenterEmployeesQueryParams,
   initialCreateProjectForm,
 } from './projects.factory'

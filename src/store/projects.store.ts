@@ -1,10 +1,15 @@
 import { create } from 'zustand'
 import {
+  initialProjectCostCenterEmployeesPagination,
+  initialProjectCostCenterEmployeesQueryParams,
+  initialProjectCostCenterEmployeesRows,
   initialProjectsPagination,
   initialProjectsQueryParams,
   initialProjectsRows,
 } from '@/factories'
 import {
+  mapperProjectCostCenterEmployeesPagination,
+  mapperProjectCostCenterEmployeesRows,
   mapperProjectsPagination,
   mapperProjectsRows,
 } from '@/mappers'
@@ -21,6 +26,7 @@ import {
 export const useStoreProjects = create<ProjectsStore>()((set, get) => {
   let latestProjectsRequestId = 0
   let latestProjectDetailRequestId = 0
+  let latestCostCenterEmployeesRequestId = 0
 
   const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
@@ -30,6 +36,11 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
     projectsRows: [...initialProjectsRows],
     pagination: { ...initialProjectsPagination },
     queryParams: { ...initialProjectsQueryParams },
+    costCenterEmployeesRows: [...initialProjectCostCenterEmployeesRows],
+    costCenterEmployeesPagination: { ...initialProjectCostCenterEmployeesPagination },
+    costCenterEmployeesQueryParams: { ...initialProjectCostCenterEmployeesQueryParams },
+    loadingCostCenterEmployees: false,
+    costCenterEmployeesErrorMessage: null,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
@@ -92,6 +103,109 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
       set({ projectDetail: null })
       setOpLoading('detail', false)
       clearOp('detail')
+    },
+
+    getCostCenterEmployees: async (costCenter: number) => {
+      if (!Number.isInteger(costCenter) || costCenter <= 0) {
+        latestCostCenterEmployeesRequestId += 1
+        set({
+          costCenterEmployeesRows: [...initialProjectCostCenterEmployeesRows],
+          costCenterEmployeesPagination: { ...initialProjectCostCenterEmployeesPagination },
+          loadingCostCenterEmployees: false,
+        })
+        return
+      }
+
+      const requestId = ++latestCostCenterEmployeesRequestId
+      try {
+        set({ loadingCostCenterEmployees: true, costCenterEmployeesErrorMessage: null })
+        const data = await projectsService.getCostCenterEmployees(costCenter, get().costCenterEmployeesQueryParams)
+        if (requestId !== latestCostCenterEmployeesRequestId) return
+        const pagination = {
+          ...mapperProjectCostCenterEmployeesPagination(data),
+          pending: data.pending ?? 0,
+        }
+        set({
+          costCenterEmployeesRows: mapperProjectCostCenterEmployeesRows(data.content),
+          costCenterEmployeesPagination: pagination,
+          costCenterEmployeesQueryParams: { ...get().costCenterEmployeesQueryParams, page: pagination.page, size: pagination.size },
+        })
+      } catch (error) {
+        if (requestId !== latestCostCenterEmployeesRequestId) return
+        set({
+          costCenterEmployeesRows: [...initialProjectCostCenterEmployeesRows],
+          costCenterEmployeesPagination: { ...initialProjectCostCenterEmployeesPagination },
+          costCenterEmployeesErrorMessage: resolveErrorMessage(error, messages.projects.status.errors.loadCostCenterEmployeesError),
+        })
+      } finally {
+        if (requestId === latestCostCenterEmployeesRequestId) {
+          set({ loadingCostCenterEmployees: false })
+        }
+      }
+    },
+
+    resetCostCenterEmployees: () => {
+      latestCostCenterEmployeesRequestId += 1
+      set({
+        costCenterEmployeesRows: [...initialProjectCostCenterEmployeesRows],
+        costCenterEmployeesPagination: { ...initialProjectCostCenterEmployeesPagination },
+        costCenterEmployeesQueryParams: { ...initialProjectCostCenterEmployeesQueryParams },
+        loadingCostCenterEmployees: false,
+        costCenterEmployeesErrorMessage: null,
+      })
+    },
+
+    setCostCenterEmployeesSearch: (search: string) => {
+      set((state) => ({ costCenterEmployeesQueryParams: { ...state.costCenterEmployeesQueryParams, search } }))
+    },
+
+    setCostCenterEmployeesActiveFilter: (active: string) => {
+      set((state) => ({ costCenterEmployeesQueryParams: { ...state.costCenterEmployeesQueryParams, active } }))
+    },
+
+    setCostCenterEmployeesStatusFilter: (statusId: string) => {
+      set((state) => ({ costCenterEmployeesQueryParams: { ...state.costCenterEmployeesQueryParams, statusId } }))
+    },
+
+    clearCostCenterEmployeesFilters: () => {
+      set((state) => ({
+        costCenterEmployeesQueryParams: {
+          ...state.costCenterEmployeesQueryParams,
+          active: '',
+          statusId: '',
+        },
+      }))
+    },
+
+    searchCostCenterEmployees: async (costCenter: number) => {
+      set((state) => ({
+        costCenterEmployeesPagination: { ...state.costCenterEmployeesPagination, page: 0 },
+        costCenterEmployeesQueryParams: { ...state.costCenterEmployeesQueryParams, page: 0 },
+      }))
+      await get().getCostCenterEmployees(costCenter)
+    },
+
+    sortCostCenterEmployees: async (costCenter, sortBy, sortDir) => {
+      set((state) => ({
+        costCenterEmployeesPagination: { ...state.costCenterEmployeesPagination, page: 0 },
+        costCenterEmployeesQueryParams: { ...state.costCenterEmployeesQueryParams, page: 0, sortBy, sortDir },
+      }))
+      await get().getCostCenterEmployees(costCenter)
+    },
+
+    goToCostCenterEmployeesPage: async (costCenter: number, page: number) => {
+      const { costCenterEmployeesPagination } = get()
+      const lastPageIndex = costCenterEmployeesPagination.totalPages - 1
+      if (page < 0 || page > lastPageIndex) return
+      set((state) => ({
+        costCenterEmployeesPagination: { ...state.costCenterEmployeesPagination, page },
+        costCenterEmployeesQueryParams: { ...state.costCenterEmployeesQueryParams, page },
+      }))
+      await get().getCostCenterEmployees(costCenter)
+    },
+
+    clearCostCenterEmployeesError: () => {
+      set({ costCenterEmployeesErrorMessage: null })
     },
 
     goToPage: async (page: number) => {

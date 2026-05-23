@@ -1,6 +1,10 @@
 import { SortDirection } from '@/constant'
 import type {
   ProjectCreateForm,
+  ProjectCostCenterEmployeeTableRow,
+  ProjectCostCenterEmployeesPagination,
+  ProjectCostCenterEmployeesQueryParams,
+  ProjectCostCenterEmployeesSortBy,
   ProjectsPagination,
   ProjectsQueryParams,
   ProjectsSortBy,
@@ -72,6 +76,54 @@ export const initialProjectsQueryParams: ProjectsQueryParams = {
   createdTo: '',
   updatedFrom: '',
   updatedTo: '',
+  sortBy: 'createdAt',
+  sortDir: SortDirection.Desc,
+}
+
+export const projectCostCenterEmployeesTableColumns: string[] = [
+  'Identificación',
+  'Trabajador',
+  'Email',
+  'Teléfono',
+  'Estado',
+  'Activo',
+  'Contrato',
+  'Creado',
+]
+
+export const projectCostCenterEmployeesTableColumnIndex = {
+  status: 4,
+  active: 5,
+  contract: 6,
+}
+
+export const projectCostCenterEmployeesTableSortByColumn: Partial<Record<number, ProjectCostCenterEmployeesSortBy>> = {
+  0: 'identification',
+  1: 'firstName',
+  4: 'statusName',
+  7: 'createdAt',
+}
+
+export const initialProjectCostCenterEmployeesRows: ProjectCostCenterEmployeeTableRow[] = []
+
+export const initialProjectCostCenterEmployeesPagination: ProjectCostCenterEmployeesPagination = {
+  page: 0,
+  size: 10,
+  totalElements: 0,
+  totalPages: 0,
+  total: 0,
+  active: 0,
+  pending: 0,
+  first: true,
+  last: true,
+}
+
+export const initialProjectCostCenterEmployeesQueryParams: ProjectCostCenterEmployeesQueryParams = {
+  page: 0,
+  size: 10,
+  search: '',
+  active: '',
+  statusId: '',
   sortBy: 'createdAt',
   sortDir: SortDirection.Desc,
 }
