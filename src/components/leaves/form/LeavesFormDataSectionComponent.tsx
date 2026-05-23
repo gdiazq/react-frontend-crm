@@ -17,15 +17,11 @@ interface LeavesFormDataSectionComponentProps {
   isEditMode: boolean
   employeeOptions: SelectOption[]
   leaveTypeOptions: SelectOption[]
+  halfDayOptions: SelectOption[]
   loadingFormOptions: boolean
   onChangeField: (field: LeaveFormField) => (value: string) => void
   onValidation: (field: LeaveFormField) => () => void
 }
-
-const halfDayOptions = [
-  { label: 'No', value: 'false' },
-  { label: 'Sí', value: 'true' },
-]
 
 function SubSectionLabel({ number, title }: { number: string, title: string }) {
   return (
@@ -45,6 +41,7 @@ export function LeavesFormDataSectionComponent(props: LeavesFormDataSectionCompo
     isEditMode,
     employeeOptions,
     leaveTypeOptions,
+    halfDayOptions,
     loadingFormOptions,
     onChangeField,
     onValidation,

@@ -10,11 +10,21 @@ import type {
   LeaveUpdatePayload,
   LeavesPagination,
   LeavesQueryParams,
+  LeaveSelectOption,
+  LeaveYesNoOption,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { appendParsedId, appendString, buildQueryParams } from '../shared/queryParams.mapper'
 import { normalizeDateValue, parseNullableString, parseRequiredNumber } from '../shared/form.mapper'
 import { formatDate, formatDateTime, formatNumber, resolveFileSize } from '@/utils'
+
+export function mapperLeaveSelectOptions(options: LeaveSelectOption[]) {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperLeaveYesNoSelectOptions(options: LeaveYesNoOption[]) {
+  return options.map((option) => ({ label: option.name ? 'Sí' : 'No', value: String(option.name) }))
+}
 
 export function mapperLeavesRows(result: LeaveRaw[]): LeaveTableRow[] {
   return result.map((item) => ({

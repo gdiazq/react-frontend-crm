@@ -6,6 +6,7 @@ import {
   SelectComponent,
 } from '@/components'
 import { leaveStatusFilterOptions } from '@/factories'
+import { mapperLeaveSelectOptions } from '@/mappers'
 import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
 
 interface LeavesListFiltersSidebarComponentProps {
@@ -50,8 +51,8 @@ export function LeavesListFiltersSidebarComponent({ open, onClose }: LeavesListF
     updatedTo: queryParams.updatedTo,
   }))
 
-  const employeeSelectOptions = employeeWithContractOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const leaveTypeSelectOptions = leaveTypeOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const employeeSelectOptions = mapperLeaveSelectOptions(employeeWithContractOptions)
+  const leaveTypeSelectOptions = mapperLeaveSelectOptions(leaveTypeOptions)
   const loadingAny = loadingLeaves || loadingLeaveFormOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
-import type { LeaveSelectOption } from '@/types'
+import type { LeaveSelectOption, LeaveYesNoOption } from '@/types'
 
 const RRHH_SELECTS_BASE_PATH = '/rrhh/select'
 const RRHH_EMPLOYEE_SELECTS_BASE_PATH = '/rrhh/employee/select'
@@ -13,6 +13,11 @@ export const leaveSelectsService = {
 
   getLeaveTypeOptions: async () => {
     const { data } = await axiosInstance.get<LeaveSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/leave-types`)
+    return data
+  },
+
+  getYesNoOptions: async () => {
+    const { data } = await axiosInstance.get<LeaveYesNoOption[]>(`${RRHH_SELECTS_BASE_PATH}/yes-no`)
     return data
   },
 

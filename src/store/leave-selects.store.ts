@@ -6,6 +6,7 @@ import type { LeaveSelectsStore } from '@/types'
 export const useStoreLeaveSelects = create<LeaveSelectsStore>()((set) => ({
   employeeWithContractOptions: [],
   leaveTypeOptions: [],
+  yesNoOptions: [],
   loadingLeaveFormOptions: false,
   leaveFormOptionsErrorMessage: null,
   errorBack: null,
@@ -13,13 +14,15 @@ export const useStoreLeaveSelects = create<LeaveSelectsStore>()((set) => ({
   getLeaveFormOptions: async () => {
     try {
       set({ loadingLeaveFormOptions: true, leaveFormOptionsErrorMessage: null, errorBack: null })
-      const [employeesWithContract, leaveTypes] = await Promise.all([
+      const [employeesWithContract, leaveTypes, yesNoOptions] = await Promise.all([
         leaveSelectsService.getEmployeeWithContractOptions(),
         leaveSelectsService.getLeaveTypeOptions(),
+        leaveSelectsService.getYesNoOptions(),
       ])
       set({
         employeeWithContractOptions: employeesWithContract,
         leaveTypeOptions: leaveTypes,
+        yesNoOptions,
       })
     } catch (error) {
       if (leaveSelectsService.isAxiosError(error)) {

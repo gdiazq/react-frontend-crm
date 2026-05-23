@@ -10,7 +10,13 @@ import {
 import { AUTH_ROUTE_LEAVES } from '@/constant'
 import { initialCreateLeaveForm, LEAVE_FILE_MAX_SIZE_BYTES, LEAVE_FILES_MAX_COUNT } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateLeavePayload, mapperLeaveDetailToForm, mapperUpdateLeavePayload } from '@/mappers'
+import {
+  mapperCreateLeavePayload,
+  mapperLeaveDetailToForm,
+  mapperLeaveSelectOptions,
+  mapperLeaveYesNoSelectOptions,
+  mapperUpdateLeavePayload,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
 import type { LeaveCreatePayload, LeaveUpdatePayload } from '@/types'
@@ -50,6 +56,7 @@ export default function LeavesFormDashboardPage() {
 
   const employeeWithContractOptions = useStoreLeaveSelects((s) => s.employeeWithContractOptions)
   const leaveTypeOptions = useStoreLeaveSelects((s) => s.leaveTypeOptions)
+  const yesNoOptions = useStoreLeaveSelects((s) => s.yesNoOptions)
   const loadingLeaveFormOptions = useStoreLeaveSelects((s) => s.loadingLeaveFormOptions)
   const leaveFormOptionsErrorMessage = useStoreLeaveSelects((s) => s.leaveFormOptionsErrorMessage)
   const getLeaveFormOptions = useStoreLeaveSelects((s) => s.getLeaveFormOptions)
@@ -68,8 +75,9 @@ export default function LeavesFormDashboardPage() {
   const submitErrorMessage = activeStatus.error
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingLeaveFormOptions
-  const employeeWithContractSelectOptions = employeeWithContractOptions.map((opt) => ({ label: opt.name, value: String(opt.id) }))
-  const leaveTypeSelectOptions = leaveTypeOptions.map((opt) => ({ label: opt.name, value: String(opt.id) }))
+  const employeeWithContractSelectOptions = mapperLeaveSelectOptions(employeeWithContractOptions)
+  const leaveTypeSelectOptions = mapperLeaveSelectOptions(leaveTypeOptions)
+  const halfDaySelectOptions = mapperLeaveYesNoSelectOptions(yesNoOptions)
 
   useEffect(() => {
     void getLeaveFormOptions()
@@ -258,6 +266,7 @@ export default function LeavesFormDashboardPage() {
           isEditMode={isEditMode}
           employeeOptions={employeeWithContractSelectOptions}
           leaveTypeOptions={leaveTypeSelectOptions}
+          halfDayOptions={halfDaySelectOptions}
           loadingFormOptions={loadingLeaveFormOptions}
           onChangeField={handleChangeField}
           onValidation={onValidation}
