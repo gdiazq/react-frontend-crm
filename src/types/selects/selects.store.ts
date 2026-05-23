@@ -1,4 +1,5 @@
 import type {
+  SelectActiveInactiveOption,
   SelectCompanyRepresentativeOption,
   SelectEmployeeStatusOption,
   SelectPermissionOption,
@@ -23,6 +24,7 @@ export interface SelectsStore {
   userEmailOptions: SelectUserEmailOption[]
   statusOptions: SelectStatusOption[]
   employeeStatusOptions: SelectEmployeeStatusOption[]
+  projectActiveInactiveOptions: SelectActiveInactiveOption[]
   visitorOptions: SelectVisitorOption[]
   supervisorOptions: SelectSupervisorOption[]
   companyRepresentativeOptions: SelectCompanyRepresentativeOption[]
@@ -30,6 +32,7 @@ export interface SelectsStore {
   loadingPermissionOptions: boolean
   loadingStatusOptions: boolean
   loadingEmployeeStatusOptions: boolean
+  loadingProjectActiveInactiveOptions: boolean
   loadingUsersFilterOptions: boolean
   loadingProjectTypeOptions: boolean
   loadingProjectSpecialtyOptions: boolean
@@ -41,6 +44,7 @@ export interface SelectsStore {
   permissionOptionsErrorMessage: string | null
   statusOptionsErrorMessage: string | null
   employeeStatusOptionsErrorMessage: string | null
+  projectActiveInactiveOptionsErrorMessage: string | null
   usersFilterOptionsErrorMessage: string | null
   projectTypeOptionsErrorMessage: string | null
   projectSpecialtyOptionsErrorMessage: string | null
@@ -53,6 +57,7 @@ export interface SelectsStore {
   getPermissionOptions: () => Promise<void>
   getStatusOptions: () => Promise<void>
   getEmployeeStatusOptions: () => Promise<void>
+  getProjectActiveInactiveOptions: () => Promise<void>
   getUsersFilterOptions: () => Promise<void>
   getProjectTypeOptions: () => Promise<void>
   getProjectSpecialtyOptions: () => Promise<void>
@@ -64,6 +69,7 @@ export interface SelectsStore {
   clearPermissionOptionsStatus: () => void
   clearStatusOptionsStatus: () => void
   clearEmployeeStatusOptionsStatus: () => void
+  clearProjectActiveInactiveOptionsStatus: () => void
   clearUsersFilterOptionsStatus: () => void
   clearProjectTypeOptionsStatus: () => void
   clearProjectSpecialtyOptionsStatus: () => void

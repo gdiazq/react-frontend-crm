@@ -4,6 +4,7 @@ export type {
   SelectUserEmailOption,
   SelectStatusOption,
   SelectEmployeeStatusOption,
+  SelectActiveInactiveOption,
   SelectPermissionOption,
   SelectProjectTypeOption,
   SelectProjectSpecialtyOption,

@@ -23,6 +23,12 @@ export interface SelectEmployeeStatusOption {
   name: string
 }
 
+export interface SelectActiveInactiveOption {
+  id: number
+  value: boolean
+  name: string
+}
+
 export interface SelectPermissionOption {
   id: number
   name: string

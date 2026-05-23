@@ -43,12 +43,6 @@ export const projectAssignmentsTableSortByColumn: Partial<Record<number, Project
   8: 'active',
 }
 
-export const projectAssignmentActiveFilterOptions = [
-  { label: 'Todos', value: '' },
-  { label: 'Activos', value: 'true' },
-  { label: 'Inactivos', value: 'false' },
-]
-
 export const initialProjectAssignmentsRows: ProjectAssignmentTableRow[] = []
 
 export const initialProjectAssignmentsPagination: ProjectAssignmentsPagination = {

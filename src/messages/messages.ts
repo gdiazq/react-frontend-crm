@@ -621,6 +621,7 @@ export default {
         loadPermissionsError: 'No se pudieron cargar los permisos.',
         loadUsersFiltersError: 'No se pudieron cargar los filtros de usuarios.',
         loadStatusError: 'No se pudieron cargar los estados.',
+        loadActiveInactiveError: 'No se pudieron cargar los estados activo/inactivo.',
         loadProjectTypesError: 'No se pudieron cargar los tipos de proyecto.',
         loadProjectSpecialtiesError: 'No se pudieron cargar las especialidades de proyecto.',
         loadProjectStatusesError: 'No se pudieron cargar las vigencias de proyecto.',

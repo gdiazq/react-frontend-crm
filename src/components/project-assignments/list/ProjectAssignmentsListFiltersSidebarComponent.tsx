@@ -6,8 +6,8 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
-import { projectAssignmentActiveFilterOptions } from '@/factories'
-import { useStoreProjectAssignments } from '@/store'
+import { mapperProjectAssignmentActiveFilterOptions } from '@/mappers'
+import { useStoreProjectAssignments, useStoreSelects } from '@/store'
 
 interface ProjectAssignmentsListFiltersSidebarComponentProps {
   open: boolean
@@ -31,6 +31,8 @@ export function ProjectAssignmentsListFiltersSidebarComponent(props: ProjectAssi
   const clearCreatedDateRange = useStoreProjectAssignments((s) => s.clearCreatedDateRange)
   const clearUpdatedDateRange = useStoreProjectAssignments((s) => s.clearUpdatedDateRange)
   const searchProjectAssignments = useStoreProjectAssignments((s) => s.searchProjectAssignments)
+  const projectActiveInactiveOptions = useStoreSelects((s) => s.projectActiveInactiveOptions)
+  const loadingProjectActiveInactiveOptions = useStoreSelects((s) => s.loadingProjectActiveInactiveOptions)
 
   const [filters, setFilters] = useState(() => ({
     employeeId: queryParams.employeeId,
@@ -43,6 +45,9 @@ export function ProjectAssignmentsListFiltersSidebarComponent(props: ProjectAssi
     updatedFrom: queryParams.updatedFrom,
     updatedTo: queryParams.updatedTo,
   }))
+
+  const activeSelectOptions = mapperProjectAssignmentActiveFilterOptions(projectActiveInactiveOptions)
+  const loadingAny = loading || loadingProjectActiveInactiveOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
@@ -76,7 +81,7 @@ export function ProjectAssignmentsListFiltersSidebarComponent(props: ProjectAssi
       <div className="space-y-4">
         <InputComponent value={filters.employeeId} label="ID trabajador" type="number" placeholder="Ej: 12" onValueChange={(v) => handleChangeFilter('employeeId', v)} />
         <InputComponent value={filters.costCenter} label="Centro de costo" type="number" placeholder="Ej: 1001" onValueChange={(v) => handleChangeFilter('costCenter', v)} />
-        <SelectComponent value={filters.active} label="Estado" options={projectAssignmentActiveFilterOptions} onValueChange={(v) => handleChangeFilter('active', v)} />
+        <SelectComponent value={filters.active} label="Estado" options={activeSelectOptions} loading={loadingProjectActiveInactiveOptions} onValueChange={(v) => handleChangeFilter('active', v)} />
         <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/20 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">
           <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">Vigencia</p>
           <DateRangePickerComponent fromValue={filters.dateFrom} toValue={filters.dateTo} label="Rango de vigencia" onRangeChange={({ from, to }) => setFilters((prev) => ({ ...prev, dateFrom: from, dateTo: to }))} />
@@ -90,8 +95,8 @@ export function ProjectAssignmentsListFiltersSidebarComponent(props: ProjectAssi
           <DateRangePickerComponent fromValue={filters.updatedFrom} toValue={filters.updatedTo} label="Rango de actualización" onRangeChange={({ from, to }) => setFilters((prev) => ({ ...prev, updatedFrom: from, updatedTo: to }))} />
         </div>
         <div className="flex flex-wrap justify-end gap-2 pt-2">
-          <ButtonComponent type="button" variant="outline" disabled={loading} label="Limpiar" onClick={() => { void handleClear() }} />
-          <ButtonComponent type="button" variant="primary" disabled={loading} className="text-white dark:text-white" label="Aplicar" onClick={() => { void handleApply() }} />
+          <ButtonComponent type="button" variant="outline" disabled={loadingAny} label="Limpiar" onClick={() => { void handleClear() }} />
+          <ButtonComponent type="button" variant="primary" disabled={loadingAny} className="text-white dark:text-white" label="Aplicar" onClick={() => { void handleApply() }} />
         </div>
       </div>
     </RightSidebarComponent>

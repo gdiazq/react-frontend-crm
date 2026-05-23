@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
 import type {
+  SelectActiveInactiveOption,
   SelectCompanyRepresentativeOption,
   SelectEmployeeStatusOption,
   SelectPermissionOption,
@@ -39,6 +40,11 @@ export const selectsService = {
 
   getEmployeeStatusOptions: async () => {
     const { data } = await axiosInstance.get<SelectEmployeeStatusOption[]>('/rrhh/select/employee-statuses')
+    return data
+  },
+
+  getProjectActiveInactiveOptions: async () => {
+    const { data } = await axiosInstance.get<SelectActiveInactiveOption[]>('/project/select/active-inactive')
     return data
   },
 

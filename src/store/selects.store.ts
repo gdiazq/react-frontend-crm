@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import {
+  mapperSelectActiveInactiveOptions,
   mapperSelectCompanyRepresentativeOptions,
   mapperSelectEmployeeStatusOptions,
   mapperSelectPermissionOptions,
@@ -29,10 +30,12 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   userEmailOptions: [],
   statusOptions: [],
   employeeStatusOptions: [],
+  projectActiveInactiveOptions: [],
   loadingRoleOptions: false,
   loadingPermissionOptions: false,
   loadingStatusOptions: false,
   loadingEmployeeStatusOptions: false,
+  loadingProjectActiveInactiveOptions: false,
   loadingUsersFilterOptions: false,
   loadingProjectTypeOptions: false,
   loadingProjectSpecialtyOptions: false,
@@ -50,6 +53,7 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
   permissionOptionsErrorMessage: null,
   statusOptionsErrorMessage: null,
   employeeStatusOptionsErrorMessage: null,
+  projectActiveInactiveOptionsErrorMessage: null,
   usersFilterOptionsErrorMessage: null,
   projectTypeOptionsErrorMessage: null,
   projectSpecialtyOptionsErrorMessage: null,
@@ -181,6 +185,36 @@ export const useStoreSelects = create<SelectsStore>()((set) => ({
 
   clearEmployeeStatusOptionsStatus: () => {
     set({ employeeStatusOptionsErrorMessage: null })
+  },
+
+  getProjectActiveInactiveOptions: async () => {
+    try {
+      set({
+        loadingProjectActiveInactiveOptions: true,
+        projectActiveInactiveOptionsErrorMessage: null,
+        errorBack: null,
+      })
+      const data = await selectsService.getProjectActiveInactiveOptions()
+      set({ projectActiveInactiveOptions: mapperSelectActiveInactiveOptions(data) })
+    } catch (error) {
+      if (selectsService.isAxiosError(error)) {
+        set({
+          projectActiveInactiveOptionsErrorMessage: error.response?.data?.message || messages.selects.status.errors.loadActiveInactiveError,
+          errorBack: error,
+        })
+      } else {
+        set({
+          projectActiveInactiveOptionsErrorMessage: messages.selects.status.errors.loadActiveInactiveError,
+          errorBack: error,
+        })
+      }
+    } finally {
+      set({ loadingProjectActiveInactiveOptions: false })
+    }
+  },
+
+  clearProjectActiveInactiveOptionsStatus: () => {
+    set({ projectActiveInactiveOptionsErrorMessage: null })
   },
 
   getUsersFilterOptions: async () => {

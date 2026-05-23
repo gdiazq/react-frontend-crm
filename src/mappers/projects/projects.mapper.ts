@@ -13,6 +13,7 @@ import type {
   ProjectsPagination,
   ProjectsQueryParams,
   ProjectTableRow,
+  SelectActiveInactiveOption,
   TableRow,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
@@ -61,6 +62,10 @@ export function mapperProjectCostCenterEmployeesQueryParams(
 
 export function mapperProjectCostCenterEmployeesPagination(result: ProjectCostCenterEmployeesPagedResponse): ProjectsPagination {
   return mapperPagination(result)
+}
+
+export function mapperProjectActiveFilterOptions(options: SelectActiveInactiveOption[]) {
+  return options.map((option) => ({ label: option.name, value: String(option.value) }))
 }
 
 function resolveEmployeeFullName(item: ProjectCostCenterEmployeeRaw): string {

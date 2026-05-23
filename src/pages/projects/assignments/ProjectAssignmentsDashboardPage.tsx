@@ -7,7 +7,7 @@ import {
   ProjectAssignmentsListToolbarComponent,
   StatsOverviewCardsComponent,
 } from '@/components'
-import { useStoreProjectAssignments } from '@/store'
+import { useStoreProjectAssignments, useStoreSelects } from '@/store'
 import type { ProjectAssignmentTableRow } from '@/types'
 
 export default function ProjectAssignmentsDashboardPage() {
@@ -26,10 +26,14 @@ export default function ProjectAssignmentsDashboardPage() {
   const getProjectAssignmentsByCostCenter = useStoreProjectAssignments((s) => s.getProjectAssignmentsByCostCenter)
   const clearEmployeeProjectAssignments = useStoreProjectAssignments((s) => s.clearEmployeeProjectAssignments)
   const clearCostCenterProjectAssignments = useStoreProjectAssignments((s) => s.clearCostCenterProjectAssignments)
+  const projectActiveInactiveOptionsErrorMessage = useStoreSelects((s) => s.projectActiveInactiveOptionsErrorMessage)
+  const getProjectActiveInactiveOptions = useStoreSelects((s) => s.getProjectActiveInactiveOptions)
+  const clearProjectActiveInactiveOptionsStatus = useStoreSelects((s) => s.clearProjectActiveInactiveOptionsStatus)
 
   useEffect(() => {
     void getProjectAssignments()
-  }, [getProjectAssignments])
+    void getProjectActiveInactiveOptions()
+  }, [getProjectAssignments, getProjectActiveInactiveOptions])
 
   const handleViewEmployeeDetail = (row: ProjectAssignmentTableRow) => {
     setDetailMode('employee')
@@ -84,6 +88,13 @@ export default function ProjectAssignmentsDashboardPage() {
           message={listError} 
           tone="error" 
           onClose={() => clearOperationStatus('list')} 
+        />
+      }
+      {projectActiveInactiveOptionsErrorMessage && 
+        <AlertMessageComponent 
+          message={projectActiveInactiveOptionsErrorMessage} 
+          tone="error" 
+          onClose={clearProjectActiveInactiveOptionsStatus} 
         />
       }
 

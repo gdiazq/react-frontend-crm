@@ -11,6 +11,7 @@ import { TableComponent } from '@/components/ui/table/TableComponent'
 import type { TableCellCustomRenderer } from '@/components/ui/table/TableCellRendererComponent'
 import { RightSidebarComponent } from '@/components/layout/RightSidebarComponent'
 import {
+  mapperProjectActiveFilterOptions,
   mapperProjectCostCenterEmployeesPagination,
   mapperProjectCostCenterEmployeesRows,
 } from '@/mappers'
@@ -50,11 +51,6 @@ const STATE_COLUMN_INDEX = 4
 const ACTIVE_COLUMN_INDEX = 5
 const CONTRACT_COLUMN_INDEX = 6
 
-const activeOptions = [
-  { label: 'Activo', value: 'true' },
-  { label: 'Inactivo', value: 'false' },
-]
-
 const sortableColumns: Partial<Record<number, ProjectCostCenterEmployeesSortBy>> = {
   0: 'identification',
   1: 'firstName',
@@ -92,7 +88,12 @@ export function ProjectCostCenterEmployeesTabComponent({
   projectName,
 }: ProjectCostCenterEmployeesTabComponentProps) {
   const employeeStatusOptions = useStoreSelects((s) => s.employeeStatusOptions)
+  const projectActiveInactiveOptions = useStoreSelects((s) => s.projectActiveInactiveOptions)
+  const loadingProjectActiveInactiveOptions = useStoreSelects((s) => s.loadingProjectActiveInactiveOptions)
+  const projectActiveInactiveOptionsErrorMessage = useStoreSelects((s) => s.projectActiveInactiveOptionsErrorMessage)
   const getEmployeeStatusOptions = useStoreSelects((s) => s.getEmployeeStatusOptions)
+  const getProjectActiveInactiveOptions = useStoreSelects((s) => s.getProjectActiveInactiveOptions)
+  const clearProjectActiveInactiveOptionsStatus = useStoreSelects((s) => s.clearProjectActiveInactiveOptionsStatus)
 
   const [queryParams, setQueryParams] = useState<ProjectCostCenterEmployeesQueryParams>(initialQueryParams)
   const [searchValue, setSearchValue] = useState('')
@@ -114,7 +115,8 @@ export function ProjectCostCenterEmployeesTabComponent({
 
   useEffect(() => {
     void getEmployeeStatusOptions()
-  }, [getEmployeeStatusOptions])
+    void getProjectActiveInactiveOptions()
+  }, [getEmployeeStatusOptions, getProjectActiveInactiveOptions])
 
   useEffect(() => {
     let cancelled = false
@@ -169,6 +171,8 @@ export function ProjectCostCenterEmployeesTabComponent({
   const totalItems = pagination.totalElements
   const pageSize = pagination.size
   const statusSelectOptions = employeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const activeSelectOptions = mapperProjectActiveFilterOptions(projectActiveInactiveOptions)
+  const loadingFilters = loading || loadingProjectActiveInactiveOptions
 
   const handleSearch = () => {
     setQueryParams((prev) => ({ ...prev, page: 0, search: searchValue.trim() }))
@@ -260,6 +264,13 @@ export function ProjectCostCenterEmployeesTabComponent({
       {errorMessage && (
         <AlertMessageComponent message={errorMessage} tone="error" onClose={() => setErrorMessage(null)} />
       )}
+      {projectActiveInactiveOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={projectActiveInactiveOptionsErrorMessage}
+          tone="error"
+          onClose={clearProjectActiveInactiveOptionsStatus}
+        />
+      )}
 
       <form
         className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end"
@@ -329,7 +340,8 @@ export function ProjectCostCenterEmployeesTabComponent({
           <SelectComponent
             value={filters.active}
             label="Activo"
-            options={activeOptions}
+            options={activeSelectOptions}
+            loading={loadingProjectActiveInactiveOptions}
             onValueChange={(value) => setFilters((prev) => ({ ...prev, active: value }))}
           />
           <SelectComponent
@@ -342,16 +354,16 @@ export function ProjectCostCenterEmployeesTabComponent({
             <ButtonComponent
               type="button"
               variant="outline"
-              disabled={loading}
+              disabled={loadingFilters}
               label="Limpiar"
               onClick={handleClearFilters}
             />
             <ButtonComponent
               type="button"
               variant="primary"
-              disabled={loading}
+              disabled={loadingFilters}
               className="text-white dark:text-white"
-              label={loading ? 'Aplicando...' : 'Aplicar'}
+              label={loadingFilters ? 'Aplicando...' : 'Aplicar'}
               onClick={handleApplyFilters}
             />
           </div>

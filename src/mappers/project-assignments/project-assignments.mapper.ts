@@ -6,6 +6,7 @@ import type {
   ProjectAssignmentsPagedResponse,
   ProjectAssignmentsPagination,
   ProjectAssignmentsQueryParams,
+  SelectActiveInactiveOption,
 } from '@/types'
 import { formatDate, formatDateTime, formatNumber } from '@/utils'
 import { mapperPagination } from '../shared/pagination.mapper'
@@ -59,6 +60,10 @@ export function mapperProjectAssignmentsQueryParams(result: ProjectAssignmentsQu
   appendString(params, 'updatedFrom', result.updatedFrom)
   appendString(params, 'updatedTo', result.updatedTo)
   return params
+}
+
+export function mapperProjectAssignmentActiveFilterOptions(options: SelectActiveInactiveOption[]) {
+  return options.map((option) => ({ label: option.name, value: String(option.value) }))
 }
 
 export function mapperProjectAssignmentDetailView(detail: ProjectAssignmentDetail | null): ProjectAssignmentDetailView | null {
