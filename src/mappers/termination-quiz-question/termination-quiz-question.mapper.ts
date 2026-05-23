@@ -1,5 +1,7 @@
 import messages from '@/messages/messages'
 import type {
+  ContractSelectOption,
+  SettlementYesNoOption,
   TerminationQuizQuestionCreateForm,
   TerminationQuizQuestionCreatePayload,
   TerminationQuizQuestionDetail,
@@ -8,6 +10,7 @@ import type {
   TerminationQuizQuestionPagination,
   TerminationQuizQuestionQueryParams,
   TerminationQuizQuestionRaw,
+  TerminationQuizQuestionSelectOption,
   TerminationQuizQuestionTableRow,
   TerminationQuizQuestionUpdatePayload,
 } from '@/types'
@@ -50,6 +53,14 @@ export function mapperTerminationQuizQuestionQueryParams(result: TerminationQuiz
   appendString(params, 'updatedFrom', result.updatedFrom)
   appendString(params, 'updatedTo', result.updatedTo)
   return params
+}
+
+export function mapperTerminationQuizQuestionSelectOptions(options: ContractSelectOption[]): TerminationQuizQuestionSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperTerminationQuizQuestionYesNoSelectOptions(options: SettlementYesNoOption[]): TerminationQuizQuestionSelectOption[] {
+  return options.map((option) => ({ label: option.name ? 'Sí' : 'No', value: String(option.name) }))
 }
 
 export function mapperTerminationQuizQuestionDetailView(detail: TerminationQuizQuestionDetail | null): TerminationQuizQuestionDetailView | null {

@@ -45,6 +45,11 @@ export interface TerminationQuizQuestionCreateForm {
   employeeId: string
 }
 
+export interface TerminationQuizQuestionSelectOption {
+  label: string
+  value: string
+}
+
 export interface TerminationQuizQuestionCreatePayload {
   employeeId?: number
   question: string

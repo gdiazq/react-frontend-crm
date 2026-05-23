@@ -11,8 +11,10 @@ import { initialCreateTerminationQuizQuestionForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import {
   mapperCreateTerminationQuizQuestionPayload,
+  mapperTerminationQuizQuestionSelectOptions,
   mapperTerminationQuizQuestionToForm,
   mapperUpdateTerminationQuizQuestionPayload,
+  mapperTerminationQuizQuestionYesNoSelectOptions,
 } from '@/mappers'
 import { useStoreSettlementSelects, useStoreTerminationQuizQuestion } from '@/store'
 import type {
@@ -51,18 +53,20 @@ export default function TerminationQuizQuestionFormDashboardPage() {
   const updateTerminationQuizQuestion = useStoreTerminationQuizQuestion((s) => s.updateTerminationQuizQuestion)
 
   const employeeWithContractOptions = useStoreSettlementSelects((s) => s.employeeWithContractOptions)
+  const yesNoOptions = useStoreSettlementSelects((s) => s.yesNoOptions)
   const loadingFormOptions = useStoreSettlementSelects((s) => s.loadingFormOptions)
   const formOptionsErrorMessage = useStoreSettlementSelects((s) => s.formOptionsErrorMessage)
   const getFormOptions = useStoreSettlementSelects((s) => s.getFormOptions)
   const clearFormOptionsStatus = useStoreSettlementSelects((s) => s.clearFormOptionsStatus)
 
-  const selectEmployees = employeeWithContractOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const selectEmployees = mapperTerminationQuizQuestionSelectOptions(employeeWithContractOptions)
   const shouldIncludeCurrentEmployee = isEditMode
     && form.employeeId.trim().length > 0
     && !selectEmployees.some((option) => option.value === form.employeeId)
   const selectEmployeesWithCurrent = shouldIncludeCurrentEmployee
     ? [{ label: `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployees]
     : selectEmployees
+  const requiredOptions = mapperTerminationQuizQuestionYesNoSelectOptions(yesNoOptions)
 
   const validatableForm = {
     question: form.question,
@@ -222,6 +226,7 @@ export default function TerminationQuizQuestionFormDashboardPage() {
           form={form}
           errors={errors}
           employeeOptions={selectEmployeesWithCurrent}
+          requiredOptions={requiredOptions}
           loadingEmployeeOptions={loadingFormOptions}
           onChangeField={handleChangeField}
           onValidation={onValidation}

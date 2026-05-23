@@ -1,15 +1,11 @@
 import { DetailSectionHeaderComponent, InputComponent, SelectComponent } from '@/components'
-import type { TerminationQuizQuestionCreateForm } from '@/types'
-
-interface TerminationQuizQuestionSelectOption {
-  label: string
-  value: string
-}
+import type { TerminationQuizQuestionCreateForm, TerminationQuizQuestionSelectOption } from '@/types'
 
 interface TerminationQuizQuestionFormDataSectionComponentProps {
   form: TerminationQuizQuestionCreateForm
   errors: Partial<Record<keyof TerminationQuizQuestionCreateForm, string>>
   employeeOptions: TerminationQuizQuestionSelectOption[]
+  requiredOptions: TerminationQuizQuestionSelectOption[]
   loadingEmployeeOptions: boolean
   onChangeField: (field: keyof TerminationQuizQuestionCreateForm) => (value: string) => void
   onValidation: (field: keyof TerminationQuizQuestionCreateForm) => () => void
@@ -47,7 +43,7 @@ function RequiredOption({ selected, label, onSelect }: { selected: boolean, labe
 }
 
 export function TerminationQuizQuestionFormDataSectionComponent(props: TerminationQuizQuestionFormDataSectionComponentProps) {
-  const { form, errors, employeeOptions, loadingEmployeeOptions, onChangeField, onValidation } = props
+  const { form, errors, employeeOptions, requiredOptions, loadingEmployeeOptions, onChangeField, onValidation } = props
 
   return (
     <section className="space-y-6">
@@ -96,8 +92,14 @@ export function TerminationQuizQuestionFormDataSectionComponent(props: Terminati
               Requerida
             </label>
             <div className="flex flex-wrap gap-2">
-              <RequiredOption selected={form.required === 'true'} label="Sí" onSelect={() => onChangeField('required')('true')} />
-              <RequiredOption selected={form.required === 'false'} label="No" onSelect={() => onChangeField('required')('false')} />
+              {requiredOptions.map((option) => (
+                <RequiredOption
+                  key={option.value}
+                  selected={form.required === option.value}
+                  label={option.label}
+                  onSelect={() => onChangeField('required')(option.value)}
+                />
+              ))}
             </div>
           </div>
         </div>
