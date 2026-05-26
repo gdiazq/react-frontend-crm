@@ -60,14 +60,20 @@ function ProjectDetailContent({
         description={description}
         badges={(
           <>
-            <DetailBadgeComponent tone={activeTone} dot>
-              {activeLabel}
+            <DetailBadgeComponent 
+              tone={activeTone} 
+              dot>
+                {activeLabel}
             </DetailBadgeComponent>
-            <DetailBadgeComponent tone="accent" dot>
-              {detail.typeName || 'Sin tipo'}
+            <DetailBadgeComponent 
+              tone="accent" 
+              dot>
+                {detail.typeName || 'Sin tipo'}
             </DetailBadgeComponent>
-            <DetailBadgeComponent tone="neutral" dot>
-              {detail.specialtyName || 'Sin especialidad'}
+            <DetailBadgeComponent 
+              tone="neutral" 
+              dot>
+                {detail.specialtyName || 'Sin especialidad'}
             </DetailBadgeComponent>
           </>
         )}
@@ -77,12 +83,31 @@ function ProjectDetailContent({
       <section>
         <DetailSectionHeaderComponent number="01" title="Datos generales" />
         <div className="grid gap-x-10 md:grid-cols-2">
-          <DetailFieldCardComponent title="Centro costo" value={detail.costCenterDisplay} mono />
-          <DetailFieldCardComponent title="Estado" value={activeLabel} />
-          <DetailFieldCardComponent title="Tipo" value={detail.typeName} />
-          <DetailFieldCardComponent title="Vigencia" value={detail.statusName} />
-          <DetailFieldCardComponent title="Especialidad" value={detail.specialtyName} />
-          <DetailFieldCardComponent title="Dirección" value={detail.addressDisplay} />
+          <DetailFieldCardComponent 
+            title="Centro costo" 
+            value={detail.costCenterDisplay} 
+            mono 
+          />
+          <DetailFieldCardComponent 
+            title="Estado" 
+            value={activeLabel} 
+          />
+          <DetailFieldCardComponent 
+            title="Tipo" 
+            value={detail.typeName} 
+          />
+          <DetailFieldCardComponent 
+            title="Vigencia" 
+            value={detail.statusName} 
+          />
+          <DetailFieldCardComponent 
+            title="Especialidad" 
+            value={detail.specialtyName} 
+          />
+          <DetailFieldCardComponent 
+            title="Dirección" 
+            value={detail.addressDisplay} 
+          />
           <DetailFieldCardComponent
             title="Descripción"
             value={detail.descriptionDisplay}
@@ -95,8 +120,14 @@ function ProjectDetailContent({
       <section>
         <DetailSectionHeaderComponent number="02" title="Responsables" />
         <div className="grid gap-x-10 md:grid-cols-2">
-          <DetailFieldCardComponent title="Visitador" value={detail.visitorName} />
-          <DetailFieldCardComponent title="Supervisor" value={detail.supervisorName} />
+          <DetailFieldCardComponent 
+            title="Visitador" 
+            value={detail.visitorName} 
+          />
+          <DetailFieldCardComponent 
+            title="Supervisor" 
+            value={detail.supervisorName} 
+          />
           <DetailFieldCardComponent
             title="Representantes"
             value={detail.companyRepresentativesDisplay}
@@ -109,12 +140,24 @@ function ProjectDetailContent({
       <section>
         <DetailSectionHeaderComponent number="03" title="Fechas" />
         <ol className="relative space-y-3 border-l border-slate-200 pl-5 dark:border-white/10">
-          <TimelineItem date={detail.startDateDisplay} label="Inicio planificado" />
-          <TimelineItem date={detail.realStartDateDisplay} label="Inicio real" />
-          <TimelineItem date={detail.endDateDisplay} label="Fin planificado" />
-          <TimelineItem date={detail.realEndDateDisplay} label="Fin real" />
-          <TimelineItem date={detail.createdAtDisplay} label="Proyecto creado" />
-          <TimelineItem date={detail.updatedAtDisplay} label="Última actualización" />
+          <TimelineItem 
+            date={detail.startDateDisplay} 
+            label="Inicio planificado" />
+          <TimelineItem 
+            date={detail.realStartDateDisplay} 
+            label="Inicio real" />
+          <TimelineItem 
+            date={detail.endDateDisplay} 
+            label="Fin planificado" />
+          <TimelineItem 
+            date={detail.realEndDateDisplay} 
+            label="Fin real" />
+          <TimelineItem 
+            date={detail.createdAtDisplay} 
+            label="Proyecto creado" />
+          <TimelineItem 
+            date={detail.updatedAtDisplay} 
+            label="Última actualización" />
         </ol>
       </section>
     </section>
