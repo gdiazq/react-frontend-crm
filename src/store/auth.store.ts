@@ -7,7 +7,6 @@ import type {
   AuthStore,
   AuthLoginErrorResponse,
   AuthLoginPayload,
-  PermissionType,
 } from '@/types'
 
 let currentUserRequest: Promise<void> | null = null
@@ -178,19 +177,5 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
 
   clearMfaRequired: () => {
     set({ mfaRequired: false })
-  },
-
-  hasPermission: (moduleName: string, permissionType: PermissionType) => {
-    const module = get().permissions.find((item) => item.module === moduleName)
-    if (module) return Boolean(module[permissionType])
-
-    const actionByPermissionType: Record<PermissionType, string> = {
-      canRead: 'READ',
-      canCreate: 'CREATE',
-      canUpdate: 'UPDATE',
-      canDelete: 'DELETE',
-    }
-    const permissionCode = `${moduleName}:${actionByPermissionType[permissionType]}`
-    return (get().user?.permissions ?? []).includes(permissionCode)
   },
 }))

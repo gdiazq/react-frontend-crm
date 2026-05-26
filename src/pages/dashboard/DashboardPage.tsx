@@ -8,6 +8,7 @@ import {
 } from '@/components'
 import { AUTH_ROUTE_SETTINGS, PermissionAction } from '@/constant'
 import { useStoreAuth } from '@/store'
+import { useHasPermissionFn } from '@/hooks'
 
 const RRHH_MODULE_LABELS = ['Solicitudes', 'Trabajadores', 'Contratos', 'Permisos', 'Asistencia', 'Horas extras', 'Anexos', 'Traspasos', 'Finiquitos']
 const ADMIN_MODULE_LABELS = ['Usuarios', 'Roles']
@@ -16,7 +17,7 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const user = useStoreAuth((s) => s.user)
   const permissions = useStoreAuth((s) => s.permissions)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
+  const hasPermission = useHasPermissionFn()
 
   const visibleModules = dashboardModules.filter((item) => item.permissionModules.some((module) => hasPermission(module, PermissionAction.Read)))
   const rrhhModules = visibleModules.filter((item) => RRHH_MODULE_LABELS.includes(item.label))

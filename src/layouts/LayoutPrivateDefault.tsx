@@ -42,12 +42,12 @@ import {
   useStoreNotification,
   useStoreTheme,
 } from '@/store'
+import { useHasPermission } from '@/hooks'
 import { selectFilterNotifications, selectUnreadCount } from '@/store/notification.store'
 
 export function LayoutPrivateDefault() {
   const navigate = useNavigate()
   const user = useStoreAuth((s) => s.user)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
   const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
   const isDark = useStoreTheme((s) => s.isDark)
   const toggleTheme = useStoreTheme((s) => s.toggleTheme)
@@ -73,20 +73,20 @@ export function LayoutPrivateDefault() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const disconnectRef = useRef(disconnect)
   disconnectRef.current = disconnect
-  const canReadUsers = hasPermission(PermissionModule.User, PermissionAction.Read)
-  const canReadRequests = hasPermission(PermissionModule.HrRequest, PermissionAction.Read)
-  const canReadEmployees = hasPermission(PermissionModule.Employee, PermissionAction.Read)
-  const canReadContracts = hasPermission(PermissionModule.Contract, PermissionAction.Read)
-  const canReadLeaves = hasPermission(PermissionModule.Leave, PermissionAction.Read)
-  const canReadAttendance = hasPermission(PermissionModule.Attendance, PermissionAction.Read)
-  const canReadOvertime = hasPermission(PermissionModule.Overtime, PermissionAction.Read)
-  const canReadAnnexes = hasPermission(PermissionModule.Annex, PermissionAction.Read)
-  const canReadTransfers = hasPermission(PermissionModule.Transfer, PermissionAction.Read)
-  const canReadProjects = hasPermission(PermissionModule.Project, PermissionAction.Read)
-  const canReadProjectTypes = hasPermission(PermissionModule.ProjectType, PermissionAction.Read)
-  const canReadProjectSpecialties = hasPermission(PermissionModule.ProjectSpecialty, PermissionAction.Read)
-  const canReadProjectStatuses = hasPermission(PermissionModule.ProjectStatus, PermissionAction.Read)
-  const canReadRoles = hasPermission(PermissionModule.Role, PermissionAction.Read)
+  const canReadUsers = useHasPermission(PermissionModule.User, PermissionAction.Read)
+  const canReadRequests = useHasPermission(PermissionModule.HrRequest, PermissionAction.Read)
+  const canReadEmployees = useHasPermission(PermissionModule.Employee, PermissionAction.Read)
+  const canReadContracts = useHasPermission(PermissionModule.Contract, PermissionAction.Read)
+  const canReadLeaves = useHasPermission(PermissionModule.Leave, PermissionAction.Read)
+  const canReadAttendance = useHasPermission(PermissionModule.Attendance, PermissionAction.Read)
+  const canReadOvertime = useHasPermission(PermissionModule.Overtime, PermissionAction.Read)
+  const canReadAnnexes = useHasPermission(PermissionModule.Annex, PermissionAction.Read)
+  const canReadTransfers = useHasPermission(PermissionModule.Transfer, PermissionAction.Read)
+  const canReadProjects = useHasPermission(PermissionModule.Project, PermissionAction.Read)
+  const canReadProjectTypes = useHasPermission(PermissionModule.ProjectType, PermissionAction.Read)
+  const canReadProjectSpecialties = useHasPermission(PermissionModule.ProjectSpecialty, PermissionAction.Read)
+  const canReadProjectStatuses = useHasPermission(PermissionModule.ProjectStatus, PermissionAction.Read)
+  const canReadRoles = useHasPermission(PermissionModule.Role, PermissionAction.Read)
 
   useEffect(() => {
     let cancelled = false
