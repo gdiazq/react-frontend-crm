@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import {
-  AUTH_ROUTE_HOME,
+  AUTH_ROUTE_DASHBOARD,
   AUTH_ROUTE_LOGIN,
   AUTH_ROUTE_LOGOUT,
   AUTH_ROUTE_UNAUTHORIZED,
@@ -68,7 +68,7 @@ export function PublicRoute({ children }: PublicRouteProps) {
   const isLogoutRoute = location.pathname === AUTH_ROUTE_LOGOUT
 
   if (user && !isLogoutRoute) {
-    return <Navigate to={AUTH_ROUTE_HOME} replace />
+    return <Navigate to={AUTH_ROUTE_DASHBOARD} replace />
   }
 
   return <>{children}</>

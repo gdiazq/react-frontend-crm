@@ -13,14 +13,11 @@ import type {
 let currentUserRequest: Promise<void> | null = null
 
 export const useStoreAuth = create<AuthStore>()((set, get) => ({
-  // State
   user: null,
   permissions: [],
-  // Loading
   loginSubmitting: false,
   githubOAuthSubmitting: false,
   loadingUser: false,
-  // Messages
   loginError: false,
   mfaRequired: false,
   messageAlert: { ...initialAlert },
@@ -34,16 +31,21 @@ export const useStoreAuth = create<AuthStore>()((set, get) => ({
       set({ loginSubmitting: true, loginError: false, errorMessage: null, successMessage: null })
 
       const data = await authService.login(credentials)
-      set({ user: data.user, permissions: data.modules ?? [], mfaRequired: false })
+      let authenticatedUser = data.user
 
       try {
         const fullProfile = await authService.getFullProfile()
-        set({ user: fullProfile })
+        authenticatedUser = fullProfile
       } catch {
         // Login data is sufficient to proceed
       }
 
-      set({ successMessage: messages.auth.status.success.loginSuccess })
+      set({
+        user: authenticatedUser,
+        permissions: data.modules ?? [],
+        mfaRequired: false,
+        successMessage: messages.auth.status.success.loginSuccess,
+      })
       return true
     } catch (error) {
       set({ loginError: true, errorBack: error })
