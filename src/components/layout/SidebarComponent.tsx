@@ -196,15 +196,7 @@ export function SidebarComponent({
   const isSettlementsSafetyComplianceActive = useMemo(() => pathname === '/settlements/safety-compliance', [pathname])
   const isSettlementsNoRehireCauseActive = useMemo(() => pathname === '/settlements/no-rehire-cause', [pathname])
   const isSettlementsTerminationQuizQuestionActive = useMemo(() => pathname === '/settlements/termination-quiz-question', [pathname])
-  const isProjectsActive = useMemo(() => {
-    const path = pathname
-    if (path === '/projects' || path === '/projects/new') return true
-    if (path.startsWith('/projects/history')) return false
-    if (path.startsWith('/projects/types')) return false
-    if (path.startsWith('/projects/specialties')) return false
-    if (path.startsWith('/projects/statuses')) return false
-    return path.startsWith('/projects/')
-  }, [pathname])
+  const isProjectsActive = useMemo(() => pathname === '/projects', [pathname])
   const isProjectAssignmentsActive = useMemo(() => pathname.startsWith('/projects/history'), [pathname])
   const isProjectTypesActive = useMemo(() => pathname.startsWith('/projects/types'), [pathname])
   const isProjectSpecialtiesActive = useMemo(() => pathname.startsWith('/projects/specialties'), [pathname])
