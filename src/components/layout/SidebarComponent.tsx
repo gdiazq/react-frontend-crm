@@ -15,6 +15,11 @@ interface SidebarComponentProps {
   showAnnexes?: boolean
   showTransfers?: boolean
   showSettlements?: boolean
+  showSettlementsTerminationCauses?: boolean
+  showSettlementsWorkQuality?: boolean
+  showSettlementsSafetyCompliance?: boolean
+  showSettlementsNoRehireCause?: boolean
+  showSettlementsTerminationQuizQuestion?: boolean
   showProjects?: boolean
   showProjectAssignments?: boolean
   showProjectTypes?: boolean
@@ -137,6 +142,11 @@ export function SidebarComponent({
   showAnnexes = true,
   showTransfers = true,
   showSettlements = true,
+  showSettlementsTerminationCauses = true,
+  showSettlementsWorkQuality = true,
+  showSettlementsSafetyCompliance = true,
+  showSettlementsNoRehireCause = true,
+  showSettlementsTerminationQuizQuestion = true,
   showProjects = true,
   showProjectAssignments = true,
   showProjectTypes = true,
@@ -355,7 +365,7 @@ export function SidebarComponent({
 
   const finiquitoSubItems: NavItem[] = [
     {
-      show: showSettlements,
+      show: showSettlementsTerminationCauses,
       active: isSettlementsTerminationCausesActive,
       label: 'Terminación',
       tooltip: 'Terminación',
@@ -368,7 +378,7 @@ export function SidebarComponent({
       onClick: onGoSettlementsTerminationCauses,
     },
     {
-      show: showSettlements,
+      show: showSettlementsWorkQuality,
       active: isSettlementsWorkQualityActive,
       label: 'Calidad del trabajo',
       tooltip: 'Calidad del trabajo',
@@ -380,7 +390,7 @@ export function SidebarComponent({
       onClick: onGoSettlementsWorkQuality,
     },
     {
-      show: showSettlements,
+      show: showSettlementsSafetyCompliance,
       active: isSettlementsSafetyComplianceActive,
       label: 'Seguridad',
       tooltip: 'Seguridad',
@@ -393,7 +403,7 @@ export function SidebarComponent({
       onClick: onGoSettlementsSafetyCompliance,
     },
     {
-      show: showSettlements,
+      show: showSettlementsNoRehireCause,
       active: isSettlementsNoRehireCauseActive,
       label: 'No recontratación',
       tooltip: 'No recontratación',
@@ -406,7 +416,7 @@ export function SidebarComponent({
       onClick: onGoSettlementsNoRehireCause,
     },
     {
-      show: showSettlements,
+      show: showSettlementsTerminationQuizQuestion,
       active: isSettlementsTerminationQuizQuestionActive,
       label: 'Quiz de salida',
       tooltip: 'Quiz de salida',
@@ -603,7 +613,7 @@ export function SidebarComponent({
               {visibleRrhh.map(item => (
                 <NavItemButton key={item.label} item={item} collapsed={collapsed} />
               ))}
-              {showSettlements && visibleFiniquitoSub.length > 0 && (
+              {visibleFiniquitoSub.length > 0 && (
                 <div
                   className={`space-y-0.5 ${
                     collapsed

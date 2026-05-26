@@ -87,6 +87,12 @@ export function LayoutPrivateDefault() {
   const canReadProjectSpecialties = useHasPermission(PermissionModule.ProjectSpecialty, PermissionAction.Read)
   const canReadProjectStatuses = useHasPermission(PermissionModule.ProjectStatus, PermissionAction.Read)
   const canReadRoles = useHasPermission(PermissionModule.Role, PermissionAction.Read)
+  const canReadSettlements = useHasPermission(PermissionModule.Settlement, PermissionAction.Read)
+  const canReadLegalTerminationCauses = useHasPermission(PermissionModule.LegalTerminationCause, PermissionAction.Read)
+  const canReadQualityOfWork = useHasPermission(PermissionModule.QualityOfWork, PermissionAction.Read)
+  const canReadSafetyCompliance = useHasPermission(PermissionModule.SafetyCompliance, PermissionAction.Read)
+  const canReadNoRehireCause = useHasPermission(PermissionModule.NoRehireCause, PermissionAction.Read)
+  const canReadTerminationQuizQuestion = useHasPermission(PermissionModule.TerminationQuizQuestion, PermissionAction.Read)
 
   useEffect(() => {
     let cancelled = false
@@ -242,6 +248,10 @@ export function LayoutPrivateDefault() {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
+    if (!canReadSettlements) {
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
+      return
+    }
     navigate(AUTH_ROUTE_SETTLEMENTS)
   }
 
@@ -249,6 +259,10 @@ export function LayoutPrivateDefault() {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
+    if (!canReadLegalTerminationCauses) {
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
+      return
+    }
     navigate(AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES)
   }
 
@@ -256,6 +270,10 @@ export function LayoutPrivateDefault() {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
+    if (!canReadQualityOfWork) {
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
+      return
+    }
     navigate(AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY)
   }
 
@@ -263,6 +281,10 @@ export function LayoutPrivateDefault() {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
+    if (!canReadSafetyCompliance) {
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
+      return
+    }
     navigate(AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE)
   }
 
@@ -270,6 +292,10 @@ export function LayoutPrivateDefault() {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
+    if (!canReadNoRehireCause) {
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
+      return
+    }
     navigate(AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE)
   }
 
@@ -277,6 +303,10 @@ export function LayoutPrivateDefault() {
     setMobileSidebarOpen(false)
     setSettingsDropdownOpen(false)
     setCalendarOpen(false)
+    if (!canReadTerminationQuizQuestion) {
+      navigate(AUTH_ROUTE_UNAUTHORIZED)
+      return
+    }
     navigate(AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION)
   }
 
@@ -418,7 +448,19 @@ export function LayoutPrivateDefault() {
         showOvertime={canReadOvertime}
         showAnnexes={canReadAnnexes}
         showTransfers={canReadTransfers}
-        showSettlements
+        showSettlements={
+          canReadSettlements
+          || canReadLegalTerminationCauses
+          || canReadQualityOfWork
+          || canReadSafetyCompliance
+          || canReadNoRehireCause
+          || canReadTerminationQuizQuestion
+        }
+        showSettlementsTerminationCauses={canReadLegalTerminationCauses}
+        showSettlementsWorkQuality={canReadQualityOfWork}
+        showSettlementsSafetyCompliance={canReadSafetyCompliance}
+        showSettlementsNoRehireCause={canReadNoRehireCause}
+        showSettlementsTerminationQuizQuestion={canReadTerminationQuizQuestion}
         showProjects={canReadProjects}
         showProjectAssignments={canReadProjects}
         showProjectTypes={canReadProjectTypes}
