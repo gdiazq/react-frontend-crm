@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_USERS_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { usersTableColumns, usersTableColumnIndex, usersTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreUsers } from '@/store'
+import { useStoreUsers } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { UserTableRow } from '@/types'
 import { createTableCustomRenderer, createUsersActions, renderStatusBadge, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -27,8 +28,7 @@ export function UsersListTableComponent({ onViewDetail, onToggleStatus, loadingE
   const loading = useStoreUsers((s) => s.operationLoading.list)
   const sortUsers = useStoreUsers((s) => s.sortUsers)
   const goToPage = useStoreUsers((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleUserStatus = hasPermission(PermissionModule.User, PermissionAction.Update)
+  const canToggleUserStatus = useHasPermission(PermissionModule.User, PermissionAction.Update)
   const { actionViewDetail, actionUpdateUser, actionToggleStatus } = createUsersActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null

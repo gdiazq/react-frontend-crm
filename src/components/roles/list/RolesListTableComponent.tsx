@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_ROLES_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { rolesTableColumns, rolesTableColumnIndex, rolesTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreRoles } from '@/store'
+import { useStoreRoles } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { RoleTableRow } from '@/types'
 import { createRolesActions, createTableCustomRenderer, renderStatusBadge, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -28,8 +29,7 @@ export function RolesListTableComponent(props: RolesListTableComponentProps) {
   const loading = useStoreRoles((s) => s.operationLoading.list)
   const sortRoles = useStoreRoles((s) => s.sortRoles)
   const goToPage = useStoreRoles((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleRoleStatus = hasPermission(PermissionModule.Role, PermissionAction.Update)
+  const canToggleRoleStatus = useHasPermission(PermissionModule.Role, PermissionAction.Update)
   const { actionViewDetail, actionUpdateRole, actionToggleStatus } = createRolesActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
