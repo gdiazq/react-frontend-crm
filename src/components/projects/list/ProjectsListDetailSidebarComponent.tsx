@@ -8,7 +8,8 @@ import {
 } from '@/components'
 import { AUTH_ROUTE_PROJECTS_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperProjectDetailView } from '@/mappers'
-import { useStoreAuth, useStoreProjects } from '@/store'
+import { useStoreProjects } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 type ProjectDetailTabKey = 'detail' | 'employees'
 
@@ -32,8 +33,7 @@ export function ProjectsListDetailSidebarComponent(props: ProjectsListDetailSide
   const error = useStoreProjects((s) => s.operationStatus.detail.error)
   const getProjectDetail = useStoreProjects((s) => s.getProjectDetail)
   const clearProjectDetail = useStoreProjects((s) => s.clearProjectDetail)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canUpdateProject = hasPermission(PermissionModule.Project, PermissionAction.Update)
+  const canUpdateProject = useHasPermission(PermissionModule.Project, PermissionAction.Update)
 
   useEffect(() => {
     if (rowId) void getProjectDetail(rowId)

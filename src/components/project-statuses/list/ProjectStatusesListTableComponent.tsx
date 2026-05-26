@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_PROJECT_STATUSES_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { projectStatusesTableColumns, projectStatusesTableColumnIndex, projectStatusesTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreProjectStatuses } from '@/store'
+import { useStoreProjectStatuses } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { ProjectStatusTableRow } from '@/types'
 import { createProjectStatusesActions, createTableCustomRenderer, renderStatusBadge, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -28,8 +29,7 @@ export function ProjectStatusesListTableComponent(props: ProjectStatusesListTabl
   const loading = useStoreProjectStatuses((s) => s.operationLoading.list)
   const sortProjectStatuses = useStoreProjectStatuses((s) => s.sortProjectStatuses)
   const goToPage = useStoreProjectStatuses((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleStatus = hasPermission(PermissionModule.ProjectStatus, PermissionAction.Update)
+  const canToggleStatus = useHasPermission(PermissionModule.ProjectStatus, PermissionAction.Update)
   const { actionViewDetail, actionUpdateProjectStatus, actionToggleStatus } = createProjectStatusesActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null

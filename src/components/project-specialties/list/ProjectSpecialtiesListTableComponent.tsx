@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_PROJECT_SPECIALTIES_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { projectSpecialtiesTableColumns, projectSpecialtiesTableColumnIndex, projectSpecialtiesTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreProjectSpecialties } from '@/store'
+import { useStoreProjectSpecialties } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { ProjectSpecialtyTableRow } from '@/types'
 import { createProjectSpecialtiesActions, createTableCustomRenderer, renderStatusBadge, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -28,8 +29,7 @@ export function ProjectSpecialtiesListTableComponent(props: ProjectSpecialtiesLi
   const loading = useStoreProjectSpecialties((s) => s.operationLoading.list)
   const sortProjectSpecialties = useStoreProjectSpecialties((s) => s.sortProjectSpecialties)
   const goToPage = useStoreProjectSpecialties((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleStatus = hasPermission(PermissionModule.ProjectSpecialty, PermissionAction.Update)
+  const canToggleStatus = useHasPermission(PermissionModule.ProjectSpecialty, PermissionAction.Update)
   const { actionViewDetail, actionUpdateProjectSpecialty, actionToggleStatus } = createProjectSpecialtiesActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null

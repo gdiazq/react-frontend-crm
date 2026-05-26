@@ -8,7 +8,8 @@ import {
   SortDirection,
 } from '@/constant'
 import { projectsTableColumns, projectsTableColumnIndex, projectsTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreProjects, useStoreSelects } from '@/store'
+import { useStoreProjects, useStoreSelects } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { ProjectTableRow } from '@/types'
 import {
   createProjectsActions,
@@ -41,9 +42,8 @@ export function ProjectsListTableComponent(props: ProjectsListTableComponentProp
   const loading = useStoreProjects((s) => s.operationLoading.list)
   const sortProjects = useStoreProjects((s) => s.sortProjects)
   const goToPage = useStoreProjects((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canReadProject = hasPermission(PermissionModule.Project, PermissionAction.Read)
-  const canUpdateProject = hasPermission(PermissionModule.Project, PermissionAction.Update)
+  const canReadProject = useHasPermission(PermissionModule.Project, PermissionAction.Read)
+  const canUpdateProject = useHasPermission(PermissionModule.Project, PermissionAction.Update)
   const projectTypeOptions = useStoreSelects((s) => s.projectTypeOptions)
   const projectStatusOptions = useStoreSelects((s) => s.projectStatusOptions)
   const projectSpecialtyOptions = useStoreSelects((s) => s.projectSpecialtyOptions)
