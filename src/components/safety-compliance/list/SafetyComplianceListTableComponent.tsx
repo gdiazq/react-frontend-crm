@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS_SAFETY_COMPLIANCE_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { safetyComplianceTableColumns, safetyComplianceTableColumnIndex, safetyComplianceTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreSafetyCompliance } from '@/store'
+import { useStoreSafetyCompliance } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { SafetyComplianceTableRow } from '@/types'
 import { createSafetyComplianceActions, createTableCustomRenderer, renderStatusBadge, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -28,8 +29,7 @@ export function SafetyComplianceListTableComponent(props: SafetyComplianceListTa
   const loading = useStoreSafetyCompliance((s) => s.operationLoading.list)
   const sortSafetyCompliance = useStoreSafetyCompliance((s) => s.sortSafetyCompliance)
   const goToPage = useStoreSafetyCompliance((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleStatus = hasPermission(PermissionModule.SafetyCompliance, PermissionAction.Update)
+  const canToggleStatus = useHasPermission(PermissionModule.SafetyCompliance, PermissionAction.Update)
   const { actionViewDetail, actionUpdateSafetyCompliance, actionToggleStatus } = createSafetyComplianceActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null

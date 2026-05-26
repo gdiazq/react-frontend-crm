@@ -8,7 +8,8 @@ import {
   SortDirection,
 } from '@/constant'
 import { overtimeTableColumns, overtimeTableColumnIndex, overtimeTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreOvertime } from '@/store'
+import { useStoreOvertime } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { OvertimeTableRow, TableRow } from '@/types'
 import {
   createOvertimeActions,
@@ -35,8 +36,7 @@ export function OvertimeListTableComponent({ onViewDetail }: OvertimeListTableCo
   const loading = useStoreOvertime((s) => s.operationLoading.list)
   const goToPage = useStoreOvertime((s) => s.goToPage)
   const sortOvertime = useStoreOvertime((s) => s.sortOvertime)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canUpdate = hasPermission(PermissionModule.Overtime, PermissionAction.Update)
+  const canUpdate = useHasPermission(PermissionModule.Overtime, PermissionAction.Update)
 
   const { actionViewDetail, actionUpdateOvertime } = createOvertimeActions()
 

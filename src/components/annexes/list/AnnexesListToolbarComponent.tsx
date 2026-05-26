@@ -6,9 +6,10 @@ import {
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_ANNEXES_CREATE } from '@/constant'
+import { AUTH_ROUTE_ANNEXES_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import { annexesService } from '@/services'
 import { useStoreAnnexes } from '@/store'
+import { useHasPermission } from '@/hooks'
 import { downloadBlobFile } from '@/utils'
 
 interface AnnexesListToolbarComponentProps {
@@ -22,6 +23,7 @@ export function AnnexesListToolbarComponent(props: AnnexesListToolbarComponentPr
   const loading = useStoreAnnexes((s) => s.operationLoading.list)
   const setSearch = useStoreAnnexes((s) => s.setSearch)
   const searchAnnexes = useStoreAnnexes((s) => s.searchAnnexes)
+  const canCreate = useHasPermission(PermissionModule.Annex, PermissionAction.Create)
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')
 
@@ -59,14 +61,16 @@ export function AnnexesListToolbarComponent(props: AnnexesListToolbarComponentPr
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loading ? 'Buscando...' : 'Buscar'}
           />
-          <ButtonComponent
-            type="button"
-            variant="success"
-            disabled={loading}
-            className="flex-1 md:flex-none"
-            label="Nuevo anexo"
-            onClick={() => navigate(AUTH_ROUTE_ANNEXES_CREATE)}
-          />
+          {canCreate && (
+            <ButtonComponent
+              type="button"
+              variant="success"
+              disabled={loading}
+              className="flex-1 md:flex-none"
+              label="Nuevo anexo"
+              onClick={() => navigate(AUTH_ROUTE_ANNEXES_CREATE)}
+            />
+          )}
           <ToolbarActionsDropdownComponent
             disabled={loading || downloadingReport}
             showBulkUpload={false}

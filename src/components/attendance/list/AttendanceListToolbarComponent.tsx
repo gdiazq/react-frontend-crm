@@ -9,7 +9,8 @@ import {
 import { AUTH_ROUTE_ATTENDANCE_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import messages from '@/messages/messages'
 import { attendanceService } from '@/services'
-import { useStoreAttendance, useStoreAuth } from '@/store'
+import { useStoreAttendance } from '@/store'
+import { useHasPermission } from '@/hooks'
 import { downloadBlobFile } from '@/utils'
 
 interface AttendanceListToolbarComponentProps {
@@ -24,8 +25,7 @@ export function AttendanceListToolbarComponent(props: AttendanceListToolbarCompo
   const loading = useStoreAttendance((s) => s.operationLoading.list)
   const setSearch = useStoreAttendance((s) => s.setSearch)
   const searchAttendance = useStoreAttendance((s) => s.searchAttendance)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canCreate = hasPermission(PermissionModule.Attendance, PermissionAction.Create)
+  const canCreate = useHasPermission(PermissionModule.Attendance, PermissionAction.Create)
 
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')

@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnnexDetailComponent, DetailSidebarComponent } from '@/components'
-import { AUTH_ROUTE_ANNEXES_EDIT } from '@/constant'
+import { AUTH_ROUTE_ANNEXES_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperAnnexDetailView } from '@/mappers'
 import { storageService } from '@/services'
 import { useStoreAnnexes } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 interface AnnexesListDetailSidebarComponentProps {
   rowId: string | null
@@ -20,6 +21,7 @@ export function AnnexesListDetailSidebarComponent(props: AnnexesListDetailSideba
   const error = useStoreAnnexes((s) => s.operationStatus.detail.error)
   const getAnnexDetail = useStoreAnnexes((s) => s.getAnnexDetail)
   const clearAnnexDetail = useStoreAnnexes((s) => s.clearAnnexDetail)
+  const canUpdate = useHasPermission(PermissionModule.Annex, PermissionAction.Update)
 
   useEffect(() => {
     if (rowId) void getAnnexDetail(rowId)
@@ -49,7 +51,7 @@ export function AnnexesListDetailSidebarComponent(props: AnnexesListDetailSideba
         loading={loading}
         errorMessage={error}
         onRetry={() => { if (rowId) void getAnnexDetail(rowId) }}
-        onEdit={rowId ? () => navigate(`${AUTH_ROUTE_ANNEXES_EDIT}=${rowId}`) : undefined}
+        onEdit={canUpdate && rowId ? () => navigate(`${AUTH_ROUTE_ANNEXES_EDIT}=${rowId}`) : undefined}
         onDownloadDocument={handleDownloadDocument}
       />
     </DetailSidebarComponent>

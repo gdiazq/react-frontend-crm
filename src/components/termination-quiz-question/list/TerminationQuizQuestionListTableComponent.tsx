@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS_TERMINATION_QUIZ_QUESTION_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { terminationQuizQuestionTableColumns, terminationQuizQuestionTableColumnIndex, terminationQuizQuestionTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreTerminationQuizQuestion } from '@/store'
+import { useStoreTerminationQuizQuestion } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { TerminationQuizQuestionTableRow } from '@/types'
 import { createTableCustomRenderer, createTerminationQuizQuestionActions, renderStatusBadge, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -28,8 +29,7 @@ export function TerminationQuizQuestionListTableComponent(props: TerminationQuiz
   const loading = useStoreTerminationQuizQuestion((s) => s.operationLoading.list)
   const sortTerminationQuizQuestion = useStoreTerminationQuizQuestion((s) => s.sortTerminationQuizQuestion)
   const goToPage = useStoreTerminationQuizQuestion((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleStatus = hasPermission(PermissionModule.TerminationQuizQuestion, PermissionAction.Update)
+  const canToggleStatus = useHasPermission(PermissionModule.TerminationQuizQuestion, PermissionAction.Update)
   const { actionViewDetail, actionUpdateTerminationQuizQuestion, actionToggleStatus } = createTerminationQuizQuestionActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null

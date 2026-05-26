@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DetailSidebarComponent, SettlementDetailComponent } from '@/components'
-import { AUTH_ROUTE_SETTLEMENTS_EDIT } from '@/constant'
+import { AUTH_ROUTE_SETTLEMENTS_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperSettlementDetailView } from '@/mappers'
 import { storageService } from '@/services'
 import { useStoreSettlement } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 interface SettlementsListDetailSidebarComponentProps {
   rowId: string | null
@@ -19,6 +20,7 @@ export function SettlementsListDetailSidebarComponent({ rowId, fallbackName, onC
   const detailError = useStoreSettlement((s) => s.operationStatus.detail.error)
   const getSettlementDetail = useStoreSettlement((s) => s.getSettlementDetail)
   const clearSettlementDetail = useStoreSettlement((s) => s.clearSettlementDetail)
+  const canUpdate = useHasPermission(PermissionModule.Settlement, PermissionAction.Update)
 
   useEffect(() => {
     if (rowId) void getSettlementDetail(rowId)
@@ -48,7 +50,7 @@ export function SettlementsListDetailSidebarComponent({ rowId, fallbackName, onC
         loading={loadingSettlementDetail}
         errorMessage={detailError}
         onRetry={() => { if (rowId) void getSettlementDetail(rowId) }}
-        onEdit={rowId ? () => navigate(`${AUTH_ROUTE_SETTLEMENTS_EDIT}=${rowId}`) : undefined}
+        onEdit={canUpdate && rowId ? () => navigate(`${AUTH_ROUTE_SETTLEMENTS_EDIT}=${rowId}`) : undefined}
         onDownloadDocument={handleDownloadDocument}
       />
     </DetailSidebarComponent>

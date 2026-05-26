@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS_WORK_QUALITY_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { qualityOfWorkTableColumns, qualityOfWorkTableColumnIndex, qualityOfWorkTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreQualityOfWork } from '@/store'
+import { useStoreQualityOfWork } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { QualityOfWorkTableRow } from '@/types'
 import { createQualityOfWorkActions, createTableCustomRenderer, renderStatusBadge, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -28,8 +29,7 @@ export function QualityOfWorkListTableComponent(props: QualityOfWorkListTableCom
   const loading = useStoreQualityOfWork((s) => s.operationLoading.list)
   const sortQualityOfWork = useStoreQualityOfWork((s) => s.sortQualityOfWork)
   const goToPage = useStoreQualityOfWork((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleStatus = hasPermission(PermissionModule.QualityOfWork, PermissionAction.Update)
+  const canToggleStatus = useHasPermission(PermissionModule.QualityOfWork, PermissionAction.Update)
   const { actionViewDetail, actionUpdateQualityOfWork, actionToggleStatus } = createQualityOfWorkActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null

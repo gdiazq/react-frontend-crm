@@ -3,9 +3,10 @@ import {
   TableComponent,
 } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
-import { SortDirection } from '@/constant'
+import { PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { requestsTableColumns, requestsTableColumnIndex, requestsTableSortByColumn } from '@/factories'
 import { useStoreRequests } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { RequestTableRow } from '@/types'
 import {
   createRequestsActions,
@@ -36,12 +37,13 @@ export function RequestsListTableComponent(props: RequestsListTableComponentProp
   const loadingRequests = useStoreRequests((s) => s.operationLoading.list)
   const goToPage = useStoreRequests((s) => s.goToPage)
   const sortRequests = useStoreRequests((s) => s.sortRequests)
+  const canUpdate = useHasPermission(PermissionModule.HrRequest, PermissionAction.Update)
   const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
 
   const findRequestRowById = (rowId: string) => requestsRows.find((row) => row.id === rowId) ?? null
   const resolveRowActions = (row: RequestTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
-    if (!FINAL_REQUEST_STATUS_IDS.has(row.statusId)) {
+    if (canUpdate && !FINAL_REQUEST_STATUS_IDS.has(row.statusId)) {
       actions.push(actionApproveRequest(() => onApprove(row)))
       actions.push(actionRejectRequest(() => onReject(row)))
     }

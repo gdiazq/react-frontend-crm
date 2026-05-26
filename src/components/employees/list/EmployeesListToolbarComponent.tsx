@@ -6,9 +6,10 @@ import {
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_EMPLOYEES_CREATE } from '@/constant'
+import { AUTH_ROUTE_EMPLOYEES_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import { employeesService } from '@/services'
 import { useStoreEmployees } from '@/store'
+import { useHasPermission } from '@/hooks'
 import { downloadBlobFile, formatCsvImportSummary } from '@/utils'
 
 interface EmployeesListToolbarComponentProps {
@@ -24,6 +25,7 @@ export function EmployeesListToolbarComponent(props: EmployeesListToolbarCompone
   const setSearch = useStoreEmployees((s) => s.setSearch)
   const searchEmployees = useStoreEmployees((s) => s.searchEmployees)
   const getEmployees = useStoreEmployees((s) => s.getEmployees)
+  const canCreate = useHasPermission(PermissionModule.Employee, PermissionAction.Create)
   const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [uploadingBulk, setUploadingBulk] = useState(false)
@@ -100,14 +102,16 @@ export function EmployeesListToolbarComponent(props: EmployeesListToolbarCompone
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loading ? 'Buscando...' : 'Buscar'}
           />
-          <ButtonComponent
-            type="button"
-            variant="success"
-            disabled={loadingAny}
-            className="flex-1 md:flex-none"
-            label="Nuevo trabajador"
-            onClick={() => navigate(AUTH_ROUTE_EMPLOYEES_CREATE)}
-          />
+          {canCreate && (
+            <ButtonComponent
+              type="button"
+              variant="success"
+              disabled={loadingAny}
+              className="flex-1 md:flex-none"
+              label="Nuevo trabajador"
+              onClick={() => navigate(AUTH_ROUTE_EMPLOYEES_CREATE)}
+            />
+          )}
           <ToolbarActionsDropdownComponent
             disabled={loadingAny}
             onDownloadReport={() => { void handleDownloadReport() }}

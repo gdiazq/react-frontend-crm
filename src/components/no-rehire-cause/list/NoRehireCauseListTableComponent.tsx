@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS_NO_REHIRE_CAUSE_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { noRehireCauseTableColumns, noRehireCauseTableColumnIndex, noRehireCauseTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreNoRehireCause } from '@/store'
+import { useStoreNoRehireCause } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { NoRehireCauseTableRow } from '@/types'
 import { createNoRehireCauseActions, createTableCustomRenderer, renderStatusBadge, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -28,8 +29,7 @@ export function NoRehireCauseListTableComponent(props: NoRehireCauseListTableCom
   const loading = useStoreNoRehireCause((s) => s.operationLoading.list)
   const sortNoRehireCause = useStoreNoRehireCause((s) => s.sortNoRehireCause)
   const goToPage = useStoreNoRehireCause((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleStatus = hasPermission(PermissionModule.NoRehireCause, PermissionAction.Update)
+  const canToggleStatus = useHasPermission(PermissionModule.NoRehireCause, PermissionAction.Update)
   const { actionViewDetail, actionUpdateNoRehireCause, actionToggleStatus } = createNoRehireCauseActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null

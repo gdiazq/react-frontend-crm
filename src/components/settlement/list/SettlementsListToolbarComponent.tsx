@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertMessageComponent, ButtonComponent, InputComponent, ToolbarActionsDropdownComponent } from '@/components'
-import { AUTH_ROUTE_SETTLEMENTS_CREATE } from '@/constant'
+import { AUTH_ROUTE_SETTLEMENTS_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import { settlementService } from '@/services'
 import { useStoreSettlement } from '@/store'
+import { useHasPermission } from '@/hooks'
 import { downloadBlobFile } from '@/utils'
 
 interface SettlementsListToolbarComponentProps {
@@ -16,6 +17,7 @@ export function SettlementsListToolbarComponent({ onOpenFilters }: SettlementsLi
   const loading = useStoreSettlement((s) => s.operationLoading.list)
   const setSearch = useStoreSettlement((s) => s.setSearch)
   const searchSettlements = useStoreSettlement((s) => s.searchSettlements)
+  const canCreate = useHasPermission(PermissionModule.Settlement, PermissionAction.Create)
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')
 
@@ -60,14 +62,16 @@ export function SettlementsListToolbarComponent({ onOpenFilters }: SettlementsLi
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loading ? 'Buscando...' : 'Buscar'}
           />
-          <ButtonComponent
-            type="button"
-            variant="success"
-            disabled={loading}
-            className="flex-1 md:flex-none"
-            label="Nuevo finiquito"
-            onClick={() => navigate(AUTH_ROUTE_SETTLEMENTS_CREATE)}
-          />
+          {canCreate && (
+            <ButtonComponent
+              type="button"
+              variant="success"
+              disabled={loading}
+              className="flex-1 md:flex-none"
+              label="Nuevo finiquito"
+              onClick={() => navigate(AUTH_ROUTE_SETTLEMENTS_CREATE)}
+            />
+          )}
           <ToolbarActionsDropdownComponent
             disabled={loading || downloadingReport}
             showBulkUpload={false}

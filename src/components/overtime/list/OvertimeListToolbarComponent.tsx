@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { ButtonComponent, InputComponent } from '@/components'
 import { AUTH_ROUTE_OVERTIME_CREATE, PermissionAction, PermissionModule } from '@/constant'
-import { useStoreAuth, useStoreOvertime } from '@/store'
+import { useStoreOvertime } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 interface OvertimeListToolbarComponentProps {
   onOpenFilters: () => void
@@ -13,8 +14,7 @@ export function OvertimeListToolbarComponent({ onOpenFilters }: OvertimeListTool
   const loading = useStoreOvertime((s) => s.operationLoading.list)
   const setSearch = useStoreOvertime((s) => s.setSearch)
   const searchOvertime = useStoreOvertime((s) => s.searchOvertime)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canCreate = hasPermission(PermissionModule.Overtime, PermissionAction.Create)
+  const canCreate = useHasPermission(PermissionModule.Overtime, PermissionAction.Create)
 
   return (
     <form

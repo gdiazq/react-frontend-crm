@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { legalTerminationCausesTableColumns, legalTerminationCausesTableColumnIndex, legalTerminationCausesTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreLegalTerminationCauses } from '@/store'
+import { useStoreLegalTerminationCauses } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { LegalTerminationCauseTableRow } from '@/types'
 import { createLegalTerminationCausesActions, createTableCustomRenderer, renderStatusBadge, renderViewDetailButton } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -28,8 +29,7 @@ export function LegalTerminationCausesListTableComponent(props: LegalTermination
   const loading = useStoreLegalTerminationCauses((s) => s.operationLoading.list)
   const sortLegalTerminationCauses = useStoreLegalTerminationCauses((s) => s.sortLegalTerminationCauses)
   const goToPage = useStoreLegalTerminationCauses((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canToggleStatus = hasPermission(PermissionModule.LegalTerminationCause, PermissionAction.Update)
+  const canToggleStatus = useHasPermission(PermissionModule.LegalTerminationCause, PermissionAction.Update)
   const { actionViewDetail, actionUpdateLegalTerminationCause, actionToggleStatus } = createLegalTerminationCausesActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null

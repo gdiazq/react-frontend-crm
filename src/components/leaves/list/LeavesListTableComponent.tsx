@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
-import { AUTH_ROUTE_LEAVES_EDIT, SortDirection } from '@/constant'
+import { AUTH_ROUTE_LEAVES_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { leavesTableColumns, leavesTableColumnIndex, leavesTableSortByColumn } from '@/factories'
 import { useStoreLeaves } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { LeaveTableRow } from '@/types'
 import {
   createLeavesActions,
@@ -30,13 +31,17 @@ export function LeavesListTableComponent({ onViewDetail }: LeavesListTableCompon
   const loading = useStoreLeaves((s) => s.operationLoading.list)
   const sortLeaves = useStoreLeaves((s) => s.sortLeaves)
   const goToPage = useStoreLeaves((s) => s.goToPage)
+  const canUpdate = useHasPermission(PermissionModule.Leave, PermissionAction.Update)
   const { actionViewDetail, actionUpdateLeave } = createLeavesActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
-  const resolveRowActions = (row: LeaveTableRow): DropdownAction[] => [
-    actionViewDetail(() => onViewDetail(row)),
-    actionUpdateLeave(() => navigate(`${AUTH_ROUTE_LEAVES_EDIT}=${row.id}`)),
-  ]
+  const resolveRowActions = (row: LeaveTableRow): DropdownAction[] => {
+    const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
+    if (canUpdate) {
+      actions.push(actionUpdateLeave(() => navigate(`${AUTH_ROUTE_LEAVES_EDIT}=${row.id}`)))
+    }
+    return actions
+  }
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
     const row = findRowById(tableRow.id)
     return row ? resolveRowActions(row) : []

@@ -8,7 +8,8 @@ import {
   SortDirection,
 } from '@/constant'
 import { attendanceTableColumns, attendanceTableColumnIndex, attendanceTableSortByColumn } from '@/factories'
-import { useStoreAttendance, useStoreAuth } from '@/store'
+import { useStoreAttendance } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { AttendanceTableRow, TableRow } from '@/types'
 import {
   createAttendanceActions,
@@ -36,8 +37,7 @@ export function AttendanceListTableComponent(props: AttendanceListTableComponent
   const loading = useStoreAttendance((s) => s.operationLoading.list)
   const goToPage = useStoreAttendance((s) => s.goToPage)
   const sortAttendance = useStoreAttendance((s) => s.sortAttendance)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canUpdate = hasPermission(PermissionModule.Attendance, PermissionAction.Update)
+  const canUpdate = useHasPermission(PermissionModule.Attendance, PermissionAction.Update)
 
   const { actionViewDetail, actionUpdateAttendance } = createAttendanceActions()
 

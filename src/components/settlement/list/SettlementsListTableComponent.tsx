@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
-import { AUTH_ROUTE_SETTLEMENTS_EDIT, SortDirection } from '@/constant'
+import { AUTH_ROUTE_SETTLEMENTS_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { settlementTableColumns, settlementTableColumnIndex, settlementTableSortByColumn } from '@/factories'
 import { useStoreSettlement } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { SettlementTableRow } from '@/types'
 import {
   createSettlementActions,
@@ -32,14 +33,18 @@ export function SettlementsListTableComponent({ onViewDetail }: SettlementsListT
   const loading = useStoreSettlement((s) => s.operationLoading.list)
   const sortSettlements = useStoreSettlement((s) => s.sortSettlements)
   const goToPage = useStoreSettlement((s) => s.goToPage)
+  const canUpdate = useHasPermission(PermissionModule.Settlement, PermissionAction.Update)
   const { actionViewDetail, actionEdit } = createSettlementActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
 
-  const resolveRowActions = (row: SettlementTableRow): DropdownAction[] => [
-    actionViewDetail(() => onViewDetail(row)),
-    actionEdit(() => navigate(`${AUTH_ROUTE_SETTLEMENTS_EDIT}=${row.id}`)),
-  ]
+  const resolveRowActions = (row: SettlementTableRow): DropdownAction[] => {
+    const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
+    if (canUpdate) {
+      actions.push(actionEdit(() => navigate(`${AUTH_ROUTE_SETTLEMENTS_EDIT}=${row.id}`)))
+    }
+    return actions
+  }
 
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
     const row = findRowById(tableRow.id)

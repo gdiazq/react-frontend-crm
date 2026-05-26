@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
 import type { TableSortState } from '@/components'
-import { AUTH_ROUTE_ANNEXES_EDIT, SortDirection } from '@/constant'
+import { AUTH_ROUTE_ANNEXES_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { annexesTableColumns, annexesTableColumnIndex, annexesTableSortByColumn } from '@/factories'
 import { useStoreAnnexes } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { AnnexTableRow, TableRow } from '@/types'
 import {
   createAnnexesActions,
@@ -31,14 +32,18 @@ export function AnnexesListTableComponent(props: AnnexesListTableComponentProps)
   const loading = useStoreAnnexes((s) => s.operationLoading.list)
   const goToPage = useStoreAnnexes((s) => s.goToPage)
   const sortAnnexes = useStoreAnnexes((s) => s.sortAnnexes)
+  const canUpdate = useHasPermission(PermissionModule.Annex, PermissionAction.Update)
   const { actionViewDetail, actionUpdateAnnex } = createAnnexesActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
 
-  const resolveRowActions = (row: AnnexTableRow): DropdownAction[] => [
-    actionViewDetail(() => onViewDetail(row)),
-    actionUpdateAnnex(() => navigate(`${AUTH_ROUTE_ANNEXES_EDIT}=${row.id}`)),
-  ]
+  const resolveRowActions = (row: AnnexTableRow): DropdownAction[] => {
+    const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
+    if (canUpdate) {
+      actions.push(actionUpdateAnnex(() => navigate(`${AUTH_ROUTE_ANNEXES_EDIT}=${row.id}`)))
+    }
+    return actions
+  }
 
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
     const row = findRowById(tableRow.id)

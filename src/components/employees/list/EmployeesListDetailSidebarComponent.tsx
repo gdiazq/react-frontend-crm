@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DetailSidebarComponent, EmployeeDetailComponent } from '@/components'
-import { AUTH_ROUTE_EMPLOYEES_EDIT } from '@/constant'
+import { AUTH_ROUTE_EMPLOYEES_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperEmployeeDetailView } from '@/mappers'
 import { useStoreEmployees } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { DropdownAction } from '@/utils'
 
 interface EmployeesListDetailSidebarComponentProps {
@@ -21,6 +22,7 @@ export function EmployeesListDetailSidebarComponent(props: EmployeesListDetailSi
   const error = useStoreEmployees((s) => s.operationStatus.detail.error)
   const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
   const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
+  const canUpdate = useHasPermission(PermissionModule.Employee, PermissionAction.Update)
 
   useEffect(() => {
     if (rowId) void getEmployeeDetail(rowId)
@@ -46,7 +48,7 @@ export function EmployeesListDetailSidebarComponent(props: EmployeesListDetailSi
         loading={loading}
         errorMessage={error}
         onRetry={() => { if (rowId) void getEmployeeDetail(rowId) }}
-        onEdit={rowId ? () => navigate(`${AUTH_ROUTE_EMPLOYEES_EDIT}=${rowId}`) : undefined}
+        onEdit={canUpdate && rowId ? () => navigate(`${AUTH_ROUTE_EMPLOYEES_EDIT}=${rowId}`) : undefined}
         moreActions={moreActions}
       />
     </DetailSidebarComponent>

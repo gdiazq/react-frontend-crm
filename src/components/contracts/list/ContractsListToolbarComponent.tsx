@@ -6,9 +6,10 @@ import {
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_CONTRACTS_CREATE } from '@/constant'
+import { AUTH_ROUTE_CONTRACTS_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import { contractsService } from '@/services'
 import { useStoreContracts } from '@/store'
+import { useHasPermission } from '@/hooks'
 import { downloadBlobFile, formatCsvImportSummary } from '@/utils'
 
 interface ContractsListToolbarComponentProps {
@@ -23,6 +24,7 @@ export function ContractsListToolbarComponent(props: ContractsListToolbarCompone
   const setSearch = useStoreContracts((s) => s.setSearch)
   const searchContracts = useStoreContracts((s) => s.searchContracts)
   const getContracts = useStoreContracts((s) => s.getContracts)
+  const canCreate = useHasPermission(PermissionModule.Contract, PermissionAction.Create)
   const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
   const [uploadingBulk, setUploadingBulk] = useState(false)
@@ -91,14 +93,16 @@ export function ContractsListToolbarComponent(props: ContractsListToolbarCompone
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loading ? 'Buscando...' : 'Buscar'}
           />
-          <ButtonComponent
-            type="button"
-            variant="success"
-            disabled={loading}
-            className="flex-1 md:flex-none"
-            label="Nuevo contrato"
-            onClick={() => navigate(AUTH_ROUTE_CONTRACTS_CREATE)}
-          />
+          {canCreate && (
+            <ButtonComponent
+              type="button"
+              variant="success"
+              disabled={loading}
+              className="flex-1 md:flex-none"
+              label="Nuevo contrato"
+              onClick={() => navigate(AUTH_ROUTE_CONTRACTS_CREATE)}
+            />
+          )}
           <ToolbarActionsDropdownComponent
             disabled={loading || downloadingReport || uploadingBulk}
             onDownloadReport={() => { void handleDownloadReport() }}

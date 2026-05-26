@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ContractDetailComponent, DetailSidebarComponent } from '@/components'
-import { AUTH_ROUTE_ANNEXES, AUTH_ROUTE_CONTRACTS_EDIT } from '@/constant'
+import { AUTH_ROUTE_ANNEXES, AUTH_ROUTE_CONTRACTS_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperContractDetailView } from '@/mappers'
 import { storageService } from '@/services'
 import { useStoreAnnexes, useStoreContracts } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 interface ContractsListDetailSidebarComponentProps {
   rowId: string | null
@@ -24,6 +25,7 @@ export function ContractsListDetailSidebarComponent(props: ContractsListDetailSi
   const loadingContractAnnexes = useStoreAnnexes((s) => s.loadingContractAnnexes)
   const getAnnexesByContract = useStoreAnnexes((s) => s.getAnnexesByContract)
   const clearContractAnnexes = useStoreAnnexes((s) => s.clearContractAnnexes)
+  const canUpdate = useHasPermission(PermissionModule.Contract, PermissionAction.Update)
 
   useEffect(() => {
     if (!rowId) return
@@ -57,7 +59,7 @@ export function ContractsListDetailSidebarComponent(props: ContractsListDetailSi
         errorMessage={error}
         onRetry={() => { if (rowId) void getContractDetail(rowId) }}
         onDownloadDocument={handleDownloadDocument}
-        onEdit={rowId ? () => navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${rowId}`) : undefined}
+        onEdit={canUpdate && rowId ? () => navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${rowId}`) : undefined}
         annexes={contractAnnexes}
         loadingAnnexes={loadingContractAnnexes}
         onGoAnnex={() => navigate(AUTH_ROUTE_ANNEXES)}

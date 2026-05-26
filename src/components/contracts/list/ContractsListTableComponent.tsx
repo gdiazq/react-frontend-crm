@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
 import type { TableSortState } from '@/components'
-import { AUTH_ROUTE_CONTRACTS_EDIT, SortDirection } from '@/constant'
+import { AUTH_ROUTE_CONTRACTS_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
 import { useStoreContracts } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { ContractTableRow, TableRow } from '@/types'
 import {
   createContractsActions,
@@ -33,14 +34,18 @@ export function ContractsListTableComponent(props: ContractsListTableComponentPr
   const loading = useStoreContracts((s) => s.operationLoading.list)
   const goToPage = useStoreContracts((s) => s.goToPage)
   const sortContracts = useStoreContracts((s) => s.sortContracts)
+  const canUpdate = useHasPermission(PermissionModule.Contract, PermissionAction.Update)
   const { actionViewDetail, actionUpdateContract } = createContractsActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
 
-  const resolveRowActions = (row: ContractTableRow): DropdownAction[] => [
-    actionViewDetail(() => onViewDetail(row)),
-    actionUpdateContract(() => navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${row.id}`)),
-  ]
+  const resolveRowActions = (row: ContractTableRow): DropdownAction[] => {
+    const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
+    if (canUpdate) {
+      actions.push(actionUpdateContract(() => navigate(`${AUTH_ROUTE_CONTRACTS_EDIT}=${row.id}`)))
+    }
+    return actions
+  }
 
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
     const row = findRowById(tableRow.id)

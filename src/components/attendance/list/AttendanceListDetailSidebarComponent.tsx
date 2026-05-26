@@ -4,7 +4,8 @@ import { AttendanceDetailComponent, DetailSidebarComponent } from '@/components'
 import { AUTH_ROUTE_ATTENDANCE_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperAttendanceDetailView } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAttendance, useStoreAuth } from '@/store'
+import { useStoreAttendance } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 interface AttendanceListDetailSidebarComponentProps {
   rowId: string | null
@@ -20,8 +21,7 @@ export function AttendanceListDetailSidebarComponent(props: AttendanceListDetail
   const error = useStoreAttendance((s) => s.operationStatus.detail.error)
   const getAttendanceDetail = useStoreAttendance((s) => s.getAttendanceDetail)
   const clearAttendanceDetail = useStoreAttendance((s) => s.clearAttendanceDetail)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canUpdate = hasPermission(PermissionModule.Attendance, PermissionAction.Update)
+  const canUpdate = useHasPermission(PermissionModule.Attendance, PermissionAction.Update)
 
   useEffect(() => {
     if (rowId) void getAttendanceDetail(rowId)

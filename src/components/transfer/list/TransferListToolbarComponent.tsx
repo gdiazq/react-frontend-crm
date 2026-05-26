@@ -7,7 +7,8 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_TRANSFERS_CREATE, PermissionAction, PermissionModule } from '@/constant'
-import { useStoreAuth, useStoreTransfer } from '@/store'
+import { useStoreTransfer } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 interface TransferListToolbarComponentProps {
   onOpenFilters: () => void
@@ -20,8 +21,7 @@ export function TransferListToolbarComponent({ onOpenFilters }: TransferListTool
   const setSearch = useStoreTransfer((s) => s.setSearch)
   const searchTransfers = useStoreTransfer((s) => s.searchTransfers)
   const exportTransfersCsv = useStoreTransfer((s) => s.exportTransfersCsv)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canCreateTransfer = hasPermission(PermissionModule.Transfer, PermissionAction.Create)
+  const canCreateTransfer = useHasPermission(PermissionModule.Transfer, PermissionAction.Create)
   const [exportingCsv, setExportingCsv] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')
 

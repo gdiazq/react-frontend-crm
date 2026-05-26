@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { DetailSidebarComponent, OvertimeDetailComponent } from '@/components'
 import { AUTH_ROUTE_OVERTIME_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperOvertimeDetailView } from '@/mappers'
-import { useStoreAuth, useStoreOvertime } from '@/store'
+import { useStoreOvertime } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 interface OvertimeListDetailSidebarComponentProps {
   rowId: string | null
@@ -22,8 +23,7 @@ export function OvertimeListDetailSidebarComponent({
   const error = useStoreOvertime((s) => s.operationStatus.detail.error)
   const getOvertimeDetail = useStoreOvertime((s) => s.getOvertimeDetail)
   const clearOvertimeDetail = useStoreOvertime((s) => s.clearOvertimeDetail)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canUpdate = hasPermission(PermissionModule.Overtime, PermissionAction.Update)
+  const canUpdate = useHasPermission(PermissionModule.Overtime, PermissionAction.Update)
 
   useEffect(() => {
     if (rowId) void getOvertimeDetail(rowId)

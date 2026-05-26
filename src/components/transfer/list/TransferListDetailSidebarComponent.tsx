@@ -4,7 +4,8 @@ import { DetailSidebarComponent, TransferDetailComponent } from '@/components'
 import { AUTH_ROUTE_TRANSFERS_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperTransferDetailView } from '@/mappers'
 import { storageService } from '@/services'
-import { useStoreAuth, useStoreTransfer } from '@/store'
+import { useStoreTransfer } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 interface TransferListDetailSidebarComponentProps {
   rowId: string | null
@@ -20,8 +21,7 @@ export function TransferListDetailSidebarComponent({ rowId, fallbackName, onClos
   const getTransferDetail = useStoreTransfer((s) => s.getTransferDetail)
   const clearTransferDetail = useStoreTransfer((s) => s.clearTransferDetail)
   const clearOperationStatus = useStoreTransfer((s) => s.clearOperationStatus)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canUpdateTransfer = hasPermission(PermissionModule.Transfer, PermissionAction.Update)
+  const canUpdateTransfer = useHasPermission(PermissionModule.Transfer, PermissionAction.Update)
 
   useEffect(() => {
     if (rowId) void getTransferDetail(rowId)

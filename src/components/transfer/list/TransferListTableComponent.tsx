@@ -3,7 +3,8 @@ import { PaginationComponent, TableComponent } from '@/components'
 import type { TableRow, TableSortState } from '@/components'
 import { AUTH_ROUTE_TRANSFERS_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
 import { transferTableColumns, transferTableColumnIndex, transferTableSortByColumn } from '@/factories'
-import { useStoreAuth, useStoreTransfer } from '@/store'
+import { useStoreTransfer } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { TransferTableRow } from '@/types'
 import {
   createTableCustomRenderer,
@@ -30,8 +31,7 @@ export function TransferListTableComponent({ onViewDetail }: TransferListTableCo
   const loading = useStoreTransfer((s) => s.operationLoading.list)
   const sortTransfers = useStoreTransfer((s) => s.sortTransfers)
   const goToPage = useStoreTransfer((s) => s.goToPage)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canUpdateTransfer = hasPermission(PermissionModule.Transfer, PermissionAction.Update)
+  const canUpdateTransfer = useHasPermission(PermissionModule.Transfer, PermissionAction.Update)
   const { actionViewDetail, actionUpdateTransfer } = createTransferActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null

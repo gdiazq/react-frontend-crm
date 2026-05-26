@@ -3,9 +3,11 @@ import {
   DetailSidebarComponent,
   RequestDetailComponent,
 } from '@/components'
+import { PermissionAction, PermissionModule } from '@/constant'
 import { requestsTableColumnIndex } from '@/factories'
 import { mapperRequestDetailView } from '@/mappers'
 import { useStoreRequests } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { RequestTableRow } from '@/types'
 
 const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
@@ -35,8 +37,9 @@ export function RequestsListDetailSidebarComponent(props: RequestsListDetailSide
     onClose()
   }
 
+  const canUpdate = useHasPermission(PermissionModule.HrRequest, PermissionAction.Update)
   const requestDetailView = mapperRequestDetailView(requestDetail)
-  const canAct = row ? !FINAL_REQUEST_STATUS_IDS.has(row.statusId) : false
+  const canAct = canUpdate && row ? !FINAL_REQUEST_STATUS_IDS.has(row.statusId) : false
   const fallbackName = row ? String(row.values[REQUEST_NAME_COLUMN_INDEX] ?? 'Solicitud') : ''
   const title = requestDetailView
     ? `Detalle de ${requestDetailView.fullName}`

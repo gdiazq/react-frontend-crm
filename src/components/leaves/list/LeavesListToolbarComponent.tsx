@@ -6,9 +6,10 @@ import {
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_LEAVES_CREATE } from '@/constant'
+import { AUTH_ROUTE_LEAVES_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import { leavesService } from '@/services'
 import { useStoreLeaves } from '@/store'
+import { useHasPermission } from '@/hooks'
 import { downloadBlobFile } from '@/utils'
 
 interface LeavesListToolbarComponentProps {
@@ -21,6 +22,7 @@ export function LeavesListToolbarComponent({ onOpenFilters }: LeavesListToolbarC
   const loading = useStoreLeaves((s) => s.operationLoading.list)
   const setSearch = useStoreLeaves((s) => s.setSearch)
   const searchLeaves = useStoreLeaves((s) => s.searchLeaves)
+  const canCreate = useHasPermission(PermissionModule.Leave, PermissionAction.Create)
   const [actionsMessage, setActionsMessage] = useState('')
   const [downloadingReport, setDownloadingReport] = useState(false)
 
@@ -58,14 +60,16 @@ export function LeavesListToolbarComponent({ onOpenFilters }: LeavesListToolbarC
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loading ? 'Buscando...' : 'Buscar'}
           />
-          <ButtonComponent
-            type="button"
-            variant="success"
-            disabled={loading}
-            className="flex-1 md:flex-none"
-            label="Nuevo permiso"
-            onClick={() => navigate(AUTH_ROUTE_LEAVES_CREATE)}
-          />
+          {canCreate && (
+            <ButtonComponent
+              type="button"
+              variant="success"
+              disabled={loading}
+              className="flex-1 md:flex-none"
+              label="Nuevo permiso"
+              onClick={() => navigate(AUTH_ROUTE_LEAVES_CREATE)}
+            />
+          )}
           <ToolbarActionsDropdownComponent
             disabled={loading || downloadingReport}
             showBulkUpload={false}

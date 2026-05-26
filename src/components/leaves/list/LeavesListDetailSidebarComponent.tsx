@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DetailSidebarComponent, LeaveDetailComponent } from '@/components'
-import { AUTH_ROUTE_LEAVES_EDIT } from '@/constant'
+import { AUTH_ROUTE_LEAVES_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperLeaveDetailView } from '@/mappers'
 import { storageService } from '@/services'
 import { useStoreLeaves } from '@/store'
+import { useHasPermission } from '@/hooks'
 
 interface LeavesListDetailSidebarComponentProps {
   rowId: string | null
@@ -20,6 +21,7 @@ export function LeavesListDetailSidebarComponent(props: LeavesListDetailSidebarC
   const error = useStoreLeaves((s) => s.operationStatus.detail.error)
   const getLeaveDetail = useStoreLeaves((s) => s.getLeaveDetail)
   const clearLeaveDetail = useStoreLeaves((s) => s.clearLeaveDetail)
+  const canUpdate = useHasPermission(PermissionModule.Leave, PermissionAction.Update)
 
   useEffect(() => {
     if (rowId) void getLeaveDetail(rowId)
@@ -49,7 +51,7 @@ export function LeavesListDetailSidebarComponent(props: LeavesListDetailSidebarC
         loading={loading}
         errorMessage={error}
         onRetry={() => { if (rowId) void getLeaveDetail(rowId) }}
-        onEdit={rowId ? () => navigate(`${AUTH_ROUTE_LEAVES_EDIT}=${rowId}`) : undefined}
+        onEdit={canUpdate && rowId ? () => navigate(`${AUTH_ROUTE_LEAVES_EDIT}=${rowId}`) : undefined}
         onDownloadDocument={handleDownloadDocument}
       />
     </DetailSidebarComponent>
