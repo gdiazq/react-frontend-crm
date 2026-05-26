@@ -8,6 +8,7 @@ import {
   PermissionAction,
 } from '@/constant'
 import { useStoreAuth } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { PermissionActionValue } from '@/constant'
 
 interface ProtectedRouteProps {
@@ -25,7 +26,7 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const user = useStoreAuth((s) => s.user)
   const getCurrentUser = useStoreAuth((s) => s.getCurrentUser)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
+  const canAccess = useHasPermission(module, permissionType)
   const [loading, setLoading] = useState(!user)
   const [error, setError] = useState(false)
 
@@ -51,7 +52,7 @@ export function ProtectedRoute({
     return <Navigate to={AUTH_ROUTE_LOGIN} replace />
   }
 
-  if (requiresPermissions && module && !hasPermission(module, permissionType)) {
+  if (requiresPermissions && module && !canAccess) {
     return <Navigate to={AUTH_ROUTE_UNAUTHORIZED} replace />
   }
 

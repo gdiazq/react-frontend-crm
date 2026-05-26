@@ -19,11 +19,11 @@ import {
 import { employeesTableColumnIndex } from '@/factories'
 import messages from '@/messages/messages'
 import {
-  useStoreAuth,
   useStoreEmployeeSelects,
   useStoreEmployees,
   useStoreSelects,
 } from '@/store'
+import { useHasPermission } from '@/hooks'
 import type { EmployeeTableRow } from '@/types'
 import { createEmployeesActions } from '@/utils'
 import type { DropdownAction } from '@/utils'
@@ -49,8 +49,7 @@ export default function EmployeesDashboardPage() {
   const linkEmployeeUser = useStoreEmployees((s) => s.linkEmployeeUser)
   const unlinkEmployeeUser = useStoreEmployees((s) => s.unlinkEmployeeUser)
   const clearAvailableUsers = useStoreEmployees((s) => s.clearAvailableUsers)
-  const hasPermission = useStoreAuth((s) => s.hasPermission)
-  const canUpdateEmployee = hasPermission(PermissionModule.Employee, PermissionAction.Update)
+  const canUpdateEmployee = useHasPermission(PermissionModule.Employee, PermissionAction.Update)
   const canToggleEmployeeStatus = canUpdateEmployee
 
   const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
@@ -122,12 +121,10 @@ export default function EmployeesDashboardPage() {
   }
 
   const resolveRowActions = (row: EmployeeTableRow): DropdownAction[] => {
-    const actions: DropdownAction[] = [
-      actionViewDetail(() => handleViewDetail(row)),
-      actionUpdateEmployee(() => handleUpdateEmployee(row)),
-    ]
+    const actions: DropdownAction[] = [actionViewDetail(() => handleViewDetail(row))]
 
     if (canUpdateEmployee) {
+      actions.push(actionUpdateEmployee(() => handleUpdateEmployee(row)))
       const hasLinkedUser = (row.linkedUserId ?? 0) > 0 || (row.linkedUserEmail ?? '').trim().length > 0
       actions.push(hasLinkedUser
         ? actionUnlinkUser(() => handleOpenUnlinkUser(row))
