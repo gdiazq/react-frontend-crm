@@ -17,6 +17,8 @@ export interface ProjectStatusesStore {
   projectStatusesRows: ProjectStatusTableRow[]
   pagination: ProjectStatusesPagination
   queryParams: ProjectStatusesQueryParams
+  exportingCsv: boolean
+  importingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getProjectStatuses: () => Promise<void>
@@ -36,6 +38,8 @@ export interface ProjectStatusesStore {
   createProjectStatus: (payload: ProjectStatusCreatePayload) => Promise<boolean>
   updateProjectStatus: (payload: ProjectStatusUpdatePayload) => Promise<boolean>
   toggleProjectStatusStatus: (projectStatusId: string, nextStatus: boolean) => Promise<boolean>
+  exportProjectStatusesCsv: () => Promise<boolean>
+  importProjectStatusesCsv: (file: File) => Promise<string | null>
   clearProjectStatusDetail: () => void
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void

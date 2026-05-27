@@ -16,22 +16,27 @@ import type { ProjectStatusTableRow } from '@/types'
 const NAME_COLUMN_INDEX = projectStatusesTableColumnIndex.name
 
 export default function ProjectStatusesDashboardPage() {
-  const pagination = useStoreProjectStatuses((s) => s.pagination)
-  const loadingToggleStatus = useStoreProjectStatuses((s) => s.operationLoading.toggle)
-  const listError = useStoreProjectStatuses((s) => s.operationStatus.list.error)
-  const toggleError = useStoreProjectStatuses((s) => s.operationStatus.toggle.error)
-  const clearOperationStatus = useStoreProjectStatuses((s) => s.clearOperationStatus)
-  const getProjectStatuses = useStoreProjectStatuses((s) => s.getProjectStatuses)
-  const toggleProjectStatusStatus = useStoreProjectStatuses((s) => s.toggleProjectStatusStatus)
-  const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
-  const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
-  const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
-
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<ProjectStatusTableRow | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
+
+  // Store state used to render the dashboard.
+  const pagination = useStoreProjectStatuses((s) => s.pagination)
+  const loadingToggleStatus = useStoreProjectStatuses((s) => s.operationLoading.toggle)
+  const listError = useStoreProjectStatuses((s) => s.operationStatus.list.error)
+  const toggleError = useStoreProjectStatuses((s) => s.operationStatus.toggle.error)
+
+  // Store actions triggered by dashboard interactions.
+  const clearOperationStatus = useStoreProjectStatuses((s) => s.clearOperationStatus)
+  const getProjectStatuses = useStoreProjectStatuses((s) => s.getProjectStatuses)
+  const toggleProjectStatusStatus = useStoreProjectStatuses((s) => s.toggleProjectStatusStatus)
+
+  // Shared select state/actions used by filters.
+  const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
+  const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
+  const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
 
   useEffect(() => {
     void getProjectStatuses()

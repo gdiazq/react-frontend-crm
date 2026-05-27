@@ -14,6 +14,8 @@ import { projectStatusesService } from '@/services'
 import type { ProjectStatusesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
+  formatCsvImportSummary,
   initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
@@ -31,6 +33,8 @@ export const useStoreProjectStatuses = create<ProjectStatusesStore>()((set, get)
     projectStatusesRows: [...initialProjectStatusesRows],
     pagination: { ...initialProjectStatusesPagination },
     queryParams: { ...initialProjectStatusesQueryParams },
+    exportingCsv: false,
+    importingCsv: false,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
@@ -266,6 +270,41 @@ export const useStoreProjectStatuses = create<ProjectStatusesStore>()((set, get)
         return false
       } finally {
         setOpLoading('toggle', false)
+      }
+    },
+
+    exportProjectStatusesCsv: async () => {
+      if (get().exportingCsv) return false
+
+      try {
+        set({ exportingCsv: true })
+        clearOp('list')
+        const csvBlob = await projectStatusesService.exportProjectStatusesCsv()
+        downloadBlobFile(csvBlob, 'project-statuses.csv')
+        setOpSuccess('list', messages.projectStatuses.status.success.exportSuccess)
+        return true
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.projectStatuses.status.errors.exportError), error)
+        return false
+      } finally {
+        set({ exportingCsv: false })
+      }
+    },
+
+    importProjectStatusesCsv: async (file: File) => {
+      if (get().importingCsv) return null
+
+      try {
+        set({ importingCsv: true })
+        clearOp('list')
+        const result = await projectStatusesService.importProjectStatusesCsv(file)
+        await get().getProjectStatuses()
+        return formatCsvImportSummary(result)
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.projectStatuses.status.errors.importError), error)
+        return null
+      } finally {
+        set({ importingCsv: false })
       }
     },
 

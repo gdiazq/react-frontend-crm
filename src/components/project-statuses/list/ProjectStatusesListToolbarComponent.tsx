@@ -7,9 +7,7 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_PROJECT_STATUSES_CREATE } from '@/constant'
-import { projectStatusesService } from '@/services'
 import { useStoreProjectStatuses } from '@/store'
-import { downloadBlobFile, formatCsvImportSummary } from '@/utils'
 
 interface ProjectStatusesListToolbarComponentProps {
   onOpenFilters: () => void
@@ -18,58 +16,46 @@ interface ProjectStatusesListToolbarComponentProps {
 
 export function ProjectStatusesListToolbarComponent(props: ProjectStatusesListToolbarComponentProps) {
   const { onOpenFilters, disabled = false } = props
+
   const navigate = useNavigate()
+  const [actionsMessage, setActionsMessage] = useState('')
+  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Store state used to render toolbar controls.
   const search = useStoreProjectStatuses((s) => s.queryParams.search)
   const loading = useStoreProjectStatuses((s) => s.operationLoading.list)
+  const exportingCsv = useStoreProjectStatuses((s) => s.exportingCsv)
+  const importingCsv = useStoreProjectStatuses((s) => s.importingCsv)
+
+  // Store actions triggered by toolbar interactions.
   const setSearch = useStoreProjectStatuses((s) => s.setSearch)
   const searchProjectStatuses = useStoreProjectStatuses((s) => s.searchProjectStatuses)
-  const getProjectStatuses = useStoreProjectStatuses((s) => s.getProjectStatuses)
-  const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const [uploadingBulk, setUploadingBulk] = useState(false)
-  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
-  const loadingAny = loading || disabled || downloadingReport || uploadingBulk
+  const exportProjectStatusesCsv = useStoreProjectStatuses((s) => s.exportProjectStatusesCsv)
+  const importProjectStatusesCsv = useStoreProjectStatuses((s) => s.importProjectStatusesCsv)
+
+  // Derived disabled state for every toolbar action.
+  const loadingAny = loading || disabled || exportingCsv || importingCsv
 
   const handleDownloadReport = async () => {
-    if (downloadingReport) return
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await projectStatusesService.exportProjectStatusesCsv()
-      downloadBlobFile(csvBlob, 'project-statuses.csv')
+    if (exportingCsv) return
+    const success = await exportProjectStatusesCsv()
+    if (success) {
       setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (projectStatusesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
     }
   }
 
   const handleBulkUpload = () => {
-    if (uploadingBulk) return
+    if (importingCsv) return
     bulkUploadInputRef.current?.click()
   }
 
   const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
-    if (!file || uploadingBulk) return
-    try {
-      setUploadingBulk(true)
-      const result = await projectStatusesService.importProjectStatusesCsv(file)
-      setActionsMessage(formatCsvImportSummary(result))
-      await getProjectStatuses()
-    } catch (error) {
-      if (projectStatusesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
-      } else {
-        setActionsMessage('No se pudo realizar la carga masiva.')
-      }
-    } finally {
-      setUploadingBulk(false)
+    if (!file || importingCsv) return
+    const summary = await importProjectStatusesCsv(file)
+    if (summary) {
+      setActionsMessage(summary)
     }
   }
 

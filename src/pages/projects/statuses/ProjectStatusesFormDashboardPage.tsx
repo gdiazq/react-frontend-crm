@@ -11,13 +11,7 @@ import { initialCreateProjectStatusForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import { mapperCreateProjectStatusPayload, mapperProjectStatusToForm, mapperUpdateProjectStatusPayload } from '@/mappers'
 import { useStoreProjectStatuses } from '@/store'
-import type { ProjectStatusCreatePayload, ProjectStatusUpdatePayload } from '@/types'
 import { projectStatusesCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: ProjectStatusCreatePayload }
-  | { mode: 'update', payload: ProjectStatusUpdatePayload }
-  | null
 
 export default function ProjectStatusesFormDashboardPage() {
   const navigate = useNavigate()
@@ -28,14 +22,16 @@ export default function ProjectStatusesFormDashboardPage() {
 
   const [form, setForm] = useState({ ...initialCreateProjectStatusForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
+  // Store state used to render loading and submit status.
   const loadingProjectStatusDetail = useStoreProjectStatuses((s) => s.operationLoading.detail)
   const detailError = useStoreProjectStatuses((s) => s.operationStatus.detail.error)
   const createProjectStatusSubmitting = useStoreProjectStatuses((s) => s.operationLoading.create)
   const updateProjectStatusSubmitting = useStoreProjectStatuses((s) => s.operationLoading.update)
   const createStatus = useStoreProjectStatuses((s) => s.operationStatus.create)
   const updateStatus = useStoreProjectStatuses((s) => s.operationStatus.update)
+
+  // Store actions triggered by form lifecycle and submit.
   const getProjectStatusDetail = useStoreProjectStatuses((s) => s.getProjectStatusDetail)
   const clearProjectStatusDetail = useStoreProjectStatuses((s) => s.clearProjectStatusDetail)
   const clearOperationStatus = useStoreProjectStatuses((s) => s.clearOperationStatus)
@@ -44,8 +40,8 @@ export default function ProjectStatusesFormDashboardPage() {
 
   const { errors, validateAll, onValidation } = useFormValidation(form, projectStatusesCreateValidationRules)
 
+  // Derived UI state.
   const saving = createProjectStatusSubmitting || updateProjectStatusSubmitting
-
   const headerTitle = isEditMode ? 'Editar vigencia de proyecto' : 'Crear vigencia de proyecto'
   const headerDescription = isEditMode
     ? 'Actualiza los datos de la vigencia de proyecto seleccionada.'
@@ -101,27 +97,21 @@ export default function ProjectStatusesFormDashboardPage() {
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
     if (!validateAll()) return
-
-    if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateProjectStatusPayload(editProjectStatusId, form) })
-    } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateProjectStatusPayload(form) })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
+    if (saving) return
+    if (!validateAll()) return
 
-    const success = pendingAction.mode === 'create'
-      ? await createProjectStatus(pendingAction.payload)
-      : await updateProjectStatus(pendingAction.payload)
+    const success = isEditMode
+      ? await updateProjectStatus(mapperUpdateProjectStatusPayload(editProjectStatusId, form))
+      : await createProjectStatus(mapperCreateProjectStatusPayload(form))
 
     if (success) {
       navigate(AUTH_ROUTE_PROJECT_STATUSES)
@@ -129,10 +119,9 @@ export default function ProjectStatusesFormDashboardPage() {
     }
 
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? `¿Deseas guardar los cambios de la vigencia ${form.name}?`
     : `¿Deseas crear la vigencia ${form.name}?`
   const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'

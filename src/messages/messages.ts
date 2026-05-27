@@ -596,16 +596,20 @@ export default {
       actionEnableProjectStatus: 'Habilitar vigencia',
       actionDisableProjectStatus: 'Deshabilitar vigencia',
       detailTitleFallback: 'Detalle de vigencia de proyecto',
+      emptyList: 'No hay vigencias registradas.',
     },
     status: {
       success: {
         createProjectStatusSuccess: 'Vigencia de proyecto creada correctamente.',
         updateProjectStatusSuccess: 'Vigencia de proyecto actualizada correctamente.',
+        exportSuccess: 'Reporte descargado correctamente.',
         toggleEnabledSuccess: 'habilitada correctamente.',
         toggleDisabledSuccess: 'deshabilitada correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de vigencias de proyecto.',
+        exportError: 'No se pudo descargar el reporte de vigencias de proyecto.',
+        importError: 'No se pudo realizar la carga masiva de vigencias de proyecto.',
         createProjectStatusError: 'No se pudo crear la vigencia de proyecto.',
         createProjectStatusNameRequired: 'Ingresa un nombre valido para la vigencia de proyecto.',
         updateProjectStatusError: 'No se pudo actualizar la vigencia de proyecto.',
