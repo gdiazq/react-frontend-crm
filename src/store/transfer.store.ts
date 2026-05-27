@@ -33,6 +33,9 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
     queryParams: { ...initialTransferQueryParams },
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
+    projectCostCenterOptions: [],
+    loadingProjectCostCenterOptions: false,
+    projectCostCenterOptionsErrorMessage: null,
 
     getTransfers: async () => {
       const requestId = ++latestTransfersRequestId
@@ -214,12 +217,44 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
       }
     },
 
+    getProjectCostCenterOptions: async () => {
+      try {
+        set({ loadingProjectCostCenterOptions: true, projectCostCenterOptionsErrorMessage: null })
+        const options = await transferService.getProjectCostCenterOptions()
+        set({ projectCostCenterOptions: options })
+      } catch (error) {
+        set({
+          projectCostCenterOptionsErrorMessage: resolveErrorMessage(error, messages.transfer.status.errors.loadFormOptionsError),
+        })
+      } finally {
+        set({ loadingProjectCostCenterOptions: false })
+      }
+    },
+
+    getProjectCostCenterOption: async (costCenter: number) => {
+      if (!Number.isInteger(costCenter) || costCenter <= 0) return
+
+      try {
+        const option = await transferService.getProjectCostCenterOption(costCenter)
+        set((state) => {
+          if (state.projectCostCenterOptions.some((item) => item.id === option.id)) return state
+          return { projectCostCenterOptions: [...state.projectCostCenterOptions, option] }
+        })
+      } catch (error) {
+        set({ projectCostCenterOptionsErrorMessage: resolveErrorMessage(error, messages.transfer.status.errors.loadFormOptionsError) })
+      }
+    },
+
     clearTransferDetail: () => {
       set({ transferDetail: null })
     },
 
     clearOperationStatus: (key) => {
       clearOp(key)
+    },
+
+    clearProjectCostCenterOptionsStatus: () => {
+      set({ projectCostCenterOptionsErrorMessage: null })
     },
 
     clearAllOperationStatus: () => {

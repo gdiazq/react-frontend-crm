@@ -11,7 +11,6 @@ import { attendanceTableColumnIndex } from '@/factories'
 import {
   useStoreAttendance,
   useStoreAttendanceSelects,
-  useStoreEmployeeSelects,
 } from '@/store'
 import type { AttendanceTableRow } from '@/types'
 
@@ -31,15 +30,15 @@ export default function AttendanceDashboardPage() {
   const clearAttendanceFormOptionsStatus = useStoreAttendanceSelects((s) => s.clearAttendanceFormOptionsStatus)
   const getAttendanceFormOptions = useStoreAttendanceSelects((s) => s.getAttendanceFormOptions)
 
-  const costCenterOptionsError = useStoreEmployeeSelects((s) => s.formOptionsErrorMessage)
-  const clearCostCenterOptionsStatus = useStoreEmployeeSelects((s) => s.clearFormOptionsStatus)
-  const getCostCenterFormOptions = useStoreEmployeeSelects((s) => s.getFormOptions)
+  const costCenterOptionsError = useStoreAttendanceSelects((s) => s.projectCostCenterOptionsErrorMessage)
+  const clearCostCenterOptionsStatus = useStoreAttendanceSelects((s) => s.clearProjectCostCenterOptionsStatus)
+  const getProjectCostCenterOptions = useStoreAttendanceSelects((s) => s.getProjectCostCenterOptions)
 
   useEffect(() => {
     void getAttendance()
     void getAttendanceFormOptions()
-    void getCostCenterFormOptions()
-  }, [getAttendance, getAttendanceFormOptions, getCostCenterFormOptions])
+    void getProjectCostCenterOptions()
+  }, [getAttendance, getAttendanceFormOptions, getProjectCostCenterOptions])
 
   const handleViewDetail = (row: AttendanceTableRow) => {
     setDetailRowId(row.id)

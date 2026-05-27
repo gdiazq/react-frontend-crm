@@ -803,6 +803,7 @@ export default {
         updateError: 'No se pudo actualizar el traspaso.',
         updateInvalidId: 'El id del traspaso no es valido.',
         exportError: 'No se pudo exportar el CSV de traspasos.',
+        loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de traspaso.',
         filesMaxCountError: 'No se pueden adjuntar mas de 5 archivos.',
         filesMaxSizeError: 'Uno o mas archivos superan el tamano maximo de 10 MB.',
       },

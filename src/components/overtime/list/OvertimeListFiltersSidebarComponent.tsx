@@ -7,7 +7,6 @@ import {
 } from '@/components'
 import {
   useStoreAttendanceSelects,
-  useStoreEmployeeSelects,
   useStoreOvertime,
 } from '@/store'
 
@@ -24,6 +23,8 @@ export function OvertimeListFiltersSidebarComponent({
   const overtimeTypes = useStoreOvertime((s) => s.overtimeTypes)
   const loadingOvertime = useStoreOvertime((s) => s.operationLoading.list)
   const loadingOvertimeTypes = useStoreOvertime((s) => s.loadingOvertimeTypes)
+  const projectCostCenterOptions = useStoreOvertime((s) => s.projectCostCenterOptions)
+  const loadingCostCenterOptions = useStoreOvertime((s) => s.loadingProjectCostCenterOptions)
   const setEmployeeFilter = useStoreOvertime((s) => s.setEmployeeFilter)
   const setCostCenterFilter = useStoreOvertime((s) => s.setCostCenterFilter)
   const setStatusFilter = useStoreOvertime((s) => s.setStatusFilter)
@@ -38,8 +39,6 @@ export function OvertimeListFiltersSidebarComponent({
 
   const attendanceEmployeeOptions = useStoreAttendanceSelects((s) => s.attendanceEmployeeOptions)
   const loadingEmployeeOptions = useStoreAttendanceSelects((s) => s.loadingAttendanceEmployeeOptions)
-  const projectCostCenterOptions = useStoreEmployeeSelects((s) => s.projectCostCenterOptions)
-  const loadingCostCenterOptions = useStoreEmployeeSelects((s) => s.loadingFormOptions)
 
   const [filters, setFilters] = useState(() => ({
     employeeId: queryParams.employeeId,

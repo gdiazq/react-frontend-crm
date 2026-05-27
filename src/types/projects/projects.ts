@@ -259,3 +259,8 @@ export interface ProjectEmployeeSelectOption {
   id: number
   name: string
 }
+
+export interface ProjectCostCenterSelectOption {
+  id: number
+  name: string
+}

@@ -10,6 +10,7 @@ import type {
   OvertimeTypeRaw,
   OvertimeUpdatePayload,
   OvertimeUpdateResponse,
+  ProjectCostCenterSelectOption,
 } from '@/types'
 
 export const overtimeService = {
@@ -37,6 +38,11 @@ export const overtimeService = {
 
   updateOvertime: async (payload: OvertimeUpdatePayload) => {
     const { data } = await axiosInstance.put<OvertimeUpdateResponse>('/rrhh/overtime/update', payload)
+    return data
+  },
+
+  getProjectCostCenterOptions: async () => {
+    const { data } = await axiosInstance.get<ProjectCostCenterSelectOption[]>('/project/select/cost-centers')
     return data
   },
 

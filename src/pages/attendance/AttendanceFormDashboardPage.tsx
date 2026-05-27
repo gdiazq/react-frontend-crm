@@ -16,7 +16,7 @@ import {
   mapperCreateAttendanceMarkPayload,
   mapperUpdateAttendanceMarkPayload,
 } from '@/mappers'
-import { useStoreAttendance, useStoreAttendanceSelects, useStoreEmployeeSelects } from '@/store'
+import { useStoreAttendance, useStoreAttendanceSelects } from '@/store'
 import type { AttendanceMarkCreatePayload, AttendanceMarkUpdatePayload } from '@/types'
 import { normalizeTimeInput } from '@/utils'
 import { attendanceMarkCreateValidationRules } from '@/validators'
@@ -69,12 +69,12 @@ export default function AttendanceFormDashboardPage() {
   const clearAttendanceEmployeeOptionsStatus = useStoreAttendanceSelects((s) => s.clearAttendanceEmployeeOptionsStatus)
   const clearAttendanceMarkTypeOptionsStatus = useStoreAttendanceSelects((s) => s.clearAttendanceMarkTypeOptionsStatus)
 
-  const projectCostCenterOptions = useStoreEmployeeSelects((s) => s.projectCostCenterOptions)
-  const loadingCostCenterOptions = useStoreEmployeeSelects((s) => s.loadingFormOptions)
-  const costCenterOptionsErrorMessage = useStoreEmployeeSelects((s) => s.formOptionsErrorMessage)
-  const getCostCenterFormOptions = useStoreEmployeeSelects((s) => s.getFormOptions)
-  const getProjectCostCenterOption = useStoreEmployeeSelects((s) => s.getProjectCostCenterOption)
-  const clearCostCenterOptionsStatus = useStoreEmployeeSelects((s) => s.clearFormOptionsStatus)
+  const projectCostCenterOptions = useStoreAttendanceSelects((s) => s.projectCostCenterOptions)
+  const loadingCostCenterOptions = useStoreAttendanceSelects((s) => s.loadingProjectCostCenterOptions)
+  const costCenterOptionsErrorMessage = useStoreAttendanceSelects((s) => s.projectCostCenterOptionsErrorMessage)
+  const getProjectCostCenterOptions = useStoreAttendanceSelects((s) => s.getProjectCostCenterOptions)
+  const getProjectCostCenterOption = useStoreAttendanceSelects((s) => s.getProjectCostCenterOption)
+  const clearCostCenterOptionsStatus = useStoreAttendanceSelects((s) => s.clearProjectCostCenterOptionsStatus)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, attendanceMarkCreateValidationRules)
 
@@ -142,12 +142,12 @@ export default function AttendanceFormDashboardPage() {
     void getAttendanceFormOptions()
     void getAttendanceEmployeeOptions()
     void getAttendanceMarkTypeOptions()
-    void getCostCenterFormOptions()
+    void getProjectCostCenterOptions()
   }, [
     getAttendanceFormOptions,
     getAttendanceEmployeeOptions,
     getAttendanceMarkTypeOptions,
-    getCostCenterFormOptions,
+    getProjectCostCenterOptions,
   ])
 
   useEffect(() => {

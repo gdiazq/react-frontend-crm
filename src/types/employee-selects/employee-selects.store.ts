@@ -21,7 +21,6 @@ export interface EmployeeSelectsStore {
   healthInsuranceTariffOptions: EmployeeSelectOption[]
   paymentMethodOptions: EmployeeSelectOption[]
   bankOptions: EmployeeSelectOption[]
-  projectCostCenterOptions: EmployeeSelectOption[]
   transferToCostCenterOptions: EmployeeSelectOption[]
   approvalEmployeeStatusOptions: EmployeeSelectOption[]
   hrRequestTypeOptions: EmployeeSelectOption[]
@@ -39,7 +38,6 @@ export interface EmployeeSelectsStore {
   hrRequestTypeOptionsErrorMessage: string | null
   errorBack: unknown | null
   getFormOptions: () => Promise<void>
-  getProjectCostCenterOption: (costCenter: number) => Promise<void>
   getTransferToCostCenterOptions: () => Promise<void>
   getCommuneOptions: (regionId: number) => Promise<void>
   getCityOptions: (communeId: number) => Promise<void>

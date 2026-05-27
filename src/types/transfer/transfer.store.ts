@@ -1,4 +1,5 @@
 import type { OperationKey, OperationStatus } from '../common'
+import type { ProjectCostCenterSelectOption } from '../projects'
 import type {
   TransferCreatePayload,
   TransferDetail,
@@ -19,12 +20,17 @@ export interface TransferStore {
   queryParams: TransferQueryParams
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
+  projectCostCenterOptions: ProjectCostCenterSelectOption[]
+  loadingProjectCostCenterOptions: boolean
+  projectCostCenterOptionsErrorMessage: string | null
 
   getTransfers: () => Promise<void>
   getTransferDetail: (id: string) => Promise<TransferDetail | null>
   createTransfer: (payload: TransferCreatePayload, files?: File[]) => Promise<boolean>
   updateTransfer: (payload: TransferUpdatePayload, files?: File[]) => Promise<boolean>
   exportTransfersCsv: () => Promise<void>
+  getProjectCostCenterOptions: () => Promise<void>
+  getProjectCostCenterOption: (costCenter: number) => Promise<void>
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
@@ -44,5 +50,6 @@ export interface TransferStore {
   sortTransfers: (sortBy: TransferSortBy, sortDir: TransferSortDir) => Promise<void>
   clearTransferDetail: () => void
   clearOperationStatus: (key: OperationKey) => void
+  clearProjectCostCenterOptionsStatus: () => void
   clearAllOperationStatus: () => void
 }

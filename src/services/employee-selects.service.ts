@@ -3,7 +3,6 @@ import { axiosInstance } from '@/config'
 import type { EmployeeSelectOption } from '@/types'
 
 const RRHH_SELECTS_BASE_PATH = '/rrhh/select'
-const PROJECT_SELECTS_BASE_PATH = '/project/select'
 
 export const employeeSelectsService = {
   getIdentificationTypeOptions: async () => {
@@ -107,16 +106,6 @@ export const employeeSelectsService = {
 
   getBankOptions: async () => {
     const { data } = await axiosInstance.get<EmployeeSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/banks`)
-    return data
-  },
-
-  getProjectCostCenterOptions: async () => {
-    const { data } = await axiosInstance.get<EmployeeSelectOption[]>(`${PROJECT_SELECTS_BASE_PATH}/cost-centers`)
-    return data
-  },
-
-  getProjectCostCenterOption: async (costCenter: number) => {
-    const { data } = await axiosInstance.get<EmployeeSelectOption>(`${PROJECT_SELECTS_BASE_PATH}/cost-centers/${costCenter}`)
     return data
   },
 

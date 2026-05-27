@@ -22,6 +22,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
   let latestOvertimeRequestId = 0
   let latestOvertimeDetailRequestId = 0
   let latestOvertimeTypesRequestId = 0
+  let latestProjectCostCenterOptionsRequestId = 0
 
   const { setOpError, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
@@ -32,6 +33,9 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
     pagination: { ...initialOvertimePagination },
     queryParams: { ...initialOvertimeQueryParams },
     loadingOvertimeTypes: false,
+    projectCostCenterOptions: [],
+    loadingProjectCostCenterOptions: false,
+    projectCostCenterOptionsErrorMessage: null,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
@@ -109,6 +113,27 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
           set({ loadingOvertimeTypes: false })
         }
       }
+    },
+
+    getProjectCostCenterOptions: async () => {
+      const requestId = ++latestProjectCostCenterOptionsRequestId
+      try {
+        set({ loadingProjectCostCenterOptions: true, projectCostCenterOptionsErrorMessage: null })
+        const options = await overtimeService.getProjectCostCenterOptions()
+        if (requestId !== latestProjectCostCenterOptionsRequestId) return
+        set({ projectCostCenterOptions: options })
+      } catch (error) {
+        if (requestId !== latestProjectCostCenterOptionsRequestId) return
+        set({ projectCostCenterOptionsErrorMessage: resolveErrorMessage(error, messages.overtime.status.errors.loadFormOptionsError) })
+      } finally {
+        if (requestId === latestProjectCostCenterOptionsRequestId) {
+          set({ loadingProjectCostCenterOptions: false })
+        }
+      }
+    },
+
+    clearProjectCostCenterOptionsStatus: () => {
+      set({ projectCostCenterOptionsErrorMessage: null })
     },
 
     goToPage: async (page: number) => {

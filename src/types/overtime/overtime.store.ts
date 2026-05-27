@@ -10,20 +10,26 @@ import type {
   OvertimeUpdatePayload,
 } from './overtime'
 import type { OperationKey, OperationStatus } from '../common'
+import type { ProjectCostCenterSelectOption } from '../projects'
 
 export interface OvertimeStore {
   overtimeRows: OvertimeTableRow[]
   overtimeDetail: OvertimeDetail | null
   overtimeTypes: OvertimeTypeRaw[]
+  projectCostCenterOptions: ProjectCostCenterSelectOption[]
   pagination: OvertimePagination
   queryParams: OvertimeQueryParams
   loadingOvertimeTypes: boolean
+  loadingProjectCostCenterOptions: boolean
+  projectCostCenterOptionsErrorMessage: string | null
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getOvertime: () => Promise<void>
   getOvertimeDetail: (overtimeId: string) => Promise<OvertimeDetail | null>
   clearOvertimeDetail: () => void
   getOvertimeTypes: () => Promise<void>
+  getProjectCostCenterOptions: () => Promise<void>
+  clearProjectCostCenterOptionsStatus: () => void
   goToPage: (page: number) => Promise<void>
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>

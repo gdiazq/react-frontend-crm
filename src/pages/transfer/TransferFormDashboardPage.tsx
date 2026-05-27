@@ -21,7 +21,7 @@ import {
   mapperUpdateTransferPayload,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreTransfer, useStoreSettlementSelects, useStoreEmployeeSelects } from '@/store'
+import { useStoreTransfer, useStoreSettlementSelects } from '@/store'
 import type {
   TransferCreatePayload,
   TransferUpdatePayload,
@@ -72,12 +72,12 @@ export default function TransferFormDashboardPage() {
   const getEmployeeWithContractOptions = useStoreSettlementSelects((s) => s.getEmployeeWithContractOptions)
   const clearEmployeeWithContractOptionsStatus = useStoreSettlementSelects((s) => s.clearEmployeeWithContractOptionsStatus)
 
-  const projectCostCenterOptions = useStoreEmployeeSelects((s) => s.projectCostCenterOptions)
-  const loadingCostCenterOptions = useStoreEmployeeSelects((s) => s.loadingFormOptions)
-  const costCenterOptionsErrorMessage = useStoreEmployeeSelects((s) => s.formOptionsErrorMessage)
-  const getCostCenterFormOptions = useStoreEmployeeSelects((s) => s.getFormOptions)
-  const getProjectCostCenterOption = useStoreEmployeeSelects((s) => s.getProjectCostCenterOption)
-  const clearCostCenterOptionsStatus = useStoreEmployeeSelects((s) => s.clearFormOptionsStatus)
+  const projectCostCenterOptions = useStoreTransfer((s) => s.projectCostCenterOptions)
+  const loadingCostCenterOptions = useStoreTransfer((s) => s.loadingProjectCostCenterOptions)
+  const costCenterOptionsErrorMessage = useStoreTransfer((s) => s.projectCostCenterOptionsErrorMessage)
+  const getProjectCostCenterOptions = useStoreTransfer((s) => s.getProjectCostCenterOptions)
+  const getProjectCostCenterOption = useStoreTransfer((s) => s.getProjectCostCenterOption)
+  const clearCostCenterOptionsStatus = useStoreTransfer((s) => s.clearProjectCostCenterOptionsStatus)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, transferCreateValidationRules)
 
@@ -112,7 +112,7 @@ export default function TransferFormDashboardPage() {
 
   useEffect(() => {
     void getEmployeeWithContractOptions()
-    void getCostCenterFormOptions()
+    void getProjectCostCenterOptions()
 
     return () => {
       clearEmployeeWithContractOptionsStatus()
@@ -128,7 +128,7 @@ export default function TransferFormDashboardPage() {
     clearOperationStatus,
     clearTransferDetail,
     getEmployeeWithContractOptions,
-    getCostCenterFormOptions,
+    getProjectCostCenterOptions,
   ])
 
   useEffect(() => {

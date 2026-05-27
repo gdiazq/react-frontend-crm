@@ -25,7 +25,6 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
   healthInsuranceTariffOptions: [],
   paymentMethodOptions: [],
   bankOptions: [],
-  projectCostCenterOptions: [],
   transferToCostCenterOptions: [],
   approvalEmployeeStatusOptions: [],
   hrRequestTypeOptions: [],
@@ -70,7 +69,6 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
         healthInsuranceTariffs,
         paymentMethods,
         banks,
-        projectCostCenters,
       ] = await Promise.all([
         employeeSelectsService.getIdentificationTypeOptions(),
         employeeSelectsService.getGenderOptions(),
@@ -90,7 +88,6 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
         employeeSelectsService.getHealthInsuranceTariffOptions(),
         employeeSelectsService.getPaymentMethodOptions(),
         employeeSelectsService.getBankOptions(),
-        employeeSelectsService.getProjectCostCenterOptions(),
       ])
 
       set({
@@ -112,7 +109,6 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
         healthInsuranceTariffOptions: mapperEmployeeSelectOptions(healthInsuranceTariffs),
         paymentMethodOptions: mapperEmployeeSelectOptions(paymentMethods),
         bankOptions: mapperEmployeeSelectOptions(banks),
-        projectCostCenterOptions: mapperEmployeeSelectOptions(projectCostCenters),
       })
     } catch (error) {
       if (employeeSelectsService.isAxiosError(error)) {
@@ -128,22 +124,6 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
       }
     } finally {
       set({ loadingFormOptions: false })
-    }
-  },
-
-  getProjectCostCenterOption: async (costCenter: number) => {
-    if (!Number.isInteger(costCenter) || costCenter <= 0) return
-
-    try {
-      const option = await employeeSelectsService.getProjectCostCenterOption(costCenter)
-      set((state) => {
-        if (state.projectCostCenterOptions.some((item) => item.id === option.id)) return state
-        return {
-          projectCostCenterOptions: [...state.projectCostCenterOptions, option],
-        }
-      })
-    } catch (error) {
-      set({ errorBack: error })
     }
   },
 

@@ -10,7 +10,6 @@ import {
 import { overtimeTableColumnIndex } from '@/factories'
 import {
   useStoreAttendanceSelects,
-  useStoreEmployeeSelects,
   useStoreOvertime,
 } from '@/store'
 import type { OvertimeTableRow } from '@/types'
@@ -27,20 +26,20 @@ export default function OvertimeDashboardPage() {
   const clearOperationStatus = useStoreOvertime((s) => s.clearOperationStatus)
   const getOvertime = useStoreOvertime((s) => s.getOvertime)
   const getOvertimeTypes = useStoreOvertime((s) => s.getOvertimeTypes)
+  const costCenterOptionsError = useStoreOvertime((s) => s.projectCostCenterOptionsErrorMessage)
+  const clearCostCenterOptionsError = useStoreOvertime((s) => s.clearProjectCostCenterOptionsStatus)
+  const getProjectCostCenterOptions = useStoreOvertime((s) => s.getProjectCostCenterOptions)
 
   const employeeOptionsError = useStoreAttendanceSelects((s) => s.attendanceEmployeeOptionsErrorMessage)
   const clearEmployeeOptionsError = useStoreAttendanceSelects((s) => s.clearAttendanceEmployeeOptionsStatus)
   const getAttendanceEmployeeOptions = useStoreAttendanceSelects((s) => s.getAttendanceEmployeeOptions)
-  const costCenterOptionsError = useStoreEmployeeSelects((s) => s.formOptionsErrorMessage)
-  const clearCostCenterOptionsError = useStoreEmployeeSelects((s) => s.clearFormOptionsStatus)
-  const getCostCenterFormOptions = useStoreEmployeeSelects((s) => s.getFormOptions)
 
   useEffect(() => {
     void getOvertime()
     void getOvertimeTypes()
     void getAttendanceEmployeeOptions()
-    void getCostCenterFormOptions()
-  }, [getOvertime, getOvertimeTypes, getAttendanceEmployeeOptions, getCostCenterFormOptions])
+    void getProjectCostCenterOptions()
+  }, [getOvertime, getOvertimeTypes, getAttendanceEmployeeOptions, getProjectCostCenterOptions])
 
   const handleViewDetail = (row: OvertimeTableRow) => {
     setDetailRowId(row.id)

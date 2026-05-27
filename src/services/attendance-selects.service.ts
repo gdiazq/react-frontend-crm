@@ -5,6 +5,7 @@ import type {
   AttendanceEmployeeWithCostCenterSelectOption,
   AttendanceMarkTypeSelectOption,
   AttendanceStatusSelectOption,
+  ProjectCostCenterSelectOption,
 } from '@/types'
 
 export const attendanceSelectsService = {
@@ -25,6 +26,16 @@ export const attendanceSelectsService = {
 
   getAttendanceMarkTypeOptions: async () => {
     const { data } = await axiosInstance.get<AttendanceMarkTypeSelectOption[]>('/rrhh/attendance-marks/select/types')
+    return data
+  },
+
+  getProjectCostCenterOptions: async () => {
+    const { data } = await axiosInstance.get<ProjectCostCenterSelectOption[]>('/project/select/cost-centers')
+    return data
+  },
+
+  getProjectCostCenterOption: async (costCenter: number) => {
+    const { data } = await axiosInstance.get<ProjectCostCenterSelectOption>(`/project/select/cost-centers/${costCenter}`)
     return data
   },
 

@@ -21,5 +21,6 @@ export type {
   ProjectUpdatePayload,
   ProjectUpdateResponse,
   ProjectEmployeeSelectOption,
+  ProjectCostCenterSelectOption,
 } from './projects'
 export type { ProjectsStore } from './projects.store'

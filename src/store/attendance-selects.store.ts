@@ -8,12 +8,15 @@ export const useStoreAttendanceSelects = create<AttendanceSelectsStore>()((set) 
   attendanceEmployeeOptions: [],
   attendanceStatusOptions: [],
   attendanceMarkTypeOptions: [],
+  projectCostCenterOptions: [],
   loadingAttendanceFormOptions: false,
   loadingAttendanceEmployeeOptions: false,
   loadingAttendanceMarkTypeOptions: false,
+  loadingProjectCostCenterOptions: false,
   attendanceFormOptionsErrorMessage: null,
   attendanceEmployeeOptionsErrorMessage: null,
   attendanceMarkTypeOptionsErrorMessage: null,
+  projectCostCenterOptionsErrorMessage: null,
   errorBack: null,
 
   getAttendanceFormOptions: async () => {
@@ -89,5 +92,42 @@ export const useStoreAttendanceSelects = create<AttendanceSelectsStore>()((set) 
 
   clearAttendanceMarkTypeOptionsStatus: () => {
     set({ attendanceMarkTypeOptionsErrorMessage: null })
+  },
+
+  getProjectCostCenterOptions: async () => {
+    try {
+      set({ loadingProjectCostCenterOptions: true, projectCostCenterOptionsErrorMessage: null, errorBack: null })
+      const options = await attendanceSelectsService.getProjectCostCenterOptions()
+      set({ projectCostCenterOptions: options })
+    } catch (error) {
+      if (attendanceSelectsService.isAxiosError(error)) {
+        set({
+          projectCostCenterOptionsErrorMessage: error.response?.data?.message || messages.attendance.status.errors.loadFormOptionsError,
+          errorBack: error,
+        })
+      } else {
+        set({ projectCostCenterOptionsErrorMessage: messages.attendance.status.errors.loadFormOptionsError, errorBack: error })
+      }
+    } finally {
+      set({ loadingProjectCostCenterOptions: false })
+    }
+  },
+
+  getProjectCostCenterOption: async (costCenter: number) => {
+    if (!Number.isInteger(costCenter) || costCenter <= 0) return
+
+    try {
+      const option = await attendanceSelectsService.getProjectCostCenterOption(costCenter)
+      set((state) => {
+        if (state.projectCostCenterOptions.some((item) => item.id === option.id)) return state
+        return { projectCostCenterOptions: [...state.projectCostCenterOptions, option] }
+      })
+    } catch (error) {
+      set({ errorBack: error })
+    }
+  },
+
+  clearProjectCostCenterOptionsStatus: () => {
+    set({ projectCostCenterOptionsErrorMessage: null })
   },
 }))

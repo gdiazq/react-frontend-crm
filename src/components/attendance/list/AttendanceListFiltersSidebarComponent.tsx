@@ -8,7 +8,6 @@ import {
 import {
   useStoreAttendance,
   useStoreAttendanceSelects,
-  useStoreEmployeeSelects,
 } from '@/store'
 
 interface AttendanceListFiltersSidebarComponentProps {
@@ -37,8 +36,8 @@ export function AttendanceListFiltersSidebarComponent(props: AttendanceListFilte
   const employeeWithContractOptions = useStoreAttendanceSelects((s) => s.employeeWithContractOptions)
   const attendanceStatusOptions = useStoreAttendanceSelects((s) => s.attendanceStatusOptions)
   const loadingAttendanceFormOptions = useStoreAttendanceSelects((s) => s.loadingAttendanceFormOptions)
-  const projectCostCenterOptions = useStoreEmployeeSelects((s) => s.projectCostCenterOptions)
-  const loadingCostCenterOptions = useStoreEmployeeSelects((s) => s.loadingFormOptions)
+  const projectCostCenterOptions = useStoreAttendanceSelects((s) => s.projectCostCenterOptions)
+  const loadingCostCenterOptions = useStoreAttendanceSelects((s) => s.loadingProjectCostCenterOptions)
 
   const [filters, setFilters] = useState(() => ({
     employeeId: queryParams.employeeId,

@@ -8,6 +8,7 @@ import type {
   TransferPagedResponse,
   TransferQueryParams,
   TransferUpdatePayload,
+  ProjectCostCenterSelectOption,
 } from '@/types'
 
 export const transferService = {
@@ -42,6 +43,16 @@ export const transferService = {
     const { data } = await axiosInstance.get<Blob>('/rrhh/transfers/export/csv', {
       responseType: 'blob',
     })
+    return data
+  },
+
+  getProjectCostCenterOptions: async () => {
+    const { data } = await axiosInstance.get<ProjectCostCenterSelectOption[]>('/project/select/cost-centers')
+    return data
+  },
+
+  getProjectCostCenterOption: async (costCenter: number) => {
+    const { data } = await axiosInstance.get<ProjectCostCenterSelectOption>(`/project/select/cost-centers/${costCenter}`)
     return data
   },
 
