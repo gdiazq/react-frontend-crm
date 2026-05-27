@@ -17,6 +17,8 @@ export interface ProjectTypesStore {
   projectTypesRows: ProjectTypeTableRow[]
   pagination: ProjectTypesPagination
   queryParams: ProjectTypesQueryParams
+  exportingCsv: boolean
+  importingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getProjectTypes: () => Promise<void>
@@ -36,6 +38,8 @@ export interface ProjectTypesStore {
   createProjectType: (payload: ProjectTypeCreatePayload) => Promise<boolean>
   updateProjectType: (payload: ProjectTypeUpdatePayload) => Promise<boolean>
   toggleProjectTypeStatus: (projectTypeId: string, nextStatus: boolean) => Promise<boolean>
+  exportProjectTypesCsv: () => Promise<boolean>
+  importProjectTypesCsv: (file: File) => Promise<string | null>
   clearProjectTypeDetail: () => void
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void

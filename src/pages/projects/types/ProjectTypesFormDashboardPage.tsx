@@ -11,13 +11,7 @@ import { initialCreateProjectTypeForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import { mapperCreateProjectTypePayload, mapperProjectTypeToForm, mapperUpdateProjectTypePayload } from '@/mappers'
 import { useStoreProjectTypes } from '@/store'
-import type { ProjectTypeCreatePayload, ProjectTypeUpdatePayload } from '@/types'
 import { projectTypesCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: ProjectTypeCreatePayload }
-  | { mode: 'update', payload: ProjectTypeUpdatePayload }
-  | null
 
 export default function ProjectTypesFormDashboardPage() {
   const navigate = useNavigate()
@@ -28,14 +22,16 @@ export default function ProjectTypesFormDashboardPage() {
 
   const [form, setForm] = useState({ ...initialCreateProjectTypeForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
+  // Store state used to render loading and submit status.
   const loadingProjectTypeDetail = useStoreProjectTypes((s) => s.operationLoading.detail)
   const detailError = useStoreProjectTypes((s) => s.operationStatus.detail.error)
   const createProjectTypeSubmitting = useStoreProjectTypes((s) => s.operationLoading.create)
   const updateProjectTypeSubmitting = useStoreProjectTypes((s) => s.operationLoading.update)
   const createStatus = useStoreProjectTypes((s) => s.operationStatus.create)
   const updateStatus = useStoreProjectTypes((s) => s.operationStatus.update)
+
+  // Store actions triggered by form lifecycle and submit.
   const getProjectTypeDetail = useStoreProjectTypes((s) => s.getProjectTypeDetail)
   const clearProjectTypeDetail = useStoreProjectTypes((s) => s.clearProjectTypeDetail)
   const clearOperationStatus = useStoreProjectTypes((s) => s.clearOperationStatus)
@@ -44,8 +40,8 @@ export default function ProjectTypesFormDashboardPage() {
 
   const { errors, validateAll, onValidation } = useFormValidation(form, projectTypesCreateValidationRules)
 
+  // Derived UI state.
   const saving = createProjectTypeSubmitting || updateProjectTypeSubmitting
-
   const headerTitle = isEditMode ? 'Editar tipo de proyecto' : 'Crear tipo de proyecto'
   const headerDescription = isEditMode
     ? 'Actualiza los datos del tipo de proyecto seleccionado.'
@@ -102,26 +98,21 @@ export default function ProjectTypesFormDashboardPage() {
     event.preventDefault()
     if (!validateAll()) return
 
-    if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateProjectTypePayload(editProjectTypeId, form) })
-    } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateProjectTypePayload(form) })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
+    if (saving) return
+    if (!validateAll()) return
 
-    const success = pendingAction.mode === 'create'
-      ? await createProjectType(pendingAction.payload)
-      : await updateProjectType(pendingAction.payload)
+    const success = isEditMode
+      ? await updateProjectType(mapperUpdateProjectTypePayload(editProjectTypeId, form))
+      : await createProjectType(mapperCreateProjectTypePayload(form))
 
     if (success) {
       navigate(AUTH_ROUTE_PROJECT_TYPES)
@@ -129,10 +120,9 @@ export default function ProjectTypesFormDashboardPage() {
     }
 
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? `¿Deseas guardar los cambios del tipo ${form.name}?`
     : `¿Deseas crear el tipo ${form.name}?`
   const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'

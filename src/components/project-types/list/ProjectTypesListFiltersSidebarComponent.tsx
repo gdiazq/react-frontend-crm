@@ -14,9 +14,13 @@ interface ProjectTypesListFiltersSidebarComponentProps {
 
 export function ProjectTypesListFiltersSidebarComponent(props: ProjectTypesListFiltersSidebarComponentProps) {
   const { open, onClose } = props
+
+  // Store state used to initialize and render filters.
   const queryParams = useStoreProjectTypes((s) => s.queryParams)
   const loadingProjectTypes = useStoreProjectTypes((s) => s.operationLoading.list)
   const loadingToggleStatus = useStoreProjectTypes((s) => s.operationLoading.toggle)
+
+  // Store actions triggered by filter buttons.
   const setActiveFilter = useStoreProjectTypes((s) => s.setActiveFilter)
   const setCreatedDateRange = useStoreProjectTypes((s) => s.setCreatedDateRange)
   const setUpdatedDateRange = useStoreProjectTypes((s) => s.setUpdatedDateRange)
@@ -24,8 +28,11 @@ export function ProjectTypesListFiltersSidebarComponent(props: ProjectTypesListF
   const clearCreatedDateRange = useStoreProjectTypes((s) => s.clearCreatedDateRange)
   const clearUpdatedDateRange = useStoreProjectTypes((s) => s.clearUpdatedDateRange)
   const searchProjectTypes = useStoreProjectTypes((s) => s.searchProjectTypes)
+
+  // Shared select state loaded by the dashboard.
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
+
   const [filters, setFilters] = useState(() => ({
     activeId: queryParams.active,
     createdFrom: queryParams.createdFrom,
@@ -34,6 +41,7 @@ export function ProjectTypesListFiltersSidebarComponent(props: ProjectTypesListF
     updatedTo: queryParams.updatedTo,
   }))
 
+  // Derived options and loading state.
   const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const loadingAny = loadingProjectTypes || loadingToggleStatus || loadingStatusOptions
 

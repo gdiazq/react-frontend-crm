@@ -499,16 +499,20 @@ export default {
       actionEnableProjectType: 'Habilitar tipo',
       actionDisableProjectType: 'Deshabilitar tipo',
       detailTitleFallback: 'Detalle de tipo de proyecto',
+      emptyList: 'No hay tipos registrados.',
     },
     status: {
       success: {
         createProjectTypeSuccess: 'Tipo de proyecto creado correctamente.',
         updateProjectTypeSuccess: 'Tipo de proyecto actualizado correctamente.',
+        exportSuccess: 'Reporte descargado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de tipos de proyecto.',
+        exportError: 'No se pudo descargar el reporte de tipos de proyecto.',
+        importError: 'No se pudo realizar la carga masiva de tipos de proyecto.',
         createProjectTypeError: 'No se pudo crear el tipo de proyecto.',
         createProjectTypeNameRequired: 'Ingresa un nombre valido para el tipo de proyecto.',
         updateProjectTypeError: 'No se pudo actualizar el tipo de proyecto.',

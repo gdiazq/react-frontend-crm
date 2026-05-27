@@ -13,10 +13,15 @@ interface ProjectTypesListDetailSidebarComponentProps {
 
 export function ProjectTypesListDetailSidebarComponent(props: ProjectTypesListDetailSidebarComponentProps) {
   const { rowId, onClose } = props
+
   const navigate = useNavigate()
+
+  // Store state used to render the detail sidebar.
   const detail = useStoreProjectTypes((s) => s.projectTypeDetail)
   const loading = useStoreProjectTypes((s) => s.operationLoading.detail)
   const error = useStoreProjectTypes((s) => s.operationStatus.detail.error)
+
+  // Store actions triggered by detail lifecycle.
   const getProjectTypeDetail = useStoreProjectTypes((s) => s.getProjectTypeDetail)
   const clearProjectTypeDetail = useStoreProjectTypes((s) => s.clearProjectTypeDetail)
 
@@ -29,6 +34,7 @@ export function ProjectTypesListDetailSidebarComponent(props: ProjectTypesListDe
     onClose()
   }
 
+  // View model derived from backend detail.
   const detailView = mapperProjectTypeDetailView(detail)
   const title = detailView
     ? `Detalle de ${detailView.nameDisplay}`
