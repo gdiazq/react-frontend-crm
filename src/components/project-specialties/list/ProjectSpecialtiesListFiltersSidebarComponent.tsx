@@ -14,9 +14,13 @@ interface ProjectSpecialtiesListFiltersSidebarComponentProps {
 
 export function ProjectSpecialtiesListFiltersSidebarComponent(props: ProjectSpecialtiesListFiltersSidebarComponentProps) {
   const { open, onClose } = props
+
+  // Store state used to initialize and render filters.
   const queryParams = useStoreProjectSpecialties((s) => s.queryParams)
   const loadingProjectSpecialties = useStoreProjectSpecialties((s) => s.operationLoading.list)
   const loadingToggleStatus = useStoreProjectSpecialties((s) => s.operationLoading.toggle)
+
+  // Store actions triggered by filter buttons.
   const setActiveFilter = useStoreProjectSpecialties((s) => s.setActiveFilter)
   const setCreatedDateRange = useStoreProjectSpecialties((s) => s.setCreatedDateRange)
   const setUpdatedDateRange = useStoreProjectSpecialties((s) => s.setUpdatedDateRange)
@@ -24,6 +28,8 @@ export function ProjectSpecialtiesListFiltersSidebarComponent(props: ProjectSpec
   const clearCreatedDateRange = useStoreProjectSpecialties((s) => s.clearCreatedDateRange)
   const clearUpdatedDateRange = useStoreProjectSpecialties((s) => s.clearUpdatedDateRange)
   const searchProjectSpecialties = useStoreProjectSpecialties((s) => s.searchProjectSpecialties)
+
+  // Shared select state loaded by the dashboard.
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
 
@@ -35,6 +41,7 @@ export function ProjectSpecialtiesListFiltersSidebarComponent(props: ProjectSpec
     updatedTo: queryParams.updatedTo,
   }))
 
+  // Derived options and loading state.
   const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
   const loadingAny = loadingProjectSpecialties || loadingToggleStatus || loadingStatusOptions
 

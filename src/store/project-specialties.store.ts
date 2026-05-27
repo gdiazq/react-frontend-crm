@@ -14,6 +14,8 @@ import { projectSpecialtiesService } from '@/services'
 import type { ProjectSpecialtiesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
+  formatCsvImportSummary,
   initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
@@ -31,6 +33,8 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
     projectSpecialtiesRows: [...initialProjectSpecialtiesRows],
     pagination: { ...initialProjectSpecialtiesPagination },
     queryParams: { ...initialProjectSpecialtiesQueryParams },
+    exportingCsv: false,
+    importingCsv: false,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
@@ -266,6 +270,41 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         return false
       } finally {
         setOpLoading('toggle', false)
+      }
+    },
+
+    exportProjectSpecialtiesCsv: async () => {
+      if (get().exportingCsv) return false
+
+      try {
+        set({ exportingCsv: true })
+        clearOp('list')
+        const csvBlob = await projectSpecialtiesService.exportProjectSpecialtiesCsv()
+        downloadBlobFile(csvBlob, 'project-specialties.csv')
+        setOpSuccess('list', messages.projectSpecialties.status.success.exportSuccess)
+        return true
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.projectSpecialties.status.errors.exportError), error)
+        return false
+      } finally {
+        set({ exportingCsv: false })
+      }
+    },
+
+    importProjectSpecialtiesCsv: async (file: File) => {
+      if (get().importingCsv) return null
+
+      try {
+        set({ importingCsv: true })
+        clearOp('list')
+        const result = await projectSpecialtiesService.importProjectSpecialtiesCsv(file)
+        await get().getProjectSpecialties()
+        return formatCsvImportSummary(result)
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.projectSpecialties.status.errors.importError), error)
+        return null
+      } finally {
+        set({ importingCsv: false })
       }
     },
 

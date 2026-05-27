@@ -562,16 +562,20 @@ export default {
       actionEnableProjectSpecialty: 'Habilitar especialidad',
       actionDisableProjectSpecialty: 'Deshabilitar especialidad',
       detailTitleFallback: 'Detalle de especialidad de proyecto',
+      emptyList: 'No hay especialidades registradas.',
     },
     status: {
       success: {
         createProjectSpecialtySuccess: 'Especialidad de proyecto creada correctamente.',
         updateProjectSpecialtySuccess: 'Especialidad de proyecto actualizada correctamente.',
+        exportSuccess: 'Reporte descargado correctamente.',
         toggleEnabledSuccess: 'habilitada correctamente.',
         toggleDisabledSuccess: 'deshabilitada correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de especialidades de proyecto.',
+        exportError: 'No se pudo descargar el reporte de especialidades de proyecto.',
+        importError: 'No se pudo realizar la carga masiva de especialidades de proyecto.',
         createProjectSpecialtyError: 'No se pudo crear la especialidad de proyecto.',
         createProjectSpecialtyNameRequired: 'Ingresa un nombre valido para la especialidad de proyecto.',
         updateProjectSpecialtyError: 'No se pudo actualizar la especialidad de proyecto.',

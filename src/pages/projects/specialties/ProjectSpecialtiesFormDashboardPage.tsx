@@ -30,12 +30,15 @@ export default function ProjectSpecialtiesFormDashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
+  // Store state used to render loading and submit status.
   const loadingProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.operationLoading.detail)
   const detailError = useStoreProjectSpecialties((s) => s.operationStatus.detail.error)
   const createProjectSpecialtySubmitting = useStoreProjectSpecialties((s) => s.operationLoading.create)
   const updateProjectSpecialtySubmitting = useStoreProjectSpecialties((s) => s.operationLoading.update)
   const createStatus = useStoreProjectSpecialties((s) => s.operationStatus.create)
   const updateStatus = useStoreProjectSpecialties((s) => s.operationStatus.update)
+
+  // Store actions triggered by form lifecycle and submit.
   const getProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.getProjectSpecialtyDetail)
   const clearProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.clearProjectSpecialtyDetail)
   const clearOperationStatus = useStoreProjectSpecialties((s) => s.clearOperationStatus)
@@ -44,6 +47,7 @@ export default function ProjectSpecialtiesFormDashboardPage() {
 
   const { errors, validateAll, onValidation } = useFormValidation(form, projectSpecialtiesCreateValidationRules)
 
+  // Derived UI state.
   const saving = createProjectSpecialtySubmitting || updateProjectSpecialtySubmitting
 
   const headerTitle = isEditMode ? 'Editar especialidad de proyecto' : 'Crear especialidad de proyecto'
@@ -103,9 +107,15 @@ export default function ProjectSpecialtiesFormDashboardPage() {
     if (!validateAll()) return
 
     if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateProjectSpecialtyPayload(editProjectSpecialtyId, form) })
+      setPendingAction({
+        mode: 'update',
+        payload: mapperUpdateProjectSpecialtyPayload(editProjectSpecialtyId, form),
+      })
     } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateProjectSpecialtyPayload(form) })
+      setPendingAction({
+        mode: 'create',
+        payload: mapperCreateProjectSpecialtyPayload(form),
+      })
     }
     setConfirmOpen(true)
   }

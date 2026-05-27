@@ -17,6 +17,8 @@ export interface ProjectSpecialtiesStore {
   projectSpecialtiesRows: ProjectSpecialtyTableRow[]
   pagination: ProjectSpecialtiesPagination
   queryParams: ProjectSpecialtiesQueryParams
+  exportingCsv: boolean
+  importingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getProjectSpecialties: () => Promise<void>
@@ -36,6 +38,8 @@ export interface ProjectSpecialtiesStore {
   createProjectSpecialty: (payload: ProjectSpecialtyCreatePayload) => Promise<boolean>
   updateProjectSpecialty: (payload: ProjectSpecialtyUpdatePayload) => Promise<boolean>
   toggleProjectSpecialtyStatus: (projectSpecialtyId: string, nextStatus: boolean) => Promise<boolean>
+  exportProjectSpecialtiesCsv: () => Promise<boolean>
+  importProjectSpecialtiesCsv: (file: File) => Promise<string | null>
   clearProjectSpecialtyDetail: () => void
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void

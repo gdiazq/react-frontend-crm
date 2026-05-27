@@ -7,9 +7,7 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_PROJECT_SPECIALTIES_CREATE } from '@/constant'
-import { projectSpecialtiesService } from '@/services'
 import { useStoreProjectSpecialties } from '@/store'
-import { downloadBlobFile, formatCsvImportSummary } from '@/utils'
 
 interface ProjectSpecialtiesListToolbarComponentProps {
   onOpenFilters: () => void
@@ -18,58 +16,46 @@ interface ProjectSpecialtiesListToolbarComponentProps {
 
 export function ProjectSpecialtiesListToolbarComponent(props: ProjectSpecialtiesListToolbarComponentProps) {
   const { onOpenFilters, disabled = false } = props
+
   const navigate = useNavigate()
+  const [actionsMessage, setActionsMessage] = useState('')
+  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Store state used to render toolbar controls.
   const search = useStoreProjectSpecialties((s) => s.queryParams.search)
   const loading = useStoreProjectSpecialties((s) => s.operationLoading.list)
+  const exportingCsv = useStoreProjectSpecialties((s) => s.exportingCsv)
+  const importingCsv = useStoreProjectSpecialties((s) => s.importingCsv)
+
+  // Store actions triggered by toolbar interactions.
   const setSearch = useStoreProjectSpecialties((s) => s.setSearch)
   const searchProjectSpecialties = useStoreProjectSpecialties((s) => s.searchProjectSpecialties)
-  const getProjectSpecialties = useStoreProjectSpecialties((s) => s.getProjectSpecialties)
-  const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const [uploadingBulk, setUploadingBulk] = useState(false)
-  const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
-  const loadingAny = loading || disabled || downloadingReport || uploadingBulk
+  const exportProjectSpecialtiesCsv = useStoreProjectSpecialties((s) => s.exportProjectSpecialtiesCsv)
+  const importProjectSpecialtiesCsv = useStoreProjectSpecialties((s) => s.importProjectSpecialtiesCsv)
+
+  // Derived disabled state for every toolbar action.
+  const loadingAny = loading || disabled || exportingCsv || importingCsv
 
   const handleDownloadReport = async () => {
-    if (downloadingReport) return
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await projectSpecialtiesService.exportProjectSpecialtiesCsv()
-      downloadBlobFile(csvBlob, 'project-specialties.csv')
+    if (exportingCsv) return
+    const success = await exportProjectSpecialtiesCsv()
+    if (success) {
       setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (projectSpecialtiesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
     }
   }
 
   const handleBulkUpload = () => {
-    if (uploadingBulk) return
+    if (importingCsv) return
     bulkUploadInputRef.current?.click()
   }
 
   const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
-    if (!file || uploadingBulk) return
-    try {
-      setUploadingBulk(true)
-      const result = await projectSpecialtiesService.importProjectSpecialtiesCsv(file)
-      setActionsMessage(formatCsvImportSummary(result))
-      await getProjectSpecialties()
-    } catch (error) {
-      if (projectSpecialtiesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
-      } else {
-        setActionsMessage('No se pudo realizar la carga masiva.')
-      }
-    } finally {
-      setUploadingBulk(false)
+    if (!file || importingCsv) return
+    const summary = await importProjectSpecialtiesCsv(file)
+    if (summary) {
+      setActionsMessage(summary)
     }
   }
 

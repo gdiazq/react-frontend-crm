@@ -13,10 +13,15 @@ interface ProjectSpecialtiesListDetailSidebarComponentProps {
 
 export function ProjectSpecialtiesListDetailSidebarComponent(props: ProjectSpecialtiesListDetailSidebarComponentProps) {
   const { rowId, onClose } = props
+
   const navigate = useNavigate()
+
+  // Store state used to render the detail sidebar.
   const detail = useStoreProjectSpecialties((s) => s.projectSpecialtyDetail)
   const loading = useStoreProjectSpecialties((s) => s.operationLoading.detail)
   const error = useStoreProjectSpecialties((s) => s.operationStatus.detail.error)
+
+  // Store actions triggered by detail lifecycle.
   const getProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.getProjectSpecialtyDetail)
   const clearProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.clearProjectSpecialtyDetail)
 
@@ -29,6 +34,7 @@ export function ProjectSpecialtiesListDetailSidebarComponent(props: ProjectSpeci
     onClose()
   }
 
+  // View model derived from backend detail.
   const detailView = mapperProjectSpecialtyDetailView(detail)
   const title = detailView
     ? `Detalle de ${detailView.nameDisplay}`
