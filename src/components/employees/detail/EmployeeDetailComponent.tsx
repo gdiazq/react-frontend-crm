@@ -63,8 +63,7 @@ function EmployeeDetailContent({ detail, onEdit, onExport, moreActions }: Employ
   const tenureStat = buildTenureStat(detail.createdAt)
   const description = (
     <>
-      Asignado al proyecto <span className="num">{detail.projectName || '—'}</span>, centro de costo{' '}
-      <span className="num">{detail.costCenterDisplay || '—'}</span>.
+      Trabajador <span className="num">{detail.statusName || 'sin estado'}</span> dentro del registro de RRHH.
     </>
   )
 
@@ -98,8 +97,6 @@ function EmployeeDetailContent({ detail, onEdit, onExport, moreActions }: Employ
             value={`${detail.identificationType} · ${detail.identification}`}
             mono
           />
-          <DetailFieldCardComponent title="Centro costo" value={detail.costCenterDisplay} />
-          <DetailFieldCardComponent title="Proyecto" value={detail.projectName} />
           <DetailFieldCardComponent title="Fecha nacimiento" value={detail.birthDate} />
           <DetailFieldCardComponent title="Género" value={detail.gender} />
           <DetailFieldCardComponent title="Estado civil" value={detail.maritalStatus} />
@@ -250,5 +247,4 @@ function HeroActionButtons({ onEdit, onExport, moreActions }: HeroActionButtonsP
     </>
   )
 }
-
 
