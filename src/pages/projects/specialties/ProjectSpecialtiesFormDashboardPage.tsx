@@ -11,13 +11,7 @@ import { initialCreateProjectSpecialtyForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
 import { mapperCreateProjectSpecialtyPayload, mapperProjectSpecialtyToForm, mapperUpdateProjectSpecialtyPayload } from '@/mappers'
 import { useStoreProjectSpecialties } from '@/store'
-import type { ProjectSpecialtyCreatePayload, ProjectSpecialtyUpdatePayload } from '@/types'
 import { projectSpecialtiesCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: ProjectSpecialtyCreatePayload }
-  | { mode: 'update', payload: ProjectSpecialtyUpdatePayload }
-  | null
 
 export default function ProjectSpecialtiesFormDashboardPage() {
   const navigate = useNavigate()
@@ -28,7 +22,6 @@ export default function ProjectSpecialtiesFormDashboardPage() {
 
   const [form, setForm] = useState({ ...initialCreateProjectSpecialtyForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   // Store state used to render loading and submit status.
   const loadingProjectSpecialtyDetail = useStoreProjectSpecialties((s) => s.operationLoading.detail)
@@ -106,32 +99,21 @@ export default function ProjectSpecialtiesFormDashboardPage() {
     event.preventDefault()
     if (!validateAll()) return
 
-    if (isEditMode) {
-      setPendingAction({
-        mode: 'update',
-        payload: mapperUpdateProjectSpecialtyPayload(editProjectSpecialtyId, form),
-      })
-    } else {
-      setPendingAction({
-        mode: 'create',
-        payload: mapperCreateProjectSpecialtyPayload(form),
-      })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
+    if (saving) return
+    if (!validateAll()) return
 
-    const success = pendingAction.mode === 'create'
-      ? await createProjectSpecialty(pendingAction.payload)
-      : await updateProjectSpecialty(pendingAction.payload)
+    const success = isEditMode
+      ? await updateProjectSpecialty(mapperUpdateProjectSpecialtyPayload(editProjectSpecialtyId, form))
+      : await createProjectSpecialty(mapperCreateProjectSpecialtyPayload(form))
 
     if (success) {
       navigate(AUTH_ROUTE_PROJECT_SPECIALTIES)
@@ -139,10 +121,9 @@ export default function ProjectSpecialtiesFormDashboardPage() {
     }
 
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? `¿Deseas guardar los cambios de la especialidad ${form.name}?`
     : `¿Deseas crear la especialidad ${form.name}?`
   const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'
