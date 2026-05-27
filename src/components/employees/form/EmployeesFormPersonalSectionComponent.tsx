@@ -17,7 +17,6 @@ interface EmployeesFormPersonalSectionComponentProps {
   genderOptions: SelectOption[]
   maritalStatusOptions: SelectOption[]
   nationalityOptions: SelectOption[]
-  projectCostCenterOptions: SelectOption[]
   educationLevelOptions: SelectOption[]
   professionOptions: SelectOption[]
   driverLicenseOptions: SelectOption[]
@@ -44,7 +43,6 @@ export function EmployeesFormPersonalSectionComponent(props: EmployeesFormPerson
     genderOptions,
     maritalStatusOptions,
     nationalityOptions,
-    projectCostCenterOptions,
     educationLevelOptions,
     professionOptions,
     driverLicenseOptions,
@@ -162,15 +160,6 @@ export function EmployeesFormPersonalSectionComponent(props: EmployeesFormPerson
       <div className="space-y-3">
         <SubSectionLabel number="01.4" title="Perfil laboral base" />
         <div className="grid gap-4 md:grid-cols-3">
-          <SelectComponent
-            value={form.costCenter}
-            label="Proyecto"
-            options={projectCostCenterOptions}
-            error={errors.costCenter}
-            onValueChange={onChangeField('costCenter')}
-            onValidation={onValidation('costCenter')}
-            required
-          />
           <SelectComponent
             value={form.educationLevelId}
             label="Nivel educacional"

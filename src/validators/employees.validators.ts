@@ -2,7 +2,6 @@ import type { ValidationRule } from '@/types'
 import { selectRequiredRule } from './shared.validators'
 
 export const employeesCreateValidationRules: Record<string, ValidationRule> = {
-  costCenter: selectRequiredRule('el proyecto'),
   identification: { required: true, minLength: 3 },
   identificationTypeId: selectRequiredRule('el tipo de identificacion'),
   firstName: { required: true, minLength: 2 },

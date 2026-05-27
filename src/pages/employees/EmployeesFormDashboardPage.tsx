@@ -89,7 +89,6 @@ export default function EmployeesFormDashboardPage() {
   const healthInsuranceTariffOptions = useStoreEmployeeSelects((s) => s.healthInsuranceTariffOptions)
   const paymentMethodOptions = useStoreEmployeeSelects((s) => s.paymentMethodOptions)
   const bankOptions = useStoreEmployeeSelects((s) => s.bankOptions)
-  const projectCostCenterOptions = useStoreEmployeeSelects((s) => s.projectCostCenterOptions)
 
   const loadingFormOptions = useStoreEmployeeSelects((s) => s.loadingFormOptions)
   const loadingCommuneOptions = useStoreEmployeeSelects((s) => s.loadingCommuneOptions)
@@ -98,7 +97,6 @@ export default function EmployeesFormDashboardPage() {
   const communeOptionsErrorMessage = useStoreEmployeeSelects((s) => s.communeOptionsErrorMessage)
   const cityOptionsErrorMessage = useStoreEmployeeSelects((s) => s.cityOptionsErrorMessage)
   const getFormOptions = useStoreEmployeeSelects((s) => s.getFormOptions)
-  const getProjectCostCenterOption = useStoreEmployeeSelects((s) => s.getProjectCostCenterOption)
   const getCommuneOptions = useStoreEmployeeSelects((s) => s.getCommuneOptions)
   const getCityOptions = useStoreEmployeeSelects((s) => s.getCityOptions)
   const clearFormOptionsStatus = useStoreEmployeeSelects((s) => s.clearFormOptionsStatus)
@@ -138,7 +136,6 @@ export default function EmployeesFormDashboardPage() {
   const selectHealthInsuranceTariffs = toSelectOptions(healthInsuranceTariffOptions)
   const selectPaymentMethods = toSelectOptions(paymentMethodOptions)
   const selectBanks = toSelectOptions(bankOptions)
-  const selectProjectCostCenters = toSelectOptions(projectCostCenterOptions)
   const selectedHealthInsuranceLabel = selectHealthInsurances.find((option) => option.value === form.healthInsuranceId)?.label ?? ''
   const selectedHealthInsuranceKind = resolveHealthInsuranceKind(selectedHealthInsuranceLabel)
   const showHealthInsuranceIsapreFields = selectedHealthInsuranceKind === 'isapre'
@@ -185,9 +182,6 @@ export default function EmployeesFormDashboardPage() {
         active: detail.active,
         rehireEligible: detail.rehireEligible,
       })
-      if (detail.costCenter != null) {
-        void getProjectCostCenterOption(detail.costCenter)
-      }
     }
 
     void load()
@@ -195,7 +189,7 @@ export default function EmployeesFormDashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [editEmployeeId, getEmployeeDetail, getProjectCostCenterOption, isEditMode])
+  }, [editEmployeeId, getEmployeeDetail, isEditMode])
 
   useEffect(() => {
     const regionId = Number(form.regionId)
@@ -384,7 +378,6 @@ export default function EmployeesFormDashboardPage() {
           genderOptions={selectGenders}
           maritalStatusOptions={selectMaritalStatuses}
           nationalityOptions={selectNationalities}
-          projectCostCenterOptions={selectProjectCostCenters}
           educationLevelOptions={selectEducationLevels}
           professionOptions={selectProfessions}
           driverLicenseOptions={selectDriverLicenses}
