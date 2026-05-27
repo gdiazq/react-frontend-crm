@@ -15,7 +15,7 @@ export const attendanceSelectsService = {
   },
 
   getAttendanceEmployeeOptions: async () => {
-    const { data } = await axiosInstance.get<AttendanceEmployeeWithCostCenterSelectOption[]>('/rrhh/employee/select/attendance')
+    const { data } = await axiosInstance.get<AttendanceEmployeeWithCostCenterSelectOption[]>('/rrhh/contract/select/attendance')
     return data
   },
 
