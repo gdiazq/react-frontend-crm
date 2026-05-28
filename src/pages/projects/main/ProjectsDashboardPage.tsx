@@ -12,6 +12,7 @@ import { projectsTableColumnIndex } from '@/factories'
 import messages from '@/messages/messages'
 import { useStoreProjects, useStoreSelects } from '@/store'
 import type { ProjectTableRow } from '@/types'
+import { isTableRowActive } from '@/utils'
 
 const PROJECT_NAME_COLUMN_INDEX = projectsTableColumnIndex.name
 
@@ -23,15 +24,19 @@ export default function ProjectsDashboardPage() {
   const [pendingToggleRow, setPendingToggleRow] = useState<ProjectTableRow | null>(null)
   const [actionsMessage, setActionsMessage] = useState('')
 
+  // Store state used to render the dashboard.
   const pagination = useStoreProjects((s) => s.pagination)
   const loadingToggleStatus = useStoreProjects((s) => s.operationLoading.toggle)
   const listError = useStoreProjects((s) => s.operationStatus.list.error)
   const toggleError = useStoreProjects((s) => s.operationStatus.toggle.error)
+
+  // Store actions triggered by dashboard interactions.
   const clearOperationStatus = useStoreProjects((s) => s.clearOperationStatus)
   const getProjects = useStoreProjects((s) => s.getProjects)
   const getProjectDetail = useStoreProjects((s) => s.getProjectDetail)
   const toggleProjectStatus = useStoreProjects((s) => s.toggleProjectStatus)
 
+  // Shared select state/actions used by filters and table labels.
   const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
   const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
   const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
@@ -95,7 +100,7 @@ export default function ProjectsDashboardPage() {
   }
 
   const confirmMessage = pendingToggleRow
-    ? `¿Seguro que deseas ${pendingToggleRow.active === true ? 'deshabilitar' : 'habilitar'} al proyecto ${pendingToggleRow.values[PROJECT_NAME_COLUMN_INDEX]}?`
+    ? `¿Seguro que deseas ${isTableRowActive(pendingToggleRow) ? 'deshabilitar' : 'habilitar'} al proyecto ${pendingToggleRow.values[PROJECT_NAME_COLUMN_INDEX]}?`
     : ''
 
   return (
@@ -187,7 +192,7 @@ export default function ProjectsDashboardPage() {
         open={confirmOpen}
         title="Confirmar cambio de estado"
         message={confirmMessage}
-        confirmLabel="Confirmar"
+        confirmLabel={isTableRowActive(pendingToggleRow) ? 'Deshabilitar' : 'Habilitar'}
         cancelLabel="Cancelar"
         loading={loadingToggleStatus}
         onClose={handleCloseConfirm}

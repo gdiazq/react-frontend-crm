@@ -5,6 +5,7 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
+import { mapperProjectSelectOptions } from '@/mappers'
 import { useStoreProjects, useStoreSelects } from '@/store'
 
 interface ProjectsListFiltersSidebarComponentProps {
@@ -14,9 +15,13 @@ interface ProjectsListFiltersSidebarComponentProps {
 
 export function ProjectsListFiltersSidebarComponent(props: ProjectsListFiltersSidebarComponentProps) {
   const { open, onClose } = props
+
+  // Store state used to initialize and render filters.
   const queryParams = useStoreProjects((s) => s.queryParams)
   const loadingProjects = useStoreProjects((s) => s.operationLoading.list)
   const loadingToggleStatus = useStoreProjects((s) => s.operationLoading.toggle)
+
+  // Store actions triggered by filter buttons.
   const setActiveFilter = useStoreProjects((s) => s.setActiveFilter)
   const setTypeFilter = useStoreProjects((s) => s.setTypeFilter)
   const setStatusFilter = useStoreProjects((s) => s.setStatusFilter)
@@ -31,6 +36,7 @@ export function ProjectsListFiltersSidebarComponent(props: ProjectsListFiltersSi
   const clearUpdatedDateRange = useStoreProjects((s) => s.clearUpdatedDateRange)
   const searchProjects = useStoreProjects((s) => s.searchProjects)
 
+  // Shared select state loaded by the dashboard.
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
   const projectTypeOptions = useStoreSelects((s) => s.projectTypeOptions)
@@ -51,10 +57,11 @@ export function ProjectsListFiltersSidebarComponent(props: ProjectsListFiltersSi
     updatedTo: queryParams.updatedTo,
   }))
 
-  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const projectTypeSelectOptions = projectTypeOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const projectStatusSelectOptions = projectStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const projectSpecialtySelectOptions = projectSpecialtyOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  // Derived options and loading state.
+  const statusSelectOptions = mapperProjectSelectOptions(statusOptions)
+  const projectTypeSelectOptions = mapperProjectSelectOptions(projectTypeOptions)
+  const projectStatusSelectOptions = mapperProjectSelectOptions(projectStatusOptions)
+  const projectSpecialtySelectOptions = mapperProjectSelectOptions(projectSpecialtyOptions)
   const loadingAny = loadingProjects || loadingToggleStatus || loadingStatusOptions || loadingProjectTypeOptions || loadingProjectStatusOptions || loadingProjectSpecialtyOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {

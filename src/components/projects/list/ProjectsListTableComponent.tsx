@@ -1,21 +1,31 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableRow, TableSortState } from '@/components'
+import type { TableRow } from '@/components'
 import {
   AUTH_ROUTE_PROJECTS_EDIT,
   PermissionAction,
   PermissionModule,
-  SortDirection,
 } from '@/constant'
 import { projectsTableColumns, projectsTableColumnIndex, projectsTableSortByColumn } from '@/factories'
 import { useStoreProjects, useStoreSelects } from '@/store'
 import { useHasPermission } from '@/hooks'
+import {
+  mapperProjectOptionName,
+  mapperProjectSelectOptionsById,
+} from '@/mappers'
+import messages from '@/messages/messages'
 import type { ProjectTableRow } from '@/types'
 import {
   createProjectsActions,
+  createRowsById,
+  createTableSortState,
   createTableCustomRenderer,
+  findRowById,
+  isTableRowActive,
   renderStatusBadge,
   renderViewDetailButton,
+  resolveNextTableSortDir,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -35,62 +45,71 @@ interface ProjectsListTableComponentProps {
 
 export function ProjectsListTableComponent(props: ProjectsListTableComponentProps) {
   const { onViewDetail, onToggleStatus, loadingExtra = false } = props
+
   const navigate = useNavigate()
+  const canReadProject = useHasPermission(PermissionModule.Project, PermissionAction.Read)
+  const canUpdateProject = useHasPermission(PermissionModule.Project, PermissionAction.Update)
+  const { actionViewDetail, actionUpdateProject, actionToggleStatus } = createProjectsActions()
+
+  // Store state used to render the table.
   const rows = useStoreProjects((s) => s.projectsRows)
   const pagination = useStoreProjects((s) => s.pagination)
   const queryParams = useStoreProjects((s) => s.queryParams)
   const loading = useStoreProjects((s) => s.operationLoading.list)
+
+  // Store actions triggered by table interactions.
   const sortProjects = useStoreProjects((s) => s.sortProjects)
   const goToPage = useStoreProjects((s) => s.goToPage)
-  const canReadProject = useHasPermission(PermissionModule.Project, PermissionAction.Read)
-  const canUpdateProject = useHasPermission(PermissionModule.Project, PermissionAction.Update)
+
+  // Shared select state used to render option names.
   const projectTypeOptions = useStoreSelects((s) => s.projectTypeOptions)
   const projectStatusOptions = useStoreSelects((s) => s.projectStatusOptions)
   const projectSpecialtyOptions = useStoreSelects((s) => s.projectSpecialtyOptions)
-  const { actionViewDetail, actionUpdateProject, actionToggleStatus } = createProjectsActions()
 
-  const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
-  const resolveOptionName = (options: { id: number, name: string }[], optionId?: number | null): string => {
-    if (!optionId) return '-'
-    return options.find((option) => option.id === optionId)?.name || '-'
-  }
+  // Derived lookup for callbacks that receive the generic TableRow shape.
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const projectTypeNamesById = useMemo(() => mapperProjectSelectOptionsById(projectTypeOptions), [projectTypeOptions])
+  const projectStatusNamesById = useMemo(() => mapperProjectSelectOptionsById(projectStatusOptions), [projectStatusOptions])
+  const projectSpecialtyNamesById = useMemo(() => mapperProjectSelectOptionsById(projectSpecialtyOptions), [projectSpecialtyOptions])
+  const resolveProjectRow = (rowId: string) => findRowById(rowsById, rowId)
+  const resolveRowActive = (rowId: string) => isTableRowActive(resolveProjectRow(rowId))
+
   const resolveRowActions = (row: ProjectTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = []
     if (canReadProject) actions.push(actionViewDetail(() => onViewDetail(row)))
     if (canUpdateProject) {
       actions.push(
         actionUpdateProject(() => navigate(`${AUTH_ROUTE_PROJECTS_EDIT}=${row.id}`)),
-        actionToggleStatus(row.active === true, () => onToggleStatus(row)),
+        actionToggleStatus(isTableRowActive(row), () => onToggleStatus(row)),
       )
     }
     return actions
   }
+
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const row = findRowById(tableRow.id)
+    const row = resolveProjectRow(tableRow.id)
     return row ? resolveRowActions(row) : []
   }
+
   const renderCustomCell = createTableCustomRenderer({
     [NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => {
-      const projectRow = findRowById(row.id)
+      const projectRow = resolveProjectRow(row.id)
       if (projectRow) onViewDetail(projectRow)
     }),
-    [TYPE_COLUMN_INDEX]: ({ row }) => resolveOptionName(projectTypeOptions, (row as ProjectTableRow).typeId),
-    [STATUS_COLUMN_INDEX]: ({ row }) => resolveOptionName(projectStatusOptions, (row as ProjectTableRow).statusId),
-    [SPECIALTY_COLUMN_INDEX]: ({ row }) => resolveOptionName(projectSpecialtyOptions, (row as ProjectTableRow).specialtyId),
-    [ACTIVE_COLUMN_INDEX]: ({ row }) => renderStatusBadge(Boolean(findRowById(row.id)?.active)),
+    [TYPE_COLUMN_INDEX]: ({ row }) => mapperProjectOptionName(projectTypeNamesById, resolveProjectRow(row.id)?.typeId),
+    [STATUS_COLUMN_INDEX]: ({ row }) => mapperProjectOptionName(projectStatusNamesById, resolveProjectRow(row.id)?.statusId),
+    [SPECIALTY_COLUMN_INDEX]: ({ row }) => mapperProjectOptionName(projectSpecialtyNamesById, resolveProjectRow(row.id)?.specialtyId),
+    [ACTIVE_COLUMN_INDEX]: ({ row }) => renderStatusBadge(resolveRowActive(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = projectsTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortProjects(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => projectsTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, projectsTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -98,7 +117,7 @@ export function ProjectsListTableComponent(props: ProjectsListTableComponentProp
         columns={projectsTableColumns}
         rows={rows as ProjectTableRow[]}
         loading={loading}
-        emptyMessage="No hay proyectos registrados."
+        emptyMessage={messages.projects.ui.emptyList}
         customRenderer={renderCustomCell}
         actionsConfig={canReadProject || canUpdateProject
           ? {

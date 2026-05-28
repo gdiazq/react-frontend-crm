@@ -18,6 +18,8 @@ import { projectsService } from '@/services'
 import type { ProjectsStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
+  formatCsvImportSummary,
   initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
@@ -41,6 +43,8 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
     costCenterEmployeesQueryParams: { ...initialProjectCostCenterEmployeesQueryParams },
     loadingCostCenterEmployees: false,
     costCenterEmployeesErrorMessage: null,
+    exportingCsv: false,
+    importingCsv: false,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
@@ -352,6 +356,41 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
         return false
       } finally {
         setOpLoading('toggle', false)
+      }
+    },
+
+    exportProjectsCsv: async () => {
+      if (get().exportingCsv) return false
+
+      try {
+        set({ exportingCsv: true })
+        clearOp('list')
+        const csvBlob = await projectsService.exportProjectsCsv()
+        downloadBlobFile(csvBlob, 'projects.csv')
+        setOpSuccess('list', messages.projects.status.success.exportSuccess)
+        return true
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.projects.status.errors.exportError), error)
+        return false
+      } finally {
+        set({ exportingCsv: false })
+      }
+    },
+
+    importProjectsCsv: async (file: File) => {
+      if (get().importingCsv) return null
+
+      try {
+        set({ importingCsv: true })
+        clearOp('list')
+        const result = await projectsService.importProjectsCsv(file)
+        await get().getProjects()
+        return formatCsvImportSummary(result)
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.projects.status.errors.importError), error)
+        return null
+      } finally {
+        set({ importingCsv: false })
       }
     },
 

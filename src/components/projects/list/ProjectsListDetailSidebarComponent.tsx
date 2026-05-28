@@ -26,13 +26,19 @@ interface ProjectsListDetailSidebarComponentProps {
 
 export function ProjectsListDetailSidebarComponent(props: ProjectsListDetailSidebarComponentProps) {
   const { rowId, fallbackName, onClose } = props
+
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<ProjectDetailTabKey>('detail')
+
+  // Store state used to render the detail sidebar.
   const detail = useStoreProjects((s) => s.projectDetail)
   const loading = useStoreProjects((s) => s.operationLoading.detail)
   const error = useStoreProjects((s) => s.operationStatus.detail.error)
+
+  // Store actions triggered by detail lifecycle.
   const getProjectDetail = useStoreProjects((s) => s.getProjectDetail)
   const clearProjectDetail = useStoreProjects((s) => s.clearProjectDetail)
+
   const canUpdateProject = useHasPermission(PermissionModule.Project, PermissionAction.Update)
 
   useEffect(() => {
@@ -45,6 +51,7 @@ export function ProjectsListDetailSidebarComponent(props: ProjectsListDetailSide
     onClose()
   }
 
+  // View model derived from backend detail.
   const detailView = mapperProjectDetailView(detail)
 
   return (

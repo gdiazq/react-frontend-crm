@@ -1,15 +1,20 @@
+import { useMemo } from 'react'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableSortState } from '@/components'
-import { SortDirection } from '@/constant'
 import {
   projectCostCenterEmployeesTableColumns,
   projectCostCenterEmployeesTableColumnIndex,
   projectCostCenterEmployeesTableSortByColumn,
 } from '@/factories'
+import messages from '@/messages/messages'
 import { useStoreProjects } from '@/store'
 import {
+  createRowsById,
+  createTableSortState,
   createTableCustomRenderer,
+  findRowById,
+  isTableRowActive,
   renderStatusBadge,
+  resolveNextTableSortDir,
 } from '@/utils'
 
 const STATE_COLUMN_INDEX = projectCostCenterEmployeesTableColumnIndex.status
@@ -22,17 +27,26 @@ interface ProjectCostCenterEmployeesTableComponentProps {
 }
 
 export function ProjectCostCenterEmployeesTableComponent({ costCenter }: ProjectCostCenterEmployeesTableComponentProps) {
+  // Store state used to render the cost-center employees table.
   const rows = useStoreProjects((s) => s.costCenterEmployeesRows)
   const pagination = useStoreProjects((s) => s.costCenterEmployeesPagination)
   const queryParams = useStoreProjects((s) => s.costCenterEmployeesQueryParams)
   const loading = useStoreProjects((s) => s.loadingCostCenterEmployees)
+
+  // Store actions triggered by table interactions.
   const sortCostCenterEmployees = useStoreProjects((s) => s.sortCostCenterEmployees)
   const goToCostCenterEmployeesPage = useStoreProjects((s) => s.goToCostCenterEmployeesPage)
+
+  // Derived lookup for callbacks that receive the generic TableRow shape.
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const resolveEmployeeRow = (rowId: string) => findRowById(rowsById, rowId)
+  const resolveRowActive = (rowId: string) => isTableRowActive(resolveEmployeeRow(rowId))
+  const resolveRowHasContract = (rowId: string) => resolveEmployeeRow(rowId)?.hasContract === true
   const validCostCenter = Number.isInteger(costCenter) && costCenter !== null && costCenter > 0
 
   const renderCustomCell = createTableCustomRenderer({
-    [ACTIVE_COLUMN_INDEX]: ({ row }) => renderStatusBadge(Boolean(rows.find((item) => item.id === row.id)?.active)),
-    [CONTRACT_COLUMN_INDEX]: ({ row }) => renderStatusBadge(Boolean(rows.find((item) => item.id === row.id)?.hasContract), { activeLabel: 'Sí', inactiveLabel: 'No' }),
+    [ACTIVE_COLUMN_INDEX]: ({ row }) => renderStatusBadge(resolveRowActive(row.id)),
+    [CONTRACT_COLUMN_INDEX]: ({ row }) => renderStatusBadge(resolveRowHasContract(row.id), { activeLabel: 'Sí', inactiveLabel: 'No' }),
     [STATE_COLUMN_INDEX]: ({ value }) => {
       const text = String(value ?? '')
       if (!text || text === '-') return null
@@ -48,14 +62,11 @@ export function ProjectCostCenterEmployeesTableComponent({ costCenter }: Project
     if (!validCostCenter) return
     const sortBy = projectCostCenterEmployeesTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortCostCenterEmployees(costCenter, sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => projectCostCenterEmployeesTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, projectCostCenterEmployeesTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -63,7 +74,7 @@ export function ProjectCostCenterEmployeesTableComponent({ costCenter }: Project
         columns={projectCostCenterEmployeesTableColumns}
         rows={rows}
         loading={loading}
-        emptyMessage="No hay trabajadores asociados a este centro de costo."
+        emptyMessage={messages.projects.ui.emptyCostCenterEmployeesList}
         preserveHeaderCase
         customRenderer={renderCustomCell}
         sortableColumnIndexes={SORTABLE_COLUMNS}

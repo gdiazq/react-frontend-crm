@@ -12,19 +12,15 @@ import {
 import { AUTH_ROUTE_PROJECTS } from '@/constant'
 import { initialCreateProjectForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateProjectPayload, mapperProjectToForm, mapperUpdateProjectPayload } from '@/mappers'
+import {
+  mapperCreateProjectPayload,
+  mapperProjectSelectOptions,
+  mapperProjectToForm,
+  mapperUpdateProjectPayload,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreProjects, useStoreSelects } from '@/store'
-import type { ProjectCreatePayload, ProjectUpdatePayload } from '@/types'
 import { projectsCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: ProjectCreatePayload }
-  | { mode: 'update', payload: ProjectUpdatePayload }
-  | null
-
-const toSelectOptions = (options: { id: number, name: string }[]) =>
-  options.map((option) => ({ label: option.name, value: String(option.id) }))
 
 export default function ProjectsFormDashboardPage() {
   const navigate = useNavigate()
@@ -35,20 +31,23 @@ export default function ProjectsFormDashboardPage() {
 
   const [form, setForm] = useState({ ...initialCreateProjectForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
+  // Store state used to render loading and submit status.
   const loadingProjectDetail = useStoreProjects((s) => s.operationLoading.detail)
   const detailError = useStoreProjects((s) => s.operationStatus.detail.error)
   const createProjectSubmitting = useStoreProjects((s) => s.operationLoading.create)
   const updateProjectSubmitting = useStoreProjects((s) => s.operationLoading.update)
   const createStatus = useStoreProjects((s) => s.operationStatus.create)
   const updateStatus = useStoreProjects((s) => s.operationStatus.update)
+
+  // Store actions triggered by form lifecycle and submit.
   const getProjectDetail = useStoreProjects((s) => s.getProjectDetail)
   const clearProjectDetail = useStoreProjects((s) => s.clearProjectDetail)
   const createProject = useStoreProjects((s) => s.createProject)
   const updateProject = useStoreProjects((s) => s.updateProject)
   const clearOperationStatus = useStoreProjects((s) => s.clearOperationStatus)
 
+  // Shared select state used by form controls.
   const projectTypeOptions = useStoreSelects((s) => s.projectTypeOptions)
   const projectStatusOptions = useStoreSelects((s) => s.projectStatusOptions)
   const projectSpecialtyOptions = useStoreSelects((s) => s.projectSpecialtyOptions)
@@ -78,6 +77,7 @@ export default function ProjectsFormDashboardPage() {
   const clearSupervisorOptionsStatus = useStoreSelects((s) => s.clearSupervisorOptionsStatus)
   const clearCompanyRepresentativeOptionsStatus = useStoreSelects((s) => s.clearCompanyRepresentativeOptionsStatus)
 
+  // The form has non-validatable multi-select data, so validation receives only fields with rules.
   const validatableForm = {
     costCenter: form.costCenter,
     name: form.name,
@@ -95,6 +95,7 @@ export default function ProjectsFormDashboardPage() {
   }
   const { errors, validateAll, onValidation } = useFormValidation(validatableForm, projectsCreateValidationRules)
 
+  // Derived UI state.
   const saving = createProjectSubmitting || updateProjectSubmitting
   const activeStatus = isEditMode ? updateStatus : createStatus
   const submitErrorMessage = activeStatus.error
@@ -109,12 +110,12 @@ export default function ProjectsFormDashboardPage() {
   const submitLabel = isEditMode ? 'Guardar cambios' : messages.projects.ui.createProjectSubmit
   const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : messages.projects.ui.createProjectSubmitting
 
-  const selectTypes = toSelectOptions(projectTypeOptions)
-  const selectStatuses = toSelectOptions(projectStatusOptions)
-  const selectSpecialties = toSelectOptions(projectSpecialtyOptions)
-  const selectVisitors = toSelectOptions(visitorOptions)
-  const selectSupervisors = toSelectOptions(supervisorOptions)
-  const selectRepresentatives = toSelectOptions(companyRepresentativeOptions)
+  const selectTypes = mapperProjectSelectOptions(projectTypeOptions)
+  const selectStatuses = mapperProjectSelectOptions(projectStatusOptions)
+  const selectSpecialties = mapperProjectSelectOptions(projectSpecialtyOptions)
+  const selectVisitors = mapperProjectSelectOptions(visitorOptions)
+  const selectSupervisors = mapperProjectSelectOptions(supervisorOptions)
+  const selectRepresentatives = mapperProjectSelectOptions(companyRepresentativeOptions)
 
   useEffect(() => {
     void getProjectTypeOptions()
@@ -188,32 +189,33 @@ export default function ProjectsFormDashboardPage() {
     event.preventDefault()
     if (!validateAll()) return
 
-    if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateProjectPayload(editProjectId, form) })
-    } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateProjectPayload(form) })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
-    const success = pendingAction.mode === 'create'
-      ? await createProject(pendingAction.payload)
-      : await updateProject(pendingAction.payload)
+    if (saving) return
+    if (!validateAll()) return
+
+    const success = isEditMode
+      ? await updateProject(mapperUpdateProjectPayload(editProjectId, form))
+      : await createProject(mapperCreateProjectPayload(form))
+
     if (success) {
       navigate(AUTH_ROUTE_PROJECTS)
       return
     }
     setConfirmOpen(false)
-    setPendingAction(null)
   }
+
+  const confirmMessage = isEditMode
+    ? `¿Deseas guardar los cambios del proyecto ${form.name}?`
+    : `¿Deseas crear el proyecto ${form.name}?`
+
   const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'
   const heroIdSuffix = isEditMode ? `#${editProjectId}` : 'PROJ-NEW'
   const heroWords = headerTitle.trim().split(/\s+/).filter(Boolean)
@@ -350,7 +352,7 @@ export default function ProjectsFormDashboardPage() {
       <SaveConfirmComponent
         open={confirmOpen}
         title={isEditMode ? 'Confirmar actualización de proyecto' : 'Confirmar creación de proyecto'}
-        message={pendingAction?.mode === 'update' ? `¿Deseas guardar los cambios del proyecto ${form.name}?` : `¿Deseas crear el proyecto ${form.name}?`}
+        message={confirmMessage}
         confirmLabel={submitLabel}
         cancelLabel="Cancelar"
         loading={saving}

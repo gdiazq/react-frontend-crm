@@ -536,17 +536,22 @@ export default {
       createProjectDescription: 'Completa la informacion para registrar un nuevo proyecto.',
       createProjectSubmit: 'Crear proyecto',
       createProjectSubmitting: 'Creando proyecto...',
+      emptyList: 'No hay proyectos registrados.',
+      emptyCostCenterEmployeesList: 'No hay trabajadores asociados a este centro de costo.',
     },
     status: {
       success: {
         createProjectSuccess: 'Proyecto creado correctamente.',
         updateProjectSuccess: 'Proyecto actualizado correctamente.',
+        exportSuccess: 'Reporte descargado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de proyectos.',
         loadCostCenterEmployeesError: 'No se pudo cargar la lista de trabajadores del centro de costo.',
+        exportError: 'No se pudo descargar el reporte de proyectos.',
+        importError: 'No se pudo realizar la carga masiva de proyectos.',
         detailLoadError: 'No se pudo cargar el detalle del proyecto.',
         detailInvalidProjectId: 'Id de proyecto invalido para ver detalle.',
         createProjectError: 'No se pudo crear el proyecto.',

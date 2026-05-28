@@ -73,6 +73,23 @@ export function mapperProjectEmployeeStatusFilterOptions(options: SelectEmployee
   return options.map((option) => ({ label: option.name, value: String(option.id) }))
 }
 
+export function mapperProjectSelectOptions(options: { id: number | boolean, name: string }[]) {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperProjectSelectOptionsById(options: { id: number, name: string }[]) {
+  return new Map(options.map((option) => [option.id, option.name]))
+}
+
+export function mapperProjectOptionName(
+  optionsById: Map<number, string>,
+  optionId?: number | null,
+  fallback = '-',
+) {
+  if (!optionId) return fallback
+  return optionsById.get(optionId) || fallback
+}
+
 function resolveEmployeeFullName(item: ProjectCostCenterEmployeeRaw): string {
   return [item.firstName, item.paternalLastName, item.maternalLastName].filter(Boolean).join(' ').trim() || '-'
 }

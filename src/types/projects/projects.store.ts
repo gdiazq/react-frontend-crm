@@ -27,6 +27,8 @@ export interface ProjectsStore {
   costCenterEmployeesQueryParams: ProjectCostCenterEmployeesQueryParams
   loadingCostCenterEmployees: boolean
   costCenterEmployeesErrorMessage: string | null
+  exportingCsv: boolean
+  importingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   createProject: (payload: ProjectCreatePayload) => Promise<boolean>
@@ -63,6 +65,8 @@ export interface ProjectsStore {
   clearUpdatedDateRange: () => void
   searchProjects: () => Promise<void>
   sortProjects: (sortBy: ProjectsSortBy, sortDir: ProjectsSortDir) => Promise<void>
+  exportProjectsCsv: () => Promise<boolean>
+  importProjectsCsv: (file: File) => Promise<string | null>
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void
 }
