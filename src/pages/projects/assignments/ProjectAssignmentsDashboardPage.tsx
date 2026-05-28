@@ -21,19 +21,27 @@ export default function ProjectAssignmentsDashboardPage() {
   const pagination = useStoreProjectAssignments((s) => s.pagination)
   const listError = useStoreProjectAssignments((s) => s.operationStatus.list.error)
   const clearOperationStatus = useStoreProjectAssignments((s) => s.clearOperationStatus)
+
+  // Store actions triggered by dashboard interactions.
   const getProjectAssignments = useStoreProjectAssignments((s) => s.getProjectAssignments)
+  const getEmployeeWithContractOptions = useStoreProjectAssignments((s) => s.getEmployeeWithContractOptions)
   const getProjectAssignmentsByEmployee = useStoreProjectAssignments((s) => s.getProjectAssignmentsByEmployee)
   const getProjectAssignmentsByCostCenter = useStoreProjectAssignments((s) => s.getProjectAssignmentsByCostCenter)
   const clearEmployeeProjectAssignments = useStoreProjectAssignments((s) => s.clearEmployeeProjectAssignments)
   const clearCostCenterProjectAssignments = useStoreProjectAssignments((s) => s.clearCostCenterProjectAssignments)
+
+  // Module and shared select state/actions used by filters.
+  const employeeWithContractOptionsErrorMessage = useStoreProjectAssignments((s) => s.employeeWithContractOptionsErrorMessage)
+  const clearEmployeeWithContractOptionsStatus = useStoreProjectAssignments((s) => s.clearEmployeeWithContractOptionsStatus)
   const projectActiveInactiveOptionsErrorMessage = useStoreSelects((s) => s.projectActiveInactiveOptionsErrorMessage)
   const getProjectActiveInactiveOptions = useStoreSelects((s) => s.getProjectActiveInactiveOptions)
   const clearProjectActiveInactiveOptionsStatus = useStoreSelects((s) => s.clearProjectActiveInactiveOptionsStatus)
 
   useEffect(() => {
     void getProjectAssignments()
+    void getEmployeeWithContractOptions()
     void getProjectActiveInactiveOptions()
-  }, [getProjectAssignments, getProjectActiveInactiveOptions])
+  }, [getEmployeeWithContractOptions, getProjectAssignments, getProjectActiveInactiveOptions])
 
   const handleViewEmployeeDetail = (row: ProjectAssignmentTableRow) => {
     setDetailMode('employee')
@@ -97,6 +105,13 @@ export default function ProjectAssignmentsDashboardPage() {
           onClose={clearProjectActiveInactiveOptionsStatus} 
         />
       }
+      {employeeWithContractOptionsErrorMessage && (
+        <AlertMessageComponent
+          message={employeeWithContractOptionsErrorMessage}
+          tone="error"
+          onClose={clearEmployeeWithContractOptionsStatus}
+        />
+      )}
 
       <ProjectAssignmentsListToolbarComponent 
         onOpenFilters={() => setFiltersOpen(true)} 

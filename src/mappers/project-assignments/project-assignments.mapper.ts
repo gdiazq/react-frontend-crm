@@ -1,6 +1,7 @@
 import type {
   ProjectAssignmentDetail,
   ProjectAssignmentDetailView,
+  ProjectAssignmentEmployeeSelectOption,
   ProjectAssignmentRaw,
   ProjectAssignmentTableRow,
   ProjectAssignmentsPagedResponse,
@@ -64,6 +65,10 @@ export function mapperProjectAssignmentsQueryParams(result: ProjectAssignmentsQu
 
 export function mapperProjectAssignmentActiveFilterOptions(options: SelectActiveInactiveOption[]) {
   return options.map((option) => ({ label: option.name, value: String(option.value) }))
+}
+
+export function mapperProjectAssignmentEmployeeSelectOptions(options: ProjectAssignmentEmployeeSelectOption[]) {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
 }
 
 export function mapperProjectAssignmentDetailView(detail: ProjectAssignmentDetail | null): ProjectAssignmentDetailView | null {

@@ -6,8 +6,11 @@ interface ProjectAssignmentsListToolbarComponentProps {
 }
 
 export function ProjectAssignmentsListToolbarComponent({ onOpenFilters }: ProjectAssignmentsListToolbarComponentProps) {
+  // Store state used to render toolbar controls.
   const search = useStoreProjectAssignments((s) => s.queryParams.search)
   const loading = useStoreProjectAssignments((s) => s.operationLoading.list)
+
+  // Store actions triggered by toolbar interactions.
   const setSearch = useStoreProjectAssignments((s) => s.setSearch)
   const searchProjectAssignments = useStoreProjectAssignments((s) => s.searchProjectAssignments)
 

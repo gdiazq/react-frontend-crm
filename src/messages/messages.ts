@@ -345,11 +345,13 @@ export default {
       actionViewEmployeeDetail: 'Ver trabajador',
       actionViewCostCenterDetail: 'Ver proyecto',
       detailTitleFallback: 'Detalle de histórico',
+      emptyList: 'No hay registros históricos de asignación.',
     },
     status: {
       success: {},
       errors: {
         loadError: 'No se pudo cargar el histórico de asignaciones.',
+        loadEmployeeOptionsError: 'No se pudieron cargar los trabajadores.',
         detailLoadError: 'No se pudo cargar el detalle del histórico.',
         detailInvalidId: 'Id de histórico inválido.',
       },

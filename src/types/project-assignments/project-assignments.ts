@@ -18,6 +18,11 @@ export interface ProjectAssignmentRaw {
 
 export type ProjectAssignmentDetail = ProjectAssignmentRaw
 
+export interface ProjectAssignmentEmployeeSelectOption {
+  id: number
+  name: string
+}
+
 export interface ProjectAssignmentDetailView {
   id: number
   employeeId: number

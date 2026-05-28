@@ -1,6 +1,7 @@
 import type { OperationKey, OperationStatus } from '../common'
 import type {
   ProjectAssignmentDetail,
+  ProjectAssignmentEmployeeSelectOption,
   ProjectAssignmentTableRow,
   ProjectAssignmentsPagination,
   ProjectAssignmentsQueryParams,
@@ -12,13 +13,17 @@ export interface ProjectAssignmentsStore {
   projectAssignmentsRows: ProjectAssignmentTableRow[]
   employeeProjectAssignments: ProjectAssignmentDetail[]
   costCenterProjectAssignments: ProjectAssignmentDetail[]
+  employeeWithContractOptions: ProjectAssignmentEmployeeSelectOption[]
   pagination: ProjectAssignmentsPagination
   queryParams: ProjectAssignmentsQueryParams
   loadingEmployeeProjectAssignments: boolean
   loadingCostCenterProjectAssignments: boolean
+  loadingEmployeeWithContractOptions: boolean
+  employeeWithContractOptionsErrorMessage: string | null
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getProjectAssignments: () => Promise<void>
+  getEmployeeWithContractOptions: () => Promise<void>
   getProjectAssignmentsByEmployee: (employeeId: number) => Promise<void>
   getProjectAssignmentsByCostCenter: (costCenter: number) => Promise<void>
   clearEmployeeProjectAssignments: () => void
@@ -41,6 +46,7 @@ export interface ProjectAssignmentsStore {
   clearUpdatedDateRange: () => void
   searchProjectAssignments: () => Promise<void>
   sortProjectAssignments: (sortBy: ProjectAssignmentsSortBy, sortDir: ProjectAssignmentsSortDir) => Promise<void>
+  clearEmployeeWithContractOptionsStatus: () => void
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void
 }

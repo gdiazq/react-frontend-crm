@@ -1,6 +1,7 @@
 export type {
   ProjectAssignmentRaw,
   ProjectAssignmentDetail,
+  ProjectAssignmentEmployeeSelectOption,
   ProjectAssignmentDetailView,
   ProjectAssignmentTableRow,
   ProjectAssignmentsSortBy,

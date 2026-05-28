@@ -6,7 +6,7 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
-import { mapperProjectAssignmentActiveFilterOptions } from '@/mappers'
+import { mapperProjectAssignmentActiveFilterOptions, mapperProjectAssignmentEmployeeSelectOptions } from '@/mappers'
 import { useStoreProjectAssignments, useStoreSelects } from '@/store'
 
 interface ProjectAssignmentsListFiltersSidebarComponentProps {
@@ -16,8 +16,12 @@ interface ProjectAssignmentsListFiltersSidebarComponentProps {
 
 export function ProjectAssignmentsListFiltersSidebarComponent(props: ProjectAssignmentsListFiltersSidebarComponentProps) {
   const { open, onClose } = props
+
+  // Store state used to initialize and render filters.
   const queryParams = useStoreProjectAssignments((s) => s.queryParams)
   const loading = useStoreProjectAssignments((s) => s.operationLoading.list)
+
+  // Store actions triggered by filter buttons.
   const setEmployeeFilter = useStoreProjectAssignments((s) => s.setEmployeeFilter)
   const setCostCenterFilter = useStoreProjectAssignments((s) => s.setCostCenterFilter)
   const setActiveFilter = useStoreProjectAssignments((s) => s.setActiveFilter)
@@ -31,6 +35,10 @@ export function ProjectAssignmentsListFiltersSidebarComponent(props: ProjectAssi
   const clearCreatedDateRange = useStoreProjectAssignments((s) => s.clearCreatedDateRange)
   const clearUpdatedDateRange = useStoreProjectAssignments((s) => s.clearUpdatedDateRange)
   const searchProjectAssignments = useStoreProjectAssignments((s) => s.searchProjectAssignments)
+
+  // Module and shared select state loaded by the dashboard.
+  const employeeWithContractOptions = useStoreProjectAssignments((s) => s.employeeWithContractOptions)
+  const loadingEmployeeWithContractOptions = useStoreProjectAssignments((s) => s.loadingEmployeeWithContractOptions)
   const projectActiveInactiveOptions = useStoreSelects((s) => s.projectActiveInactiveOptions)
   const loadingProjectActiveInactiveOptions = useStoreSelects((s) => s.loadingProjectActiveInactiveOptions)
 
@@ -46,8 +54,10 @@ export function ProjectAssignmentsListFiltersSidebarComponent(props: ProjectAssi
     updatedTo: queryParams.updatedTo,
   }))
 
+  // Derived options and loading state.
+  const employeeSelectOptions = mapperProjectAssignmentEmployeeSelectOptions(employeeWithContractOptions)
   const activeSelectOptions = mapperProjectAssignmentActiveFilterOptions(projectActiveInactiveOptions)
-  const loadingAny = loading || loadingProjectActiveInactiveOptions
+  const loadingAny = loading || loadingEmployeeWithContractOptions || loadingProjectActiveInactiveOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
@@ -79,7 +89,7 @@ export function ProjectAssignmentsListFiltersSidebarComponent(props: ProjectAssi
   return (
     <RightSidebarComponent open={open} title="Filtros" onClose={onClose}>
       <div className="space-y-4">
-        <InputComponent value={filters.employeeId} label="ID trabajador" type="number" placeholder="Ej: 12" onValueChange={(v) => handleChangeFilter('employeeId', v)} />
+        <SelectComponent value={filters.employeeId} label="Trabajador" options={employeeSelectOptions} loading={loadingEmployeeWithContractOptions} onValueChange={(v) => handleChangeFilter('employeeId', v)} />
         <InputComponent value={filters.costCenter} label="Centro de costo" type="number" placeholder="Ej: 1001" onValueChange={(v) => handleChangeFilter('costCenter', v)} />
         <SelectComponent value={filters.active} label="Estado" options={activeSelectOptions} loading={loadingProjectActiveInactiveOptions} onValueChange={(v) => handleChangeFilter('active', v)} />
         <div className="space-y-3 rounded-xl border border-cyan-500/35 bg-cyan-50/20 p-3 dark:border-cyan-400/25 dark:bg-cyan-950/10">

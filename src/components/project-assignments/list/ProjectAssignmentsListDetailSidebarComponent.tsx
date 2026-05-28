@@ -16,15 +16,24 @@ interface ProjectAssignmentsListDetailSidebarComponentProps {
 
 export function ProjectAssignmentsListDetailSidebarComponent(props: ProjectAssignmentsListDetailSidebarComponentProps) {
   const { open, mode, employeeId, costCenter, fallbackName, onClose } = props
+
+  // Store state used to render the detail sidebar.
   const employeeAssignments = useStoreProjectAssignments((s) => s.employeeProjectAssignments)
   const costCenterAssignments = useStoreProjectAssignments((s) => s.costCenterProjectAssignments)
   const loadingEmployeeAssignments = useStoreProjectAssignments((s) => s.loadingEmployeeProjectAssignments)
   const loadingCostCenterAssignments = useStoreProjectAssignments((s) => s.loadingCostCenterProjectAssignments)
   const detailError = useStoreProjectAssignments((s) => s.operationStatus.detail.error)
+
+  // Store actions triggered by detail lifecycle.
   const getProjectAssignmentsByEmployee = useStoreProjectAssignments((s) => s.getProjectAssignmentsByEmployee)
   const getProjectAssignmentsByCostCenter = useStoreProjectAssignments((s) => s.getProjectAssignmentsByCostCenter)
   const clearEmployeeProjectAssignments = useStoreProjectAssignments((s) => s.clearEmployeeProjectAssignments)
   const clearCostCenterProjectAssignments = useStoreProjectAssignments((s) => s.clearCostCenterProjectAssignments)
+
+   // View models derived from backend detail lists.
+  const employeeItems = mapperProjectAssignmentDetailViews(employeeAssignments)
+  const costCenterItems = mapperProjectAssignmentDetailViews(costCenterAssignments)
+  const title = fallbackName ? `Detalle de ${fallbackName}` : messages.projectAssignments.ui.detailTitleFallback
 
   const handleClose = () => {
     clearEmployeeProjectAssignments()
@@ -41,10 +50,6 @@ export function ProjectAssignmentsListDetailSidebarComponent(props: ProjectAssig
       void getProjectAssignmentsByCostCenter(costCenter)
     }
   }
-
-  const employeeItems = mapperProjectAssignmentDetailViews(employeeAssignments)
-  const costCenterItems = mapperProjectAssignmentDetailViews(costCenterAssignments)
-  const title = fallbackName ? `Detalle de ${fallbackName}` : messages.projectAssignments.ui.detailTitleFallback
 
   return (
     <DetailSidebarComponent open={open} title={title} onClose={handleClose}>

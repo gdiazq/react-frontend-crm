@@ -30,10 +30,13 @@ export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set
     projectAssignmentsRows: [...initialProjectAssignmentsRows],
     employeeProjectAssignments: [],
     costCenterProjectAssignments: [],
+    employeeWithContractOptions: [],
     pagination: { ...initialProjectAssignmentsPagination },
     queryParams: { ...initialProjectAssignmentsQueryParams },
     loadingEmployeeProjectAssignments: false,
     loadingCostCenterProjectAssignments: false,
+    loadingEmployeeWithContractOptions: false,
+    employeeWithContractOptionsErrorMessage: null,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
@@ -57,6 +60,20 @@ export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set
         if (requestId === latestProjectAssignmentsRequestId) {
           setOpLoading('list', false)
         }
+      }
+    },
+
+    getEmployeeWithContractOptions: async () => {
+      try {
+        set({ loadingEmployeeWithContractOptions: true, employeeWithContractOptionsErrorMessage: null })
+        const data = await projectAssignmentsService.getEmployeeWithContractOptions()
+        set({ employeeWithContractOptions: data })
+      } catch (error) {
+        set({
+          employeeWithContractOptionsErrorMessage: resolveErrorMessage(error, messages.projectAssignments.status.errors.loadEmployeeOptionsError),
+        })
+      } finally {
+        set({ loadingEmployeeWithContractOptions: false })
       }
     },
 
@@ -169,6 +186,10 @@ export const useStoreProjectAssignments = create<ProjectAssignmentsStore>()((set
         queryParams: { ...state.queryParams, page: 0, sortBy, sortDir },
       }))
       await get().getProjectAssignments()
+    },
+
+    clearEmployeeWithContractOptionsStatus: () => {
+      set({ employeeWithContractOptionsErrorMessage: null })
     },
 
     clearOperationStatus: (key) => clearOp(key),
