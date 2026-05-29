@@ -15,6 +15,8 @@ import {
   buildInitialOperationLoading,
   buildInitialOperationStatus,
   createOperationStatusHelpers,
+  downloadBlobFile,
+  formatCsvImportSummary,
   resolveErrorMessage,
 } from '@/utils'
 
@@ -49,6 +51,8 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
   loadingLinkUser: false,
   availableUsers: [],
   loadingAvailableUsers: false,
+  exportingCsv: false,
+  importingCsv: false,
   operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
@@ -231,6 +235,41 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
       return false
     } finally {
       setOpLoading('update', false)
+    }
+  },
+
+  exportEmployeesCsv: async () => {
+    if (get().exportingCsv) return false
+
+    try {
+      set({ exportingCsv: true })
+      clearOp('list')
+      const csvBlob = await employeesService.exportEmployeesCsv()
+      downloadBlobFile(csvBlob, 'employees.csv')
+      setOpSuccess('list', messages.employees.status.success.exportSuccess)
+      return true
+    } catch (error) {
+      setOpError('list', resolveErrorMessage(error, messages.employees.status.errors.exportError), error)
+      return false
+    } finally {
+      set({ exportingCsv: false })
+    }
+  },
+
+  importEmployeesCsv: async (file: File) => {
+    if (get().importingCsv) return null
+
+    try {
+      set({ importingCsv: true })
+      clearOp('list')
+      const result = await employeesService.importEmployeesCsv(file)
+      await get().getEmployees()
+      return formatCsvImportSummary(result)
+    } catch (error) {
+      setOpError('list', resolveErrorMessage(error, messages.employees.status.errors.importError), error)
+      return null
+    } finally {
+      set({ importingCsv: false })
     }
   },
 

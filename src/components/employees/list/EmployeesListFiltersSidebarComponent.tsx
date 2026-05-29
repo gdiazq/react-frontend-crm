@@ -5,6 +5,7 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
+import { mapperEmployeeFormSelectOptions } from '@/mappers'
 import { useStoreEmployeeSelects, useStoreEmployees, useStoreSelects } from '@/store'
 
 interface EmployeesListFiltersSidebarComponentProps {
@@ -14,10 +15,14 @@ interface EmployeesListFiltersSidebarComponentProps {
 
 export function EmployeesListFiltersSidebarComponent(props: EmployeesListFiltersSidebarComponentProps) {
   const { open, onClose } = props
+
+  // Store state used to initialize and render filters.
   const queryParams = useStoreEmployees((s) => s.queryParams)
   const loadingEmployees = useStoreEmployees((s) => s.operationLoading.list)
   const loadingToggleStatus = useStoreEmployees((s) => s.operationLoading.toggle)
   const loadingLinkUser = useStoreEmployees((s) => s.loadingLinkUser)
+
+  // Store actions triggered by filter buttons.
   const setActiveFilter = useStoreEmployees((s) => s.setActiveFilter)
   const setApprovalStatusFilter = useStoreEmployees((s) => s.setApprovalStatusFilter)
   const setCreatedDateRange = useStoreEmployees((s) => s.setCreatedDateRange)
@@ -26,6 +31,7 @@ export function EmployeesListFiltersSidebarComponent(props: EmployeesListFilters
   const clearCreatedDateRange = useStoreEmployees((s) => s.clearCreatedDateRange)
   const searchEmployees = useStoreEmployees((s) => s.searchEmployees)
 
+  // Shared select state loaded by the dashboard.
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
   const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
@@ -38,8 +44,9 @@ export function EmployeesListFiltersSidebarComponent(props: EmployeesListFilters
     createdTo: queryParams.createdTo,
   }))
 
-  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const approvalStatusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  // Derived options and loading state.
+  const statusSelectOptions = mapperEmployeeFormSelectOptions(statusOptions)
+  const approvalStatusSelectOptions = mapperEmployeeFormSelectOptions(approvalEmployeeStatusOptions)
   const loadingAny = loadingEmployees || loadingToggleStatus || loadingLinkUser || loadingStatusOptions || loadingApprovalEmployeeStatusOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {

@@ -7,10 +7,8 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_EMPLOYEES_CREATE, PermissionAction, PermissionModule } from '@/constant'
-import { employeesService } from '@/services'
 import { useStoreEmployees } from '@/store'
 import { useHasPermission } from '@/hooks'
-import { downloadBlobFile, formatCsvImportSummary } from '@/utils'
 
 interface EmployeesListToolbarComponentProps {
   onOpenFilters: () => void
@@ -19,60 +17,48 @@ interface EmployeesListToolbarComponentProps {
 
 export function EmployeesListToolbarComponent(props: EmployeesListToolbarComponentProps) {
   const { onOpenFilters, disabled = false } = props
+
   const navigate = useNavigate()
-  const search = useStoreEmployees((s) => s.queryParams.search)
-  const loading = useStoreEmployees((s) => s.operationLoading.list)
-  const setSearch = useStoreEmployees((s) => s.setSearch)
-  const searchEmployees = useStoreEmployees((s) => s.searchEmployees)
-  const getEmployees = useStoreEmployees((s) => s.getEmployees)
   const canCreate = useHasPermission(PermissionModule.Employee, PermissionAction.Create)
   const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const [uploadingBulk, setUploadingBulk] = useState(false)
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
-  const loadingAny = loading || disabled || downloadingReport || uploadingBulk
+
+  // Store state used to render toolbar controls.
+  const search = useStoreEmployees((s) => s.queryParams.search)
+  const loading = useStoreEmployees((s) => s.operationLoading.list)
+  const exportingCsv = useStoreEmployees((s) => s.exportingCsv)
+  const importingCsv = useStoreEmployees((s) => s.importingCsv)
+
+  // Store actions triggered by toolbar interactions.
+  const setSearch = useStoreEmployees((s) => s.setSearch)
+  const searchEmployees = useStoreEmployees((s) => s.searchEmployees)
+  const exportEmployeesCsv = useStoreEmployees((s) => s.exportEmployeesCsv)
+  const importEmployeesCsv = useStoreEmployees((s) => s.importEmployeesCsv)
+
+  // Derived disabled state for every toolbar action.
+  const loadingAny = loading || disabled || exportingCsv || importingCsv
 
   const handleDownloadReport = async () => {
-    if (downloadingReport) return
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await employeesService.exportEmployeesCsv()
-      downloadBlobFile(csvBlob, 'employees.csv')
+    if (exportingCsv) return
+    const success = await exportEmployeesCsv()
+    if (success) {
       setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (employeesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
     }
   }
 
   const handleBulkUpload = () => {
-    if (uploadingBulk) return
+    if (importingCsv) return
     bulkUploadInputRef.current?.click()
   }
 
   const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
-    if (!file || uploadingBulk) return
+    if (!file || importingCsv) return
 
-    try {
-      setUploadingBulk(true)
-      const result = await employeesService.importEmployeesCsv(file)
-      setActionsMessage(formatCsvImportSummary(result))
-      await getEmployees()
-    } catch (error) {
-      if (employeesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
-      } else {
-        setActionsMessage('No se pudo realizar la carga masiva.')
-      }
-    } finally {
-      setUploadingBulk(false)
+    const summary = await importEmployeesCsv(file)
+    if (summary) {
+      setActionsMessage(summary)
     }
   }
 

@@ -21,6 +21,8 @@ export interface EmployeesStore {
   loadingLinkUser: boolean
   availableUsers: EmployeeAvailableUserOption[]
   loadingAvailableUsers: boolean
+  exportingCsv: boolean
+  importingCsv: boolean
   operationLoading: Record<EmployeeOperationKey, boolean>
   operationStatus: Record<EmployeeOperationKey, OperationStatus>
   getEmployees: () => Promise<void>
@@ -41,6 +43,8 @@ export interface EmployeesStore {
   toggleEmployeeStatus: (employeeId: string, nextStatus: boolean) => Promise<boolean>
   createEmployee: (payload: EmployeeCreatePayload) => Promise<boolean>
   updateEmployee: (payload: EmployeeUpdatePayload) => Promise<boolean>
+  exportEmployeesCsv: () => Promise<boolean>
+  importEmployeesCsv: (file: File) => Promise<string | null>
   getAvailableUsers: (search: string) => Promise<void>
   linkEmployeeUser: (employeeId: string, userId: number) => Promise<boolean>
   unlinkEmployeeUser: (employeeId: string) => Promise<boolean>

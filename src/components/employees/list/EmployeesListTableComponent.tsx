@@ -1,14 +1,20 @@
+import { useMemo } from 'react'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableRow, TableSortState } from '@/components'
-import { SortDirection } from '@/constant'
+import type { TableRow } from '@/components'
 import { employeesTableColumns, employeesTableColumnIndex, employeesTableSortByColumn } from '@/factories'
+import messages from '@/messages/messages'
 import { useStoreEmployees } from '@/store'
 import type { EmployeeTableRow } from '@/types'
 import {
+  createRowsById,
+  createTableSortState,
   createTableCustomRenderer,
+  findRowById,
+  isTableRowActive,
   renderEmployeeApprovalStatus,
   renderStatusBadge,
   renderViewDetailButton,
+  resolveNextTableSortDir,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -27,41 +33,47 @@ interface EmployeesListTableComponentProps {
 
 export function EmployeesListTableComponent(props: EmployeesListTableComponentProps) {
   const { onViewDetail, resolveRowActions, loadingExtra = false } = props
+
+  // Store state used to render the table.
   const rows = useStoreEmployees((s) => s.employeesRows)
   const pagination = useStoreEmployees((s) => s.pagination)
   const queryParams = useStoreEmployees((s) => s.queryParams)
   const loading = useStoreEmployees((s) => s.operationLoading.list)
+
+  // Store actions triggered by table interactions.
   const goToPage = useStoreEmployees((s) => s.goToPage)
   const sortEmployees = useStoreEmployees((s) => s.sortEmployees)
 
-  const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
+  // Derived lookup for callbacks that receive the generic TableRow shape.
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const resolveEmployeeRow = (rowId: string) => findRowById(rowsById, rowId)
+  const resolveRowActive = (rowId: string) => isTableRowActive(resolveEmployeeRow(rowId))
+  const resolveRowHasContract = (rowId: string) => resolveEmployeeRow(rowId)?.hasContract === true
+
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const row = findRowById(tableRow.id)
+    const row = resolveEmployeeRow(tableRow.id)
     return row ? resolveRowActions(row) : []
   }
 
   const renderCustomCell = createTableCustomRenderer({
     [EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) =>
       renderViewDetailButton(value, () => {
-        const employeeRow = findRowById(row.id)
+        const employeeRow = resolveEmployeeRow(row.id)
         if (employeeRow) onViewDetail(employeeRow)
       }),
     [EMPLOYEE_APPROVAL_STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
-    [EMPLOYEE_CONTRACT_COLUMN_INDEX]: ({ row }) => renderStatusBadge(Boolean(findRowById(row.id)?.hasContract), { activeLabel: 'Si', inactiveLabel: 'No' }),
-    [EMPLOYEE_ACTIVE_COLUMN_INDEX]: ({ row }) => renderStatusBadge(Boolean(findRowById(row.id)?.active)),
+    [EMPLOYEE_CONTRACT_COLUMN_INDEX]: ({ row }) => renderStatusBadge(resolveRowHasContract(row.id), { activeLabel: 'Si', inactiveLabel: 'No' }),
+    [EMPLOYEE_ACTIVE_COLUMN_INDEX]: ({ row }) => renderStatusBadge(resolveRowActive(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = employeesTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortEmployees(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => employeesTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, employeesTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -69,7 +81,7 @@ export function EmployeesListTableComponent(props: EmployeesListTableComponentPr
         columns={employeesTableColumns}
         rows={rows}
         loading={loading}
-        emptyMessage="No hay trabajadores registrados."
+        emptyMessage={messages.employees.ui.emptyList}
         customRenderer={renderCustomCell}
         actionsConfig={{ columnIndex: ACTIONS_COLUMN_INDEX, resolveRowActions: resolveRowActionsFromTableRow }}
         sortableColumnIndexes={SORTABLE_COLUMNS}

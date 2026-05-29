@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
@@ -17,6 +17,7 @@ import {
   PermissionModule,
 } from '@/constant'
 import { employeesTableColumnIndex } from '@/factories'
+import { mapperEmployeeAvailableUserSelectOptions } from '@/mappers'
 import messages from '@/messages/messages'
 import {
   useStoreEmployeeSelects,
@@ -25,40 +26,13 @@ import {
 } from '@/store'
 import { useHasPermission } from '@/hooks'
 import type { EmployeeTableRow } from '@/types'
-import { createEmployeesActions } from '@/utils'
+import { createEmployeesActions, createRowsById, findRowById, isTableRowActive } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const EMPLOYEE_NAME_COLUMN_INDEX = employeesTableColumnIndex.name
 
 export default function EmployeesDashboardPage() {
   const navigate = useNavigate()
-  const employeesRows = useStoreEmployees((s) => s.employeesRows)
-  const pagination = useStoreEmployees((s) => s.pagination)
-  const loadingToggleStatus = useStoreEmployees((s) => s.operationLoading.toggle)
-  const loadingLinkUser = useStoreEmployees((s) => s.loadingLinkUser)
-  const availableUsers = useStoreEmployees((s) => s.availableUsers)
-  const loadingAvailableUsers = useStoreEmployees((s) => s.loadingAvailableUsers)
-  const listError = useStoreEmployees((s) => s.operationStatus.list.error)
-  const toggleError = useStoreEmployees((s) => s.operationStatus.toggle.error)
-  const linkError = useStoreEmployees((s) => s.operationStatus.link.error)
-  const clearOperationStatus = useStoreEmployees((s) => s.clearOperationStatus)
-  const getEmployees = useStoreEmployees((s) => s.getEmployees)
-  const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
-  const toggleEmployeeStatus = useStoreEmployees((s) => s.toggleEmployeeStatus)
-  const getAvailableUsers = useStoreEmployees((s) => s.getAvailableUsers)
-  const linkEmployeeUser = useStoreEmployees((s) => s.linkEmployeeUser)
-  const unlinkEmployeeUser = useStoreEmployees((s) => s.unlinkEmployeeUser)
-  const clearAvailableUsers = useStoreEmployees((s) => s.clearAvailableUsers)
-  const canUpdateEmployee = useHasPermission(PermissionModule.Employee, PermissionAction.Update)
-  const canToggleEmployeeStatus = canUpdateEmployee
-
-  const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
-  const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
-  const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
-  const approvalEmployeeStatusOptionsErrorMessage = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
-  const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
-  const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
-
   const { actionViewDetail, actionUpdateEmployee, actionToggleStatus, actionLinkUser, actionUnlinkUser } = createEmployeesActions()
 
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -75,7 +49,41 @@ export default function EmployeesDashboardPage() {
   const [linkValidationErrorMessage, setLinkValidationErrorMessage] = useState('')
   const [actionsMessage, setActionsMessage] = useState('')
 
-  const availableUsersSelectOptions = availableUsers.map((user) => ({ label: user.name, value: String(user.id) }))
+  // Store state used to render the dashboard.
+  const employeesRows = useStoreEmployees((s) => s.employeesRows)
+  const pagination = useStoreEmployees((s) => s.pagination)
+  const loadingToggleStatus = useStoreEmployees((s) => s.operationLoading.toggle)
+  const loadingLinkUser = useStoreEmployees((s) => s.loadingLinkUser)
+  const availableUsers = useStoreEmployees((s) => s.availableUsers)
+  const loadingAvailableUsers = useStoreEmployees((s) => s.loadingAvailableUsers)
+  const listError = useStoreEmployees((s) => s.operationStatus.list.error)
+  const toggleError = useStoreEmployees((s) => s.operationStatus.toggle.error)
+  const linkError = useStoreEmployees((s) => s.operationStatus.link.error)
+
+  // Store actions triggered by dashboard interactions.
+  const clearOperationStatus = useStoreEmployees((s) => s.clearOperationStatus)
+  const getEmployees = useStoreEmployees((s) => s.getEmployees)
+  const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
+  const toggleEmployeeStatus = useStoreEmployees((s) => s.toggleEmployeeStatus)
+  const getAvailableUsers = useStoreEmployees((s) => s.getAvailableUsers)
+  const linkEmployeeUser = useStoreEmployees((s) => s.linkEmployeeUser)
+  const unlinkEmployeeUser = useStoreEmployees((s) => s.unlinkEmployeeUser)
+  const clearAvailableUsers = useStoreEmployees((s) => s.clearAvailableUsers)
+  const canUpdateEmployee = useHasPermission(PermissionModule.Employee, PermissionAction.Update)
+  const canToggleEmployeeStatus = canUpdateEmployee
+
+  // Shared select state/actions used by filters.
+  const statusOptionsErrorMessage = useStoreSelects((s) => s.statusOptionsErrorMessage)
+  const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
+  const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
+  const approvalEmployeeStatusOptionsErrorMessage = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
+  const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
+  const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
+
+  // Derived lookups and select options.
+  const employeesRowsById = useMemo(() => createRowsById(employeesRows), [employeesRows])
+  const resolveEmployeeRow = (rowId: string) => findRowById(employeesRowsById, rowId)
+  const availableUsersSelectOptions = mapperEmployeeAvailableUserSelectOptions(availableUsers)
 
   useEffect(() => {
     void getEmployees()
@@ -132,14 +140,13 @@ export default function EmployeesDashboardPage() {
     }
 
     if (canToggleEmployeeStatus) {
-      actions.push(actionToggleStatus(row.active === true, () => handleToggleStatus(row)))
+      actions.push(actionToggleStatus(isTableRowActive(row), () => handleToggleStatus(row)))
     }
 
     return actions
   }
 
-  const findEmployeeRowById = (rowId: string) => employeesRows.find((row) => row.id === rowId) ?? null
-  const selectedDetailRow = selectedDetailRowId ? findEmployeeRowById(selectedDetailRowId) : null
+  const selectedDetailRow = selectedDetailRowId ? resolveEmployeeRow(selectedDetailRowId) : null
   const detailMoreActions = selectedDetailRow
     ? resolveRowActions(selectedDetailRow).filter((action) => action.id !== 'view-detail' && action.id !== 'update-employee')
     : []
@@ -151,12 +158,16 @@ export default function EmployeesDashboardPage() {
   }
 
   const handleConfirmToggleStatus = async () => {
-    if (!pendingToggleRow || loadingToggleStatus) return
+    if (!pendingToggleRow || loadingToggleStatus) {
+      return
+    }
 
     const nextStatus = pendingToggleRow.active !== true
     const employeeName = pendingToggleRow.values[EMPLOYEE_NAME_COLUMN_INDEX]
     const success = await toggleEmployeeStatus(pendingToggleRow.id, nextStatus)
-    if (!success) return
+    if (!success) {
+      return
+    }
 
     setConfirmOpen(false)
     setPendingToggleRow(null)
@@ -191,7 +202,9 @@ export default function EmployeesDashboardPage() {
   }
 
   const handleConfirmLinkUser = async () => {
-    if (!pendingLinkRow || loadingLinkUser) return
+    if (!pendingLinkRow || loadingLinkUser) {
+      return
+    }
 
     const parsedUserId = Number(selectedAvailableUserId)
     if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
@@ -200,7 +213,9 @@ export default function EmployeesDashboardPage() {
     }
 
     const success = await linkEmployeeUser(pendingLinkRow.id, parsedUserId)
-    if (!success) return
+    if (!success) {
+      return
+    }
 
     const employeeName = pendingLinkRow.values[EMPLOYEE_NAME_COLUMN_INDEX] || 'Trabajador'
     setLinkConfirmOpen(false)
@@ -217,10 +232,14 @@ export default function EmployeesDashboardPage() {
   }
 
   const handleConfirmUnlinkUser = async () => {
-    if (!pendingUnlinkRow || loadingLinkUser) return
+    if (!pendingUnlinkRow || loadingLinkUser) {
+      return
+    }
 
     const success = await unlinkEmployeeUser(pendingUnlinkRow.id)
-    if (!success) return
+    if (!success) {
+      return
+    }
 
     const employeeName = pendingUnlinkRow.values[EMPLOYEE_NAME_COLUMN_INDEX] || 'Trabajador'
     setUnlinkConfirmOpen(false)
@@ -233,7 +252,7 @@ export default function EmployeesDashboardPage() {
   }
 
   const confirmMessage = pendingToggleRow
-    ? `¿Seguro que deseas ${pendingToggleRow.active === true ? 'deshabilitar' : 'habilitar'} al trabajador ${pendingToggleRow.values[EMPLOYEE_NAME_COLUMN_INDEX]}?`
+    ? `¿Seguro que deseas ${isTableRowActive(pendingToggleRow) ? 'deshabilitar' : 'habilitar'} al trabajador ${pendingToggleRow.values[EMPLOYEE_NAME_COLUMN_INDEX]}?`
     : ''
 
   return (
@@ -319,7 +338,7 @@ export default function EmployeesDashboardPage() {
         open={confirmOpen}
         title="Confirmar cambio de estado"
         message={confirmMessage}
-        confirmLabel="Confirmar"
+        confirmLabel={isTableRowActive(pendingToggleRow) ? 'Deshabilitar' : 'Habilitar'}
         cancelLabel="Cancelar"
         loading={loadingToggleStatus}
         onClose={handleCloseConfirm}

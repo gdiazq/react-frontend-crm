@@ -224,11 +224,13 @@ export default {
       updateEmployeeSubmitting: 'Guardando cambios...',
       linkUserSelectLabel: 'Usuario disponible',
       linkUserSelectPlaceholder: 'Selecciona un usuario',
+      emptyList: 'No hay trabajadores registrados.',
     },
     status: {
       success: {
         createEmployeeSuccess: 'Trabajador creado correctamente.',
         updateEmployeeSuccess: 'Trabajador actualizado correctamente.',
+        exportSuccess: 'Reporte descargado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
         linkUserSuccess: 'usuario vinculado correctamente.',
@@ -236,6 +238,8 @@ export default {
       },
       errors: {
         loadError: 'No se pudo cargar la lista de trabajadores.',
+        exportError: 'No se pudo descargar el reporte de trabajadores.',
+        importError: 'No se pudo realizar la carga masiva de trabajadores.',
         createEmployeeError: 'No se pudo crear el trabajador.',
         updateEmployeeError: 'No se pudo actualizar el trabajador.',
         loadFormOptionsError: 'No se pudieron cargar las opciones del formulario.',

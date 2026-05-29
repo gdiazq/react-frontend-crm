@@ -1,5 +1,6 @@
 import messages from '@/messages/messages'
 import type {
+  EmployeeAvailableUserOption,
   EmployeeCreateForm,
   EmployeeCreatePayload,
   EmployeeDetail,
@@ -7,6 +8,7 @@ import type {
   EmployeeUpdatePayload,
   EmployeePagedResponse,
   EmployeeRaw,
+  EmployeeSelectOption,
   EmployeeTableRow,
   EmployeesPagination,
   EmployeesQueryParams,
@@ -15,6 +17,81 @@ import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendBooleanString, appendParsedId } from '../shared/queryParams.mapper'
 import { parseRequiredNumber, parseNullableId, parseNullableNumber, parseNullableString } from '../shared/form.mapper'
 import { formatDate } from '@/utils'
+
+export function mapperEmployeeFormSelectOptions(options: Array<EmployeeSelectOption | { id: boolean, name: string }>) {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperEmployeeAvailableUserSelectOptions(options: EmployeeAvailableUserOption[]) {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function resolveEmployeeHealthTariffUnit(label: string) {
+  const normalized = label.toLowerCase().trim()
+  if (normalized.includes('uf') || normalized.includes('u.f')) return 'uf'
+  if (normalized.includes('peso') || normalized.includes('clp') || normalized.includes('$')) return 'pesos'
+  return 'unknown'
+}
+
+export function resolveEmployeeHealthInsuranceKind(label: string) {
+  const normalized = label.toLowerCase().trim()
+  if (normalized.includes('fonasa')) return 'fonasa'
+  if (normalized.length > 0) return 'isapre'
+  return 'unknown'
+}
+
+export function mapperEmployeeFormFieldChange(
+  form: EmployeeCreateForm,
+  field: keyof EmployeeCreateForm,
+  value: string,
+  options: {
+    healthInsuranceOptions: Array<{ label: string, value: string }>
+    healthInsuranceTariffOptions: Array<{ label: string, value: string }>
+  },
+): EmployeeCreateForm {
+  if (field === 'regionId') {
+    return { ...form, regionId: value, communeId: '', cityId: '' }
+  }
+
+  if (field === 'communeId') {
+    return { ...form, communeId: value, cityId: '' }
+  }
+
+  if (field === 'healthInsuranceTariffId') {
+    const nextTariffLabel = options.healthInsuranceTariffOptions.find((option) => option.value === value)?.label ?? ''
+    const nextTariffUnit = resolveEmployeeHealthTariffUnit(nextTariffLabel)
+
+    if (nextTariffUnit === 'uf') {
+      return { ...form, healthInsuranceTariffId: value, healthInsurancePesos: '' }
+    }
+
+    if (nextTariffUnit === 'pesos') {
+      return { ...form, healthInsuranceTariffId: value, healthInsuranceUF: '' }
+    }
+
+    return { ...form, healthInsuranceTariffId: value }
+  }
+
+  if (field === 'healthInsuranceId') {
+    const nextHealthInsuranceLabel = options.healthInsuranceOptions.find((option) => option.value === value)?.label ?? ''
+    const nextHealthInsuranceKind = resolveEmployeeHealthInsuranceKind(nextHealthInsuranceLabel)
+
+    if (nextHealthInsuranceKind === 'fonasa') {
+      return {
+        ...form,
+        healthInsuranceId: value,
+        healthInsuranceTariffId: '',
+        isapreFun: '',
+        healthInsuranceUF: '',
+        healthInsurancePesos: '',
+      }
+    }
+
+    return { ...form, healthInsuranceId: value }
+  }
+
+  return { ...form, [field]: value }
+}
 
 export function mapperEmployeesRows(response: EmployeeRaw[]): EmployeeTableRow[] {
   return response.map((item) => ({

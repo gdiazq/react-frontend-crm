@@ -14,36 +14,18 @@ import {
 import { AUTH_ROUTE_EMPLOYEES } from '@/constant'
 import { initialCreateEmployeeForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateEmployeePayload, mapperEmployeeDetailToForm, mapperUpdateEmployeePayload } from '@/mappers'
+import {
+  mapperCreateEmployeePayload,
+  mapperEmployeeDetailToForm,
+  mapperEmployeeFormFieldChange,
+  mapperEmployeeFormSelectOptions,
+  mapperUpdateEmployeePayload,
+  resolveEmployeeHealthInsuranceKind,
+  resolveEmployeeHealthTariffUnit,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreEmployeeSelects, useStoreEmployees } from '@/store'
-import type { EmployeeCreatePayload, EmployeeSelectOption, EmployeeUpdatePayload } from '@/types'
 import { employeesCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: EmployeeCreatePayload }
-  | { mode: 'update', payload: EmployeeUpdatePayload }
-  | null
-
-type HealthTariffUnit = 'uf' | 'pesos' | 'unknown'
-type HealthInsuranceKind = 'fonasa' | 'isapre' | 'unknown'
-
-const toSelectOptions = (options: EmployeeSelectOption[]) =>
-  options.map((option) => ({ label: option.name, value: String(option.id) }))
-
-function resolveHealthTariffUnit(label: string): HealthTariffUnit {
-  const normalized = label.toLowerCase().trim()
-  if (normalized.includes('uf') || normalized.includes('u.f')) return 'uf'
-  if (normalized.includes('peso') || normalized.includes('clp') || normalized.includes('$')) return 'pesos'
-  return 'unknown'
-}
-
-function resolveHealthInsuranceKind(label: string): HealthInsuranceKind {
-  const normalized = label.toLowerCase().trim()
-  if (normalized.includes('fonasa')) return 'fonasa'
-  if (normalized.length > 0) return 'isapre'
-  return 'unknown'
-}
 
 export default function EmployeesFormDashboardPage() {
   const navigate = useNavigate()
@@ -55,20 +37,23 @@ export default function EmployeesFormDashboardPage() {
   const [form, setForm] = useState({ ...initialCreateEmployeeForm })
   const [editMeta, setEditMeta] = useState<{ statusId: number, active: boolean, rehireEligible: boolean } | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
+  // Store state used to render loading and submit status.
   const loadingEmployeeDetail = useStoreEmployees((s) => s.operationLoading.detail)
   const detailError = useStoreEmployees((s) => s.operationStatus.detail.error)
   const createEmployeeSubmitting = useStoreEmployees((s) => s.operationLoading.create)
   const updateEmployeeSubmitting = useStoreEmployees((s) => s.operationLoading.update)
   const createStatus = useStoreEmployees((s) => s.operationStatus.create)
   const updateStatus = useStoreEmployees((s) => s.operationStatus.update)
+
+  // Store actions triggered by form lifecycle and submit.
   const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
   const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
   const clearOperationStatus = useStoreEmployees((s) => s.clearOperationStatus)
   const createEmployee = useStoreEmployees((s) => s.createEmployee)
   const updateEmployee = useStoreEmployees((s) => s.updateEmployee)
 
+  // Shared select state used by form controls.
   const identificationTypeOptions = useStoreEmployeeSelects((s) => s.identificationTypeOptions)
   const genderOptions = useStoreEmployeeSelects((s) => s.genderOptions)
   const maritalStatusOptions = useStoreEmployeeSelects((s) => s.maritalStatusOptions)
@@ -106,6 +91,7 @@ export default function EmployeesFormDashboardPage() {
 
   const { errors, validateAll, onValidation } = useFormValidation(form, employeesCreateValidationRules)
 
+  // Derived UI state.
   const saving = createEmployeeSubmitting || updateEmployeeSubmitting
   const headerTitle = isEditMode ? messages.employees.ui.editEmployeeTitle : messages.employees.ui.createEmployeeTitle
   const headerDescription = isEditMode ? messages.employees.ui.editEmployeeDescription : messages.employees.ui.createEmployeeDescription
@@ -116,31 +102,31 @@ export default function EmployeesFormDashboardPage() {
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingFormOptions
 
-  const selectIdentificationTypes = toSelectOptions(identificationTypeOptions)
-  const selectGenders = toSelectOptions(genderOptions)
-  const selectMaritalStatuses = toSelectOptions(maritalStatusOptions)
-  const selectEducationLevels = toSelectOptions(educationLevelOptions)
-  const selectDriverLicenses = toSelectOptions(driverLicenseOptions)
-  const selectProfessions = toSelectOptions(professionOptions)
-  const selectNationalities = toSelectOptions(nationalityOptions)
-  const selectExpats = toSelectOptions(expatOptions)
-  const selectEmergencyRelationships = toSelectOptions(emergencyContactRelationshipOptions)
-  const selectRegions = toSelectOptions(regionOptions)
-  const selectCommunes = toSelectOptions(communeOptions)
-  const selectCities = toSelectOptions(cityOptions)
-  const selectFamilyAllowanceTiers = toSelectOptions(familyAllowanceTierOptions)
-  const selectRetirementStatuses = toSelectOptions(retirementStatusOptions)
-  const selectPensionStatuses = toSelectOptions(pensionStatusOptions)
-  const selectAfps = toSelectOptions(afpOptions)
-  const selectHealthInsurances = toSelectOptions(healthInsuranceOptions)
-  const selectHealthInsuranceTariffs = toSelectOptions(healthInsuranceTariffOptions)
-  const selectPaymentMethods = toSelectOptions(paymentMethodOptions)
-  const selectBanks = toSelectOptions(bankOptions)
+  const selectIdentificationTypes = mapperEmployeeFormSelectOptions(identificationTypeOptions)
+  const selectGenders = mapperEmployeeFormSelectOptions(genderOptions)
+  const selectMaritalStatuses = mapperEmployeeFormSelectOptions(maritalStatusOptions)
+  const selectEducationLevels = mapperEmployeeFormSelectOptions(educationLevelOptions)
+  const selectDriverLicenses = mapperEmployeeFormSelectOptions(driverLicenseOptions)
+  const selectProfessions = mapperEmployeeFormSelectOptions(professionOptions)
+  const selectNationalities = mapperEmployeeFormSelectOptions(nationalityOptions)
+  const selectExpats = mapperEmployeeFormSelectOptions(expatOptions)
+  const selectEmergencyRelationships = mapperEmployeeFormSelectOptions(emergencyContactRelationshipOptions)
+  const selectRegions = mapperEmployeeFormSelectOptions(regionOptions)
+  const selectCommunes = mapperEmployeeFormSelectOptions(communeOptions)
+  const selectCities = mapperEmployeeFormSelectOptions(cityOptions)
+  const selectFamilyAllowanceTiers = mapperEmployeeFormSelectOptions(familyAllowanceTierOptions)
+  const selectRetirementStatuses = mapperEmployeeFormSelectOptions(retirementStatusOptions)
+  const selectPensionStatuses = mapperEmployeeFormSelectOptions(pensionStatusOptions)
+  const selectAfps = mapperEmployeeFormSelectOptions(afpOptions)
+  const selectHealthInsurances = mapperEmployeeFormSelectOptions(healthInsuranceOptions)
+  const selectHealthInsuranceTariffs = mapperEmployeeFormSelectOptions(healthInsuranceTariffOptions)
+  const selectPaymentMethods = mapperEmployeeFormSelectOptions(paymentMethodOptions)
+  const selectBanks = mapperEmployeeFormSelectOptions(bankOptions)
   const selectedHealthInsuranceLabel = selectHealthInsurances.find((option) => option.value === form.healthInsuranceId)?.label ?? ''
-  const selectedHealthInsuranceKind = resolveHealthInsuranceKind(selectedHealthInsuranceLabel)
+  const selectedHealthInsuranceKind = resolveEmployeeHealthInsuranceKind(selectedHealthInsuranceLabel)
   const showHealthInsuranceIsapreFields = selectedHealthInsuranceKind === 'isapre'
   const selectedTariffLabel = selectHealthInsuranceTariffs.find((option) => option.value === form.healthInsuranceTariffId)?.label ?? ''
-  const selectedTariffUnit = resolveHealthTariffUnit(selectedTariffLabel)
+  const selectedTariffUnit = resolveEmployeeHealthTariffUnit(selectedTariffLabel)
   const showHealthInsuranceUFInput = showHealthInsuranceIsapreFields && selectedTariffUnit === 'uf'
   const showHealthInsurancePesosInput = showHealthInsuranceIsapreFields && selectedTariffUnit === 'pesos'
 
@@ -168,13 +154,17 @@ export default function EmployeesFormDashboardPage() {
   ])
 
   useEffect(() => {
-    if (!isEditMode) return
+    if (!isEditMode) {
+      return
+    }
 
     let cancelled = false
 
     const load = async () => {
       const detail = await getEmployeeDetail(String(editEmployeeId))
-      if (!detail || cancelled) return
+      if (!detail || cancelled) {
+        return
+      }
 
       setForm(mapperEmployeeDetailToForm(detail))
       setEditMeta({
@@ -214,82 +204,58 @@ export default function EmployeesFormDashboardPage() {
   }
 
   const handleChangeField = (field: keyof typeof initialCreateEmployeeForm, value: string) => {
-    setForm((prev) => {
-      if (field === 'regionId') {
-        return { ...prev, regionId: value, communeId: '', cityId: '' }
-      }
-      if (field === 'communeId') {
-        return { ...prev, communeId: value, cityId: '' }
-      }
-      if (field === 'healthInsuranceTariffId') {
-        const nextTariffLabel = selectHealthInsuranceTariffs.find((option) => option.value === value)?.label ?? ''
-        const nextTariffUnit = resolveHealthTariffUnit(nextTariffLabel)
-        if (nextTariffUnit === 'uf') {
-          return { ...prev, healthInsuranceTariffId: value, healthInsurancePesos: '' }
-        }
-        if (nextTariffUnit === 'pesos') {
-          return { ...prev, healthInsuranceTariffId: value, healthInsuranceUF: '' }
-        }
-        return { ...prev, healthInsuranceTariffId: value }
-      }
-      if (field === 'healthInsuranceId') {
-        const nextHealthInsuranceLabel = selectHealthInsurances.find((option) => option.value === value)?.label ?? ''
-        const nextHealthInsuranceKind = resolveHealthInsuranceKind(nextHealthInsuranceLabel)
-        if (nextHealthInsuranceKind === 'fonasa') {
-          return {
-            ...prev,
-            healthInsuranceId: value,
-            healthInsuranceTariffId: '',
-            isapreFun: '',
-            healthInsuranceUF: '',
-            healthInsurancePesos: '',
-          }
-        }
-        return { ...prev, healthInsuranceId: value }
-      }
-      return { ...prev, [field]: value }
-    })
+    setForm((prev) => mapperEmployeeFormFieldChange(prev, field, value, {
+      healthInsuranceOptions: selectHealthInsurances,
+      healthInsuranceTariffOptions: selectHealthInsuranceTariffs,
+    }))
 
-    if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
+    if (submitErrorMessage || submitSuccessMessage) {
+      clearSubmitStatus()
+    }
   }
+
   const handleFieldValueChange = (field: keyof typeof initialCreateEmployeeForm) => (value: string) => {
     handleChangeField(field, value)
   }
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
-    if (!validateAll()) return
-
-    if (isEditMode) {
-      if (!editMeta) return
-      const payload = mapperUpdateEmployeePayload(editEmployeeId, form, editMeta)
-      setPendingAction({ mode: 'update', payload })
-    } else {
-      const payload = mapperCreateEmployeePayload(form)
-      setPendingAction({ mode: 'create', payload })
+    if (!validateAll()) {
+      return
     }
+
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
-    if (saving) return
+    if (saving) {
+      return
+    }
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
-    const success = pendingAction.mode === 'create'
-      ? await createEmployee(pendingAction.payload)
-      : await updateEmployee(pendingAction.payload)
+    if (saving) {
+      return
+    }
+    if (!validateAll()) {
+      return
+    }
+    if (isEditMode && !editMeta) {
+      return
+    }
+
+    const success = isEditMode
+      ? await updateEmployee(mapperUpdateEmployeePayload(editEmployeeId, form, editMeta!))
+      : await createEmployee(mapperCreateEmployeePayload(form))
+
     if (success) {
       navigate(AUTH_ROUTE_EMPLOYEES)
     }
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? `¿Deseas guardar los cambios del trabajador ${form.firstName} ${form.paternalLastName}?`
     : `¿Deseas crear al trabajador ${form.firstName} ${form.paternalLastName}?`
 

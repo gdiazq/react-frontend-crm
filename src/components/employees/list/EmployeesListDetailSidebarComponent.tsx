@@ -16,12 +16,18 @@ interface EmployeesListDetailSidebarComponentProps {
 
 export function EmployeesListDetailSidebarComponent(props: EmployeesListDetailSidebarComponentProps) {
   const { rowId, fallbackName, moreActions, onClose } = props
+
   const navigate = useNavigate()
+
+  // Store state used to render the detail sidebar.
   const detail = useStoreEmployees((s) => s.employeeDetail)
   const loading = useStoreEmployees((s) => s.operationLoading.detail)
   const error = useStoreEmployees((s) => s.operationStatus.detail.error)
+
+  // Store actions triggered by detail lifecycle.
   const getEmployeeDetail = useStoreEmployees((s) => s.getEmployeeDetail)
   const clearEmployeeDetail = useStoreEmployees((s) => s.clearEmployeeDetail)
+
   const canUpdate = useHasPermission(PermissionModule.Employee, PermissionAction.Update)
 
   useEffect(() => {
@@ -33,6 +39,7 @@ export function EmployeesListDetailSidebarComponent(props: EmployeesListDetailSi
     onClose()
   }
 
+  // View model derived from backend detail.
   const detailView = detail ? mapperEmployeeDetailView(detail) : null
   const title = detailView
     ? `Detalle de ${detailView.fullName}`
