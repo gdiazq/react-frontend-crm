@@ -8,12 +8,9 @@ import {
   SaveConfirmComponent,
   StatsOverviewCardsComponent,
 } from '@/components'
-import { requestsTableColumnIndex } from '@/factories'
 import messages from '@/messages/messages'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
 import type { RequestTableRow } from '@/types'
-
-const REQUEST_NAME_COLUMN_INDEX = requestsTableColumnIndex.name
 
 export default function RequestsDashboardPage() {
   const pagination = useStoreRequests((s) => s.pagination)
@@ -70,7 +67,7 @@ export default function RequestsDashboardPage() {
     const success = await approveRequest(pendingApproveRow.id)
     if (!success) return
 
-    const requestName = pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]
+    const requestName = pendingApproveRow.displayName
     setConfirmApproveOpen(false)
     setPendingApproveRow(null)
     await getRequests()
@@ -90,7 +87,7 @@ export default function RequestsDashboardPage() {
     const success = await rejectRequest(pendingRejectRow.id, rejectDetail.trim())
     if (!success) return
 
-    const requestName = pendingRejectRow.values[REQUEST_NAME_COLUMN_INDEX]
+    const requestName = pendingRejectRow.displayName
     setConfirmRejectOpen(false)
     setPendingRejectRow(null)
     setRejectDetail('')
@@ -99,10 +96,10 @@ export default function RequestsDashboardPage() {
   }
 
   const confirmApproveMessage = pendingApproveRow
-    ? `¿Seguro que deseas aprobar la solicitud de ${pendingApproveRow.values[REQUEST_NAME_COLUMN_INDEX]}?`
+    ? `¿Seguro que deseas aprobar la solicitud de ${pendingApproveRow.displayName}?`
     : ''
   const confirmRejectMessage = pendingRejectRow
-    ? `¿Seguro que deseas rechazar la solicitud de ${pendingRejectRow.values[REQUEST_NAME_COLUMN_INDEX]}?`
+    ? `¿Seguro que deseas rechazar la solicitud de ${pendingRejectRow.displayName}?`
     : ''
   const loadingAction = loadingApproveRequest || loadingRejectRequest
 

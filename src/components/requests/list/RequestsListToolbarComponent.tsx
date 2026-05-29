@@ -5,9 +5,7 @@ import {
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { requestsService } from '@/services'
 import { useStoreRequests } from '@/store'
-import { downloadBlobFile } from '@/utils'
 
 interface RequestsListToolbarComponentProps {
   disabled?: boolean
@@ -18,28 +16,18 @@ export function RequestsListToolbarComponent(props: RequestsListToolbarComponent
   const { disabled = false, onOpenFilters } = props
   const queryParams = useStoreRequests((s) => s.queryParams)
   const loadingRequests = useStoreRequests((s) => s.operationLoading.list)
+  const exportingCsv = useStoreRequests((s) => s.exportingCsv)
   const setSearch = useStoreRequests((s) => s.setSearch)
   const searchRequests = useStoreRequests((s) => s.searchRequests)
+  const exportRequestsCsv = useStoreRequests((s) => s.exportRequestsCsv)
   const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const loadingAny = loadingRequests || disabled || downloadingReport
+  const loadingAny = loadingRequests || disabled || exportingCsv
 
   const handleDownloadReport = async () => {
-    if (downloadingReport) return
-
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await requestsService.exportRequestsCsv()
-      downloadBlobFile(csvBlob, 'hr-requests.csv')
+    if (exportingCsv) return
+    const success = await exportRequestsCsv()
+    if (success) {
       setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (requestsService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
     }
   }
 

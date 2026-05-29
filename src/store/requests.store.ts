@@ -13,6 +13,7 @@ import messages from '@/messages/messages'
 import type { RequestsSortBy, RequestsSortDir, RequestsStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
   initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
@@ -22,7 +23,7 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
   let latestRequestsRequestId = 0
   let latestRequestDetailRequestId = 0
 
-  const { setOpError, clearOp, setOpLoading } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
   requestsRows: [...initialRequestsRows],
@@ -31,6 +32,7 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
   queryParams: { ...initialRequestsQueryParams },
   loadingApproveRequest: false,
   loadingRejectRequest: false,
+  exportingCsv: false,
   operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
@@ -209,6 +211,24 @@ export const useStoreRequests = create<RequestsStore>()((set, get) => {
       return false
     } finally {
       set({ loadingRejectRequest: false })
+    }
+  },
+
+  exportRequestsCsv: async () => {
+    if (get().exportingCsv) return false
+
+    try {
+      set({ exportingCsv: true })
+      clearOp('list')
+      const csvBlob = await requestsService.exportRequestsCsv()
+      downloadBlobFile(csvBlob, 'hr-requests.csv')
+      setOpSuccess('list', messages.requests.status.success.exportSuccess)
+      return true
+    } catch (error) {
+      setOpError('list', resolveErrorMessage(error, messages.requests.status.errors.exportError), error)
+      return false
+    } finally {
+      set({ exportingCsv: false })
     }
   },
 

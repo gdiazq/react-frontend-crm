@@ -4,12 +4,23 @@ import type {
   HrRequestRaw,
   RequestDetailView,
   RequestPagedResponse,
+  RequestSelectOption,
   RequestTableRow,
   RequestsPagination,
   RequestsQueryParams,
 } from '@/types'
 import { buildQueryParams, appendString, appendParsedId } from '../shared/queryParams.mapper'
 import { formatDate, formatDateTime } from '@/utils'
+
+const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
+
+export function isFinalRequestStatus(statusId: number): boolean {
+  return FINAL_REQUEST_STATUS_IDS.has(statusId)
+}
+
+export function mapperRequestSelectOptions(options: Array<{ id: number, name: string }>): RequestSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
 
 function resolveApproverLabel(item: HrRequestRaw): string {
   const approverFullName = (item.hhrrApproverFullName ?? item.approverFullName ?? '').trim()
@@ -29,23 +40,28 @@ function resolveActionLabel(action?: string | null): string {
 }
 
 export function mapperRequestsRows(response: HrRequestRaw[]): RequestTableRow[] {
-  return response.map((item) => ({
-    id: String(item.id),
-    statusId: item.statusId,
-    statusName: item.statusName,
-    values: [
-      item.identification,
-      `${item.firstName} ${item.paternalLastName} ${item.maternalLastName}`.trim(),
-      item.requestTypeName,
-      resolveActionLabel(item.action),
-      item.statusName,
-      resolveApproverLabel(item),
-      resolveApprovalDateLabel(item),
-      formatDate(item.createdAt),
-      formatDate(item.updatedAt),
-      '',
-    ],
-  }))
+  return response.map((item) => {
+    const displayName = `${item.firstName} ${item.paternalLastName} ${item.maternalLastName}`.trim()
+
+    return {
+      id: String(item.id),
+      displayName,
+      statusId: item.statusId,
+      statusName: item.statusName,
+      values: [
+        item.identification,
+        displayName,
+        item.requestTypeName,
+        resolveActionLabel(item.action),
+        item.statusName,
+        resolveApproverLabel(item),
+        resolveApprovalDateLabel(item),
+        formatDate(item.createdAt),
+        formatDate(item.updatedAt),
+        '',
+      ],
+    }
+  })
 }
 
 export function mapperRequestsPagination(response: RequestPagedResponse): RequestsPagination {
@@ -106,4 +122,10 @@ export function mapperRequestDetailView(detail: HrRequestDetailRaw | null): Requ
     createdAtDisplay: formatDateTime(detail.createdAt, 'Sin registro'),
     updatedAtDisplay: formatDateTime(detail.updatedAt, 'Sin registro'),
   }
+}
+
+export function mapperRequestDetailTitle(detail: RequestDetailView | null, fallbackName: string): string {
+  if (detail) return `Detalle de ${detail.fullName}`
+  if (fallbackName.trim().length > 0) return `Detalle de ${fallbackName}`
+  return messages.requests.ui.detailTitleFallback
 }

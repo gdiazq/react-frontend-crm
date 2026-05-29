@@ -15,6 +15,7 @@ export interface RequestsStore {
   queryParams: RequestsQueryParams
   loadingApproveRequest: boolean
   loadingRejectRequest: boolean
+  exportingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getRequests: () => Promise<void>
@@ -36,6 +37,7 @@ export interface RequestsStore {
   sortRequests: (sortBy: RequestsSortBy, sortDir: RequestsSortDir) => Promise<void>
   approveRequest: (requestId: string) => Promise<boolean>
   rejectRequest: (requestId: string, rejectionDetail: string) => Promise<boolean>
+  exportRequestsCsv: () => Promise<boolean>
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void
 }

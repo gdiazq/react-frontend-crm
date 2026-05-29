@@ -58,9 +58,15 @@ export type RequestsSortDir = 'asc' | 'desc'
 
 export interface RequestTableRow {
   id: string
+  displayName: string
   statusId: number
   statusName: string
   values: string[]
+}
+
+export interface RequestSelectOption {
+  label: string
+  value: string
 }
 
 export interface RequestPagedResponse {

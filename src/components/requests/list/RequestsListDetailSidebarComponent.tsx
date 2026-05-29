@@ -4,14 +4,10 @@ import {
   RequestDetailComponent,
 } from '@/components'
 import { PermissionAction, PermissionModule } from '@/constant'
-import { requestsTableColumnIndex } from '@/factories'
-import { mapperRequestDetailView } from '@/mappers'
+import { isFinalRequestStatus, mapperRequestDetailTitle, mapperRequestDetailView } from '@/mappers'
 import { useStoreRequests } from '@/store'
 import { useHasPermission } from '@/hooks'
 import type { RequestTableRow } from '@/types'
-
-const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
-const REQUEST_NAME_COLUMN_INDEX = requestsTableColumnIndex.name
 
 interface RequestsListDetailSidebarComponentProps {
   row: RequestTableRow | null
@@ -39,13 +35,9 @@ export function RequestsListDetailSidebarComponent(props: RequestsListDetailSide
 
   const canUpdate = useHasPermission(PermissionModule.HrRequest, PermissionAction.Update)
   const requestDetailView = mapperRequestDetailView(requestDetail)
-  const canAct = canUpdate && row ? !FINAL_REQUEST_STATUS_IDS.has(row.statusId) : false
-  const fallbackName = row ? String(row.values[REQUEST_NAME_COLUMN_INDEX] ?? 'Solicitud') : ''
-  const title = requestDetailView
-    ? `Detalle de ${requestDetailView.fullName}`
-    : fallbackName
-      ? `Detalle de ${fallbackName}`
-      : 'Detalle de solicitud'
+  const canAct = canUpdate && row ? !isFinalRequestStatus(row.statusId) : false
+  const fallbackName = row?.displayName ?? ''
+  const title = mapperRequestDetailTitle(requestDetailView, fallbackName)
 
   return (
     <DetailSidebarComponent open={row !== null} title={title} onClose={handleClose}>

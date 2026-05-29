@@ -1,25 +1,33 @@
+import { useMemo } from 'react'
 import {
   PaginationComponent,
   TableComponent,
 } from '@/components'
-import type { TableRow, TableSortState } from '@/components'
-import { PermissionAction, PermissionModule, SortDirection } from '@/constant'
+import type { TableRow } from '@/components'
+import { PermissionAction, PermissionModule } from '@/constant'
 import { requestsTableColumns, requestsTableColumnIndex, requestsTableSortByColumn } from '@/factories'
 import { useStoreRequests } from '@/store'
 import { useHasPermission } from '@/hooks'
+import {
+  isFinalRequestStatus,
+} from '@/mappers'
+import messages from '@/messages/messages'
 import type { RequestTableRow } from '@/types'
 import {
+  createRowsById,
   createRequestsActions,
+  createTableSortState,
   createTableCustomRenderer,
+  findRowById,
   renderEmployeeApprovalStatus,
   renderViewDetailButton,
+  resolveNextTableSortDir,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const REQUEST_STATUS_COLUMN_INDEX = requestsTableColumnIndex.status
 const REQUEST_NAME_COLUMN_INDEX = requestsTableColumnIndex.name
 const ACTIONS_COLUMN_INDEX = requestsTableColumns.length - 1
-const FINAL_REQUEST_STATUS_IDS = new Set([3, 4])
 const REQUESTS_SORTABLE_COLUMNS = Object.keys(requestsTableSortByColumn).map((index) => Number(index))
 
 interface RequestsListTableComponentProps {
@@ -40,27 +48,29 @@ export function RequestsListTableComponent(props: RequestsListTableComponentProp
   const canUpdate = useHasPermission(PermissionModule.HrRequest, PermissionAction.Update)
   const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
 
-  const findRequestRowById = (rowId: string) => requestsRows.find((row) => row.id === rowId) ?? null
+  const rowsById = useMemo(() => createRowsById(requestsRows), [requestsRows])
+  const resolveRequestRow = (rowId: string) => findRowById(rowsById, rowId)
+
   const resolveRowActions = (row: RequestTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
-    if (canUpdate && !FINAL_REQUEST_STATUS_IDS.has(row.statusId)) {
+    if (canUpdate && !isFinalRequestStatus(row.statusId)) {
       actions.push(actionApproveRequest(() => onApprove(row)))
       actions.push(actionRejectRequest(() => onReject(row)))
     }
     return actions
   }
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const requestRow = findRequestRowById(tableRow.id)
+    const requestRow = resolveRequestRow(tableRow.id)
     if (!requestRow) return []
     return resolveRowActions(requestRow)
   }
   const renderCustomCell = createTableCustomRenderer({
     [REQUEST_NAME_COLUMN_INDEX]: ({ row, value }) => {
-      const requestRow = findRequestRowById(row.id)
+      const requestRow = resolveRequestRow(row.id)
       return renderViewDetailButton(value, () => { if (requestRow) onViewDetail(requestRow) })
     },
     [REQUEST_STATUS_COLUMN_INDEX]: ({ row, value }) => {
-      const requestRow = findRequestRowById(row.id)
+      const requestRow = resolveRequestRow(row.id)
       return renderEmployeeApprovalStatus(requestRow?.statusName || String(value ?? ''))
     },
   })
@@ -69,17 +79,11 @@ export function RequestsListTableComponent(props: RequestsListTableComponentProp
     const sortBy = requestsTableSortByColumn[columnIndex]
     if (!sortBy) return
 
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortRequests(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = REQUESTS_SORTABLE_COLUMNS.find((index) => requestsTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = {
-    columnIndex: activeSortColumn,
-    direction: queryParams.sortDir,
-  }
+  const sortState = createTableSortState(REQUESTS_SORTABLE_COLUMNS, requestsTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -87,7 +91,7 @@ export function RequestsListTableComponent(props: RequestsListTableComponentProp
         columns={requestsTableColumns}
         rows={requestsRows}
         loading={loadingRequests}
-        emptyMessage="No hay solicitudes registradas."
+        emptyMessage={messages.requests.ui.emptyList}
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,

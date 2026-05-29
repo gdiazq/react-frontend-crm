@@ -35,7 +35,6 @@ export default {
   auth: {
     ui: {
       loginMfaPrompt: 'Ingresa tu codigo MFA de 6 digitos para continuar.',
-      registerValidatingEmail: 'Validando disponibilidad del correo...',
     },
     status: {
       success: {
@@ -59,7 +58,6 @@ export default {
         registerErrorDefault: 'No se pudo completar el registro.',
         registerEmailTaken: 'El correo ya esta registrado.',
         registerInvalidData: 'Datos de registro invalidos.',
-        registerValidateEmailError: 'No se pudo validar el correo. Intenta nuevamente.',
         verifyEmailErrorDefault: 'No se pudo verificar el correo.',
         verifyEmailInvalidCode: 'Codigo invalido o expirado.',
         verifyEmailNotFound: 'No se encontro una cuenta para ese correo.',
@@ -441,11 +439,14 @@ export default {
       actionRejectRequest: 'Rechazar solicitud',
       rejectRequestReasonLabel: 'Detalle de rechazo',
       rejectRequestReasonPlaceholder: 'Ingresa el motivo del rechazo',
+      detailTitleFallback: 'Detalle de solicitud',
+      emptyList: 'No hay solicitudes registradas.',
     },
     status: {
       success: {
         approveSuccess: 'Solicitud aprobada correctamente.',
         rejectSuccess: 'Solicitud rechazada correctamente.',
+        exportSuccess: 'Reporte descargado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de solicitudes.',
@@ -453,6 +454,7 @@ export default {
         approveError: 'No se pudo aprobar la solicitud.',
         rejectError: 'No se pudo rechazar la solicitud.',
         rejectDetailRequired: 'Ingresa un motivo para rechazar la solicitud.',
+        exportError: 'No se pudo descargar el reporte de solicitudes.',
       },
     },
   },

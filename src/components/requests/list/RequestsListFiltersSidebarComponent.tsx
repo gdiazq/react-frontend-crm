@@ -5,6 +5,7 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
+import { mapperRequestSelectOptions } from '@/mappers'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
 
 interface RequestsListFiltersSidebarComponentProps {
@@ -39,8 +40,8 @@ export function RequestsListFiltersSidebarComponent(props: RequestsListFiltersSi
     approvalTo: queryParams.approvalTo,
   }))
 
-  const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const moduleSelectOptions = hrRequestTypeOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const statusSelectOptions = mapperRequestSelectOptions(approvalEmployeeStatusOptions)
+  const moduleSelectOptions = mapperRequestSelectOptions(hrRequestTypeOptions)
   const loadingAny = loadingRequests || loadingApprovalEmployeeStatusOptions || loadingHrRequestTypeOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
@@ -48,11 +49,8 @@ export function RequestsListFiltersSidebarComponent(props: RequestsListFiltersSi
   }
 
   const handleApply = async () => {
-    const selectedStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.statusId)
-    const selectedModule = hrRequestTypeOptions.find((option) => String(option.id) === filters.moduleId)
-
-    setStatusFilter(selectedStatus ? String(selectedStatus.id) : '')
-    setModuleFilter(selectedModule ? String(selectedModule.id) : '')
+    setStatusFilter(filters.statusId.trim())
+    setModuleFilter(filters.moduleId.trim())
     setCreatedDateRange({
       createdFrom: filters.createdFrom.trim(),
       createdTo: filters.createdTo.trim(),

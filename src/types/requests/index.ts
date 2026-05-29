@@ -3,6 +3,7 @@ export type {
   RequestDetailView,
   HrRequestRaw,
   RequestPagedResponse,
+  RequestSelectOption,
   RequestTableRow,
   RequestsPagination,
   RequestsQueryParams,
