@@ -1,17 +1,22 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableSortState } from '@/components'
-import { AUTH_ROUTE_CONTRACTS_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
+import { AUTH_ROUTE_CONTRACTS_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { contractsTableColumns, contractsTableColumnIndex, contractsTableSortByColumn } from '@/factories'
 import { useStoreContracts } from '@/store'
 import { useHasPermission } from '@/hooks'
+import messages from '@/messages/messages'
 import type { ContractTableRow, TableRow } from '@/types'
 import {
   createContractsActions,
+  createRowsById,
+  createTableSortState,
   createTableCustomRenderer,
+  findRowById,
   renderContractStatus,
   renderContractType,
   renderViewDetailButton,
+  resolveNextTableSortDir,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -37,7 +42,8 @@ export function ContractsListTableComponent(props: ContractsListTableComponentPr
   const canUpdate = useHasPermission(PermissionModule.Contract, PermissionAction.Update)
   const { actionViewDetail, actionUpdateContract } = createContractsActions()
 
-  const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const resolveContractRow = (rowId: string) => findRowById(rowsById, rowId)
 
   const resolveRowActions = (row: ContractTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
@@ -48,7 +54,7 @@ export function ContractsListTableComponent(props: ContractsListTableComponentPr
   }
 
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const row = findRowById(tableRow.id)
+    const row = resolveContractRow(tableRow.id)
     if (!row) return []
     return resolveRowActions(row)
   }
@@ -56,7 +62,7 @@ export function ContractsListTableComponent(props: ContractsListTableComponentPr
   const renderCustomCell = createTableCustomRenderer({
     [EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) =>
       renderViewDetailButton(value, () => {
-        const contractRow = findRowById(row.id)
+        const contractRow = resolveContractRow(row.id)
         if (contractRow) onViewDetail(contractRow)
       }),
     [CONTRACT_TYPE_COLUMN_INDEX]: ({ value }) => renderContractType(value),
@@ -66,14 +72,11 @@ export function ContractsListTableComponent(props: ContractsListTableComponentPr
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = contractsTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortContracts(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => contractsTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, contractsTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -81,7 +84,7 @@ export function ContractsListTableComponent(props: ContractsListTableComponentPr
         columns={contractsTableColumns}
         rows={rows}
         loading={loading}
-        emptyMessage="No hay contratos registrados."
+        emptyMessage={messages.contracts.ui.emptyList}
         customRenderer={renderCustomCell}
         actionsConfig={{ columnIndex: ACTIONS_COLUMN_INDEX, resolveRowActions: resolveRowActionsFromTableRow }}
         sortableColumnIndexes={SORTABLE_COLUMNS}

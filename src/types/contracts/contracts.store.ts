@@ -15,6 +15,8 @@ export interface ContractsStore {
   contractDetail: ContractDetail | null
   pagination: ContractsPagination
   queryParams: ContractsQueryParams
+  exportingCsv: boolean
+  importingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getContracts: () => Promise<void>
@@ -45,6 +47,8 @@ export interface ContractsStore {
   toggleContractStatus: (contractId: string, nextStatus: boolean) => Promise<boolean>
   createContract: (payload: ContractCreatePayload, files?: File[]) => Promise<boolean>
   updateContract: (payload: ContractUpdatePayload, files?: File[]) => Promise<boolean>
+  exportContractsCsv: () => Promise<boolean>
+  importContractsCsv: (file: File) => Promise<string | null>
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void
 }

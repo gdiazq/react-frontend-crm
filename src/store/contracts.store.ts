@@ -13,6 +13,8 @@ import messages from '@/messages/messages'
 import type { ContractsSortBy, ContractsSortDir, ContractsStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
+  formatCsvImportSummary,
   initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
@@ -29,6 +31,8 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
   contractDetail: null,
   pagination: { ...initialContractsPagination },
   queryParams: { ...initialContractsQueryParams },
+  exportingCsv: false,
+  importingCsv: false,
   operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
@@ -248,6 +252,41 @@ export const useStoreContracts = create<ContractsStore>()((set, get) => {
       return false
     } finally {
       setOpLoading('update', false)
+    }
+  },
+
+  exportContractsCsv: async () => {
+    if (get().exportingCsv) return false
+
+    try {
+      set({ exportingCsv: true })
+      clearOp('list')
+      const csvBlob = await contractsService.exportContractsCsv()
+      downloadBlobFile(csvBlob, 'contracts.csv')
+      setOpSuccess('list', messages.contracts.status.success.exportSuccess)
+      return true
+    } catch (error) {
+      setOpError('list', resolveErrorMessage(error, messages.contracts.status.errors.exportError), error)
+      return false
+    } finally {
+      set({ exportingCsv: false })
+    }
+  },
+
+  importContractsCsv: async (file: File) => {
+    if (get().importingCsv) return null
+
+    try {
+      set({ importingCsv: true })
+      clearOp('list')
+      const result = await contractsService.importContractsCsv(file)
+      await get().getContracts()
+      return formatCsvImportSummary(result)
+    } catch (error) {
+      setOpError('list', resolveErrorMessage(error, messages.contracts.status.errors.importError), error)
+      return null
+    } finally {
+      set({ importingCsv: false })
     }
   },
 

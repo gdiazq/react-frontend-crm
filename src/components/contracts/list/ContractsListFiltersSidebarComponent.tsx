@@ -5,6 +5,7 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
+import { mapperContractFormSelectOptions } from '@/mappers'
 import { useStoreContractSelects, useStoreContracts, useStoreEmployeeSelects } from '@/store'
 
 interface ContractsListFiltersSidebarComponentProps {
@@ -52,9 +53,9 @@ export function ContractsListFiltersSidebarComponent(props: ContractsListFilters
     updatedTo: queryParams.updatedTo,
   }))
 
-  const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const contractStatusSelectOptions = contractStatusFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const contractTypeSelectOptions = contractTypeFilterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const statusSelectOptions = mapperContractFormSelectOptions(approvalEmployeeStatusOptions)
+  const contractStatusSelectOptions = mapperContractFormSelectOptions(contractStatusFilterOptions)
+  const contractTypeSelectOptions = mapperContractFormSelectOptions(contractTypeFilterOptions)
   const loadingAny = loadingContracts || loadingContractFilterOptions || loadingApprovalEmployeeStatusOptions
 
   const handleChangeFilter = (field: keyof typeof filters, value: string) => {
@@ -62,13 +63,9 @@ export function ContractsListFiltersSidebarComponent(props: ContractsListFilters
   }
 
   const handleApply = async () => {
-    const selectedStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.statusId)
-    const selectedContractStatus = contractStatusFilterOptions.find((option) => String(option.id) === filters.contractStatusId)
-    const selectedContractType = contractTypeFilterOptions.find((option) => String(option.id) === filters.contractTypeId)
-
-    setStatusFilter(selectedStatus ? String(selectedStatus.id) : '')
-    setContractStatusFilter(selectedContractStatus ? String(selectedContractStatus.id) : '')
-    setContractTypeFilter(selectedContractType ? String(selectedContractType.id) : '')
+    setStatusFilter(filters.statusId.trim())
+    setContractStatusFilter(filters.contractStatusId.trim())
+    setContractTypeFilter(filters.contractTypeId.trim())
     setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
     setStartDateRange({ startDateFrom: filters.startDateFrom.trim(), startDateTo: filters.startDateTo.trim() })
     setEndDateRange({ endDateFrom: filters.endDateFrom.trim(), endDateTo: filters.endDateTo.trim() })

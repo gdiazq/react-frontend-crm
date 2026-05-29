@@ -4,8 +4,10 @@ import type {
   ContractDetailView,
   ContractCreateForm,
   ContractCreatePayload,
+  ContractFormSelectOption,
   ContractPagedResponse,
   ContractRaw,
+  ContractSelectOption,
   ContractUpdatePayload,
   ContractsPagination,
   ContractsQueryParams,
@@ -15,6 +17,43 @@ import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString, appendParsedId } from '../shared/queryParams.mapper'
 import { parseRequiredNumber, parseNullableString, normalizeDateValue } from '../shared/form.mapper'
 import { formatDate, formatDateTime, resolveFileSize } from '@/utils'
+
+export function mapperContractFormSelectOptions(options: ContractSelectOption[]): ContractFormSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperContractFormSelectOptionsWithCurrent(
+  options: ContractFormSelectOption[],
+  current: { enabled: boolean, value: string, label: string, fallbackLabel: string },
+): ContractFormSelectOption[] {
+  const shouldIncludeCurrent = current.enabled
+    && current.value.trim().length > 0
+    && !options.some((option) => option.value === current.value)
+
+  return shouldIncludeCurrent
+    ? [{ label: current.label || current.fallbackLabel, value: current.value }, ...options]
+    : options
+}
+
+export function resolveContractIsIndefiniteType(label: string): boolean {
+  return label.trim().toLowerCase().includes('indefinido')
+}
+
+export function mapperContractFormFieldChange(
+  form: ContractCreateForm,
+  field: keyof ContractCreateForm,
+  value: string,
+  options: { contractTypeOptions: ContractFormSelectOption[] },
+): ContractCreateForm {
+  if (field === 'contractTypeId') {
+    const nextContractTypeLabel = options.contractTypeOptions.find((option) => option.value === value)?.label ?? ''
+    if (resolveContractIsIndefiniteType(nextContractTypeLabel)) {
+      return { ...form, contractTypeId: value, endDate: '' }
+    }
+  }
+
+  return { ...form, [field]: value }
+}
 
 export function mapperContractsRows(result: ContractRaw[]): ContractTableRow[] {
   return result.map((item) => ({

@@ -17,24 +17,19 @@ import {
   initialCreateContractForm,
 } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperContractDetailToForm, mapperCreateContractPayload, mapperUpdateContractPayload } from '@/mappers'
+import {
+  mapperContractDetailToForm,
+  mapperContractFormFieldChange,
+  mapperContractFormSelectOptions,
+  mapperContractFormSelectOptionsWithCurrent,
+  mapperCreateContractPayload,
+  mapperUpdateContractPayload,
+  resolveContractIsIndefiniteType,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreContractSelects, useStoreContracts } from '@/store'
-import type { ContractCreatePayload, ContractSelectOption, ContractUpdatePayload } from '@/types'
 import { mergeUniqueFiles } from '@/utils'
 import { contractsCreateValidationRules } from '@/validators'
-
-const toSelectOptions = (options: ContractSelectOption[]) =>
-  options.map((option) => ({ label: option.name, value: String(option.id) }))
-
-function isIndefiniteContractType(label: string): boolean {
-  return label.trim().toLowerCase().includes('indefinido')
-}
-
-type PendingAction =
-  | { mode: 'create', payload: ContractCreatePayload, files: File[] }
-  | { mode: 'update', payload: ContractUpdatePayload, files: File[] }
-  | null
 
 export default function ContractsFormDashboardPage() {
   const navigate = useNavigate()
@@ -47,7 +42,6 @@ export default function ContractsFormDashboardPage() {
   const [contractFiles, setContractFiles] = useState<File[]>([])
   const [filesError, setFilesError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const loadingContractDetail = useStoreContracts((s) => s.operationLoading.detail)
   const detailError = useStoreContracts((s) => s.operationStatus.detail.error)
@@ -90,24 +84,24 @@ export default function ContractsFormDashboardPage() {
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingFormOptions
 
-  const selectEmployeesWithoutContract = toSelectOptions(employeeWithoutContractOptions)
-  const shouldIncludeCurrentEmployee = isEditMode
-    && form.employeeId.trim().length > 0
-    && !selectEmployeesWithoutContract.some((option) => option.value === form.employeeId)
-  const selectEmployees = shouldIncludeCurrentEmployee
-    ? [{ label: editEmployeeLabel || `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployeesWithoutContract]
-    : selectEmployeesWithoutContract
-  const selectContractTypes = toSelectOptions(contractTypeOptions)
-  const selectSafetyGroups = toSelectOptions(safetyGroupOptions)
-  const selectCompanies = toSelectOptions(companyOptions)
-  const selectZones = toSelectOptions(zoneOptions)
-  const selectJobTitles = toSelectOptions(jobTitleOptions)
-  const selectSites = toSelectOptions(siteOptions)
-  const selectLaborUnions = toSelectOptions(laborUnionOptions)
-  const selectMealTypes = toSelectOptions(mealTypeOptions)
-  const selectTransportTypes = toSelectOptions(transportTypeOptions)
+  const selectEmployeesWithoutContract = mapperContractFormSelectOptions(employeeWithoutContractOptions)
+  const selectEmployees = mapperContractFormSelectOptionsWithCurrent(selectEmployeesWithoutContract, {
+    enabled: isEditMode,
+    value: form.employeeId,
+    label: editEmployeeLabel,
+    fallbackLabel: `Trabajador #${form.employeeId}`,
+  })
+  const selectContractTypes = mapperContractFormSelectOptions(contractTypeOptions)
+  const selectSafetyGroups = mapperContractFormSelectOptions(safetyGroupOptions)
+  const selectCompanies = mapperContractFormSelectOptions(companyOptions)
+  const selectZones = mapperContractFormSelectOptions(zoneOptions)
+  const selectJobTitles = mapperContractFormSelectOptions(jobTitleOptions)
+  const selectSites = mapperContractFormSelectOptions(siteOptions)
+  const selectLaborUnions = mapperContractFormSelectOptions(laborUnionOptions)
+  const selectMealTypes = mapperContractFormSelectOptions(mealTypeOptions)
+  const selectTransportTypes = mapperContractFormSelectOptions(transportTypeOptions)
   const selectedContractTypeLabel = selectContractTypes.find((option) => option.value === form.contractTypeId)?.label ?? ''
-  const hideEndDate = isIndefiniteContractType(selectedContractTypeLabel)
+  const hideEndDate = resolveContractIsIndefiniteType(selectedContractTypeLabel)
 
   useEffect(() => {
     void getFormOptions()
@@ -153,18 +147,12 @@ export default function ContractsFormDashboardPage() {
   }
 
   const handleChangeField = (field: keyof typeof initialCreateContractForm, value: string) => {
-    setForm((prev) => {
-      if (field === 'contractTypeId') {
-        const nextContractTypeLabel = selectContractTypes.find((option) => option.value === value)?.label ?? ''
-        const nextHideEndDate = isIndefiniteContractType(nextContractTypeLabel)
-        if (nextHideEndDate) {
-          return { ...prev, contractTypeId: value, endDate: '' }
-        }
-      }
-      return { ...prev, [field]: value }
-    })
+    setForm((prev) => mapperContractFormFieldChange(prev, field, value, {
+      contractTypeOptions: selectContractTypes,
+    }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
+
   const handleFieldValueChange = (field: keyof typeof initialCreateContractForm) => (value: string) => {
     handleChangeField(field, value)
   }
@@ -177,32 +165,28 @@ export default function ContractsFormDashboardPage() {
       return
     }
 
-    if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateContractPayload(editContractId, form), files: [...contractFiles] })
-    } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateContractPayload(form), files: [...contractFiles] })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
-    const success = pendingAction.mode === 'create'
-      ? await createContract(pendingAction.payload, pendingAction.files)
-      : await updateContract(pendingAction.payload, pendingAction.files)
+    if (saving) return
+    if (!validateAll()) return
+
+    const success = isEditMode
+      ? await updateContract(mapperUpdateContractPayload(editContractId, form), [...contractFiles])
+      : await createContract(mapperCreateContractPayload(form), [...contractFiles])
+
     if (success) {
       navigate(AUTH_ROUTE_CONTRACTS)
       return
     }
 
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleAddFiles = (incomingFiles: File[]) => {
@@ -239,7 +223,7 @@ export default function ContractsFormDashboardPage() {
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? `¿Deseas guardar los cambios del contrato ${form.name}?`
     : `¿Deseas crear el contrato ${form.name}?`
   const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'

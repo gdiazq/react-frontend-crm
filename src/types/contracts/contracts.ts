@@ -41,6 +41,11 @@ export interface ContractCreateForm {
   transportTypeId: string
 }
 
+export interface ContractFormSelectOption {
+  label: string
+  value: string
+}
+
 export interface ContractCreatePayload {
   employeeId: number
   name: string

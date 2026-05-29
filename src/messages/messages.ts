@@ -404,6 +404,7 @@ export default {
       viewDetailComingSoon: 'Detalle de contrato disponible proximamente.',
       updateContractComingSoon: 'Edicion de contrato disponible proximamente.',
       toggleStatusComingSoon: 'Cambio de estado de contrato disponible proximamente.',
+      emptyList: 'No hay contratos registrados.',
     },
     status: {
       success: {
@@ -411,6 +412,7 @@ export default {
         updateContractSuccess: 'Contrato actualizado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
+        exportSuccess: 'Reporte de contratos descargado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de contratos.',
@@ -421,6 +423,8 @@ export default {
         toggleStatusError: 'No se pudo actualizar el estado del contrato.',
         invalidStatusContractId: 'Id de contrato invalido para actualizar estado.',
         loadFormOptionsError: 'No se pudieron cargar las opciones del formulario de contrato.',
+        exportError: 'No se pudo exportar el CSV de contratos.',
+        importError: 'No se pudo importar el CSV de contratos.',
         filesMaxCountError: 'Puedes adjuntar un maximo de 5 archivos.',
         filesMaxSizeError: 'Cada archivo debe tener un peso maximo de 10 MB.',
       },
