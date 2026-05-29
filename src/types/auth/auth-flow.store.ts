@@ -2,6 +2,7 @@ import type {
   AuthCreatePasswordPayload,
   AuthForgotPasswordPayload,
   AuthRegisterPayload,
+  AuthRegisterResult,
   AuthResendVerificationPayload,
   AuthVerifyEmailPayload,
 } from './auth.payload'
@@ -13,7 +14,6 @@ export interface AuthFlowStore {
   verifySubmitting: boolean
   createPasswordSubmitting: boolean
   resendSubmitting: boolean
-  checkEmailSubmitting: boolean
   // Messages
   errorMessage: string | null
   successMessage: string | null
@@ -24,10 +24,8 @@ export interface AuthFlowStore {
   pendingRecoveryEmail: string | null
   pendingPasswordToken: string | null
   pendingPasswordTokenIssuedAt: number | null
-  emailAvailable: boolean | null
   // Actions
-  register: (payload: AuthRegisterPayload) => Promise<boolean>
-  checkEmailAvailability: (email: string) => Promise<boolean | null>
+  register: (payload: AuthRegisterPayload) => Promise<AuthRegisterResult>
   verifyEmail: (payload: AuthVerifyEmailPayload) => Promise<string | null>
   forgotPassword: (payload: AuthForgotPasswordPayload) => Promise<boolean>
   resendVerification: (payload: AuthResendVerificationPayload) => Promise<boolean>

@@ -3,7 +3,6 @@ import { axiosInstance } from '@/config'
 import { createDeviceIdService } from '@/utils'
 import { mapperUpdateAvatarFormData } from '@/mappers'
 import type {
-  AuthCheckEmailResponse,
   AuthCreatePasswordPayload,
   AuthForgotPasswordPayload,
   AuthGithubOAuthUrlResponse,
@@ -53,13 +52,6 @@ export const authService = {
   preLogin: async (email: string) => {
     const { data } = await axiosInstance.post<AuthPreLoginResponse>(`${AUTH_BASE_PATH}/pre-login`, {
       email: email.trim(),
-    })
-    return data
-  },
-
-  checkEmailAvailability: async (email: string) => {
-    const { data } = await axiosInstance.get<AuthCheckEmailResponse>(`${AUTH_BASE_PATH}/check-email`, {
-      params: { email },
     })
     return data
   },

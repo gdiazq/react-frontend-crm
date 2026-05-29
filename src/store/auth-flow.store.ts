@@ -6,6 +6,7 @@ import type {
   AuthFlowStore,
   AuthCreatePasswordPayload,
   AuthForgotPasswordPayload,
+  AuthRegisterResult,
   AuthRegisterPayload,
   AuthResendVerificationPayload,
   AuthVerifyEmailPayload,
@@ -20,7 +21,6 @@ export const useStoreAuthFlow = create<AuthFlowStore>()((set) => ({
   verifySubmitting: false,
   createPasswordSubmitting: false,
   resendSubmitting: false,
-  checkEmailSubmitting: false,
   // Messages
   errorMessage: null,
   successMessage: null,
@@ -31,7 +31,6 @@ export const useStoreAuthFlow = create<AuthFlowStore>()((set) => ({
   pendingRecoveryEmail: authSessionStorage.getPendingRecoveryEmail(),
   pendingPasswordToken: authSessionStorage.getPendingPasswordToken(),
   pendingPasswordTokenIssuedAt: authSessionStorage.getPendingPasswordTokenIssuedAt(),
-  emailAvailable: null,
 
   register: async (payload: AuthRegisterPayload) => {
     try {
@@ -44,32 +43,25 @@ export const useStoreAuthFlow = create<AuthFlowStore>()((set) => ({
         pendingVerifyPhone: payload.phoneNumber,
         successMessage: messages.auth.status.success.registerSuccess,
       })
-      return true
+      return 'success'
     } catch (error) {
       let message = messages.auth.status.errors.registerErrorDefault
+      let result: AuthRegisterResult = 'error'
       if (authService.isAxiosError(error)) {
         const status = error.response?.status
-        if (status === 409) message = messages.auth.status.errors.registerEmailTaken
-        if (status === 400) message = messages.auth.status.errors.registerInvalidData
+        if (status === 409) {
+          message = messages.auth.status.errors.registerEmailTaken
+          result = 'duplicate-email'
+        }
+        if (status === 400) {
+          message = messages.auth.status.errors.registerInvalidData
+          result = 'invalid'
+        }
       }
       set({ errorBack: error, errorMessage: message })
-      return false
+      return result
     } finally {
       set({ registerSubmitting: false })
-    }
-  },
-
-  checkEmailAvailability: async (email: string) => {
-    try {
-      set({ checkEmailSubmitting: true, emailAvailable: null })
-      const data = await authService.checkEmailAvailability(email)
-      set({ emailAvailable: data.available })
-      return data.available
-    } catch (error) {
-      set({ errorBack: error, emailAvailable: null })
-      return null
-    } finally {
-      set({ checkEmailSubmitting: false })
     }
   },
 

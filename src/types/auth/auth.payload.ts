@@ -19,6 +19,8 @@ export interface AuthRegisterPayload {
   phoneNumber: string
 }
 
+export type AuthRegisterResult = 'success' | 'duplicate-email' | 'invalid' | 'error'
+
 export interface AuthVerifyEmailPayload {
   email: string
   code: string
@@ -36,10 +38,6 @@ export interface AuthCreatePasswordPayload {
 
 export interface AuthForgotPasswordPayload {
   email: string
-}
-
-export interface AuthCheckEmailResponse {
-  available: boolean
 }
 
 export interface AuthResendVerificationPayload {

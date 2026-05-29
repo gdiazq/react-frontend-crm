@@ -11,7 +11,7 @@ import {
 } from '@/components'
 import { AUTH_ROUTE_HOME, AUTH_ROUTE_LOGIN, AUTH_ROUTE_VERIFY_EMAIL } from '@/constant'
 import { initialRegisterForm } from '@/factories'
-import { useDebounce, useFormValidation } from '@/hooks'
+import { useFormValidation } from '@/hooks'
 import { mapperRegisterPayload } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreAuthFlow } from '@/store'
@@ -21,51 +21,36 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   const errorMessage = useStoreAuthFlow((s) => s.errorMessage)
   const registerSubmitting = useStoreAuthFlow((s) => s.registerSubmitting)
-  const checkEmailSubmitting = useStoreAuthFlow((s) => s.checkEmailSubmitting)
-  const emailAvailable = useStoreAuthFlow((s) => s.emailAvailable)
   const register = useStoreAuthFlow((s) => s.register)
-  const checkEmailAvailability = useStoreAuthFlow((s) => s.checkEmailAvailability)
   const setPendingVerifyEmail = useStoreAuthFlow((s) => s.setPendingVerifyEmail)
 
   const [form, setForm] = useState({ ...initialRegisterForm })
-  const { errors, isValid, validateField, validateAll, setFieldError } = useFormValidation(form, registerValidationRules)
-  const canSubmit = isValid && emailAvailable !== false && !checkEmailSubmitting
+  const { errors, isValid, validateAll, setFieldError } = useFormValidation(form, registerValidationRules)
 
   const handleFormFieldChange = (field: keyof typeof form) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  const debouncedCheckEmail = useDebounce(async (email: string) => {
-    const available = await checkEmailAvailability(email)
-    if (available === false) setFieldError('email', messages.auth.status.errors.registerEmailTaken)
-  }, 350)
-
   const handleEmailValue = (value: string) => {
     const email = value.trim()
     setForm((prev) => ({ ...prev, email }))
     setFieldError('email', null)
-    useStoreAuthFlow.setState({ errorMessage: null, emailAvailable: null })
-    if (!validateField('email')) return
-    debouncedCheckEmail(email)
+    useStoreAuthFlow.setState({ errorMessage: null })
   }
 
   const submitForm = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!validateAll()) return
 
-    const available = await checkEmailAvailability(form.email.trim())
-    if (available === false) {
+    const payload = mapperRegisterPayload(form)
+    const result = await register(payload)
+    if (result === 'duplicate-email') {
       setFieldError('email', messages.auth.status.errors.registerEmailTaken)
-      return
-    }
-    if (available === null) {
-      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.registerValidateEmailError })
+      useStoreAuthFlow.setState({ errorMessage: null })
       return
     }
 
-    const payload = mapperRegisterPayload(form)
-    const success = await register(payload)
-    if (success) {
+    if (result === 'success') {
       setPendingVerifyEmail(payload.email)
       navigate(AUTH_ROUTE_VERIFY_EMAIL)
     }
@@ -140,7 +125,7 @@ export default function RegisterPage() {
           />
         </div>
 
-        <ButtonComponent type="submit" variant="solid" disabled={registerSubmitting || checkEmailSubmitting || !canSubmit} className="w-full">
+        <ButtonComponent type="submit" variant="solid" disabled={registerSubmitting || !isValid} className="w-full">
           {registerSubmitting ? 'Registrando...' : 'Registrar cuenta'}
         </ButtonComponent>
 
@@ -155,22 +140,7 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      {checkEmailSubmitting && (
-        <AlertMessageComponent
-          message={messages.auth.ui.registerValidatingEmail}
-          tone="info"
-          className="mt-3"
-        />
-      )}
-      {!checkEmailSubmitting && emailAvailable === false && (
-        <AlertMessageComponent
-          message={messages.auth.status.errors.registerEmailTaken}
-          tone="error"
-          className="mt-3"
-          onClose={() => useStoreAuthFlow.setState({ emailAvailable: null })}
-        />
-      )}
-      {!checkEmailSubmitting && emailAvailable !== false && errorMessage && (
+      {errorMessage && (
         <AlertMessageComponent
           message={errorMessage}
           tone="error"

@@ -5,11 +5,11 @@ export type {
   AuthLoginPayload,
   AuthLoginErrorResponse,
   AuthRegisterPayload,
+  AuthRegisterResult,
   AuthVerifyEmailPayload,
   AuthVerifyEmailResponse,
   AuthCreatePasswordPayload,
   AuthForgotPasswordPayload,
-  AuthCheckEmailResponse,
   AuthResendVerificationPayload,
   AuthGithubOAuthUrlResponse,
 } from './auth.payload'
