@@ -4,8 +4,15 @@ import type {
   UserUpdatePayload,
   UserDetail,
   UserDetailView,
+  UserFormSelectOption,
   UserPagedResponse,
   UserRaw,
+  SelectRoleOption,
+  SelectStatusOption,
+  SelectUserEmailOption,
+  SelectUserNameOption,
+  UsersAdvancedFilters,
+  UsersFilterForm,
   UserTableRow,
   UsersPagination,
   UsersQueryParams,
@@ -15,9 +22,77 @@ import { buildQueryParams, appendString, appendBooleanString, appendParsedId } f
 import messages from '@/messages/messages'
 import { formatDate, formatDateTime, formatRoleLabel } from '@/utils'
 
+export function mapperUserRoleSelectOptions(options: SelectRoleOption[]): UserFormSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperUserNameSelectOptions(options: SelectUserNameOption[]): UserFormSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperUserEmailSelectOptions(options: SelectUserEmailOption[]): UserFormSelectOption[] {
+  return options.map((option) => ({ label: option.email, value: String(option.id) }))
+}
+
+export function mapperUserStatusSelectOptions(options: SelectStatusOption[]): UserFormSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperUserFiltersPayload(
+  filters: UsersFilterForm,
+  options: {
+    names: SelectUserNameOption[]
+    emails: SelectUserEmailOption[]
+    statuses: SelectStatusOption[]
+    roles: SelectRoleOption[]
+  },
+): UsersAdvancedFilters {
+  const selectedNameRaw = options.names.find((option) => String(option.id) === filters.userNameId)?.name.trim() ?? ''
+  const selectedName = selectedNameRaw.split(/\s+/)[0]?.toLowerCase() ?? ''
+  const selectedEmail = options.emails.find((option) => String(option.id) === filters.userEmailId)?.email ?? ''
+  const selectedStatus = options.statuses.find((option) => String(option.id) === filters.statusId)
+  const selectedRoleId = options.roles.find((option) => String(option.id) === filters.roleId)?.id
+
+  return {
+    name: selectedName,
+    email: selectedEmail,
+    status: selectedStatus ? String(selectedStatus.id) : '',
+    roleId: selectedRoleId ? String(selectedRoleId) : '',
+  }
+}
+
+export function mapperUserDetailToForm(detail: UserDetail): UserCreateForm {
+  return {
+    username: detail.username,
+    email: detail.email,
+    firstName: detail.firstName,
+    lastName: detail.lastName,
+    phoneNumber: detail.phoneNumber ?? '',
+    roleId: String(detail.roles[0]?.id ?? ''),
+  }
+}
+
+export function mapperUserTableDisplayName(row: UserTableRow | null) {
+  return row?.displayName || 'Usuario'
+}
+
+export function mapperUserRowStatus(row: UserTableRow | null) {
+  return row?.status === true
+}
+
+export function mapperUserToggleSuccessMessage(row: UserTableRow, nextStatus: boolean) {
+  const username = mapperUserTableDisplayName(row)
+  const statusMessage = nextStatus
+    ? messages.users.status.success.toggleEnabledSuccess
+    : messages.users.status.success.toggleDisabledSuccess
+
+  return `${username} ${statusMessage}`
+}
+
 export function mapperUsersRows(result: UserRaw[]): UserTableRow[] {
   return result.map((item) => ({
     id: String(item.id),
+    displayName: item.username,
     status: item.status,
     values: [
       item.username,

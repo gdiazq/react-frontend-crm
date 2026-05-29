@@ -9,16 +9,15 @@ import {
 import { AUTH_ROUTE_USERS } from '@/constant'
 import { initialCreateUserForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateUserPayload, mapperUpdateUserPayload } from '@/mappers'
+import {
+  mapperCreateUserPayload,
+  mapperUpdateUserPayload,
+  mapperUserDetailToForm,
+  mapperUserRoleSelectOptions,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreSelects, useStoreUsers } from '@/store'
-import type { UserCreatePayload, UserUpdatePayload } from '@/types'
 import { usersCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: UserCreatePayload }
-  | { mode: 'update', payload: UserUpdatePayload }
-  | null
 
 export default function UsersFormDashboardPage() {
   const navigate = useNavigate()
@@ -29,7 +28,6 @@ export default function UsersFormDashboardPage() {
 
   const [form, setForm] = useState({ ...initialCreateUserForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const roleOptions = useStoreSelects((s) => s.roleOptions)
   const loadingRoleOptions = useStoreSelects((s) => s.loadingRoleOptions)
@@ -69,7 +67,7 @@ export default function UsersFormDashboardPage() {
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingRoleOptions && form.roleId.trim().length > 0
 
-  const selectOptions = roleOptions.map((role) => ({ label: role.name, value: String(role.id) }))
+  const selectOptions = mapperUserRoleSelectOptions(roleOptions)
 
   useEffect(() => {
     void getRoleOptions()
@@ -91,14 +89,7 @@ export default function UsersFormDashboardPage() {
       const detail = await getUserDetail(String(editUserId))
       if (!detail || cancelled) return
 
-      setForm({
-        username: detail.username,
-        email: detail.email,
-        firstName: detail.firstName,
-        lastName: detail.lastName,
-        phoneNumber: detail.phoneNumber ?? '',
-        roleId: String(detail.roles[0]?.id ?? ''),
-      })
+      setForm(mapperUserDetailToForm(detail))
     }
 
     void load()
@@ -116,48 +107,34 @@ export default function UsersFormDashboardPage() {
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault()
     if (!validateAll()) return
-
-    if (isEditMode) {
-      const payload = mapperUpdateUserPayload(editUserId, {
-        email: form.email,
-        firstName: form.firstName,
-        lastName: form.lastName,
-        phoneNumber: form.phoneNumber,
-        roleId: form.roleId,
-      })
-      setPendingAction({ mode: 'update', payload })
-    } else {
-      const payload = mapperCreateUserPayload(form)
-      setPendingAction({ mode: 'create', payload })
-    }
-
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
+    if (saving) return
+    if (!validateAll()) return
 
-    const success = pendingAction.mode === 'create'
-      ? await createUser(pendingAction.payload)
-      : await updateUser(pendingAction.payload)
+    const success = isEditMode
+      ? await updateUser(mapperUpdateUserPayload(editUserId, {
+        email: form.email,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phoneNumber: form.phoneNumber,
+        roleId: form.roleId,
+      }))
+      : await createUser(mapperCreateUserPayload(form))
 
     if (success) {
-      if (pendingAction.mode === 'create') {
-        setForm({ ...initialCreateUserForm })
-      }
-      if (pendingAction.mode === 'update') {
-        await getUserDetail(String(editUserId))
-      }
+      navigate(AUTH_ROUTE_USERS)
+      return
     }
 
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleChangeField = (field: keyof typeof initialCreateUserForm, value: string) => {
@@ -168,7 +145,7 @@ export default function UsersFormDashboardPage() {
     handleChangeField(field, value)
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? `¿Deseas guardar los cambios del usuario ${form.username}?`
     : `¿Deseas crear al usuario ${form.username} con correo ${form.email}?`
 

@@ -1,10 +1,25 @@
 import { useState } from 'react'
 import { ButtonComponent, RightSidebarComponent, SelectComponent } from '@/components'
+import {
+  mapperUserEmailSelectOptions,
+  mapperUserFiltersPayload,
+  mapperUserNameSelectOptions,
+  mapperUserRoleSelectOptions,
+  mapperUserStatusSelectOptions,
+} from '@/mappers'
 import { useStoreSelects, useStoreUsers } from '@/store'
+import type { UsersFilterForm } from '@/types'
 
 interface UsersListFiltersSidebarComponentProps {
   open: boolean
   onClose: () => void
+}
+
+const initialFilters: UsersFilterForm = {
+  userNameId: '',
+  userEmailId: '',
+  statusId: '',
+  roleId: '',
 }
 
 export function UsersListFiltersSidebarComponent({ open, onClose }: UsersListFiltersSidebarComponentProps) {
@@ -20,37 +35,31 @@ export function UsersListFiltersSidebarComponent({ open, onClose }: UsersListFil
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingUsersFilterOptions = useStoreSelects((s) => s.loadingUsersFilterOptions)
 
-  const [filters, setFilters] = useState({ userNameId: '', userEmailId: '', statusId: '', roleId: '' })
+  const [filters, setFilters] = useState<UsersFilterForm>({ ...initialFilters })
   const loadingAny = loadingUsers || loadingToggleStatus || loadingUsersFilterOptions
 
-  const nameSelectOptions = userNameOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const emailSelectOptions = userEmailOptions.map((option) => ({ label: option.email, value: String(option.id) }))
-  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const roleSelectOptions = roleOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const nameSelectOptions = mapperUserNameSelectOptions(userNameOptions)
+  const emailSelectOptions = mapperUserEmailSelectOptions(userEmailOptions)
+  const statusSelectOptions = mapperUserStatusSelectOptions(statusOptions)
+  const roleSelectOptions = mapperUserRoleSelectOptions(roleOptions)
 
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+  const handleChangeFilter = (field: keyof UsersFilterForm, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleApply = async () => {
-    const selectedNameRaw = userNameOptions.find((option) => String(option.id) === filters.userNameId)?.name.trim() ?? ''
-    const selectedName = selectedNameRaw.split(/\s+/)[0]?.toLowerCase() ?? ''
-    const selectedEmail = userEmailOptions.find((option) => String(option.id) === filters.userEmailId)?.email ?? ''
-    const selectedStatus = statusOptions.find((option) => String(option.id) === filters.statusId)
-    const selectedRoleId = roleOptions.find((option) => String(option.id) === filters.roleId)?.id
-
-    setAdvancedFilters({
-      name: selectedName,
-      email: selectedEmail,
-      status: selectedStatus ? String(selectedStatus.id) : '',
-      roleId: selectedRoleId ? String(selectedRoleId) : '',
-    })
+    setAdvancedFilters(mapperUserFiltersPayload(filters, {
+      names: userNameOptions,
+      emails: userEmailOptions,
+      statuses: statusOptions,
+      roles: roleOptions,
+    }))
     await searchUsers()
     onClose()
   }
 
   const handleClear = async () => {
-    setFilters({ userNameId: '', userEmailId: '', statusId: '', roleId: '' })
+    setFilters({ ...initialFilters })
     clearAdvancedFilters()
     await searchUsers()
     onClose()

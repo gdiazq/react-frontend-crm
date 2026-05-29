@@ -1,5 +1,8 @@
 export type {
   UserCreateForm,
+  UserFormSelectOption,
+  UsersFilterForm,
+  UsersAdvancedFilters,
   UserCreatePayload,
   UserCreateResponse,
   UserUpdatePayload,

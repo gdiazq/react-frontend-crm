@@ -8,11 +8,9 @@ import {
   UsersListTableComponent,
   UsersListToolbarComponent,
 } from '@/components'
-import messages from '@/messages/messages'
+import { mapperUserRowStatus, mapperUserTableDisplayName, mapperUserToggleSuccessMessage } from '@/mappers'
 import { useStoreSelects, useStoreUsers } from '@/store'
 import type { UserTableRow } from '@/types'
-
-const USERNAME_COLUMN_INDEX = 0
 
 export default function UsersDashboardPage() {
   const pagination = useStoreUsers((s) => s.pagination)
@@ -41,7 +39,7 @@ export default function UsersDashboardPage() {
 
   const handleViewDetail = (row: UserTableRow) => {
     setDetailRowId(row.id)
-    setDetailName(String(row.values[USERNAME_COLUMN_INDEX] ?? 'Usuario'))
+    setDetailName(mapperUserTableDisplayName(row))
   }
 
   const handleCloseDetail = () => {
@@ -63,8 +61,7 @@ export default function UsersDashboardPage() {
   const handleConfirmToggleStatus = async () => {
     if (!pendingToggleRow || loadingToggleStatus) return
 
-    const nextStatus = pendingToggleRow.status !== true
-    const username = pendingToggleRow.values[USERNAME_COLUMN_INDEX]
+    const nextStatus = !mapperUserRowStatus(pendingToggleRow)
     const success = await toggleUserStatus(pendingToggleRow.id, nextStatus)
     if (!success) return
 
@@ -72,13 +69,11 @@ export default function UsersDashboardPage() {
     setPendingToggleRow(null)
     await getUsers()
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    setActionsMessage(
-      `${username} ${nextStatus ? messages.users.status.success.toggleEnabledSuccess : messages.users.status.success.toggleDisabledSuccess}`,
-    )
+    setActionsMessage(mapperUserToggleSuccessMessage(pendingToggleRow, nextStatus))
   }
 
   const confirmMessage = pendingToggleRow
-    ? `¿Seguro que deseas ${pendingToggleRow.status === true ? 'deshabilitar' : 'habilitar'} al usuario ${pendingToggleRow.values[USERNAME_COLUMN_INDEX]}?`
+    ? `¿Seguro que deseas ${mapperUserRowStatus(pendingToggleRow) ? 'deshabilitar' : 'habilitar'} al usuario ${mapperUserTableDisplayName(pendingToggleRow)}?`
     : ''
 
   return (

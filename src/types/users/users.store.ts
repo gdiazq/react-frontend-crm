@@ -3,6 +3,7 @@ import type {
   UserDetail,
   UserUpdatePayload,
   UserTableRow,
+  UsersAdvancedFilters,
   UsersPagination,
   UsersQueryParams,
   UsersSortBy,
@@ -16,6 +17,8 @@ export interface UsersStore {
   userDetail: UserDetail | null
   pagination: UsersPagination
   queryParams: UsersQueryParams
+  exportingCsv: boolean
+  importingCsv: boolean
   // Loading
   // Messages
   operationLoading: Record<OperationKey, boolean>
@@ -27,7 +30,7 @@ export interface UsersStore {
   nextPage: () => Promise<void>
   previousPage: () => Promise<void>
   setSearch: (value: string) => void
-  setAdvancedFilters: (filters: { name: string, email: string, status: string, roleId: string }) => void
+  setAdvancedFilters: (filters: UsersAdvancedFilters) => void
   clearAdvancedFilters: () => void
   searchUsers: () => Promise<void>
   sortUsers: (sortBy: UsersSortBy, sortDir: UsersSortDir) => Promise<void>
@@ -37,4 +40,6 @@ export interface UsersStore {
   createUser: (payload: UserCreatePayload) => Promise<boolean>
   updateUser: (payload: UserUpdatePayload) => Promise<boolean>
   toggleUserStatus: (userId: string, nextStatus: boolean) => Promise<boolean>
+  exportUsersCsv: () => Promise<boolean>
+  importUsersCsv: (file: File) => Promise<string | null>
 }

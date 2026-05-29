@@ -1,12 +1,24 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableRow, TableSortState } from '@/components'
-import { AUTH_ROUTE_USERS_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
+import type { TableRow } from '@/components'
+import { AUTH_ROUTE_USERS_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { usersTableColumns, usersTableColumnIndex, usersTableSortByColumn } from '@/factories'
+import { mapperUserRowStatus } from '@/mappers'
+import messages from '@/messages/messages'
 import { useStoreUsers } from '@/store'
 import { useHasPermission } from '@/hooks'
 import type { UserTableRow } from '@/types'
-import { createTableCustomRenderer, createUsersActions, renderStatusBadge, renderViewDetailButton } from '@/utils'
+import {
+  createRowsById,
+  createTableCustomRenderer,
+  createTableSortState,
+  createUsersActions,
+  findRowById,
+  renderStatusBadge,
+  renderViewDetailButton,
+  resolveNextTableSortDir,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const EMAIL_COLUMN_INDEX = usersTableColumnIndex.email
@@ -31,7 +43,8 @@ export function UsersListTableComponent({ onViewDetail, onToggleStatus, loadingE
   const canUpdateUser = useHasPermission(PermissionModule.User, PermissionAction.Update)
   const { actionViewDetail, actionUpdateUser, actionToggleStatus } = createUsersActions()
 
-  const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const resolveUserRow = (rowId: string) => findRowById(rowsById, rowId)
 
   const resolveRowActions = (row: UserTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [
@@ -40,37 +53,34 @@ export function UsersListTableComponent({ onViewDetail, onToggleStatus, loadingE
 
     if (canUpdateUser) {
       actions.push(actionUpdateUser(() => navigate(`${AUTH_ROUTE_USERS_EDIT}=${row.id}`)))
-      actions.push(actionToggleStatus(row.status === true, () => onToggleStatus(row)))
+      actions.push(actionToggleStatus(mapperUserRowStatus(row), () => onToggleStatus(row)))
     }
 
     return actions
   }
 
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const row = findRowById(tableRow.id)
+    const row = resolveUserRow(tableRow.id)
     return row ? resolveRowActions(row) : []
   }
 
   const renderCustomCell = createTableCustomRenderer({
     [EMAIL_COLUMN_INDEX]: ({ row, value }) =>
       renderViewDetailButton(value, () => {
-        const userRow = findRowById(row.id)
+        const userRow = resolveUserRow(row.id)
         if (userRow) onViewDetail(userRow)
       }),
-    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(Boolean(findRowById(row.id)?.status)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(mapperUserRowStatus(resolveUserRow(row.id))),
   })
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = usersTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortUsers(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => usersTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, usersTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -78,7 +88,7 @@ export function UsersListTableComponent({ onViewDetail, onToggleStatus, loadingE
         columns={usersTableColumns}
         rows={rows}
         loading={loading}
-        emptyMessage="No hay usuarios registrados."
+        emptyMessage={messages.users.ui.emptyList}
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,

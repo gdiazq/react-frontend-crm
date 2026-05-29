@@ -14,6 +14,8 @@ import messages from '@/messages/messages'
 import type { UsersSortBy, UsersSortDir, UsersStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
+  formatCsvImportSummary,
   initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
@@ -30,6 +32,8 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
   userDetail: null,
   pagination: { ...initialUsersPagination },
   queryParams: { ...initialUsersQueryParams },
+  exportingCsv: false,
+  importingCsv: false,
   operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
@@ -243,6 +247,41 @@ export const useStoreUsers = create<UsersStore>()((set, get) => {
       return false
     } finally {
       setOpLoading('toggle', false)
+    }
+  },
+
+  exportUsersCsv: async () => {
+    if (get().exportingCsv) return false
+
+    try {
+      set({ exportingCsv: true })
+      clearOp('list')
+      const csvBlob = await usersService.exportUsersCsv()
+      downloadBlobFile(csvBlob, 'users.csv')
+      setOpSuccess('list', messages.users.status.success.exportSuccess)
+      return true
+    } catch (error) {
+      setOpError('list', resolveErrorMessage(error, messages.users.status.errors.exportError), error)
+      return false
+    } finally {
+      set({ exportingCsv: false })
+    }
+  },
+
+  importUsersCsv: async (file: File) => {
+    if (get().importingCsv) return null
+
+    try {
+      set({ importingCsv: true })
+      clearOp('list')
+      const result = await usersService.importUsersCsv(file)
+      await get().getUsers()
+      return formatCsvImportSummary(result)
+    } catch (error) {
+      setOpError('list', resolveErrorMessage(error, messages.users.status.errors.importError), error)
+      return null
+    } finally {
+      set({ importingCsv: false })
     }
   },
 

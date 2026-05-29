@@ -196,16 +196,20 @@ export default {
       createComingSoon: 'Creacion de nuevo usuario disponible proximamente.',
       viewDetailComingSoon: 'disponible proximamente.',
       updateUserComingSoon: 'disponible proximamente.',
+      emptyList: 'No hay usuarios registrados.',
     },
     status: {
       success: {
         createUserSuccess: 'Usuario creado correctamente.',
         updateUserSuccess: 'Usuario actualizado correctamente.',
+        exportSuccess: 'Reporte descargado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de usuarios.',
+        exportError: 'No se pudo descargar el reporte de usuarios.',
+        importError: 'No se pudo realizar la carga masiva de usuarios.',
         createUserError: 'No se pudo crear el usuario.',
         updateUserError: 'No se pudo actualizar el usuario.',
         createUserRoleRequired: 'Selecciona un rol para crear el usuario.',

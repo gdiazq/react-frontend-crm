@@ -72,6 +72,25 @@ export interface UserCreateForm {
   roleId: string
 }
 
+export interface UserFormSelectOption {
+  label: string
+  value: string
+}
+
+export interface UsersFilterForm {
+  userNameId: string
+  userEmailId: string
+  statusId: string
+  roleId: string
+}
+
+export interface UsersAdvancedFilters {
+  name: string
+  email: string
+  status: string
+  roleId: string
+}
+
 export interface UserCreatePayload {
   username: string
   email: string
@@ -120,6 +139,7 @@ export type UsersSortDir = 'asc' | 'desc'
 export interface UserTableRow {
   id: string
   values: string[]
+  displayName: string
   status?: boolean
 }
 

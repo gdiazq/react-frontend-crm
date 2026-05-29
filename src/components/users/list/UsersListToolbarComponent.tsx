@@ -8,9 +8,7 @@ import {
 } from '@/components'
 import { AUTH_ROUTE_USERS_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import { useHasPermission } from '@/hooks'
-import { usersService } from '@/services'
 import { useStoreUsers } from '@/store'
-import { downloadBlobFile, formatCsvImportSummary } from '@/utils'
 
 interface UsersListToolbarComponentProps {
   onOpenFilters: () => void
@@ -23,55 +21,36 @@ export function UsersListToolbarComponent({ onOpenFilters, disabled = false }: U
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
   const search = useStoreUsers((s) => s.queryParams.search)
   const loading = useStoreUsers((s) => s.operationLoading.list)
+  const exportingCsv = useStoreUsers((s) => s.exportingCsv)
+  const importingCsv = useStoreUsers((s) => s.importingCsv)
   const setSearch = useStoreUsers((s) => s.setSearch)
   const searchUsers = useStoreUsers((s) => s.searchUsers)
-  const getUsers = useStoreUsers((s) => s.getUsers)
+  const exportUsersCsv = useStoreUsers((s) => s.exportUsersCsv)
+  const importUsersCsv = useStoreUsers((s) => s.importUsersCsv)
   const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const [uploadingBulk, setUploadingBulk] = useState(false)
-  const loadingAny = loading || disabled || downloadingReport || uploadingBulk
+  const loadingAny = loading || disabled || exportingCsv || importingCsv
 
   const handleDownloadReport = async () => {
-    if (downloadingReport) return
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await usersService.exportUsersCsv()
-      downloadBlobFile(csvBlob, 'users.csv')
+    if (exportingCsv) return
+    const success = await exportUsersCsv()
+    if (success) {
       setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (usersService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
     }
   }
 
   const handleBulkUpload = () => {
-    if (uploadingBulk) return
+    if (importingCsv) return
     bulkUploadInputRef.current?.click()
   }
 
   const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
-    if (!file || uploadingBulk) return
+    if (!file || importingCsv) return
 
-    try {
-      setUploadingBulk(true)
-      const result = await usersService.importUsersCsv(file)
-      setActionsMessage(formatCsvImportSummary(result))
-      await getUsers()
-    } catch (error) {
-      if (usersService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
-      } else {
-        setActionsMessage('No se pudo realizar la carga masiva.')
-      }
-    } finally {
-      setUploadingBulk(false)
+    const summary = await importUsersCsv(file)
+    if (summary) {
+      setActionsMessage(summary)
     }
   }
 
