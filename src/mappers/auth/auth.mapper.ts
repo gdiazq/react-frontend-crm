@@ -10,6 +10,7 @@ import type {
   AuthLoginPayload,
   AuthRegisterForm,
   AuthRegisterPayload,
+  AuthResendVerificationValidationInput,
   AuthResendVerificationForm,
   AuthResendVerificationPayload,
   AuthVerifyEmailForm,
@@ -54,11 +55,39 @@ export function mapperVerifyEmailPayload(email: string, form: AuthVerifyEmailFor
   }
 }
 
+export function mapperVerifyEmailTarget(queryEmail: string, pendingEmail: string | null): string {
+  return (queryEmail || pendingEmail || '').trim()
+}
+
+export function mapperVerifyEmailInitialCode(queryCode: string): Record<keyof AuthVerifyEmailForm, string> {
+  return { code: queryCode.trim() }
+}
+
 export function mapperResendVerificationPayload(email: string, form: AuthResendVerificationForm): AuthResendVerificationPayload {
   return {
     email: email.trim(),
     phoneNumber: form.phoneNumber.trim(),
   }
+}
+
+export function mapperNormalizeVerificationPhone(phoneNumber: string): string {
+  return phoneNumber.replace(/\s+/g, '')
+}
+
+export function mapperResendVerificationValidation({
+  targetEmail,
+  pendingPhone,
+  phoneNumber,
+}: AuthResendVerificationValidationInput): string | null {
+  if (!targetEmail) return messages.auth.status.errors.resendVerificationMissingEmail
+  if (!pendingPhone) return messages.auth.status.errors.resendVerificationMissingPhone
+  if (!phoneNumber.trim()) return messages.auth.status.errors.resendVerificationPhoneRequired
+
+  const inputPhone = mapperNormalizeVerificationPhone(phoneNumber)
+  const expectedPhone = mapperNormalizeVerificationPhone(pendingPhone)
+  if (inputPhone !== expectedPhone) return messages.auth.status.errors.resendVerificationPhoneMismatch
+
+  return null
 }
 
 export function mapperPasswordRequirements(password: string, minLength = PASSWORD_MIN_LENGTH): PasswordRequirement[] {

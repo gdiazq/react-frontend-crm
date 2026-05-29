@@ -35,6 +35,19 @@ export default {
   auth: {
     ui: {
       loginMfaPrompt: 'Ingresa tu codigo MFA de 6 digitos para continuar.',
+      resendVerificationTitle: 'Reenviar codigo',
+      resendVerificationDescription: 'Ingresa tu numero de telefono para confirmar el reenvio.',
+      resendVerificationPhoneLabel: 'Telefono',
+      resendVerificationCancel: 'Cancelar',
+      resendVerificationSubmitting: 'Reenviando...',
+      resendVerificationConfirm: 'Confirmar reenvio',
+      verifyEmailDescriptionStart: 'Ingresa el codigo de 6 digitos que enviamos',
+      verifyEmailDescriptionFallback: 'a tu correo',
+      verifyEmailDescriptionEnd: 'para continuar.',
+      verifyEmailResendQuestion: '¿No lo recibiste?',
+      verifyEmailResendAction: 'Reenviar codigo →',
+      verifyEmailSubmitting: 'Verificando...',
+      verifyEmailSubmit: 'Verificar correo',
     },
     status: {
       success: {
@@ -61,6 +74,13 @@ export default {
         verifyEmailErrorDefault: 'No se pudo verificar el correo.',
         verifyEmailInvalidCode: 'Codigo invalido o expirado.',
         verifyEmailNotFound: 'No se encontro una cuenta para ese correo.',
+        verifyEmailMissingEmail: 'No se encontro el correo a verificar. Vuelve a registrarte.',
+        verifyEmailMissingEmailOrCode: 'No se encontro el correo a verificar o falta el codigo.',
+        resendVerificationMissingEmail: 'No se encontro el correo para reenviar el codigo.',
+        resendVerificationMissingPhone: 'No se encontro el telefono de verificacion. Vuelve a registrarte.',
+        resendVerificationPhoneRequired: 'Debes ingresar tu numero de telefono para reenviar el codigo.',
+        resendVerificationPhoneMismatch: 'El numero de telefono no coincide con el registrado.',
+        resendVerificationFallback: 'No se pudo reenviar el codigo.',
         forgotPasswordErrorDefault: 'No se pudo iniciar la recuperacion de contraseña.',
         forgotPasswordInvalidEmail: 'Correo invalido.',
         forgotPasswordNotFound: 'No existe una cuenta con ese correo.',

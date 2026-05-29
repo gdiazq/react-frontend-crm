@@ -1,4 +1,10 @@
-export type { AuthCreatePasswordValidationView, AuthUser, LoginResponse, PasswordRequirement } from './auth'
+export type {
+  AuthCreatePasswordValidationView,
+  AuthResendVerificationValidationInput,
+  AuthUser,
+  LoginResponse,
+  PasswordRequirement,
+} from './auth'
 export type { AuthStore } from './auth.store'
 export type { AuthFlowStore } from './auth-flow.store'
 export type {

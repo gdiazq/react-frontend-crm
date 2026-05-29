@@ -29,3 +29,9 @@ export interface AuthCreatePasswordValidationView {
   passwordsMatch: boolean
   isValidForm: boolean
 }
+
+export interface AuthResendVerificationValidationInput {
+  targetEmail: string
+  pendingPhone: string | null
+  phoneNumber: string
+}

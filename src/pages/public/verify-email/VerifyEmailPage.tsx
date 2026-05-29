@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
@@ -7,12 +7,20 @@ import {
   PublicAuthHeaderComponent,
   PublicAuthLayoutComponent,
   ResendVerificationModal,
+  VerifyEmailDescriptionComponent,
   VerificationCodeInputComponent,
 } from '@/components'
 import { AUTH_ROUTE_CREATE_PASSWORD, AUTH_ROUTE_LOGIN } from '@/constant'
-import { initialResendVerificationForm, initialVerifyEmailForm } from '@/factories'
+import { initialResendVerificationForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperResendVerificationPayload, mapperVerifyEmailPayload } from '@/mappers'
+import {
+  mapperResendVerificationPayload,
+  mapperResendVerificationValidation,
+  mapperVerifyEmailInitialCode,
+  mapperVerifyEmailPayload,
+  mapperVerifyEmailTarget,
+} from '@/mappers'
+import messages from '@/messages/messages'
 import { useStoreAuthFlow } from '@/store'
 import { verifyEmailValidationRules } from '@/validators'
 
@@ -27,52 +35,38 @@ export default function VerifyEmailPage() {
   const pendingVerifyPhone = useStoreAuthFlow((s) => s.pendingVerifyPhone)
   const verifyEmail = useStoreAuthFlow((s) => s.verifyEmail)
   const resendVerification = useStoreAuthFlow((s) => s.resendVerification)
-  const setPendingVerifyEmail = useStoreAuthFlow((s) => s.setPendingVerifyEmail)
 
   const queryEmail = (searchParams.get('email') ?? '').trim()
   const queryCode = (searchParams.get('code') ?? '').trim()
-  const verifyTargetEmail = (queryEmail || pendingVerifyEmail || '').trim()
-  const verifiedRef = useRef(false)
+  const verifyTargetEmail = mapperVerifyEmailTarget(queryEmail, pendingVerifyEmail)
+  const missingTargetEmailMessage = !verifyTargetEmail ? messages.auth.status.errors.verifyEmailMissingEmail : null
 
-  const [form, setForm] = useState(() => ({ ...initialVerifyEmailForm, code: queryCode }))
+  const [form, setForm] = useState(() => mapperVerifyEmailInitialCode(queryCode))
   const [resendForm, setResendForm] = useState({ ...initialResendVerificationForm })
   const [showResendModal, setShowResendModal] = useState(false)
   const [resendModalError, setResendModalError] = useState<string | null>(null)
   const { errors, validateAll } = useFormValidation(form, verifyEmailValidationRules)
 
-  useEffect(() => {
-    if (queryEmail) {
-      setPendingVerifyEmail(queryEmail)
-      useStoreAuthFlow.setState({ errorMessage: null })
-    }
-  }, [queryEmail, setPendingVerifyEmail])
+  const handleOpenResendModal = () => {
+    setResendForm({ ...initialResendVerificationForm })
+    setResendModalError(null)
+    setShowResendModal(true)
+  }
 
-  useEffect(() => {
-    if (!verifyTargetEmail && !verifiedRef.current) {
-      useStoreAuthFlow.setState({ errorMessage: 'No se encontro el correo a verificar. Vuelve a registrarte.' })
-    }
-  }, [verifyTargetEmail])
+  const handleCloseResendModal = () => {
+    setShowResendModal(false)
+  }
 
   const handleResendCode = async () => {
     setResendModalError(null)
 
-    if (!verifyTargetEmail) {
-      setResendModalError('No se encontro el correo para reenviar el codigo.')
-      return
-    }
-    if (!pendingVerifyPhone) {
-      setResendModalError('No se encontro el telefono de verificacion. Vuelve a registrarte.')
-      return
-    }
-    if (!resendForm.phoneNumber.trim()) {
-      setResendModalError('Debes ingresar tu numero de telefono para reenviar el codigo.')
-      return
-    }
-
-    const inputPhone = resendForm.phoneNumber.replace(/\s+/g, '')
-    const expectedPhone = pendingVerifyPhone.replace(/\s+/g, '')
-    if (inputPhone !== expectedPhone) {
-      setResendModalError('El numero de telefono no coincide con el registrado.')
+    const validationError = mapperResendVerificationValidation({
+      targetEmail: verifyTargetEmail,
+      pendingPhone: pendingVerifyPhone,
+      phoneNumber: resendForm.phoneNumber,
+    })
+    if (validationError) {
+      setResendModalError(validationError)
       return
     }
 
@@ -85,14 +79,14 @@ export default function VerifyEmailPage() {
       return
     }
 
-    setResendModalError(useStoreAuthFlow.getState().errorMessage || 'No se pudo reenviar el codigo.')
+    setResendModalError(useStoreAuthFlow.getState().errorMessage || messages.auth.status.errors.resendVerificationFallback)
     useStoreAuthFlow.setState({ errorMessage: null })
   }
 
   const submitForm = async (event: { preventDefault: () => void }) => {
     event.preventDefault()
     if (!verifyTargetEmail) {
-      useStoreAuthFlow.setState({ errorMessage: 'No se encontro el correo a verificar o falta el codigo.' })
+      useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.verifyEmailMissingEmailOrCode })
       return
     }
     if (!validateAll()) return
@@ -100,7 +94,6 @@ export default function VerifyEmailPage() {
     const payload = mapperVerifyEmailPayload(verifyTargetEmail, form)
     const success = await verifyEmail(payload)
     if (success) {
-      verifiedRef.current = true
       useStoreAuthFlow.setState({ errorMessage: null })
       navigate(AUTH_ROUTE_CREATE_PASSWORD)
     }
@@ -113,17 +106,7 @@ export default function VerifyEmailPage() {
       <PublicAuthHeaderComponent
         title="Verifica"
         accentTitle="tu correo"
-        description={(
-          <>
-            Ingresa el código de 6 dígitos que enviamos
-            {verifyTargetEmail ? (
-              <>
-                {' '}a <span className="num text-slate-800 dark:text-slate-200">{verifyTargetEmail}</span>
-              </>
-            ) : ' a tu correo'}
-            {' '}para continuar.
-          </>
-        )}
+        description={<VerifyEmailDescriptionComponent targetEmail={verifyTargetEmail} />}
       />
 
       <form className="mt-10 space-y-6" onSubmit={submitForm}>
@@ -135,25 +118,25 @@ export default function VerifyEmailPage() {
 
         <div className="flex items-center justify-between">
           <span className="num text-[10.5px] uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
-            ¿No lo recibiste?
+            {messages.auth.ui.verifyEmailResendQuestion}
           </span>
           <button
             type="button"
             className="num text-[11px] uppercase tracking-[0.16em] accent-text transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={resendSubmitting}
-            onClick={() => { setResendForm({ phoneNumber: '' }); setResendModalError(null); setShowResendModal(true) }}
+            onClick={handleOpenResendModal}
           >
-            {resendSubmitting ? 'Reenviando...' : 'Reenviar código →'}
+            {resendSubmitting ? messages.auth.ui.resendVerificationSubmitting : messages.auth.ui.verifyEmailResendAction}
           </button>
         </div>
 
         <ButtonComponent type="submit" variant="solid" disabled={verifySubmitting} className="w-full">
-          {verifySubmitting ? 'Verificando...' : 'Verificar correo'}
+          {verifySubmitting ? messages.auth.ui.verifyEmailSubmitting : messages.auth.ui.verifyEmailSubmit}
         </ButtonComponent>
 
-        {errorMessage && (
+        {(errorMessage || missingTargetEmailMessage) && (
           <AlertMessageComponent
-            message={errorMessage}
+            message={(errorMessage || missingTargetEmailMessage)!}
             tone="error"
             onClose={() => useStoreAuthFlow.setState({ errorMessage: null })}
           />
@@ -172,7 +155,7 @@ export default function VerifyEmailPage() {
         phoneNumber={resendForm.phoneNumber}
         submitting={resendSubmitting}
         errorMessage={resendModalError}
-        onClose={() => setShowResendModal(false)}
+        onClose={handleCloseResendModal}
         onConfirm={handleResendCode}
         onPhoneNumberChange={(phoneNumber) => setResendForm({ phoneNumber })}
       />
