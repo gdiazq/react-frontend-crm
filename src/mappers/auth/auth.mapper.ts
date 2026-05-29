@@ -1,7 +1,9 @@
 import { PASSWORD_MIN_LENGTH } from '@/constant'
+import messages from '@/messages/messages'
 import type {
   AuthCreatePasswordForm,
   AuthCreatePasswordPayload,
+  AuthCreatePasswordValidationView,
   AuthForgotPasswordForm,
   AuthForgotPasswordPayload,
   AuthLoginForm,
@@ -71,4 +73,30 @@ export function mapperPasswordRequirements(password: string, minLength = PASSWOR
 
 export function mapperMissingPasswordRequirements(requirements: PasswordRequirement[]): string[] {
   return requirements.filter((requirement) => !requirement.valid).map((requirement) => requirement.label)
+}
+
+export function mapperCreatePasswordValidation(
+  form: AuthCreatePasswordForm,
+  hasToken: boolean,
+  minLength = PASSWORD_MIN_LENGTH,
+): AuthCreatePasswordValidationView {
+  const passwordRequirements = mapperPasswordRequirements(form.password, minLength)
+  const missingPasswordRequirements = mapperMissingPasswordRequirements(passwordRequirements)
+  const passwordsMatch = form.password.length > 0 && form.password === form.confirmPassword
+
+  return {
+    passwordRequirements,
+    missingPasswordRequirements,
+    passwordsMatch,
+    isValidForm: hasToken && missingPasswordRequirements.length === 0 && passwordsMatch,
+  }
+}
+
+export function mapperCreatePasswordSubmitError(
+  missingPasswordRequirements: string[],
+  passwordsMatch: boolean,
+) {
+  const issues = [...missingPasswordRequirements]
+  if (!passwordsMatch) issues.push(messages.auth.status.errors.createPasswordConfirmMismatch)
+  return `${messages.auth.status.errors.createPasswordMissingRequirementsPrefix} ${issues.join(', ')}.`
 }

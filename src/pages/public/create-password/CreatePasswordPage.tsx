@@ -3,19 +3,22 @@ import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   ButtonComponent,
+  CreatePasswordRequirementsComponent,
   PasswordInputComponent,
   PublicAuthBackButtonComponent,
   PublicAuthHeaderComponent,
   PublicAuthLayoutComponent,
 } from '@/components'
-import { AUTH_ROUTE_LOGIN } from '@/constant'
+import { AUTH_ROUTE_LOGIN, CREATE_PASSWORD_TOKEN_MAX_AGE_MS } from '@/constant'
 import { initialCreatePasswordForm } from '@/factories'
 import { usePasswordTokenCountdown } from '@/hooks'
-import { mapperCreatePasswordPayload, mapperMissingPasswordRequirements, mapperPasswordRequirements } from '@/mappers'
+import {
+  mapperCreatePasswordPayload,
+  mapperCreatePasswordSubmitError,
+  mapperCreatePasswordValidation,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreAuthFlow } from '@/store'
-
-const PASSWORD_TOKEN_MAX_AGE_MS = 2 * 60 * 1000
 
 export default function CreatePasswordPage() {
   const navigate = useNavigate()
@@ -37,7 +40,7 @@ export default function CreatePasswordPage() {
   const { remainingSeconds, clearTimers } = usePasswordTokenCountdown({
     token: pendingPasswordToken,
     tokenIssuedAt: pendingPasswordTokenIssuedAt,
-    maxAgeMs: PASSWORD_TOKEN_MAX_AGE_MS,
+    maxAgeMs: CREATE_PASSWORD_TOKEN_MAX_AGE_MS,
     onMissingToken: () => {
       useStoreAuthFlow.setState({ errorMessage: messages.auth.status.errors.createPasswordMissingToken })
       redirectToLogin()
@@ -48,17 +51,20 @@ export default function CreatePasswordPage() {
     },
   })
 
-  const passwordRequirements = mapperPasswordRequirements(form.password, 10)
-  const missingPasswordRequirements = mapperMissingPasswordRequirements(passwordRequirements)
-  const passwordsMatch = form.password.length > 0 && form.password === form.confirmPassword
-  const isValidForm = Boolean(pendingPasswordToken) && missingPasswordRequirements.length === 0 && passwordsMatch
+  const {
+    passwordRequirements,
+    missingPasswordRequirements,
+    passwordsMatch,
+    isValidForm,
+  } = mapperCreatePasswordValidation(form, Boolean(pendingPasswordToken))
 
   const submitForm = async (event: React.FormEvent) => {
+    
     event.preventDefault()
     if (!isValidForm) {
-      const issues = [...missingPasswordRequirements]
-      if (!passwordsMatch) issues.push(messages.auth.status.errors.createPasswordConfirmMismatch)
-      useStoreAuthFlow.setState({ errorMessage: `${messages.auth.status.errors.createPasswordMissingRequirementsPrefix} ${issues.join(', ')}.` })
+      useStoreAuthFlow.setState({
+        errorMessage: mapperCreatePasswordSubmitError(missingPasswordRequirements, passwordsMatch),
+      })
       return
     }
 
@@ -81,13 +87,7 @@ export default function CreatePasswordPage() {
         description={`Tiempo restante: ${remainingSeconds}s`}
       />
 
-      <div className="mt-4 grid gap-1 text-xs">
-        {passwordRequirements.map((req) => (
-          <p key={req.label} className={req.valid ? 'text-emerald-500' : 'text-slate-500 dark:text-slate-400'}>
-            {req.valid ? '✓' : '•'} {req.label}
-          </p>
-        ))}
-      </div>
+      <CreatePasswordRequirementsComponent requirements={passwordRequirements} />
 
       <form className="mt-7 space-y-4" onSubmit={submitForm}>
         <PasswordInputComponent

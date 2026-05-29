@@ -22,3 +22,10 @@ export interface PasswordRequirement {
   label: string
   valid: boolean
 }
+
+export interface AuthCreatePasswordValidationView {
+  passwordRequirements: PasswordRequirement[]
+  missingPasswordRequirements: string[]
+  passwordsMatch: boolean
+  isValidForm: boolean
+}
