@@ -28,7 +28,7 @@ export function UsersListTableComponent({ onViewDetail, onToggleStatus, loadingE
   const loading = useStoreUsers((s) => s.operationLoading.list)
   const sortUsers = useStoreUsers((s) => s.sortUsers)
   const goToPage = useStoreUsers((s) => s.goToPage)
-  const canToggleUserStatus = useHasPermission(PermissionModule.User, PermissionAction.Update)
+  const canUpdateUser = useHasPermission(PermissionModule.User, PermissionAction.Update)
   const { actionViewDetail, actionUpdateUser, actionToggleStatus } = createUsersActions()
 
   const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
@@ -36,10 +36,10 @@ export function UsersListTableComponent({ onViewDetail, onToggleStatus, loadingE
   const resolveRowActions = (row: UserTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [
       actionViewDetail(() => onViewDetail(row)),
-      actionUpdateUser(() => navigate(`${AUTH_ROUTE_USERS_EDIT}=${row.id}`)),
     ]
 
-    if (canToggleUserStatus) {
+    if (canUpdateUser) {
+      actions.push(actionUpdateUser(() => navigate(`${AUTH_ROUTE_USERS_EDIT}=${row.id}`)))
       actions.push(actionToggleStatus(row.status === true, () => onToggleStatus(row)))
     }
 

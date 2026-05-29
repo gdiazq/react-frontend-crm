@@ -6,7 +6,8 @@ import {
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_USERS_CREATE } from '@/constant'
+import { AUTH_ROUTE_USERS_CREATE, PermissionAction, PermissionModule } from '@/constant'
+import { useHasPermission } from '@/hooks'
 import { usersService } from '@/services'
 import { useStoreUsers } from '@/store'
 import { downloadBlobFile, formatCsvImportSummary } from '@/utils'
@@ -18,6 +19,7 @@ interface UsersListToolbarComponentProps {
 
 export function UsersListToolbarComponent({ onOpenFilters, disabled = false }: UsersListToolbarComponentProps) {
   const navigate = useNavigate()
+  const canCreate = useHasPermission(PermissionModule.User, PermissionAction.Create)
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
   const search = useStoreUsers((s) => s.queryParams.search)
   const loading = useStoreUsers((s) => s.operationLoading.list)
@@ -101,14 +103,16 @@ export function UsersListToolbarComponent({ onOpenFilters, disabled = false }: U
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loading ? 'Buscando...' : 'Buscar'}
           />
-          <ButtonComponent
-            type="button"
-            variant="success"
-            disabled={loadingAny}
-            className="flex-1 md:flex-none"
-            label="Nuevo usuario"
-            onClick={() => navigate(AUTH_ROUTE_USERS_CREATE)}
-          />
+          {canCreate && (
+            <ButtonComponent
+              type="button"
+              variant="success"
+              disabled={loadingAny}
+              className="flex-1 md:flex-none"
+              label="Nuevo usuario"
+              onClick={() => navigate(AUTH_ROUTE_USERS_CREATE)}
+            />
+          )}
           <ToolbarActionsDropdownComponent
             disabled={loadingAny}
             onDownloadReport={() => { void handleDownloadReport() }}
