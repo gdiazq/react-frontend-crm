@@ -23,7 +23,7 @@ export function mapperRoleStatusSelectOptions(options: SelectStatusOption[]): Ro
 }
 
 export function mapperRolePermissionSelectOptions(options: SelectPermissionOption[]): RoleFormSelectOption[] {
-  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+  return options.map((option) => ({ label: option.label?.trim() || option.name, value: String(option.id) }))
 }
 
 export function mapperRoleStatusFilter(statusId: string, options: SelectStatusOption[]) {

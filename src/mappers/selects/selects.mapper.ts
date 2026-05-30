@@ -49,8 +49,12 @@ export function mapperSelectActiveInactiveOptions(response: SelectActiveInactive
 
 export function mapperSelectPermissionOptions(response: SelectPermissionOption[]): SelectPermissionOption[] {
   return response
-    .map((permission) => ({ id: permission.id, name: formatPermissionName(permission.name) }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+    .map((permission) => {
+      const name = permission.name.trim()
+      const label = permission.label?.trim() || formatPermissionName(name)
+      return { id: permission.id, name, label }
+    })
+    .sort((a, b) => (a.label ?? a.name).localeCompare(b.label ?? b.name, 'es'))
 }
 
 export function mapperSelectProjectSpecialtyOptions(response: SelectProjectSpecialtyOption[]): SelectProjectSpecialtyOption[] {

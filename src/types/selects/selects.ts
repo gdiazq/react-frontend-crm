@@ -32,6 +32,7 @@ export interface SelectActiveInactiveOption {
 export interface SelectPermissionOption {
   id: number
   name: string
+  label?: string
 }
 
 export interface SelectProjectTypeOption {
