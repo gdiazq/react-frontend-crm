@@ -14,6 +14,8 @@ import { rolesService } from '@/services'
 import type { RoleDetail, RolesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
+  formatCsvImportSummary,
   initialOperationLoading,
   formatRoleLabel,
   initialOperationStatus,
@@ -33,6 +35,8 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
   rolesRows: [...initialRolesRows],
   pagination: { ...initialRolesPagination },
   queryParams: { ...initialRolesQueryParams },
+  exportingCsv: false,
+  importingCsv: false,
   operationLoading: initialOperationLoading(),
   operationStatus: initialOperationStatus(),
 
@@ -289,6 +293,41 @@ export const useStoreRoles = create<RolesStore>()((set, get) => {
       return false
     } finally {
       setOpLoading('toggle', false)
+    }
+  },
+
+  exportRolesCsv: async () => {
+    if (get().exportingCsv) return false
+
+    try {
+      set({ exportingCsv: true })
+      clearOp('list')
+      const csvBlob = await rolesService.exportRolesCsv()
+      downloadBlobFile(csvBlob, 'roles.csv')
+      setOpSuccess('list', messages.roles.status.success.exportSuccess)
+      return true
+    } catch (error) {
+      setOpError('list', resolveErrorMessage(error, messages.roles.status.errors.exportError), error)
+      return false
+    } finally {
+      set({ exportingCsv: false })
+    }
+  },
+
+  importRolesCsv: async (file: File) => {
+    if (get().importingCsv) return null
+
+    try {
+      set({ importingCsv: true })
+      clearOp('list')
+      const result = await rolesService.importRolesCsv(file)
+      await get().getRoles()
+      return formatCsvImportSummary(result)
+    } catch (error) {
+      setOpError('list', resolveErrorMessage(error, messages.roles.status.errors.importError), error)
+      return null
+    } finally {
+      set({ importingCsv: false })
     }
   },
 

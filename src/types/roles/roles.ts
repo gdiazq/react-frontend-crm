@@ -47,6 +47,15 @@ export interface RoleCreateForm {
   description: string
 }
 
+export interface RoleFormSelectOption {
+  label: string
+  value: string
+}
+
+export interface RoleFilterForm {
+  statusId: string
+}
+
 export interface RoleCreatePayload {
   name: string
   description?: string
@@ -70,6 +79,7 @@ export interface RoleCreateResponse {
 export interface RoleTableRow {
   id: string
   values: string[]
+  displayName: string
   status?: boolean
 }
 

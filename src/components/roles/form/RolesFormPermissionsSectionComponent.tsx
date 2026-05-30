@@ -1,13 +1,9 @@
 import { DetailSectionHeaderComponent, SelectComponent } from '@/components'
-
-interface PermissionSelectOption {
-  value: string
-  label: string
-}
+import type { RoleFormSelectOption } from '@/types'
 
 interface RolesFormPermissionsSectionComponentProps {
   values: string[]
-  options: PermissionSelectOption[]
+  options: RoleFormSelectOption[]
   error: string | null
   loading: boolean
   disabled: boolean

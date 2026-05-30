@@ -17,6 +17,8 @@ export interface RolesStore {
   rolesRows: RoleTableRow[]
   pagination: RolesPagination
   queryParams: RolesQueryParams
+  exportingCsv: boolean
+  importingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getRoles: () => Promise<void>
@@ -32,6 +34,8 @@ export interface RolesStore {
   createRole: (payload: RoleCreatePayload, permissionIds: number[]) => Promise<boolean>
   updateRole: (payload: RoleUpdatePayload, permissionIds: number[]) => Promise<boolean>
   toggleRoleStatus: (roleId: string, nextStatus: boolean) => Promise<boolean>
+  exportRolesCsv: () => Promise<boolean>
+  importRolesCsv: (file: File) => Promise<string | null>
   clearRoleDetail: () => void
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void

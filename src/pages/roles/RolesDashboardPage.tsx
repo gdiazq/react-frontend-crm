@@ -8,12 +8,9 @@ import {
   SaveConfirmComponent,
   StatsOverviewCardsComponent,
 } from '@/components'
-import { rolesTableColumnIndex } from '@/factories'
-import messages from '@/messages/messages'
+import { mapperRoleRowStatus, mapperRoleTableDisplayName, mapperRoleToggleSuccessMessage } from '@/mappers'
 import { useStoreRoles, useStoreSelects } from '@/store'
 import type { RoleTableRow } from '@/types'
-
-const ROLE_NAME_COLUMN_INDEX = rolesTableColumnIndex.name
 
 export default function RolesDashboardPage() {
   const pagination = useStoreRoles((s) => s.pagination)
@@ -53,8 +50,7 @@ export default function RolesDashboardPage() {
   const handleConfirmToggleStatus = async () => {
     if (!pendingToggleRow || loadingToggleStatus) return
 
-    const nextStatus = pendingToggleRow.status !== true
-    const roleName = pendingToggleRow.values[ROLE_NAME_COLUMN_INDEX]
+    const nextStatus = !mapperRoleRowStatus(pendingToggleRow)
     const success = await toggleRoleStatus(pendingToggleRow.id, nextStatus)
     if (!success) return
 
@@ -62,17 +58,11 @@ export default function RolesDashboardPage() {
     setPendingToggleRow(null)
     await getRoles()
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    setActionsMessage(
-      `${roleName} ${
-        nextStatus
-          ? messages.roles.status.success.toggleEnabledSuccess
-          : messages.roles.status.success.toggleDisabledSuccess
-      }`,
-    )
+    setActionsMessage(mapperRoleToggleSuccessMessage(pendingToggleRow, nextStatus))
   }
 
   const confirmMessage = pendingToggleRow
-    ? `¿Seguro que deseas ${pendingToggleRow.status === true ? 'deshabilitar' : 'habilitar'} al rol ${pendingToggleRow.values[ROLE_NAME_COLUMN_INDEX]}?`
+    ? `¿Seguro que deseas ${mapperRoleRowStatus(pendingToggleRow) ? 'deshabilitar' : 'habilitar'} al rol ${mapperRoleTableDisplayName(pendingToggleRow)}?`
     : ''
 
   return (

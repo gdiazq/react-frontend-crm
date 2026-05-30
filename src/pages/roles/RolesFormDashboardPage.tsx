@@ -10,17 +10,17 @@ import {
 import { AUTH_ROUTE_ROLES } from '@/constant'
 import { initialCreateRoleForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateRolePayload, mapperUpdateRolePayload } from '@/mappers'
+import {
+  mapperCreateRolePayload,
+  mapperRoleDetailPermissionValues,
+  mapperRoleDetailToForm,
+  mapperRolePermissionIds,
+  mapperRolePermissionSelectOptions,
+  mapperUpdateRolePayload,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
-import type { RoleCreatePayload, RoleUpdatePayload } from '@/types'
-import { mapRoleToForm } from '@/utils'
 import { rolesCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: RoleCreatePayload, permissionIds: number[] }
-  | { mode: 'update', payload: RoleUpdatePayload, permissionIds: number[] }
-  | null
 
 export default function RolesFormDashboardPage() {
   const navigate = useNavigate()
@@ -33,7 +33,6 @@ export default function RolesFormDashboardPage() {
   const [selectedPermissionValues, setSelectedPermissionValues] = useState<string[]>([])
   const [permissionsError, setPermissionsError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const loadingRoleDetail = useStoreRoles((s) => s.operationLoading.detail)
   const detailError = useStoreRoles((s) => s.operationStatus.detail.error)
@@ -72,10 +71,7 @@ export default function RolesFormDashboardPage() {
   const submitErrorMessage = activeStatus.error
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingPermissionOptions && selectedPermissionValues.length > 0
-  const permissionSelectOptions = permissionOptions.map((permission) => ({
-    value: String(permission.id),
-    label: permission.name,
-  }))
+  const permissionSelectOptions = mapperRolePermissionSelectOptions(permissionOptions)
 
   useEffect(() => {
     void getPermissionOptions()
@@ -103,8 +99,8 @@ export default function RolesFormDashboardPage() {
       const detail = await getRoleDetail(String(editRoleId))
       if (!detail || cancelled) return
 
-      setForm(mapRoleToForm({ name: detail.name, description: detail.description }))
-      setSelectedPermissionValues(detail.permissions.map((permission) => String(permission.id)))
+      setForm(mapperRoleDetailToForm(detail))
+      setSelectedPermissionValues(mapperRoleDetailPermissionValues(detail))
       setPermissionsError(null)
     }
 
@@ -143,28 +139,32 @@ export default function RolesFormDashboardPage() {
       return
     }
 
-    const permissionIds = selectedPermissionValues.map(Number)
-
-    if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateRolePayload(editRoleId, form), permissionIds })
-    } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateRolePayload(form), permissionIds })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
+    if (saving) return
+    if (!validateAll()) return
 
-    const success = pendingAction.mode === 'create'
-      ? await createRole(pendingAction.payload, pendingAction.permissionIds)
-      : await updateRole(pendingAction.payload, pendingAction.permissionIds)
+    const permissionIds = mapperRolePermissionIds(selectedPermissionValues)
+    if (permissionIds.length === 0) {
+      setPermissionsError(
+        isEditMode
+          ? messages.roles.status.errors.updateRolePermissionsRequired
+          : messages.roles.status.errors.createRolePermissionsRequired,
+      )
+      setConfirmOpen(false)
+      return
+    }
+
+    const success = isEditMode
+      ? await updateRole(mapperUpdateRolePayload(editRoleId, form), permissionIds)
+      : await createRole(mapperCreateRolePayload(form), permissionIds)
 
     if (success) {
       try {
@@ -177,10 +177,9 @@ export default function RolesFormDashboardPage() {
     }
 
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? `¿Deseas guardar los cambios del rol ${form.name}?`
     : `¿Deseas crear el rol ${form.name}?`
 

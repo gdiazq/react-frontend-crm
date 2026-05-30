@@ -1,11 +1,10 @@
 import { DetailSectionHeaderComponent, InputComponent } from '@/components'
-import type { initialCreateRoleForm } from '@/factories'
+import type { RoleCreateForm } from '@/types'
 
-type RoleFormShape = typeof initialCreateRoleForm
-type RoleFormField = keyof RoleFormShape
+type RoleFormField = keyof RoleCreateForm
 
 interface RolesFormDataSectionComponentProps {
-  form: RoleFormShape
+  form: RoleCreateForm
   errors: Partial<Record<RoleFormField, string>>
   onChangeField: (field: RoleFormField) => (value: string) => void
   onValidation: (field: RoleFormField) => () => void

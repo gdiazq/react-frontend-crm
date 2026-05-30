@@ -1,5 +1,7 @@
 export type {
   RoleCreateForm,
+  RoleFormSelectOption,
+  RoleFilterForm,
   RoleCreatePayload,
   RoleCreateResponse,
   RoleDetail,

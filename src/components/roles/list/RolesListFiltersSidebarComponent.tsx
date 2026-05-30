@@ -4,7 +4,9 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
+import { mapperRoleStatusFilter, mapperRoleStatusSelectOptions } from '@/mappers'
 import { useStoreRoles, useStoreSelects } from '@/store'
+import type { RoleFilterForm } from '@/types'
 
 interface RolesListFiltersSidebarComponentProps {
   open: boolean
@@ -21,14 +23,13 @@ export function RolesListFiltersSidebarComponent(props: RolesListFiltersSidebarC
   const searchRoles = useStoreRoles((s) => s.searchRoles)
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
-  const [filters, setFilters] = useState(() => ({ statusId: queryParams.status }))
+  const [filters, setFilters] = useState<RoleFilterForm>(() => ({ statusId: queryParams.status }))
 
-  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const statusSelectOptions = mapperRoleStatusSelectOptions(statusOptions)
   const loadingAny = loadingRoles || loadingToggleStatus || loadingStatusOptions
 
   const handleApply = async () => {
-    const selectedStatus = statusOptions.find((option) => String(option.id) === filters.statusId)
-    setStatusFilter(selectedStatus ? String(selectedStatus.id) : '')
+    setStatusFilter(mapperRoleStatusFilter(filters.statusId, statusOptions))
     await searchRoles()
     onClose()
   }

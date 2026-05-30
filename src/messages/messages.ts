@@ -500,16 +500,20 @@ export default {
       detailUpdatedAtLabel: 'Actualizado',
       createRoleComingSoon: 'Creacion de rol disponible proximamente.',
       updateRoleComingSoon: 'Edicion de rol disponible proximamente.',
+      emptyList: 'No hay roles registrados.',
     },
     status: {
       success: {
         createRoleSuccess: 'Rol creado correctamente.',
         updateRoleSuccess: 'Rol actualizado correctamente.',
+        exportSuccess: 'Reporte descargado correctamente.',
         toggleEnabledSuccess: 'habilitado correctamente.',
         toggleDisabledSuccess: 'deshabilitado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de roles.',
+        exportError: 'No se pudo descargar el reporte de roles.',
+        importError: 'No se pudo realizar la carga masiva de roles.',
         createRoleError: 'No se pudo crear el rol.',
         createRoleNameRequired: 'Ingresa un nombre de rol valido.',
         createRolePermissionsRequired: 'Selecciona al menos un permiso.',

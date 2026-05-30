@@ -3,6 +3,7 @@ import type {
   RoleCreateForm,
   RoleCreatePayload,
   RoleDetail,
+  RoleFormSelectOption,
   RoleUpdatePayload,
   RoleDetailView,
   RolePagedResponse,
@@ -10,14 +11,62 @@ import type {
   RoleTableRow,
   RolesPagination,
   RolesQueryParams,
+  SelectPermissionOption,
+  SelectStatusOption,
 } from '@/types'
 import { mapperPagination } from '../shared/pagination.mapper'
 import { buildQueryParams, appendString } from '../shared/queryParams.mapper'
 import { formatDate, formatRoleLabel } from '@/utils'
 
+export function mapperRoleStatusSelectOptions(options: SelectStatusOption[]): RoleFormSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperRolePermissionSelectOptions(options: SelectPermissionOption[]): RoleFormSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperRoleStatusFilter(statusId: string, options: SelectStatusOption[]) {
+  const selectedStatus = options.find((option) => String(option.id) === statusId)
+  return selectedStatus ? String(selectedStatus.id) : ''
+}
+
+export function mapperRoleDetailToForm(detail: RoleDetail): RoleCreateForm {
+  return {
+    name: detail.name ?? '',
+    description: detail.description ?? '',
+  }
+}
+
+export function mapperRoleDetailPermissionValues(detail: RoleDetail): string[] {
+  return detail.permissions.map((permission) => String(permission.id))
+}
+
+export function mapperRolePermissionIds(values: string[]): number[] {
+  return values.map(Number).filter((permissionId) => Number.isInteger(permissionId) && permissionId > 0)
+}
+
+export function mapperRoleTableDisplayName(row: RoleTableRow | null) {
+  return row?.displayName || 'Rol'
+}
+
+export function mapperRoleRowStatus(row: RoleTableRow | null) {
+  return row?.status === true
+}
+
+export function mapperRoleToggleSuccessMessage(row: RoleTableRow, nextStatus: boolean) {
+  const roleName = mapperRoleTableDisplayName(row)
+  const statusMessage = nextStatus
+    ? messages.roles.status.success.toggleEnabledSuccess
+    : messages.roles.status.success.toggleDisabledSuccess
+
+  return `${roleName} ${statusMessage}`
+}
+
 export function mapperRolesRows(result: RoleRaw[]): RoleTableRow[] {
   return result.map((item) => ({
     id: String(item.id),
+    displayName: formatRoleLabel(item.name),
     status: item.enabled,
     values: [
       formatRoleLabel(item.name),

@@ -1,12 +1,24 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableRow, TableSortState } from '@/components'
-import { AUTH_ROUTE_ROLES_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
+import type { TableRow } from '@/components'
+import { AUTH_ROUTE_ROLES_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { rolesTableColumns, rolesTableColumnIndex, rolesTableSortByColumn } from '@/factories'
+import { mapperRoleRowStatus } from '@/mappers'
+import messages from '@/messages/messages'
 import { useStoreRoles } from '@/store'
 import { useHasPermission } from '@/hooks'
 import type { RoleTableRow } from '@/types'
-import { createRolesActions, createTableCustomRenderer, renderStatusBadge, renderViewDetailButton } from '@/utils'
+import {
+  createRolesActions,
+  createRowsById,
+  createTableCustomRenderer,
+  createTableSortState,
+  findRowById,
+  renderStatusBadge,
+  renderViewDetailButton,
+  resolveNextTableSortDir,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const ROLE_NAME_COLUMN_INDEX = rolesTableColumnIndex.name
@@ -29,41 +41,44 @@ export function RolesListTableComponent(props: RolesListTableComponentProps) {
   const loading = useStoreRoles((s) => s.operationLoading.list)
   const sortRoles = useStoreRoles((s) => s.sortRoles)
   const goToPage = useStoreRoles((s) => s.goToPage)
-  const canToggleRoleStatus = useHasPermission(PermissionModule.Role, PermissionAction.Update)
+  const canUpdateRole = useHasPermission(PermissionModule.Role, PermissionAction.Update)
   const { actionViewDetail, actionUpdateRole, actionToggleStatus } = createRolesActions()
 
-  const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const resolveRoleRow = (rowId: string) => findRowById(rowsById, rowId)
+
   const resolveRowActions = (row: RoleTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [
       actionViewDetail(() => onViewDetail(row)),
-      actionUpdateRole(() => navigate(`${AUTH_ROUTE_ROLES_EDIT}=${row.id}`)),
     ]
-    if (canToggleRoleStatus) actions.push(actionToggleStatus(row.status === true, () => onToggleStatus(row)))
+    if (canUpdateRole) {
+      actions.push(actionUpdateRole(() => navigate(`${AUTH_ROUTE_ROLES_EDIT}=${row.id}`)))
+      actions.push(actionToggleStatus(mapperRoleRowStatus(row), () => onToggleStatus(row)))
+    }
     return actions
   }
+
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const row = findRowById(tableRow.id)
+    const row = resolveRoleRow(tableRow.id)
     return row ? resolveRowActions(row) : []
   }
+
   const renderCustomCell = createTableCustomRenderer({
     [ROLE_NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => {
-      const roleRow = findRowById(row.id)
+      const roleRow = resolveRoleRow(row.id)
       if (roleRow) onViewDetail(roleRow)
     }),
-    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(Boolean(findRowById(row.id)?.status)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(mapperRoleRowStatus(resolveRoleRow(row.id))),
   })
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = rolesTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortRoles(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => rolesTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, rolesTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -71,7 +86,7 @@ export function RolesListTableComponent(props: RolesListTableComponentProps) {
         columns={rolesTableColumns}
         rows={rows}
         loading={loading}
-        emptyMessage="No hay roles registrados."
+        emptyMessage={messages.roles.ui.emptyList}
         scrollContainerClassName="roles-table-no-vertical-scrollbar"
         customRenderer={renderCustomCell}
         actionsConfig={{

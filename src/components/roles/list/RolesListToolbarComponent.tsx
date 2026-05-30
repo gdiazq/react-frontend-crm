@@ -6,10 +6,9 @@ import {
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
-import { AUTH_ROUTE_ROLES_CREATE } from '@/constant'
-import { rolesService } from '@/services'
+import { AUTH_ROUTE_ROLES_CREATE, PermissionAction, PermissionModule } from '@/constant'
+import { useHasPermission } from '@/hooks'
 import { useStoreRoles } from '@/store'
-import { downloadBlobFile, formatCsvImportSummary } from '@/utils'
 
 interface RolesListToolbarComponentProps {
   onOpenFilters: () => void
@@ -19,59 +18,40 @@ interface RolesListToolbarComponentProps {
 export function RolesListToolbarComponent(props: RolesListToolbarComponentProps) {
   const { onOpenFilters, disabled = false } = props
   const navigate = useNavigate()
+  const canCreate = useHasPermission(PermissionModule.Role, PermissionAction.Create)
   const search = useStoreRoles((s) => s.queryParams.search)
   const loading = useStoreRoles((s) => s.operationLoading.list)
+  const exportingCsv = useStoreRoles((s) => s.exportingCsv)
+  const importingCsv = useStoreRoles((s) => s.importingCsv)
   const setSearch = useStoreRoles((s) => s.setSearch)
   const searchRoles = useStoreRoles((s) => s.searchRoles)
-  const getRoles = useStoreRoles((s) => s.getRoles)
+  const exportRolesCsv = useStoreRoles((s) => s.exportRolesCsv)
+  const importRolesCsv = useStoreRoles((s) => s.importRolesCsv)
   const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const [uploadingBulk, setUploadingBulk] = useState(false)
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
-  const loadingAny = loading || disabled || downloadingReport || uploadingBulk
+  const loadingAny = loading || disabled || exportingCsv || importingCsv
 
   const handleDownloadReport = async () => {
-    if (downloadingReport) return
-
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await rolesService.exportRolesCsv()
-      downloadBlobFile(csvBlob, 'roles.csv')
+    if (exportingCsv) return
+    const success = await exportRolesCsv()
+    if (success) {
       setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (rolesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
     }
   }
 
   const handleBulkUpload = () => {
-    if (uploadingBulk) return
+    if (importingCsv) return
     bulkUploadInputRef.current?.click()
   }
 
   const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
-    if (!file || uploadingBulk) return
+    if (!file || importingCsv) return
 
-    try {
-      setUploadingBulk(true)
-      const result = await rolesService.importRolesCsv(file)
-      setActionsMessage(formatCsvImportSummary(result))
-      await getRoles()
-    } catch (error) {
-      if (rolesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
-      } else {
-        setActionsMessage('No se pudo realizar la carga masiva.')
-      }
-    } finally {
-      setUploadingBulk(false)
+    const summary = await importRolesCsv(file)
+    if (summary) {
+      setActionsMessage(summary)
     }
   }
 
@@ -95,14 +75,16 @@ export function RolesListToolbarComponent(props: RolesListToolbarComponentProps)
             className="flex-1 bg-emerald-600 text-white hover:bg-emerald-700 md:flex-none dark:bg-emerald-500 dark:text-white dark:hover:bg-emerald-400"
             label={loading ? 'Buscando...' : 'Buscar'}
           />
-          <ButtonComponent
-            type="button"
-            variant="success"
-            disabled={loadingAny}
-            className="flex-1 md:flex-none"
-            label="Nuevo rol"
-            onClick={() => navigate(AUTH_ROUTE_ROLES_CREATE)}
-          />
+          {canCreate && (
+            <ButtonComponent
+              type="button"
+              variant="success"
+              disabled={loadingAny}
+              className="flex-1 md:flex-none"
+              label="Nuevo rol"
+              onClick={() => navigate(AUTH_ROUTE_ROLES_CREATE)}
+            />
+          )}
           <ToolbarActionsDropdownComponent
             disabled={loadingAny}
             onDownloadReport={() => { void handleDownloadReport() }}
