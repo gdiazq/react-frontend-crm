@@ -120,7 +120,7 @@ function RoleDetailContent({ detail, onEdit }: RoleDetailContentProps) {
               >
                 <div className="flex items-start justify-between gap-3">
                   <p className="num min-w-0 break-all text-[12px] font-semibold accent-text">
-                    {permission.name}
+                    {permission.label}
                   </p>
                   <div className="flex shrink-0 flex-wrap justify-end gap-1">
                     <DetailBadgeComponent tone="neutral">

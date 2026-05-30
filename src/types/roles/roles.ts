@@ -12,6 +12,7 @@ export interface RoleRaw {
 export interface RolePermission {
   id: number
   name: string
+  label?: string | null
   description?: string | null
 }
 
@@ -28,6 +29,7 @@ export interface RoleDetail {
 export interface RolePermissionDetailView {
   id: number
   name: string
+  label: string
   description: string
   resourceDisplay: string
   actionDisplay: string

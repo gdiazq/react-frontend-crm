@@ -110,10 +110,12 @@ export function mapperRoleDetailView(detail: RoleDetail | null): RoleDetailView 
     enabled: detail.enabled,
     permissionsDisplay: detail.permissions.map((permission) => {
       const parsedPermission = parsePermissionName(permission.name)
+      const label = permission.label?.trim() || permission.name
 
       return {
         id: permission.id,
         name: permission.name,
+        label,
         description: permission.description ?? '',
         resourceDisplay: parsedPermission.resourceDisplay,
         actionDisplay: parsedPermission.actionDisplay,
