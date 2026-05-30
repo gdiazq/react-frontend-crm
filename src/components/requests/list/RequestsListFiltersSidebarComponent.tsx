@@ -5,8 +5,14 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
-import { mapperRequestSelectOptions } from '@/mappers'
+import {
+  mapperEmptyRequestFilters,
+  mapperRequestFiltersFromQuery,
+  mapperRequestFiltersPayload,
+  mapperRequestSelectOptions,
+} from '@/mappers'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
+import type { RequestsFilterForm } from '@/types'
 
 interface RequestsListFiltersSidebarComponentProps {
   open: boolean
@@ -31,47 +37,34 @@ export function RequestsListFiltersSidebarComponent(props: RequestsListFiltersSi
   const hrRequestTypeOptions = useStoreEmployeeSelects((s) => s.hrRequestTypeOptions)
   const loadingHrRequestTypeOptions = useStoreEmployeeSelects((s) => s.loadingHrRequestTypeOptions)
 
-  const [filters, setFilters] = useState(() => ({
-    statusId: queryParams.statusId,
-    moduleId: queryParams.idModule,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    approvalFrom: queryParams.approvalFrom,
-    approvalTo: queryParams.approvalTo,
-  }))
+  const [filters, setFilters] = useState<RequestsFilterForm>(() => mapperRequestFiltersFromQuery(queryParams))
 
   const statusSelectOptions = mapperRequestSelectOptions(approvalEmployeeStatusOptions)
   const moduleSelectOptions = mapperRequestSelectOptions(hrRequestTypeOptions)
   const loadingAny = loadingRequests || loadingApprovalEmployeeStatusOptions || loadingHrRequestTypeOptions
 
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+  const handleChangeFilter = (field: keyof RequestsFilterForm, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleApply = async () => {
-    setStatusFilter(filters.statusId.trim())
-    setModuleFilter(filters.moduleId.trim())
+    const payload = mapperRequestFiltersPayload(filters)
+    setStatusFilter(payload.statusId)
+    setModuleFilter(payload.idModule)
     setCreatedDateRange({
-      createdFrom: filters.createdFrom.trim(),
-      createdTo: filters.createdTo.trim(),
+      createdFrom: payload.createdFrom,
+      createdTo: payload.createdTo,
     })
     setApprovalDateRange({
-      approvalFrom: filters.approvalFrom.trim(),
-      approvalTo: filters.approvalTo.trim(),
+      approvalFrom: payload.approvalFrom,
+      approvalTo: payload.approvalTo,
     })
     await searchRequests()
     onClose()
   }
 
   const handleClear = async () => {
-    setFilters({
-      statusId: '',
-      moduleId: '',
-      createdFrom: '',
-      createdTo: '',
-      approvalFrom: '',
-      approvalTo: '',
-    })
+    setFilters(mapperEmptyRequestFilters())
     clearStatusFilter()
     clearModuleFilter()
     clearCreatedDateRange()

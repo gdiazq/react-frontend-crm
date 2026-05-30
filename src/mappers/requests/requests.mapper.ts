@@ -6,6 +6,8 @@ import type {
   RequestPagedResponse,
   RequestSelectOption,
   RequestTableRow,
+  RequestsFilterForm,
+  RequestsFilterPayload,
   RequestsPagination,
   RequestsQueryParams,
 } from '@/types'
@@ -20,6 +22,61 @@ export function isFinalRequestStatus(statusId: number): boolean {
 
 export function mapperRequestSelectOptions(options: Array<{ id: number, name: string }>): RequestSelectOption[] {
   return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperRequestFiltersFromQuery(queryParams: RequestsQueryParams): RequestsFilterForm {
+  return {
+    statusId: queryParams.statusId,
+    moduleId: queryParams.idModule,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    approvalFrom: queryParams.approvalFrom,
+    approvalTo: queryParams.approvalTo,
+  }
+}
+
+export function mapperRequestFiltersPayload(filters: RequestsFilterForm): RequestsFilterPayload {
+  return {
+    statusId: filters.statusId.trim(),
+    idModule: filters.moduleId.trim(),
+    createdFrom: filters.createdFrom.trim(),
+    createdTo: filters.createdTo.trim(),
+    approvalFrom: filters.approvalFrom.trim(),
+    approvalTo: filters.approvalTo.trim(),
+  }
+}
+
+export function mapperEmptyRequestFilters(): RequestsFilterForm {
+  return {
+    statusId: '',
+    moduleId: '',
+    createdFrom: '',
+    createdTo: '',
+    approvalFrom: '',
+    approvalTo: '',
+  }
+}
+
+export function mapperRequestRowDisplayName(row: RequestTableRow | null) {
+  return row?.displayName || messages.requests.ui.detailTitleFallback
+}
+
+export function mapperRequestApproveConfirmMessage(row: RequestTableRow | null) {
+  if (!row) return ''
+  return `¿Seguro que deseas aprobar la solicitud de ${mapperRequestRowDisplayName(row)}?`
+}
+
+export function mapperRequestRejectConfirmMessage(row: RequestTableRow | null) {
+  if (!row) return ''
+  return `¿Seguro que deseas rechazar la solicitud de ${mapperRequestRowDisplayName(row)}?`
+}
+
+export function mapperRequestApproveSuccessMessage(row: RequestTableRow) {
+  return `${mapperRequestRowDisplayName(row)}: ${messages.requests.status.success.approveSuccess}`
+}
+
+export function mapperRequestRejectSuccessMessage(row: RequestTableRow) {
+  return `${mapperRequestRowDisplayName(row)}: ${messages.requests.status.success.rejectSuccess}`
 }
 
 function resolveApproverLabel(item: HrRequestRaw): string {

@@ -465,6 +465,7 @@ export default {
       rejectRequestReasonPlaceholder: 'Ingresa el motivo del rechazo',
       detailTitleFallback: 'Detalle de solicitud',
       emptyList: 'No hay solicitudes registradas.',
+      bulkUploadComingSoon: 'Carga masiva disponible proximamente.',
     },
     status: {
       success: {

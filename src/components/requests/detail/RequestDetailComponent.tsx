@@ -142,23 +142,28 @@ function RequestDetailContent({ detail, onApprove, onReject, moreActions }: Requ
       <section>
         <DetailSectionHeaderComponent number="04" title="Fechas" />
         <ol className="relative space-y-3 border-l border-slate-200 pl-5 dark:border-white/10">
-          <li className="relative">
-            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
-            <div className="flex items-baseline gap-3">
-              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.createdAtDisplay || '—'}</span>
-              <p className="text-[13px] text-slate-700 dark:text-slate-200">Solicitud creada</p>
-            </div>
-          </li>
-          <li className="relative">
-            <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
-            <div className="flex items-baseline gap-3">
-              <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{detail.updatedAtDisplay || '—'}</span>
-              <p className="text-[13px] text-slate-700 dark:text-slate-200">Última actualización</p>
-            </div>
-          </li>
+          <TimelineItem label="Solicitud creada" value={detail.createdAtDisplay} />
+          <TimelineItem label="Última actualización" value={detail.updatedAtDisplay} />
         </ol>
       </section>
     </section>
+  )
+}
+
+interface TimelineItemProps {
+  label: string
+  value: string
+}
+
+function TimelineItem({ label, value }: TimelineItemProps) {
+  return (
+    <li className="relative">
+      <span className="accent-bg absolute -left-[22px] top-1.5 h-1.5 w-1.5 r-full ring-4 ring-white dark:ring-slate-900" />
+      <div className="flex items-baseline gap-3">
+        <span className="num w-[92px] shrink-0 text-[11px] text-slate-400">{value || '—'}</span>
+        <p className="text-[13px] text-slate-700 dark:text-slate-200">{label}</p>
+      </div>
+    </li>
   )
 }
 

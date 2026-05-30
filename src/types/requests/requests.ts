@@ -43,6 +43,24 @@ export interface RequestsQueryParams {
   sortDir: RequestsSortDir
 }
 
+export interface RequestsFilterForm {
+  statusId: string
+  moduleId: string
+  createdFrom: string
+  createdTo: string
+  approvalFrom: string
+  approvalTo: string
+}
+
+export interface RequestsFilterPayload {
+  statusId: string
+  idModule: string
+  createdFrom: string
+  createdTo: string
+  approvalFrom: string
+  approvalTo: string
+}
+
 export type RequestsSortBy =
   | 'identification'
   | 'firstName'

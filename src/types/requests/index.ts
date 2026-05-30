@@ -5,6 +5,8 @@ export type {
   RequestPagedResponse,
   RequestSelectOption,
   RequestTableRow,
+  RequestsFilterForm,
+  RequestsFilterPayload,
   RequestsPagination,
   RequestsQueryParams,
   RequestsSortBy,

@@ -8,6 +8,12 @@ import {
   SaveConfirmComponent,
   StatsOverviewCardsComponent,
 } from '@/components'
+import {
+  mapperRequestApproveConfirmMessage,
+  mapperRequestApproveSuccessMessage,
+  mapperRequestRejectConfirmMessage,
+  mapperRequestRejectSuccessMessage,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
 import type { RequestTableRow } from '@/types'
@@ -67,11 +73,10 @@ export default function RequestsDashboardPage() {
     const success = await approveRequest(pendingApproveRow.id)
     if (!success) return
 
-    const requestName = pendingApproveRow.displayName
     setConfirmApproveOpen(false)
     setPendingApproveRow(null)
     await getRequests()
-    setActionsMessage(`${requestName}: ${messages.requests.status.success.approveSuccess}`)
+    setActionsMessage(mapperRequestApproveSuccessMessage(pendingApproveRow))
   }
 
   const handleCloseConfirmReject = () => {
@@ -87,20 +92,15 @@ export default function RequestsDashboardPage() {
     const success = await rejectRequest(pendingRejectRow.id, rejectDetail.trim())
     if (!success) return
 
-    const requestName = pendingRejectRow.displayName
     setConfirmRejectOpen(false)
     setPendingRejectRow(null)
     setRejectDetail('')
     await getRequests()
-    setActionsMessage(`${requestName}: ${messages.requests.status.success.rejectSuccess}`)
+    setActionsMessage(mapperRequestRejectSuccessMessage(pendingRejectRow))
   }
 
-  const confirmApproveMessage = pendingApproveRow
-    ? `¿Seguro que deseas aprobar la solicitud de ${pendingApproveRow.displayName}?`
-    : ''
-  const confirmRejectMessage = pendingRejectRow
-    ? `¿Seguro que deseas rechazar la solicitud de ${pendingRejectRow.displayName}?`
-    : ''
+  const confirmApproveMessage = mapperRequestApproveConfirmMessage(pendingApproveRow)
+  const confirmRejectMessage = mapperRequestRejectConfirmMessage(pendingRejectRow)
   const loadingAction = loadingApproveRequest || loadingRejectRequest
 
   return (

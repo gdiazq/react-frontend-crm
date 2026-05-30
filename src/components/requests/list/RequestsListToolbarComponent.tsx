@@ -5,6 +5,7 @@ import {
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
+import messages from '@/messages/messages'
 import { useStoreRequests } from '@/store'
 
 interface RequestsListToolbarComponentProps {
@@ -27,7 +28,7 @@ export function RequestsListToolbarComponent(props: RequestsListToolbarComponent
     if (exportingCsv) return
     const success = await exportRequestsCsv()
     if (success) {
-      setActionsMessage('Reporte descargado correctamente.')
+      setActionsMessage(messages.requests.status.success.exportSuccess)
     }
   }
 
@@ -69,7 +70,7 @@ export function RequestsListToolbarComponent(props: RequestsListToolbarComponent
             disabled={loadingAny}
             showBulkUpload={false}
             onDownloadReport={() => { void handleDownloadReport() }}
-            onBulkUpload={() => setActionsMessage('Carga masiva disponible proximamente.')}
+            onBulkUpload={() => setActionsMessage(messages.requests.ui.bulkUploadComingSoon)}
           />
         </div>
       </form>
