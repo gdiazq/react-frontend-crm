@@ -1,16 +1,21 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableSortState } from '@/components'
-import { AUTH_ROUTE_ANNEXES_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
+import { AUTH_ROUTE_ANNEXES_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { annexesTableColumns, annexesTableColumnIndex, annexesTableSortByColumn } from '@/factories'
+import messages from '@/messages/messages'
 import { useStoreAnnexes } from '@/store'
 import { useHasPermission } from '@/hooks'
 import type { AnnexTableRow, TableRow } from '@/types'
 import {
   createAnnexesActions,
+  createRowsById,
+  createTableSortState,
   createTableCustomRenderer,
+  findRowById,
   renderEmployeeApprovalStatus,
   renderViewDetailButton,
+  resolveNextTableSortDir,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -35,7 +40,8 @@ export function AnnexesListTableComponent(props: AnnexesListTableComponentProps)
   const canUpdate = useHasPermission(PermissionModule.Annex, PermissionAction.Update)
   const { actionViewDetail, actionUpdateAnnex } = createAnnexesActions()
 
-  const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const resolveAnnexRow = (rowId: string) => findRowById(rowsById, rowId)
 
   const resolveRowActions = (row: AnnexTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
@@ -46,7 +52,7 @@ export function AnnexesListTableComponent(props: AnnexesListTableComponentProps)
   }
 
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const row = findRowById(tableRow.id)
+    const row = resolveAnnexRow(tableRow.id)
     if (!row) return []
     return resolveRowActions(row)
   }
@@ -54,7 +60,7 @@ export function AnnexesListTableComponent(props: AnnexesListTableComponentProps)
   const renderCustomCell = createTableCustomRenderer({
     [EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) =>
       renderViewDetailButton(value, () => {
-        const annexRow = findRowById(row.id)
+        const annexRow = resolveAnnexRow(row.id)
         if (annexRow) onViewDetail(annexRow)
       }),
     [STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
@@ -63,14 +69,11 @@ export function AnnexesListTableComponent(props: AnnexesListTableComponentProps)
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = annexesTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortAnnexes(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => annexesTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, annexesTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -78,7 +81,7 @@ export function AnnexesListTableComponent(props: AnnexesListTableComponentProps)
         columns={annexesTableColumns}
         rows={rows}
         loading={loading}
-        emptyMessage="No hay anexos registrados."
+        emptyMessage={messages.annexes.ui.emptyList}
         customRenderer={renderCustomCell}
         actionsConfig={{ columnIndex: ACTIONS_COLUMN_INDEX, resolveRowActions: resolveRowActionsFromTableRow }}
         sortableColumnIndexes={SORTABLE_COLUMNS}

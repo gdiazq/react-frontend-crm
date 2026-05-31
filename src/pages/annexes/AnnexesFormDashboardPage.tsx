@@ -10,17 +10,17 @@ import {
 import { AUTH_ROUTE_ANNEXES } from '@/constant'
 import { initialCreateAnnexForm, ANNEX_FILES_MAX_COUNT, ANNEX_FILE_MAX_SIZE_BYTES } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperAnnexDetailToForm, mapperCreateAnnexPayload, mapperUpdateAnnexPayload } from '@/mappers'
+import {
+  mapperAnnexDetailToForm,
+  mapperAnnexFormSelectOptions,
+  mapperCreateAnnexPayload,
+  mapperUpdateAnnexPayload,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreAnnexes, useStoreAnnexSelects } from '@/store'
-import type { AnnexCreatePayload, AnnexUpdatePayload } from '@/types'
+import type { AnnexFormField } from '@/types'
 import { mergeUniqueFiles } from '@/utils'
 import { annexesCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: AnnexCreatePayload, files: File[] }
-  | { mode: 'update', payload: AnnexUpdatePayload, files: File[] }
-  | null
 
 export default function AnnexesFormDashboardPage() {
   const navigate = useNavigate()
@@ -32,7 +32,6 @@ export default function AnnexesFormDashboardPage() {
   const [annexFiles, setAnnexFiles] = useState<File[]>([])
   const [filesError, setFilesError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const loadingAnnexDetail = useStoreAnnexes((s) => s.operationLoading.detail)
   const detailError = useStoreAnnexes((s) => s.operationStatus.detail.error)
@@ -64,8 +63,8 @@ export default function AnnexesFormDashboardPage() {
   const submitErrorMessage = activeStatus.error
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving
-  const employeeWithContractSelectOptions = employeeWithContractOptions.map((opt) => ({ label: opt.name, value: String(opt.id) }))
-  const annexTypeSelectOptions = annexTypeOptions.map((opt) => ({ label: opt.name, value: String(opt.id) }))
+  const employeeWithContractSelectOptions = mapperAnnexFormSelectOptions(employeeWithContractOptions)
+  const annexTypeSelectOptions = mapperAnnexFormSelectOptions(annexTypeOptions)
 
   useEffect(() => {
     void getAnnexFormOptions()
@@ -99,7 +98,7 @@ export default function AnnexesFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateAnnexForm) => (value: string) => {
+  const handleChangeField = (field: AnnexFormField) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
@@ -111,31 +110,31 @@ export default function AnnexesFormDashboardPage() {
       setFilesError(messages.annexes.status.errors.filesMaxCountError)
       return
     }
-    if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateAnnexPayload(editAnnexId, form), files: [...annexFiles] })
-    } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateAnnexPayload(form), files: [...annexFiles] })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
-    const success = pendingAction.mode === 'create'
-      ? await createAnnex(pendingAction.payload, pendingAction.files)
-      : await updateAnnex(pendingAction.payload, pendingAction.files)
+    if (saving || !validateAll()) return
+    if (annexFiles.length > ANNEX_FILES_MAX_COUNT) {
+      setFilesError(messages.annexes.status.errors.filesMaxCountError)
+      return
+    }
+
+    const files = [...annexFiles]
+    const success = isEditMode
+      ? await updateAnnex(mapperUpdateAnnexPayload(editAnnexId, form), files)
+      : await createAnnex(mapperCreateAnnexPayload(form), files)
+
     if (success) {
       navigate(AUTH_ROUTE_ANNEXES)
       return
     }
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleAddFiles = (incomingFiles: File[]) => {
@@ -171,7 +170,7 @@ export default function AnnexesFormDashboardPage() {
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? '¿Deseas guardar los cambios del anexo?'
     : '¿Deseas crear el anexo?'
   const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'

@@ -7,11 +7,9 @@ import {
   AnnexesListToolbarComponent,
   StatsOverviewCardsComponent,
 } from '@/components'
-import { annexesTableColumnIndex } from '@/factories'
+import { mapperAnnexTableDisplayName } from '@/mappers'
 import { useStoreAnnexes, useStoreEmployeeSelects } from '@/store'
 import type { AnnexTableRow } from '@/types'
-
-const EMPLOYEE_NAME_COLUMN_INDEX = annexesTableColumnIndex.employeeName
 
 export default function AnnexesDashboardPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -34,7 +32,7 @@ export default function AnnexesDashboardPage() {
 
   const handleViewDetail = (row: AnnexTableRow) => {
     setDetailRowId(row.id)
-    setDetailName(String(row.values[EMPLOYEE_NAME_COLUMN_INDEX] ?? 'Anexo'))
+    setDetailName(mapperAnnexTableDisplayName(row))
   }
 
   const handleCloseDetail = () => {

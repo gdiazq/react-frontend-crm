@@ -7,10 +7,9 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_ANNEXES_CREATE, PermissionAction, PermissionModule } from '@/constant'
-import { annexesService } from '@/services'
+import messages from '@/messages/messages'
 import { useStoreAnnexes } from '@/store'
 import { useHasPermission } from '@/hooks'
-import { downloadBlobFile } from '@/utils'
 
 interface AnnexesListToolbarComponentProps {
   onOpenFilters: () => void
@@ -21,24 +20,17 @@ export function AnnexesListToolbarComponent(props: AnnexesListToolbarComponentPr
   const navigate = useNavigate()
   const search = useStoreAnnexes((s) => s.queryParams.search)
   const loading = useStoreAnnexes((s) => s.operationLoading.list)
+  const exportingCsv = useStoreAnnexes((s) => s.exportingCsv)
   const setSearch = useStoreAnnexes((s) => s.setSearch)
   const searchAnnexes = useStoreAnnexes((s) => s.searchAnnexes)
+  const exportAnnexesCsv = useStoreAnnexes((s) => s.exportAnnexesCsv)
   const canCreate = useHasPermission(PermissionModule.Annex, PermissionAction.Create)
-  const [downloadingReport, setDownloadingReport] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')
 
   const handleDownloadReport = async () => {
-    if (downloadingReport) return
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await annexesService.exportAnnexesCsv()
-      downloadBlobFile(csvBlob, 'annexes.csv')
-      setActionsMessage('Reporte descargado correctamente.')
-    } catch {
-      setActionsMessage('No se pudo descargar el reporte.')
-    } finally {
-      setDownloadingReport(false)
-    }
+    if (exportingCsv) return
+    const success = await exportAnnexesCsv()
+    if (success) setActionsMessage(messages.annexes.status.success.exportSuccess)
   }
 
   return (
@@ -72,10 +64,10 @@ export function AnnexesListToolbarComponent(props: AnnexesListToolbarComponentPr
             />
           )}
           <ToolbarActionsDropdownComponent
-            disabled={loading || downloadingReport}
+            disabled={loading || exportingCsv}
             showBulkUpload={false}
             onDownloadReport={() => { void handleDownloadReport() }}
-            onBulkUpload={() => {}}
+            onBulkUpload={() => setActionsMessage(messages.annexes.ui.bulkUploadComingSoon)}
           />
         </div>
       </form>

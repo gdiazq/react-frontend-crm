@@ -1,11 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   ButtonComponent,
   DateRangePickerComponent,
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
+import {
+  mapperAnnexesFiltersFromQuery,
+  mapperAnnexesFiltersPayload,
+  mapperAnnexFormSelectOptions,
+  mapperEmptyAnnexesFilters,
+} from '@/mappers'
 import { useStoreAnnexes, useStoreEmployeeSelects } from '@/store'
+import type { AnnexesFilterForm } from '@/types'
 
 interface AnnexesListFiltersSidebarComponentProps {
   open: boolean
@@ -29,55 +36,27 @@ export function AnnexesListFiltersSidebarComponent(props: AnnexesListFiltersSide
   const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
   const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
 
-  const [filters, setFilters] = useState(() => ({
-    statusId: queryParams.status,
-    dateFrom: queryParams.dateFrom,
-    dateTo: queryParams.dateTo,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    updatedFrom: queryParams.updatedFrom,
-    updatedTo: queryParams.updatedTo,
-  }))
+  const [filters, setFilters] = useState<AnnexesFilterForm>(() => mapperAnnexesFiltersFromQuery(queryParams))
 
-  useEffect(() => {
-    setFilters({
-      statusId: queryParams.status,
-      dateFrom: queryParams.dateFrom,
-      dateTo: queryParams.dateTo,
-      createdFrom: queryParams.createdFrom,
-      createdTo: queryParams.createdTo,
-      updatedFrom: queryParams.updatedFrom,
-      updatedTo: queryParams.updatedTo,
-    })
-  }, [
-    queryParams.status,
-    queryParams.dateFrom,
-    queryParams.dateTo,
-    queryParams.createdFrom,
-    queryParams.createdTo,
-    queryParams.updatedFrom,
-    queryParams.updatedTo,
-  ])
-
-  const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const statusSelectOptions = mapperAnnexFormSelectOptions(approvalEmployeeStatusOptions)
   const loadingAny = loadingAnnexes || loadingApprovalEmployeeStatusOptions
 
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+  const handleChangeFilter = (field: keyof AnnexesFilterForm, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleApply = async () => {
-    const selectedStatus = approvalEmployeeStatusOptions.find((option) => String(option.id) === filters.statusId)
-    setStatusFilter(selectedStatus ? String(selectedStatus.id) : '')
-    setDateRange({ dateFrom: filters.dateFrom.trim(), dateTo: filters.dateTo.trim() })
-    setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
-    setUpdatedDateRange({ updatedFrom: filters.updatedFrom.trim(), updatedTo: filters.updatedTo.trim() })
+    const payload = mapperAnnexesFiltersPayload(filters)
+    setStatusFilter(payload.statusId)
+    setDateRange({ dateFrom: payload.dateFrom, dateTo: payload.dateTo })
+    setCreatedDateRange({ createdFrom: payload.createdFrom, createdTo: payload.createdTo })
+    setUpdatedDateRange({ updatedFrom: payload.updatedFrom, updatedTo: payload.updatedTo })
     await searchAnnexes()
     onClose()
   }
 
   const handleClear = async () => {
-    setFilters({ statusId: '', dateFrom: '', dateTo: '', createdFrom: '', createdTo: '', updatedFrom: '', updatedTo: '' })
+    setFilters(mapperEmptyAnnexesFilters())
     clearStatusFilter()
     clearDateRange()
     clearCreatedDateRange()

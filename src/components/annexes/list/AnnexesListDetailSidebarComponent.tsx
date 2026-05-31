@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AnnexDetailComponent, DetailSidebarComponent } from '@/components'
 import { AUTH_ROUTE_ANNEXES_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperAnnexDetailView } from '@/mappers'
+import messages from '@/messages/messages'
 import { storageService } from '@/services'
 import { useStoreAnnexes } from '@/store'
 import { useHasPermission } from '@/hooks'
@@ -41,7 +42,7 @@ export function AnnexesListDetailSidebarComponent(props: AnnexesListDetailSideba
     ? `Detalle de ${detailView.annexTypeName}`
     : fallbackName
       ? `Detalle de ${fallbackName}`
-      : 'Detalle de anexo'
+      : messages.annexes.ui.detailTitleFallback
 
   return (
     <DetailSidebarComponent open={rowId !== null} title={title} onClose={handleClose}>

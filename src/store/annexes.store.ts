@@ -13,6 +13,7 @@ import messages from '@/messages/messages'
 import type { AnnexesSortBy, AnnexesSortDir, AnnexesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
   initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
@@ -32,6 +33,7 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
     loadingContractAnnexes: false,
     pagination: { ...initialAnnexesPagination },
     queryParams: { ...initialAnnexesQueryParams },
+    exportingCsv: false,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
@@ -215,6 +217,23 @@ export const useStoreAnnexes = create<AnnexesStore>()((set, get) => {
         return false
       } finally {
         setOpLoading('update', false)
+      }
+    },
+
+    exportAnnexesCsv: async () => {
+      if (get().exportingCsv) return false
+      try {
+        set({ exportingCsv: true })
+        clearOp('list')
+        const blob = await annexesService.exportAnnexesCsv()
+        downloadBlobFile(blob, 'annexes.csv')
+        setOpSuccess('list', messages.annexes.status.success.exportSuccess)
+        return true
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.annexes.status.errors.exportError), error)
+        return false
+      } finally {
+        set({ exportingCsv: false })
       }
     },
 

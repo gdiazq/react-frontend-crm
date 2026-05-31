@@ -4,18 +4,14 @@ import {
   InputComponent,
   SelectComponent,
 } from '@/components'
-import type { initialCreateAnnexForm } from '@/factories'
-
-type AnnexFormShape = typeof initialCreateAnnexForm
-type AnnexFormField = keyof AnnexFormShape
-type SelectOption = { label: string, value: string }
+import type { AnnexCreateForm, AnnexFormField, AnnexFormSelectOption } from '@/types'
 
 interface AnnexesFormDataSectionComponentProps {
-  form: AnnexFormShape
+  form: AnnexCreateForm
   errors: Partial<Record<AnnexFormField, string>>
   isEditMode: boolean
-  employeeOptions: SelectOption[]
-  annexTypeOptions: SelectOption[]
+  employeeOptions: AnnexFormSelectOption[]
+  annexTypeOptions: AnnexFormSelectOption[]
   loadingFormOptions: boolean
   onChangeField: (field: AnnexFormField) => (value: string) => void
   onValidation: (field: AnnexFormField) => () => void

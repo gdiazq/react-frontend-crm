@@ -49,6 +49,25 @@ export interface AnnexCreateForm {
   description: string
 }
 
+export type AnnexFormField = keyof AnnexCreateForm
+
+export interface AnnexFormSelectOption {
+  label: string
+  value: string
+}
+
+export interface AnnexesFilterForm {
+  statusId: string
+  dateFrom: string
+  dateTo: string
+  createdFrom: string
+  createdTo: string
+  updatedFrom: string
+  updatedTo: string
+}
+
+export type AnnexesFilterPayload = AnnexesFilterForm
+
 export interface AnnexCreatePayload {
   employeeId: number
   annexTypeId: number
@@ -97,6 +116,7 @@ export interface AnnexDetailView {
 export interface AnnexTableRow {
   id: string
   active: boolean
+  displayName: string
   values: string[]
 }
 

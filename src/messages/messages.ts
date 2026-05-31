@@ -392,6 +392,8 @@ export default {
       actionViewDetail: 'Ver detalle',
       updateAnnex: 'Editar anexo',
       detailTitleFallback: 'Detalle de anexo',
+      emptyList: 'No hay anexos registrados.',
+      bulkUploadComingSoon: 'La carga masiva de anexos aún no está disponible.',
     },
     status: {
       success: {

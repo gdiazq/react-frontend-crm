@@ -4,10 +4,13 @@ import type {
   AnnexDetail,
   AnnexDetailDocumentView,
   AnnexDetailView,
+  AnnexFormSelectOption,
   AnnexPagedResponse,
   AnnexRaw,
   AnnexTableRow,
   AnnexUpdatePayload,
+  AnnexesFilterForm,
+  AnnexesFilterPayload,
   AnnexesPagination,
   AnnexesQueryParams,
 } from '@/types'
@@ -20,6 +23,7 @@ export function mapperAnnexesRows(result: AnnexRaw[]): AnnexTableRow[] {
   return result.map((item) => ({
     id: String(item.id),
     active: item.requireApproval === false,
+    displayName: item.employeeFullName,
     values: [
       item.employeeIdentification,
       item.employeeFullName,
@@ -31,6 +35,50 @@ export function mapperAnnexesRows(result: AnnexRaw[]): AnnexTableRow[] {
       '',
     ],
   }))
+}
+
+export function mapperAnnexTableDisplayName(row: AnnexTableRow | null) {
+  return row?.displayName?.trim() || 'Anexo'
+}
+
+export function mapperAnnexFormSelectOptions(options: Array<{ id: number, name: string }>): AnnexFormSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperAnnexesFiltersFromQuery(queryParams: AnnexesQueryParams): AnnexesFilterForm {
+  return {
+    statusId: queryParams.status,
+    dateFrom: queryParams.dateFrom,
+    dateTo: queryParams.dateTo,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    updatedFrom: queryParams.updatedFrom,
+    updatedTo: queryParams.updatedTo,
+  }
+}
+
+export function mapperAnnexesFiltersPayload(filters: AnnexesFilterForm): AnnexesFilterPayload {
+  return {
+    statusId: filters.statusId.trim(),
+    dateFrom: filters.dateFrom.trim(),
+    dateTo: filters.dateTo.trim(),
+    createdFrom: filters.createdFrom.trim(),
+    createdTo: filters.createdTo.trim(),
+    updatedFrom: filters.updatedFrom.trim(),
+    updatedTo: filters.updatedTo.trim(),
+  }
+}
+
+export function mapperEmptyAnnexesFilters(): AnnexesFilterForm {
+  return {
+    statusId: '',
+    dateFrom: '',
+    dateTo: '',
+    createdFrom: '',
+    createdTo: '',
+    updatedFrom: '',
+    updatedTo: '',
+  }
 }
 
 export function mapperAnnexesPagination(result: AnnexPagedResponse): AnnexesPagination {

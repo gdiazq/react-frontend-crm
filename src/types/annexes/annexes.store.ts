@@ -18,6 +18,7 @@ export interface AnnexesStore {
   loadingContractAnnexes: boolean
   pagination: AnnexesPagination
   queryParams: AnnexesQueryParams
+  exportingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getAnnexes: () => Promise<void>
@@ -43,6 +44,7 @@ export interface AnnexesStore {
   sortAnnexes: (sortBy: AnnexesSortBy, sortDir: AnnexesSortDir) => Promise<void>
   createAnnex: (payload: AnnexCreatePayload, files?: File[]) => Promise<boolean>
   updateAnnex: (payload: AnnexUpdatePayload, files?: File[]) => Promise<boolean>
+  exportAnnexesCsv: () => Promise<boolean>
   getAnnexesByContract: (contractId: number) => Promise<void>
   clearContractAnnexes: () => void
   clearOperationStatus: (key: OperationKey) => void
