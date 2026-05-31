@@ -5,8 +5,15 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
-import { mapperLeaveSelectOptions, mapperLeaveStatusFilterOptions } from '@/mappers'
+import {
+  mapperEmptyLeavesFilters,
+  mapperLeavesFiltersFromQuery,
+  mapperLeavesFiltersPayload,
+  mapperLeaveSelectOptions,
+  mapperLeaveStatusFilterOptions,
+} from '@/mappers'
 import { useStoreEmployeeSelects, useStoreLeaveSelects, useStoreLeaves } from '@/store'
+import type { LeavesFilterForm } from '@/types'
 
 interface LeavesListFiltersSidebarComponentProps {
   open: boolean
@@ -38,43 +45,32 @@ export function LeavesListFiltersSidebarComponent({ open, onClose }: LeavesListF
   const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
   const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
 
-  const statusSelectOptions = mapperLeaveStatusFilterOptions(approvalEmployeeStatusOptions)
-  const [filters, setFilters] = useState(() => ({
-    status: queryParams.status,
-    leaveTypeId: queryParams.leaveTypeId,
-    employeeId: queryParams.employeeId,
-    startFrom: queryParams.startFrom,
-    startTo: queryParams.startTo,
-    endFrom: queryParams.endFrom,
-    endTo: queryParams.endTo,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    updatedFrom: queryParams.updatedFrom,
-    updatedTo: queryParams.updatedTo,
-  }))
+  const [filters, setFilters] = useState<LeavesFilterForm>(() => mapperLeavesFiltersFromQuery(queryParams))
 
+  const statusSelectOptions = mapperLeaveStatusFilterOptions(approvalEmployeeStatusOptions)
   const employeeSelectOptions = mapperLeaveSelectOptions(employeeWithContractOptions)
   const leaveTypeSelectOptions = mapperLeaveSelectOptions(leaveTypeOptions)
   const loadingAny = loadingLeaves || loadingLeaveFormOptions || loadingApprovalEmployeeStatusOptions
 
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+  const handleChangeFilter = (field: keyof LeavesFilterForm, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleApply = async () => {
-    setStatusFilter(filters.status.trim())
-    setLeaveTypeFilter(filters.leaveTypeId)
-    setEmployeeFilter(filters.employeeId)
-    setStartDateRange({ startFrom: filters.startFrom.trim(), startTo: filters.startTo.trim() })
-    setEndDateRange({ endFrom: filters.endFrom.trim(), endTo: filters.endTo.trim() })
-    setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
-    setUpdatedDateRange({ updatedFrom: filters.updatedFrom.trim(), updatedTo: filters.updatedTo.trim() })
+    const payload = mapperLeavesFiltersPayload(filters)
+    setStatusFilter(payload.status)
+    setLeaveTypeFilter(payload.leaveTypeId)
+    setEmployeeFilter(payload.employeeId)
+    setStartDateRange({ startFrom: payload.startFrom, startTo: payload.startTo })
+    setEndDateRange({ endFrom: payload.endFrom, endTo: payload.endTo })
+    setCreatedDateRange({ createdFrom: payload.createdFrom, createdTo: payload.createdTo })
+    setUpdatedDateRange({ updatedFrom: payload.updatedFrom, updatedTo: payload.updatedTo })
     await searchLeaves()
     onClose()
   }
 
   const handleClear = async () => {
-    setFilters({ status: '', leaveTypeId: '', employeeId: '', startFrom: '', startTo: '', endFrom: '', endTo: '', createdFrom: '', createdTo: '', updatedFrom: '', updatedTo: '' })
+    setFilters(mapperEmptyLeavesFilters())
     clearStatusFilter()
     clearLeaveTypeFilter()
     clearEmployeeFilter()

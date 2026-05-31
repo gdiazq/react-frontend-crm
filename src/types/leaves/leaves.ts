@@ -45,6 +45,29 @@ export interface LeaveCreateForm {
   reason: string
 }
 
+export type LeaveFormField = keyof LeaveCreateForm
+
+export interface LeaveFormSelectOption {
+  label: string
+  value: string
+}
+
+export interface LeavesFilterForm {
+  status: string
+  leaveTypeId: string
+  employeeId: string
+  startFrom: string
+  startTo: string
+  endFrom: string
+  endTo: string
+  createdFrom: string
+  createdTo: string
+  updatedFrom: string
+  updatedTo: string
+}
+
+export type LeavesFilterPayload = LeavesFilterForm
+
 export interface LeaveCreatePayload {
   employeeId: number
   leaveTypeId: number
@@ -103,6 +126,7 @@ export interface LeaveDetailView {
 export interface LeaveTableRow {
   id: string
   status: string
+  displayName: string
   values: string[]
 }
 

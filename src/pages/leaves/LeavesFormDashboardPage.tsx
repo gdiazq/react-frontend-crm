@@ -19,14 +19,9 @@ import {
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreLeaveSelects, useStoreLeaves } from '@/store'
-import type { LeaveCreatePayload, LeaveUpdatePayload } from '@/types'
+import type { LeaveFormField } from '@/types'
 import { mergeUniqueFiles } from '@/utils'
 import { leavesCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: LeaveCreatePayload, files: File[] }
-  | { mode: 'update', payload: LeaveUpdatePayload, files: File[] }
-  | null
 
 export default function LeavesFormDashboardPage() {
   const navigate = useNavigate()
@@ -40,7 +35,6 @@ export default function LeavesFormDashboardPage() {
   const [filesError, setFilesError] = useState<string | null>(null)
   const [dateRangeError, setDateRangeError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const loadingLeaveDetail = useStoreLeaves((s) => s.operationLoading.detail)
   const detailError = useStoreLeaves((s) => s.operationStatus.detail.error)
@@ -114,7 +108,7 @@ export default function LeavesFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateLeaveForm) => (value: string) => {
+  const handleChangeField = (field: LeaveFormField) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     setDateRangeError(null)
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
@@ -136,31 +130,32 @@ export default function LeavesFormDashboardPage() {
       return
     }
 
-    if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateLeavePayload(editLeaveId, form), files: [...leaveFiles] })
-    } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateLeavePayload(form), files: [...leaveFiles] })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
-    const success = pendingAction.mode === 'create'
-      ? await createLeave(pendingAction.payload, pendingAction.files)
-      : await updateLeave(pendingAction.payload, pendingAction.files)
+    if (saving || !validateAll()) return
+    if (!validateDateRange()) return
+    if (leaveFiles.length > LEAVE_FILES_MAX_COUNT) {
+      setFilesError(messages.leaves.status.errors.filesMaxCountError)
+      return
+    }
+
+    const files = [...leaveFiles]
+    const success = isEditMode
+      ? await updateLeave(mapperUpdateLeavePayload(editLeaveId, form), files)
+      : await createLeave(mapperCreateLeavePayload(form), files)
+
     if (success) {
       navigate(AUTH_ROUTE_LEAVES)
       return
     }
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleAddFiles = (incomingFiles: File[]) => {
@@ -196,7 +191,7 @@ export default function LeavesFormDashboardPage() {
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? '¿Deseas guardar los cambios del permiso?'
     : '¿Deseas crear el permiso?'
   const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'

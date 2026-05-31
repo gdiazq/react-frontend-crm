@@ -7,11 +7,9 @@ import {
   LeavesListToolbarComponent,
   StatsOverviewCardsComponent,
 } from '@/components'
-import { leavesTableColumnIndex } from '@/factories'
+import { mapperLeaveTableDisplayName } from '@/mappers'
 import { useStoreEmployeeSelects, useStoreLeaveSelects, useStoreLeaves } from '@/store'
 import type { LeaveTableRow } from '@/types'
-
-const EMPLOYEE_NAME_COLUMN_INDEX = leavesTableColumnIndex.employeeName
 
 export default function LeavesDashboardPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -38,7 +36,7 @@ export default function LeavesDashboardPage() {
 
   const handleViewDetail = (row: LeaveTableRow) => {
     setDetailRowId(row.id)
-    setDetailName(String(row.values[EMPLOYEE_NAME_COLUMN_INDEX] ?? 'Permiso'))
+    setDetailName(mapperLeaveTableDisplayName(row))
   }
 
   const handleCloseDetail = () => {

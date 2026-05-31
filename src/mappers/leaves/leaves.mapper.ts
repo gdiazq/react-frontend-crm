@@ -5,10 +5,13 @@ import type {
   LeaveDetail,
   LeaveDetailDocumentView,
   LeaveDetailView,
+  LeaveFormSelectOption,
   LeavePagedResponse,
   LeaveRaw,
   LeaveTableRow,
   LeaveUpdatePayload,
+  LeavesFilterForm,
+  LeavesFilterPayload,
   LeavesPagination,
   LeavesQueryParams,
   LeaveSelectOption,
@@ -19,22 +22,75 @@ import { appendParsedId, appendString, buildQueryParams } from '../shared/queryP
 import { normalizeDateValue, parseNullableString, parseRequiredNumber } from '../shared/form.mapper'
 import { formatDate, formatDateTime, formatNumber, resolveFileSize } from '@/utils'
 
-export function mapperLeaveSelectOptions(options: LeaveSelectOption[]) {
+export function mapperLeaveSelectOptions(options: LeaveSelectOption[]): LeaveFormSelectOption[] {
   return options.map((option) => ({ label: option.name, value: String(option.id) }))
 }
 
-export function mapperLeaveYesNoSelectOptions(options: LeaveYesNoOption[]) {
+export function mapperLeaveYesNoSelectOptions(options: LeaveYesNoOption[]): LeaveFormSelectOption[] {
   return options.map((option) => ({ label: option.name ? 'Sí' : 'No', value: String(option.name) }))
 }
 
-export function mapperLeaveStatusFilterOptions(options: EmployeeSelectOption[]) {
+export function mapperLeaveStatusFilterOptions(options: EmployeeSelectOption[]): LeaveFormSelectOption[] {
   return options.map((option) => ({ label: option.name, value: option.name }))
+}
+
+export function mapperLeaveTableDisplayName(row: LeaveTableRow | null) {
+  return row?.displayName?.trim() || 'Permiso'
+}
+
+export function mapperLeavesFiltersFromQuery(queryParams: LeavesQueryParams): LeavesFilterForm {
+  return {
+    status: queryParams.status,
+    leaveTypeId: queryParams.leaveTypeId,
+    employeeId: queryParams.employeeId,
+    startFrom: queryParams.startFrom,
+    startTo: queryParams.startTo,
+    endFrom: queryParams.endFrom,
+    endTo: queryParams.endTo,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    updatedFrom: queryParams.updatedFrom,
+    updatedTo: queryParams.updatedTo,
+  }
+}
+
+export function mapperLeavesFiltersPayload(filters: LeavesFilterForm): LeavesFilterPayload {
+  return {
+    status: filters.status.trim(),
+    leaveTypeId: filters.leaveTypeId.trim(),
+    employeeId: filters.employeeId.trim(),
+    startFrom: filters.startFrom.trim(),
+    startTo: filters.startTo.trim(),
+    endFrom: filters.endFrom.trim(),
+    endTo: filters.endTo.trim(),
+    createdFrom: filters.createdFrom.trim(),
+    createdTo: filters.createdTo.trim(),
+    updatedFrom: filters.updatedFrom.trim(),
+    updatedTo: filters.updatedTo.trim(),
+  }
+}
+
+export function mapperEmptyLeavesFilters(): LeavesFilterForm {
+  return {
+    status: '',
+    leaveTypeId: '',
+    employeeId: '',
+    startFrom: '',
+    startTo: '',
+    endFrom: '',
+    endTo: '',
+    createdFrom: '',
+    createdTo: '',
+    updatedFrom: '',
+    updatedTo: '',
+  }
 }
 
 export function mapperLeavesRows(result: LeaveRaw[]): LeaveTableRow[] {
   return result.map((item) => ({
     id: String(item.id),
     status: item.status,
+    displayName: item.employeeFullName,
     values: [
       item.employeeIdentification,
       item.employeeFullName,

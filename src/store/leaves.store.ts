@@ -13,6 +13,7 @@ import messages from '@/messages/messages'
 import type { LeavesSortBy, LeavesSortDir, LeavesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
   initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
@@ -32,6 +33,7 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
     loadingEmployeeLeaves: false,
     pagination: { ...initialLeavesPagination },
     queryParams: { ...initialLeavesQueryParams },
+    exportingCsv: false,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
@@ -223,6 +225,23 @@ export const useStoreLeaves = create<LeavesStore>()((set, get) => {
         return false
       } finally {
         setOpLoading('update', false)
+      }
+    },
+
+    exportLeavesCsv: async () => {
+      if (get().exportingCsv) return false
+      try {
+        set({ exportingCsv: true })
+        clearOp('list')
+        const blob = await leavesService.exportLeavesCsv()
+        downloadBlobFile(blob, 'leaves.csv')
+        setOpSuccess('list', messages.leaves.status.success.exportSuccess)
+        return true
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.leaves.status.errors.exportError), error)
+        return false
+      } finally {
+        set({ exportingCsv: false })
       }
     },
 

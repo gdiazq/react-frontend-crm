@@ -17,6 +17,7 @@ export interface LeavesStore {
   loadingEmployeeLeaves: boolean
   pagination: LeavesPagination
   queryParams: LeavesQueryParams
+  exportingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getLeaves: () => Promise<void>
@@ -44,6 +45,7 @@ export interface LeavesStore {
   sortLeaves: (sortBy: LeavesSortBy, sortDir: LeavesSortDir) => Promise<void>
   createLeave: (payload: LeaveCreatePayload, files?: File[]) => Promise<boolean>
   updateLeave: (payload: LeaveUpdatePayload, files?: File[]) => Promise<boolean>
+  exportLeavesCsv: () => Promise<boolean>
   getLeavesByEmployee: (employeeId: number) => Promise<void>
   clearEmployeeLeaves: () => void
   clearOperationStatus: (key: OperationKey) => void

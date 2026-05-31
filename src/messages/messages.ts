@@ -290,6 +290,8 @@ export default {
       actionViewDetail: 'Ver detalle',
       updateLeave: 'Editar permiso',
       detailTitleFallback: 'Detalle de permiso',
+      emptyList: 'No hay permisos registrados.',
+      bulkUploadComingSoon: 'La carga masiva de permisos aún no está disponible.',
     },
     status: {
       success: {

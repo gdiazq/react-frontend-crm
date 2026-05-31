@@ -4,20 +4,16 @@ import {
   InputComponent,
   SelectComponent,
 } from '@/components'
-import type { initialCreateLeaveForm } from '@/factories'
-
-type LeaveFormShape = typeof initialCreateLeaveForm
-type LeaveFormField = keyof LeaveFormShape
-type SelectOption = { label: string, value: string }
+import type { LeaveCreateForm, LeaveFormField, LeaveFormSelectOption } from '@/types'
 
 interface LeavesFormDataSectionComponentProps {
-  form: LeaveFormShape
+  form: LeaveCreateForm
   errors: Partial<Record<LeaveFormField, string>>
   dateRangeError: string | null
   isEditMode: boolean
-  employeeOptions: SelectOption[]
-  leaveTypeOptions: SelectOption[]
-  halfDayOptions: SelectOption[]
+  employeeOptions: LeaveFormSelectOption[]
+  leaveTypeOptions: LeaveFormSelectOption[]
+  halfDayOptions: LeaveFormSelectOption[]
   loadingFormOptions: boolean
   onChangeField: (field: LeaveFormField) => (value: string) => void
   onValidation: (field: LeaveFormField) => () => void

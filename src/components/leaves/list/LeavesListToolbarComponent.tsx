@@ -7,10 +7,9 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_LEAVES_CREATE, PermissionAction, PermissionModule } from '@/constant'
-import { leavesService } from '@/services'
+import messages from '@/messages/messages'
 import { useStoreLeaves } from '@/store'
 import { useHasPermission } from '@/hooks'
-import { downloadBlobFile } from '@/utils'
 
 interface LeavesListToolbarComponentProps {
   onOpenFilters: () => void
@@ -20,24 +19,17 @@ export function LeavesListToolbarComponent({ onOpenFilters }: LeavesListToolbarC
   const navigate = useNavigate()
   const search = useStoreLeaves((s) => s.queryParams.search)
   const loading = useStoreLeaves((s) => s.operationLoading.list)
+  const exportingCsv = useStoreLeaves((s) => s.exportingCsv)
   const setSearch = useStoreLeaves((s) => s.setSearch)
   const searchLeaves = useStoreLeaves((s) => s.searchLeaves)
+  const exportLeavesCsv = useStoreLeaves((s) => s.exportLeavesCsv)
   const canCreate = useHasPermission(PermissionModule.Leave, PermissionAction.Create)
   const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
 
   const handleDownloadReport = async () => {
-    if (downloadingReport) return
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await leavesService.exportLeavesCsv()
-      downloadBlobFile(csvBlob, 'leaves.csv')
-      setActionsMessage('Reporte descargado correctamente.')
-    } catch {
-      setActionsMessage('No se pudo descargar el reporte.')
-    } finally {
-      setDownloadingReport(false)
-    }
+    if (exportingCsv) return
+    const success = await exportLeavesCsv()
+    if (success) setActionsMessage(messages.leaves.status.success.exportSuccess)
   }
 
   return (
@@ -71,10 +63,10 @@ export function LeavesListToolbarComponent({ onOpenFilters }: LeavesListToolbarC
             />
           )}
           <ToolbarActionsDropdownComponent
-            disabled={loading || downloadingReport}
+            disabled={loading || exportingCsv}
             showBulkUpload={false}
             onDownloadReport={() => { void handleDownloadReport() }}
-            onBulkUpload={() => {}}
+            onBulkUpload={() => setActionsMessage(messages.leaves.ui.bulkUploadComingSoon)}
           />
         </div>
       </form>

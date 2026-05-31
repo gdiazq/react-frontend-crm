@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { DetailSidebarComponent, LeaveDetailComponent } from '@/components'
 import { AUTH_ROUTE_LEAVES_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperLeaveDetailView } from '@/mappers'
+import messages from '@/messages/messages'
 import { storageService } from '@/services'
 import { useStoreLeaves } from '@/store'
 import { useHasPermission } from '@/hooks'
@@ -41,7 +42,7 @@ export function LeavesListDetailSidebarComponent(props: LeavesListDetailSidebarC
     ? `Detalle de ${detailView.leaveTypeName}`
     : fallbackName
       ? `Detalle de ${fallbackName}`
-      : 'Detalle de permiso'
+      : messages.leaves.ui.detailTitleFallback
 
   return (
     <DetailSidebarComponent open={rowId !== null} title={title} onClose={handleClose}>
