@@ -5,8 +5,14 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
-import { mapperContractFormSelectOptions } from '@/mappers'
+import {
+  mapperContractFormSelectOptions,
+  mapperContractsFiltersFromQuery,
+  mapperContractsFiltersPayload,
+  mapperEmptyContractsFilters,
+} from '@/mappers'
 import { useStoreContractSelects, useStoreContracts, useStoreEmployeeSelects } from '@/store'
+import type { ContractsFilterForm } from '@/types'
 
 interface ContractsListFiltersSidebarComponentProps {
   open: boolean
@@ -39,55 +45,32 @@ export function ContractsListFiltersSidebarComponent(props: ContractsListFilters
   const approvalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptions)
   const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
 
-  const [filters, setFilters] = useState(() => ({
-    statusId: queryParams.statusId,
-    contractStatusId: queryParams.contractStatusId,
-    contractTypeId: queryParams.contractTypeId,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    startDateFrom: queryParams.startDateFrom,
-    startDateTo: queryParams.startDateTo,
-    endDateFrom: queryParams.endDateFrom,
-    endDateTo: queryParams.endDateTo,
-    updatedFrom: queryParams.updatedFrom,
-    updatedTo: queryParams.updatedTo,
-  }))
+  const [filters, setFilters] = useState<ContractsFilterForm>(() => mapperContractsFiltersFromQuery(queryParams))
 
   const statusSelectOptions = mapperContractFormSelectOptions(approvalEmployeeStatusOptions)
   const contractStatusSelectOptions = mapperContractFormSelectOptions(contractStatusFilterOptions)
   const contractTypeSelectOptions = mapperContractFormSelectOptions(contractTypeFilterOptions)
   const loadingAny = loadingContracts || loadingContractFilterOptions || loadingApprovalEmployeeStatusOptions
 
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+  const handleChangeFilter = (field: keyof ContractsFilterForm, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleApply = async () => {
-    setStatusFilter(filters.statusId.trim())
-    setContractStatusFilter(filters.contractStatusId.trim())
-    setContractTypeFilter(filters.contractTypeId.trim())
-    setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
-    setStartDateRange({ startDateFrom: filters.startDateFrom.trim(), startDateTo: filters.startDateTo.trim() })
-    setEndDateRange({ endDateFrom: filters.endDateFrom.trim(), endDateTo: filters.endDateTo.trim() })
-    setUpdatedDateRange({ updatedFrom: filters.updatedFrom.trim(), updatedTo: filters.updatedTo.trim() })
+    const payload = mapperContractsFiltersPayload(filters)
+    setStatusFilter(payload.statusId)
+    setContractStatusFilter(payload.contractStatusId)
+    setContractTypeFilter(payload.contractTypeId)
+    setCreatedDateRange({ createdFrom: payload.createdFrom, createdTo: payload.createdTo })
+    setStartDateRange({ startDateFrom: payload.startDateFrom, startDateTo: payload.startDateTo })
+    setEndDateRange({ endDateFrom: payload.endDateFrom, endDateTo: payload.endDateTo })
+    setUpdatedDateRange({ updatedFrom: payload.updatedFrom, updatedTo: payload.updatedTo })
     await searchContracts()
     onClose()
   }
 
   const handleClear = async () => {
-    setFilters({
-      statusId: '',
-      contractStatusId: '',
-      contractTypeId: '',
-      createdFrom: '',
-      createdTo: '',
-      startDateFrom: '',
-      startDateTo: '',
-      endDateFrom: '',
-      endDateTo: '',
-      updatedFrom: '',
-      updatedTo: '',
-    })
+    setFilters(mapperEmptyContractsFilters())
     clearStatusFilter()
     clearContractStatusFilter()
     clearContractTypeFilter()

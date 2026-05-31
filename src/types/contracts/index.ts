@@ -7,6 +7,8 @@ export type {
   ContractDetailView,
   ContractDocument,
   ContractDetailReference,
+  ContractsFilterForm,
+  ContractsFilterPayload,
   ContractFormSelectOption,
   ContractPagedResponse,
   ContractRaw,

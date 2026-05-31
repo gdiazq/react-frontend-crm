@@ -46,6 +46,22 @@ export interface ContractFormSelectOption {
   value: string
 }
 
+export interface ContractsFilterForm {
+  statusId: string
+  contractStatusId: string
+  contractTypeId: string
+  createdFrom: string
+  createdTo: string
+  startDateFrom: string
+  startDateTo: string
+  endDateFrom: string
+  endDateTo: string
+  updatedFrom: string
+  updatedTo: string
+}
+
+export type ContractsFilterPayload = ContractsFilterForm
+
 export interface ContractCreatePayload {
   employeeId: number
   name: string

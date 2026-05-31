@@ -5,6 +5,8 @@ import type {
   ContractCreateForm,
   ContractCreatePayload,
   ContractFormSelectOption,
+  ContractsFilterForm,
+  ContractsFilterPayload,
   ContractPagedResponse,
   ContractRaw,
   ContractSelectOption,
@@ -20,6 +22,54 @@ import { formatDate, formatDateTime, resolveFileSize } from '@/utils'
 
 export function mapperContractFormSelectOptions(options: ContractSelectOption[]): ContractFormSelectOption[] {
   return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperContractsFiltersFromQuery(queryParams: ContractsQueryParams): ContractsFilterForm {
+  return {
+    statusId: queryParams.statusId,
+    contractStatusId: queryParams.contractStatusId,
+    contractTypeId: queryParams.contractTypeId,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    startDateFrom: queryParams.startDateFrom,
+    startDateTo: queryParams.startDateTo,
+    endDateFrom: queryParams.endDateFrom,
+    endDateTo: queryParams.endDateTo,
+    updatedFrom: queryParams.updatedFrom,
+    updatedTo: queryParams.updatedTo,
+  }
+}
+
+export function mapperContractsFiltersPayload(filters: ContractsFilterForm): ContractsFilterPayload {
+  return {
+    statusId: filters.statusId.trim(),
+    contractStatusId: filters.contractStatusId.trim(),
+    contractTypeId: filters.contractTypeId.trim(),
+    createdFrom: filters.createdFrom.trim(),
+    createdTo: filters.createdTo.trim(),
+    startDateFrom: filters.startDateFrom.trim(),
+    startDateTo: filters.startDateTo.trim(),
+    endDateFrom: filters.endDateFrom.trim(),
+    endDateTo: filters.endDateTo.trim(),
+    updatedFrom: filters.updatedFrom.trim(),
+    updatedTo: filters.updatedTo.trim(),
+  }
+}
+
+export function mapperEmptyContractsFilters(): ContractsFilterForm {
+  return {
+    statusId: '',
+    contractStatusId: '',
+    contractTypeId: '',
+    createdFrom: '',
+    createdTo: '',
+    startDateFrom: '',
+    startDateTo: '',
+    endDateFrom: '',
+    endDateTo: '',
+    updatedFrom: '',
+    updatedTo: '',
+  }
 }
 
 export function mapperContractFormSelectOptionsWithCurrent(

@@ -846,6 +846,8 @@ export default {
       actionViewDetail: 'Ver detalle',
       updateTransfer: 'Editar',
       detailTitleFallback: 'Detalle de traspaso',
+      emptyList: 'No hay traspasos registrados.',
+      bulkUploadComingSoon: 'La carga masiva de traspasos aún no está disponible.',
     },
     status: {
       success: {
