@@ -3,19 +3,14 @@ import {
   DetailSectionHeaderComponent,
   SelectComponent,
 } from '@/components'
-import type { initialCreateTransferForm } from '@/factories'
-
-type TransferFormShape = typeof initialCreateTransferForm
-type TransferFormField = keyof TransferFormShape
-
-type SelectOption = { label: string; value: string }
+import type { TransferCreateForm, TransferFormField, TransferSelectOption } from '@/types'
 
 interface TransferFormDataSectionComponentProps {
-  form: TransferFormShape
+  form: TransferCreateForm
   errors: Partial<Record<TransferFormField, string>>
   isEditMode: boolean
-  employeeOptions: SelectOption[]
-  costCenterOptions: SelectOption[]
+  employeeOptions: TransferSelectOption[]
+  costCenterOptions: TransferSelectOption[]
   loadingEmployeeOptions: boolean
   loadingCostCenterOptions: boolean
   onChangeField: (field: TransferFormField) => (value: string) => void

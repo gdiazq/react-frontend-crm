@@ -1,16 +1,22 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableRow, TableSortState } from '@/components'
-import { AUTH_ROUTE_TRANSFERS_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
+import type { TableRow } from '@/components'
+import { AUTH_ROUTE_TRANSFERS_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { transferTableColumns, transferTableColumnIndex, transferTableSortByColumn } from '@/factories'
 import { useStoreTransfer } from '@/store'
 import { useHasPermission } from '@/hooks'
+import messages from '@/messages/messages'
 import type { TransferTableRow } from '@/types'
 import {
+  createRowsById,
+  createTableSortState,
   createTableCustomRenderer,
   createTransferActions,
+  findRowById,
   renderEmployeeApprovalStatus,
   renderViewDetailButton,
+  resolveNextTableSortDir,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -34,7 +40,8 @@ export function TransferListTableComponent({ onViewDetail }: TransferListTableCo
   const canUpdateTransfer = useHasPermission(PermissionModule.Transfer, PermissionAction.Update)
   const { actionViewDetail, actionUpdateTransfer } = createTransferActions()
 
-  const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const resolveTransferRow = (rowId: string) => findRowById(rowsById, rowId)
 
   const resolveRowActions = (row: TransferTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
@@ -43,14 +50,14 @@ export function TransferListTableComponent({ onViewDetail }: TransferListTableCo
   }
 
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const row = findRowById(tableRow.id)
+    const row = resolveTransferRow(tableRow.id)
     return row ? resolveRowActions(row) : []
   }
 
   const renderCustomCell = createTableCustomRenderer({
     [EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) =>
       renderViewDetailButton(value, () => {
-        const transferRow = findRowById(row.id)
+        const transferRow = resolveTransferRow(row.id)
         if (transferRow) onViewDetail(transferRow)
       }),
     [STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
@@ -59,14 +66,11 @@ export function TransferListTableComponent({ onViewDetail }: TransferListTableCo
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = transferTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortTransfers(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => transferTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, transferTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -74,7 +78,7 @@ export function TransferListTableComponent({ onViewDetail }: TransferListTableCo
         columns={transferTableColumns}
         rows={rows}
         loading={loading}
-        emptyMessage="No hay traspasos registrados."
+        emptyMessage={messages.transfer.ui.emptyList}
         customRenderer={renderCustomCell}
         actionsConfig={{
           columnIndex: ACTIONS_COLUMN_INDEX,

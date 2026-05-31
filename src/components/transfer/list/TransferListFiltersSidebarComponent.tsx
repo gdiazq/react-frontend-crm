@@ -5,7 +5,15 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
+import {
+  mapperEmptyTransferFilters,
+  mapperTransferFiltersFromQuery,
+  mapperTransferFiltersPayload,
+  mapperTransferSelectOptions,
+  mapperTransferStatusSelectOptions,
+} from '@/mappers'
 import { useStoreEmployeeSelects, useStoreTransfer } from '@/store'
+import type { TransferFilterForm } from '@/types'
 
 interface TransferListFiltersSidebarComponentProps {
   open: boolean
@@ -32,49 +40,32 @@ export function TransferListFiltersSidebarComponent({ open, onClose }: TransferL
   const loadingApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.loadingApprovalEmployeeStatusOptions)
   const loadingTransferToCostCenterOptions = useStoreEmployeeSelects((s) => s.loadingTransferToCostCenterOptions)
 
-  const [filters, setFilters] = useState(() => ({
-    status: queryParams.status,
-    toCostCenter: queryParams.toCostCenter,
-    effectiveDateFrom: queryParams.effectiveDateFrom,
-    effectiveDateTo: queryParams.effectiveDateTo,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    updatedFrom: queryParams.updatedFrom,
-    updatedTo: queryParams.updatedTo,
-  }))
+  const [filters, setFilters] = useState<TransferFilterForm>(() => mapperTransferFiltersFromQuery(queryParams))
 
-  const statusSelectOptions = approvalEmployeeStatusOptions.map((option) => ({ label: option.name, value: option.name }))
-  const toCostCenterSelectOptions = transferToCostCenterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const statusSelectOptions = mapperTransferStatusSelectOptions(approvalEmployeeStatusOptions)
+  const toCostCenterSelectOptions = mapperTransferSelectOptions(transferToCostCenterOptions)
   const loadingAny = loadingTransfers || loadingApprovalEmployeeStatusOptions || loadingTransferToCostCenterOptions
 
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+  const handleChangeFilter = (field: keyof TransferFilterForm, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleApply = async () => {
-    setStatusFilter(filters.status.trim())
-    setToCostCenterFilter(filters.toCostCenter.trim())
+    const payload = mapperTransferFiltersPayload(filters)
+    setStatusFilter(payload.status)
+    setToCostCenterFilter(payload.toCostCenter)
     setEffectiveDateRange({
-      effectiveDateFrom: filters.effectiveDateFrom.trim(),
-      effectiveDateTo: filters.effectiveDateTo.trim(),
+      effectiveDateFrom: payload.effectiveDateFrom,
+      effectiveDateTo: payload.effectiveDateTo,
     })
-    setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
-    setUpdatedDateRange({ updatedFrom: filters.updatedFrom.trim(), updatedTo: filters.updatedTo.trim() })
+    setCreatedDateRange({ createdFrom: payload.createdFrom, createdTo: payload.createdTo })
+    setUpdatedDateRange({ updatedFrom: payload.updatedFrom, updatedTo: payload.updatedTo })
     await searchTransfers()
     onClose()
   }
 
   const handleClear = async () => {
-    setFilters({
-      status: '',
-      toCostCenter: '',
-      effectiveDateFrom: '',
-      effectiveDateTo: '',
-      createdFrom: '',
-      createdTo: '',
-      updatedFrom: '',
-      updatedTo: '',
-    })
+    setFilters(mapperEmptyTransferFilters())
     clearStatusFilter()
     clearToCostCenterFilter()
     clearEffectiveDateRange()

@@ -31,6 +31,7 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
     transferRows: [...initialTransferRows],
     pagination: { ...initialTransferPagination },
     queryParams: { ...initialTransferQueryParams },
+    exportingCsv: false,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
     projectCostCenterOptions: [],
@@ -209,11 +210,19 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
     },
 
     exportTransfersCsv: async () => {
+      if (get().exportingCsv) return false
       try {
+        set({ exportingCsv: true })
+        clearOp('list')
         const blob = await transferService.exportTransfersCsv()
         downloadBlobFile(blob, 'transfers.csv')
+        setOpSuccess('list', messages.transfer.status.success.exportSuccess)
+        return true
       } catch (error) {
         setOpError('list', resolveErrorMessage(error, messages.transfer.status.errors.exportError), error)
+        return false
+      } finally {
+        set({ exportingCsv: false })
       }
     },
 
@@ -246,6 +255,9 @@ export const useStoreTransfer = create<TransferStore>()((set, get) => {
     },
 
     clearTransferDetail: () => {
+      latestDetailRequestId += 1
+      setOpLoading('detail', false)
+      clearOp('detail')
       set({ transferDetail: null })
     },
 

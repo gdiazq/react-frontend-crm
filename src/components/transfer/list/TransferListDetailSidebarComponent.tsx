@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { DetailSidebarComponent, TransferDetailComponent } from '@/components'
 import { AUTH_ROUTE_TRANSFERS_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperTransferDetailView } from '@/mappers'
+import messages from '@/messages/messages'
 import { storageService } from '@/services'
 import { useStoreTransfer } from '@/store'
 import { useHasPermission } from '@/hooks'
@@ -42,7 +43,7 @@ export function TransferListDetailSidebarComponent({ rowId, fallbackName, onClos
     ? `Detalle de ${detailView.employeeFullNameDisplay}`
     : fallbackName
       ? `Detalle de ${fallbackName}`
-      : 'Detalle de traspaso'
+      : messages.transfer.ui.detailTitleFallback
 
   return (
     <DetailSidebarComponent open={rowId !== null} title={detailTitle} onClose={handleClose}>

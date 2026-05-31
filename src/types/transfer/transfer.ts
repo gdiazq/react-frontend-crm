@@ -61,6 +61,8 @@ export interface TransferCreateForm {
   reason: string
 }
 
+export type TransferFormField = keyof TransferCreateForm
+
 export interface TransferCreatePayload {
   employeeId: number
   toCostCenter: number
@@ -79,8 +81,34 @@ export type TransferCreateResponse = TransferRaw
 
 export interface TransferTableRow {
   id: string
+  displayName: string
   values: string[]
 }
+
+export interface TransferSelectOption {
+  label: string
+  value: string
+}
+
+export interface TransferCurrentSelectOption {
+  enabled: boolean
+  value: string
+  label: string
+  fallbackLabel: string
+}
+
+export interface TransferFilterForm {
+  status: string
+  toCostCenter: string
+  effectiveDateFrom: string
+  effectiveDateTo: string
+  createdFrom: string
+  createdTo: string
+  updatedFrom: string
+  updatedTo: string
+}
+
+export type TransferFilterPayload = TransferFilterForm
 
 export type TransferSortBy =
   | 'employeeFullName'

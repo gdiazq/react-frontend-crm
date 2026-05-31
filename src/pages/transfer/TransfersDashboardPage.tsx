@@ -7,11 +7,9 @@ import {
   TransferListTableComponent,
   TransferListToolbarComponent,
 } from '@/components'
-import { transferTableColumnIndex } from '@/factories'
+import { mapperTransferTableDisplayName } from '@/mappers'
 import { useStoreEmployeeSelects, useStoreTransfer } from '@/store'
 import type { TransferTableRow } from '@/types'
-
-const EMPLOYEE_NAME_COLUMN_INDEX = transferTableColumnIndex.employeeName
 
 export default function TransfersDashboardPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -38,7 +36,7 @@ export default function TransfersDashboardPage() {
 
   const handleViewDetail = (row: TransferTableRow) => {
     setDetailRowId(row.id)
-    setDetailName(String(row.values[EMPLOYEE_NAME_COLUMN_INDEX] ?? 'Traspaso'))
+    setDetailName(mapperTransferTableDisplayName(row))
   }
 
   const handleCloseDetail = () => {

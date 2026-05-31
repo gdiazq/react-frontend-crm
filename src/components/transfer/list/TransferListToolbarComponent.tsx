@@ -9,6 +9,7 @@ import {
 import { AUTH_ROUTE_TRANSFERS_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import { useStoreTransfer } from '@/store'
 import { useHasPermission } from '@/hooks'
+import messages from '@/messages/messages'
 
 interface TransferListToolbarComponentProps {
   onOpenFilters: () => void
@@ -18,18 +19,17 @@ export function TransferListToolbarComponent({ onOpenFilters }: TransferListTool
   const navigate = useNavigate()
   const search = useStoreTransfer((s) => s.queryParams.search)
   const loading = useStoreTransfer((s) => s.operationLoading.list)
+  const exportingCsv = useStoreTransfer((s) => s.exportingCsv)
   const setSearch = useStoreTransfer((s) => s.setSearch)
   const searchTransfers = useStoreTransfer((s) => s.searchTransfers)
   const exportTransfersCsv = useStoreTransfer((s) => s.exportTransfersCsv)
   const canCreateTransfer = useHasPermission(PermissionModule.Transfer, PermissionAction.Create)
-  const [exportingCsv, setExportingCsv] = useState(false)
   const [actionsMessage, setActionsMessage] = useState('')
 
   const handleDownloadCsv = async () => {
     if (exportingCsv) return
-    setExportingCsv(true)
-    await exportTransfersCsv()
-    setExportingCsv(false)
+    const success = await exportTransfersCsv()
+    if (success) setActionsMessage(messages.transfer.status.success.exportSuccess)
   }
 
   return (
@@ -74,7 +74,7 @@ export function TransferListToolbarComponent({ onOpenFilters }: TransferListTool
             disabled={loading || exportingCsv}
             showBulkUpload={false}
             onDownloadReport={() => { void handleDownloadCsv() }}
-            onBulkUpload={() => setActionsMessage('La carga masiva de traspasos aún no está disponible.')}
+            onBulkUpload={() => setActionsMessage(messages.transfer.ui.bulkUploadComingSoon)}
           />
         </div>
       </form>

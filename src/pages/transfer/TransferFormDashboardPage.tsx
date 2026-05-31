@@ -18,25 +18,18 @@ import {
   mapperTransferDetailToForm,
   mapperCreateTransferPayload,
   mapperTransferExistingFiles,
+  mapperTransferSelectOptions,
+  mapperTransferSelectOptionsWithCurrent,
   mapperUpdateTransferPayload,
 } from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreTransfer, useStoreSettlementSelects } from '@/store'
 import type {
-  TransferCreatePayload,
-  TransferUpdatePayload,
   TransferDocument,
+  TransferFormField,
 } from '@/types'
 import { mergeUniqueFiles } from '@/utils'
 import { transferCreateValidationRules } from '@/validators'
-
-const toSelectOptions = (options: Array<{ id: number, name: string }>) =>
-  options.map((option) => ({ label: option.name, value: String(option.id) }))
-
-type PendingAction =
-  | { mode: 'create', payload: TransferCreatePayload, files: File[] }
-  | { mode: 'update', payload: TransferUpdatePayload, files: File[] }
-  | null
 
 export default function TransferFormDashboardPage() {
   const navigate = useNavigate()
@@ -52,7 +45,6 @@ export default function TransferFormDashboardPage() {
   const [transferFiles, setTransferFiles] = useState<File[]>([])
   const [filesError, setFilesError] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const loadingTransferDetail = useStoreTransfer((s) => s.operationLoading.detail)
   const detailError = useStoreTransfer((s) => s.operationStatus.detail.error)
@@ -93,21 +85,25 @@ export default function TransferFormDashboardPage() {
   const submitSuccessMessage = activeStatus.success
   const canSubmit = !saving && !loadingEmployeeWithContractOptions && !loadingCostCenterOptions
 
-  const selectEmployees = toSelectOptions(employeeWithContractOptions)
-  const shouldIncludeCurrentEmployee = isEditMode
-    && form.employeeId.trim().length > 0
-    && !selectEmployees.some((option) => option.value === form.employeeId)
-  const selectEmployeesWithCurrent = shouldIncludeCurrentEmployee
-    ? [{ label: editEmployeeLabel || `Trabajador #${form.employeeId}`, value: form.employeeId }, ...selectEmployees]
-    : selectEmployees
+  const selectEmployees = mapperTransferSelectOptionsWithCurrent(
+    mapperTransferSelectOptions(employeeWithContractOptions),
+    {
+      enabled: isEditMode,
+      value: form.employeeId,
+      label: editEmployeeLabel,
+      fallbackLabel: `Trabajador #${form.employeeId}`,
+    },
+  )
 
-  const selectCostCenters = toSelectOptions(projectCostCenterOptions)
-  const shouldIncludeCurrentCostCenter = isEditMode
-    && form.toCostCenter.trim().length > 0
-    && !selectCostCenters.some((option) => option.value === form.toCostCenter)
-  const selectCostCentersWithCurrent = shouldIncludeCurrentCostCenter
-    ? [{ label: editCostCenterLabel || `Centro #${form.toCostCenter}`, value: form.toCostCenter }, ...selectCostCenters]
-    : selectCostCenters
+  const selectCostCenters = mapperTransferSelectOptionsWithCurrent(
+    mapperTransferSelectOptions(projectCostCenterOptions),
+    {
+      enabled: isEditMode,
+      value: form.toCostCenter,
+      label: editCostCenterLabel,
+      fallbackLabel: `Centro #${form.toCostCenter}`,
+    },
+  )
   const existingFiles = mapperTransferExistingFiles(existingDocuments)
 
   useEffect(() => {
@@ -162,12 +158,12 @@ export default function TransferFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateTransferForm, value: string) => {
+  const handleChangeField = (field: TransferFormField, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
-  const handleFieldValueChange = (field: keyof typeof initialCreateTransferForm) => (value: string) => {
+  const handleFieldValueChange = (field: TransferFormField) => (value: string) => {
     handleChangeField(field, value)
   }
 
@@ -179,33 +175,25 @@ export default function TransferFormDashboardPage() {
       return
     }
 
-    if (isEditMode) {
-      setPendingAction({
-        mode: 'update',
-        payload: mapperUpdateTransferPayload(editTransferId, form),
-        files: [...transferFiles],
-      })
-    } else {
-      setPendingAction({
-        mode: 'create',
-        payload: mapperCreateTransferPayload(form),
-        files: [...transferFiles],
-      })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
-    const success = pendingAction.mode === 'create'
-      ? await createTransfer(pendingAction.payload, pendingAction.files)
-      : await updateTransfer(pendingAction.payload, pendingAction.files)
+    if (saving || !validateAll()) return
+    if (transferFiles.length > TRANSFER_FILES_MAX_COUNT) {
+      setFilesError(messages.transfer.status.errors.filesMaxCountError)
+      return
+    }
+
+    const files = [...transferFiles]
+    const success = isEditMode
+      ? await updateTransfer(mapperUpdateTransferPayload(editTransferId, form), files)
+      : await createTransfer(mapperCreateTransferPayload(form), files)
 
     if (success) {
       navigate(AUTH_ROUTE_TRANSFERS)
@@ -213,7 +201,6 @@ export default function TransferFormDashboardPage() {
     }
 
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleAddFiles = (incomingFiles: File[]) => {
@@ -263,7 +250,7 @@ export default function TransferFormDashboardPage() {
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? '¿Deseas guardar los cambios del traspaso?'
     : '¿Deseas crear el traspaso?'
   const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'
@@ -340,8 +327,8 @@ export default function TransferFormDashboardPage() {
           form={form}
           errors={errors}
           isEditMode={isEditMode}
-          employeeOptions={selectEmployeesWithCurrent}
-          costCenterOptions={selectCostCentersWithCurrent}
+          employeeOptions={selectEmployees}
+          costCenterOptions={selectCostCenters}
           loadingEmployeeOptions={loadingEmployeeWithContractOptions}
           loadingCostCenterOptions={loadingCostCenterOptions}
           onChangeField={handleFieldValueChange}

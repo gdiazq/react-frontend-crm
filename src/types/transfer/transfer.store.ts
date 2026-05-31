@@ -18,6 +18,7 @@ export interface TransferStore {
   transferRows: TransferTableRow[]
   pagination: TransferPagination
   queryParams: TransferQueryParams
+  exportingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   projectCostCenterOptions: ProjectCostCenterSelectOption[]
@@ -28,7 +29,7 @@ export interface TransferStore {
   getTransferDetail: (id: string) => Promise<TransferDetail | null>
   createTransfer: (payload: TransferCreatePayload, files?: File[]) => Promise<boolean>
   updateTransfer: (payload: TransferUpdatePayload, files?: File[]) => Promise<boolean>
-  exportTransfersCsv: () => Promise<void>
+  exportTransfersCsv: () => Promise<boolean>
   getProjectCostCenterOptions: () => Promise<void>
   getProjectCostCenterOption: (costCenter: number) => Promise<void>
   goToPage: (page: number) => Promise<void>

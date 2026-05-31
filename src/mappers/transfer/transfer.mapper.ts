@@ -5,10 +5,14 @@ import type {
   TransferDetailView,
   TransferDocumentView,
   TransferExistingFileView,
+  TransferCurrentSelectOption,
+  TransferFilterForm,
+  TransferFilterPayload,
   TransferPagedResponse,
   TransferPagination,
   TransferQueryParams,
   TransferRaw,
+  TransferSelectOption,
   TransferTableRow,
   TransferUpdatePayload,
 } from '@/types'
@@ -20,6 +24,7 @@ import { formatDate } from '@/utils'
 export function mapperTransferRows(result: TransferRaw[]): TransferTableRow[] {
   return result.map((item) => ({
     id: String(item.id),
+    displayName: item.employeeFullName,
     values: [
       item.employeeFullName,
       item.employeeIdentification,
@@ -32,6 +37,70 @@ export function mapperTransferRows(result: TransferRaw[]): TransferTableRow[] {
       '',
     ],
   }))
+}
+
+export function mapperTransferTableDisplayName(row: TransferTableRow | null) {
+  return row?.displayName?.trim() || 'Traspaso'
+}
+
+export function mapperTransferSelectOptions(options: Array<{ id: number, name: string }>): TransferSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperTransferSelectOptionsWithCurrent(
+  options: TransferSelectOption[],
+  current: TransferCurrentSelectOption,
+): TransferSelectOption[] {
+  const shouldIncludeCurrent = current.enabled
+    && current.value.trim().length > 0
+    && !options.some((option) => option.value === current.value)
+
+  return shouldIncludeCurrent
+    ? [{ label: current.label || current.fallbackLabel, value: current.value }, ...options]
+    : options
+}
+
+export function mapperTransferFiltersFromQuery(queryParams: TransferQueryParams): TransferFilterForm {
+  return {
+    status: queryParams.status,
+    toCostCenter: queryParams.toCostCenter,
+    effectiveDateFrom: queryParams.effectiveDateFrom,
+    effectiveDateTo: queryParams.effectiveDateTo,
+    createdFrom: queryParams.createdFrom,
+    createdTo: queryParams.createdTo,
+    updatedFrom: queryParams.updatedFrom,
+    updatedTo: queryParams.updatedTo,
+  }
+}
+
+export function mapperTransferFiltersPayload(filters: TransferFilterForm): TransferFilterPayload {
+  return {
+    status: filters.status.trim(),
+    toCostCenter: filters.toCostCenter.trim(),
+    effectiveDateFrom: filters.effectiveDateFrom.trim(),
+    effectiveDateTo: filters.effectiveDateTo.trim(),
+    createdFrom: filters.createdFrom.trim(),
+    createdTo: filters.createdTo.trim(),
+    updatedFrom: filters.updatedFrom.trim(),
+    updatedTo: filters.updatedTo.trim(),
+  }
+}
+
+export function mapperEmptyTransferFilters(): TransferFilterForm {
+  return {
+    status: '',
+    toCostCenter: '',
+    effectiveDateFrom: '',
+    effectiveDateTo: '',
+    createdFrom: '',
+    createdTo: '',
+    updatedFrom: '',
+    updatedTo: '',
+  }
+}
+
+export function mapperTransferStatusSelectOptions(options: Array<{ name: string }>): TransferSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: option.name }))
 }
 
 export function mapperTransferPagination(result: TransferPagedResponse): TransferPagination {
