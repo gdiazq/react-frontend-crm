@@ -12,7 +12,11 @@ import { useFormValidation, useSettingsInit } from '@/hooks'
 import { AUTH_ROUTE_LOGIN } from '@/constant'
 import { initialUpdateAvatarForm, initialUpdateProfileForm } from '@/factories'
 import { settingsUpdateProfileValidationRules } from '@/validators'
-import { mapperUpdateProfilePayload } from '@/mappers'
+import {
+  mapperSettingAvatarFileValidation,
+  mapperSettingAvatarView,
+  mapperUpdateProfilePayload,
+} from '@/mappers'
 import messages from '@/messages/messages'
 import { useStoreAuth, useStoreSettings } from '@/store'
 import { selectActiveSessions, selectMfaStatusClass, selectMfaStatusLabel } from '@/store/settings.store'
@@ -68,17 +72,11 @@ export default function SettingsPage() {
     setProfile,
   })
 
-  const userAvatarUrl = user?.avatarUrl ?? ''
-  const avatarDisplayUrl = avatarForm.previewUrl || userAvatarUrl
-  const avatarInitials = (() => {
-    const first = profile.firstName.trim().charAt(0)
-    const last = profile.lastName.trim().charAt(0)
-    return `${first}${last}`.trim().toUpperCase() || 'U'
-  })()
+  const avatarView = mapperSettingAvatarView(profile, avatarForm.previewUrl, user?.avatarUrl ?? '')
 
   const handleEnableMfa = async () => {
     const success = await setupMfa(currentUsername)
-    if (success) await buildMfaQrImage()
+    if (success) await buildMfaQrImage(useStoreSettings.getState().mfaSetupData, currentUsername)
   }
 
   const handleLogoutDevice = async (id: string) => {
@@ -100,8 +98,9 @@ export default function SettingsPage() {
     const file = event.target.files?.[0]
     setAvatarError(null)
     if (!file) { setAvatarForm((form) => ({ ...form, file: null, previewUrl: '' })); return }
-    if (!file.type.startsWith('image/')) {
-      setAvatarError(messages.settings.status.errors.avatarInvalidFile)
+    const validation = mapperSettingAvatarFileValidation(file)
+    if (!validation.valid) {
+      setAvatarError(validation.message)
       setAvatarForm((form) => ({ ...form, file: null, previewUrl: '' }))
       event.target.value = ''
       return
@@ -146,8 +145,8 @@ export default function SettingsPage() {
           profile={profile}
           profileErrors={profileErrors}
           avatarForm={avatarForm}
-          avatarDisplayUrl={avatarDisplayUrl}
-          avatarInitials={avatarInitials}
+          avatarDisplayUrl={avatarView.displayUrl}
+          avatarInitials={avatarView.initials}
           avatarError={avatarError}
           avatarInputRef={avatarInputRef}
           updateProfileSubmitting={updateProfileSubmitting}

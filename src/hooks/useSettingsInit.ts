@@ -26,16 +26,13 @@ export function useSettingsInit({
   setProfile,
 }: UseSettingsInitOptions) {
   const [mfaQrImage, setMfaQrImage] = useState('')
+  const didInitRef = useRef(false)
 
-  // Latest-ref pattern: buildMfaQrImage is stable but always reads fresh data
-  const mfaSetupDataRef = useRef(mfaSetupData)
-  mfaSetupDataRef.current = mfaSetupData
-  const currentUsernameRef = useRef(currentUsername)
-  currentUsernameRef.current = currentUsername
-
-  const buildMfaQrImage = useCallback(async () => {
-    const data = mfaSetupDataRef.current
-    const username = currentUsernameRef.current
+  const buildMfaQrImage = useCallback(async (
+    setupData: SettingMfaSetupData = mfaSetupData,
+    username: string = currentUsername,
+  ) => {
+    const data = setupData
     const value =
       data.otpauthUri ||
       data.qrCodeUrl ||
@@ -51,9 +48,12 @@ export function useSettingsInit({
     } catch {
       setMfaQrImage('')
     }
-  }, [])
+  }, [currentUsername, mfaSetupData])
 
   useEffect(() => {
+    if (didInitRef.current) return
+    didInitRef.current = true
+
     const init = async () => {
       await getCurrentUser()
       const u = useStoreAuth.getState().user
@@ -62,8 +62,7 @@ export function useSettingsInit({
       await buildMfaQrImage()
     }
     init()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [buildMfaQrImage, getCurrentUser, loadMfaAndSessions, setProfile])
 
   return { mfaQrImage, buildMfaQrImage }
 }

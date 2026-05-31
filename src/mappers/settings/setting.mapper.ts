@@ -6,6 +6,8 @@ import type {
   SettingMfaSetupDataRaw,
   SettingMfaStatusResponse,
   SettingMfaState,
+  SettingAvatarFileValidation,
+  SettingAvatarView,
   SettingUpdateProfileForm,
   SettingUpdateAvatarPayload,
   SettingUpdateProfilePayload,
@@ -36,6 +38,28 @@ export function mapperSettingProfileForm(user: AuthUser): SettingUpdateProfileFo
     lastName: user.lastName,
     phoneNumber: user.phoneNumber ?? '',
   }
+}
+
+export function mapperSettingAvatarView(
+  profile: SettingUpdateProfileForm,
+  previewUrl: string,
+  currentAvatarUrl: string,
+): SettingAvatarView {
+  const first = profile.firstName.trim().charAt(0)
+  const last = profile.lastName.trim().charAt(0)
+
+  return {
+    displayUrl: previewUrl || currentAvatarUrl,
+    initials: `${first}${last}`.trim().toUpperCase() || 'U',
+  }
+}
+
+export function mapperSettingAvatarFileValidation(file: File | null | undefined): SettingAvatarFileValidation {
+  if (!file) return { valid: true, message: null }
+  if (!file.type.startsWith('image/')) {
+    return { valid: false, message: messages.settings.status.errors.avatarInvalidFile }
+  }
+  return { valid: true, message: null }
 }
 
 export function mapperMfaStateFromResponse(data: SettingMfaStatusResponse): SettingMfaState {

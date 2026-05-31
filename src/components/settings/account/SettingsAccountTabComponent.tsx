@@ -1,14 +1,12 @@
 import { ButtonComponent, InputComponent } from '@/components'
 import type { RefObject } from 'react'
-import type { initialUpdateProfileForm } from '@/factories'
-import type { SettingUpdateAvatarForm } from '@/types'
+import type { SettingUpdateAvatarForm, SettingUpdateProfileForm } from '@/types'
 import { SettingsCardComponent, SettingsSectionTitleComponent, SettingsUserIcon } from '../shared'
 
-type SettingsProfileForm = typeof initialUpdateProfileForm
-type SettingsProfileField = keyof SettingsProfileForm
+type SettingsProfileField = keyof SettingUpdateProfileForm
 
 interface SettingsAccountTabComponentProps {
-  profile: SettingsProfileForm
+  profile: SettingUpdateProfileForm
   profileErrors: Partial<Record<SettingsProfileField, string>>
   avatarForm: SettingUpdateAvatarForm
   avatarDisplayUrl: string

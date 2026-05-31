@@ -7,6 +7,8 @@ export type {
   SettingMfaSetupData,
   SettingTabKey,
   SettingTabOption,
+  SettingAvatarView,
+  SettingAvatarFileValidation,
 } from './setting'
 export type { SettingsStore } from './settings.store'
 export type {

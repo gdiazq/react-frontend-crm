@@ -46,3 +46,13 @@ export interface SettingTabOption {
   key: SettingTabKey
   label: string
 }
+
+export interface SettingAvatarView {
+  displayUrl: string
+  initials: string
+}
+
+export interface SettingAvatarFileValidation {
+  valid: boolean
+  message: string | null
+}
