@@ -79,7 +79,7 @@ export default function AttendanceFormDashboardPage() {
   const { errors, validateAll, onValidation } = useFormValidation(form, attendanceMarkCreateValidationRules)
 
   const saving = createMarkSubmitting || updateMarkSubmitting
-  const isUpdatingExistingMark = isEditMode && editingMarkId != null
+  const isUpdatingExistingMark = isEditMode && editingMarkId !== null
   const submitLabel = isUpdatingExistingMark ? 'Guardar cambios' : 'Crear marca'
   const submitLoadingLabel = isUpdatingExistingMark ? 'Guardando cambios...' : 'Creando marca...'
   const headerTitle = isEditMode ? 'Editar marca' : 'Crear marca'
@@ -114,7 +114,7 @@ export default function AttendanceFormDashboardPage() {
   )
 
   const selectedAttendanceEmployee = attendanceEmployeeOptions.find((opt) => String(opt.id) === form.employeeId) ?? null
-  const selectedEmployeeCostCenter = selectedAttendanceEmployee?.costCenter != null
+  const selectedEmployeeCostCenter = selectedAttendanceEmployee?.costCenter !== null && selectedAttendanceEmployee?.costCenter !== undefined
     ? String(selectedAttendanceEmployee.costCenter)
     : ''
   const selectedEmployeeCostCenterOption = selectedEmployeeCostCenter
@@ -185,7 +185,7 @@ export default function AttendanceFormDashboardPage() {
       setEditingMarkId(firstMark.id)
       setEditingAttendanceId(firstMark.attendanceId ?? editAttendanceId)
       setForm(mapperAttendanceMarkToForm(firstMark))
-      if (firstMark.costCenter != null) {
+      if (firstMark.costCenter !== null && firstMark.costCenter !== undefined) {
         setEditCostCenterLabel((firstMark.projectName ?? '').trim())
         void getProjectCostCenterOption(firstMark.costCenter)
       }
@@ -216,7 +216,7 @@ export default function AttendanceFormDashboardPage() {
       setEditingMarkId(matching.id)
       setEditingAttendanceId(matching.attendanceId ?? editAttendanceId)
       setForm(mapperAttendanceMarkToForm(matching))
-      if (matching.costCenter != null) {
+      if (matching.costCenter !== null && matching.costCenter !== undefined) {
         setEditCostCenterLabel((matching.projectName ?? '').trim())
         void getProjectCostCenterOption(matching.costCenter)
       }
@@ -228,7 +228,7 @@ export default function AttendanceFormDashboardPage() {
 
   const handleChangeEmployee = (value: string) => {
     const employee = attendanceEmployeeOptions.find((opt) => String(opt.id) === value)
-    const costCenter = employee?.costCenter != null ? String(employee.costCenter) : ''
+    const costCenter = employee?.costCenter !== null && employee?.costCenter !== undefined ? String(employee.costCenter) : ''
     setForm((prev) => ({ ...prev, employeeId: value, costCenter }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
@@ -243,11 +243,11 @@ export default function AttendanceFormDashboardPage() {
 
     const basePayload = mapperCreateAttendanceMarkPayload(form)
 
-    if (isUpdatingExistingMark && editingMarkId != null) {
+    if (isUpdatingExistingMark && editingMarkId !== null) {
       const payload = mapperUpdateAttendanceMarkPayload(editingMarkId, editingAttendanceId, form)
       setPendingAction({ mode: 'update', payload })
     } else {
-      const payload: AttendanceMarkCreatePayload = isEditMode && editingAttendanceId != null
+      const payload: AttendanceMarkCreatePayload = isEditMode && editingAttendanceId !== null
         ? { ...basePayload, attendanceId: editingAttendanceId }
         : basePayload
       setPendingAction({ mode: 'create', payload })

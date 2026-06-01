@@ -127,6 +127,23 @@ export type AttendanceExportQueryParams = Pick<
   'search' | 'employeeId' | 'costCenter' | 'statusId' | 'dateFrom' | 'dateTo'
 >
 
+export interface AttendanceFilterForm {
+  employeeId: string
+  costCenter: string
+  statusId: string
+  dateFrom: string
+  dateTo: string
+  createdFrom: string
+  createdTo: string
+  updatedFrom: string
+  updatedTo: string
+}
+
+export interface AttendanceFilterSelectOption {
+  label: string
+  value: string
+}
+
 export interface AttendancePagedResponse {
   content: AttendanceRaw[]
   page?: number

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   ButtonComponent,
   DateRangePickerComponent,
@@ -6,9 +6,16 @@ import {
   SelectComponent,
 } from '@/components'
 import {
+  mapperAttendanceFiltersFromQuery,
+  mapperAttendanceFiltersPayload,
+  mapperAttendanceSelectOptions,
+  mapperEmptyAttendanceFilters,
+} from '@/mappers'
+import {
   useStoreAttendance,
   useStoreAttendanceSelects,
 } from '@/store'
+import type { AttendanceFilterForm } from '@/types'
 
 interface AttendanceListFiltersSidebarComponentProps {
   open: boolean
@@ -39,75 +46,32 @@ export function AttendanceListFiltersSidebarComponent(props: AttendanceListFilte
   const projectCostCenterOptions = useStoreAttendanceSelects((s) => s.projectCostCenterOptions)
   const loadingCostCenterOptions = useStoreAttendanceSelects((s) => s.loadingProjectCostCenterOptions)
 
-  const [filters, setFilters] = useState(() => ({
-    employeeId: queryParams.employeeId,
-    costCenter: queryParams.costCenter,
-    statusId: queryParams.statusId,
-    dateFrom: queryParams.dateFrom,
-    dateTo: queryParams.dateTo,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    updatedFrom: queryParams.updatedFrom,
-    updatedTo: queryParams.updatedTo,
-  }))
+  const [filters, setFilters] = useState<AttendanceFilterForm>(() => mapperAttendanceFiltersFromQuery(queryParams))
 
-  useEffect(() => {
-    setFilters({
-      employeeId: queryParams.employeeId,
-      costCenter: queryParams.costCenter,
-      statusId: queryParams.statusId,
-      dateFrom: queryParams.dateFrom,
-      dateTo: queryParams.dateTo,
-      createdFrom: queryParams.createdFrom,
-      createdTo: queryParams.createdTo,
-      updatedFrom: queryParams.updatedFrom,
-      updatedTo: queryParams.updatedTo,
-    })
-  }, [
-    queryParams.employeeId,
-    queryParams.costCenter,
-    queryParams.statusId,
-    queryParams.dateFrom,
-    queryParams.dateTo,
-    queryParams.createdFrom,
-    queryParams.createdTo,
-    queryParams.updatedFrom,
-    queryParams.updatedTo,
-  ])
-
-  const employeeSelectOptions = employeeWithContractOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const attendanceStatusSelectOptions = attendanceStatusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const costCenterSelectOptions = projectCostCenterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const employeeSelectOptions = mapperAttendanceSelectOptions(employeeWithContractOptions)
+  const attendanceStatusSelectOptions = mapperAttendanceSelectOptions(attendanceStatusOptions)
+  const costCenterSelectOptions = mapperAttendanceSelectOptions(projectCostCenterOptions)
 
   const loadingAny = loadingAttendance || loadingAttendanceFormOptions || loadingCostCenterOptions
 
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+  const handleChangeFilter = (field: keyof AttendanceFilterForm, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleApply = async () => {
-    setEmployeeFilter(filters.employeeId)
-    setCostCenterFilter(filters.costCenter.trim())
-    setStatusFilter(filters.statusId)
-    setDateRange({ dateFrom: filters.dateFrom.trim(), dateTo: filters.dateTo.trim() })
-    setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
-    setUpdatedDateRange({ updatedFrom: filters.updatedFrom.trim(), updatedTo: filters.updatedTo.trim() })
+    const payload = mapperAttendanceFiltersPayload(filters)
+    setEmployeeFilter(payload.employeeId)
+    setCostCenterFilter(payload.costCenter)
+    setStatusFilter(payload.statusId)
+    setDateRange({ dateFrom: payload.dateFrom, dateTo: payload.dateTo })
+    setCreatedDateRange({ createdFrom: payload.createdFrom, createdTo: payload.createdTo })
+    setUpdatedDateRange({ updatedFrom: payload.updatedFrom, updatedTo: payload.updatedTo })
     await searchAttendance()
     onClose()
   }
 
   const handleClear = async () => {
-    setFilters({
-      employeeId: '',
-      costCenter: '',
-      statusId: '',
-      dateFrom: '',
-      dateTo: '',
-      createdFrom: '',
-      createdTo: '',
-      updatedFrom: '',
-      updatedTo: '',
-    })
+    setFilters(mapperEmptyAttendanceFilters())
     clearEmployeeFilter()
     clearCostCenterFilter()
     clearStatusFilter()

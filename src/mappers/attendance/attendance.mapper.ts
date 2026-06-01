@@ -4,6 +4,8 @@ import type {
   AttendanceDetail,
   AttendanceDetailView,
   AttendanceExportQueryParams,
+  AttendanceFilterForm,
+  AttendanceFilterSelectOption,
   AttendanceMarkCreateForm,
   AttendanceMarkCreatePayload,
   AttendanceMarkRaw,
@@ -133,6 +135,52 @@ export function mapperAttendanceExportQueryParams(result: AttendanceExportQueryP
   return params
 }
 
+export function mapperAttendanceFiltersFromQuery(result: AttendanceQueryParams): AttendanceFilterForm {
+  return {
+    employeeId: result.employeeId,
+    costCenter: result.costCenter,
+    statusId: result.statusId,
+    dateFrom: result.dateFrom,
+    dateTo: result.dateTo,
+    createdFrom: result.createdFrom,
+    createdTo: result.createdTo,
+    updatedFrom: result.updatedFrom,
+    updatedTo: result.updatedTo,
+  }
+}
+
+export function mapperEmptyAttendanceFilters(): AttendanceFilterForm {
+  return {
+    employeeId: '',
+    costCenter: '',
+    statusId: '',
+    dateFrom: '',
+    dateTo: '',
+    createdFrom: '',
+    createdTo: '',
+    updatedFrom: '',
+    updatedTo: '',
+  }
+}
+
+export function mapperAttendanceFiltersPayload(filters: AttendanceFilterForm): AttendanceFilterForm {
+  return {
+    employeeId: filters.employeeId,
+    costCenter: filters.costCenter.trim(),
+    statusId: filters.statusId,
+    dateFrom: filters.dateFrom.trim(),
+    dateTo: filters.dateTo.trim(),
+    createdFrom: filters.createdFrom.trim(),
+    createdTo: filters.createdTo.trim(),
+    updatedFrom: filters.updatedFrom.trim(),
+    updatedTo: filters.updatedTo.trim(),
+  }
+}
+
+export function mapperAttendanceSelectOptions(options: Array<{ id: number | string, name: string }>): AttendanceFilterSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
 export function mapperCreateAttendancePayload(form: AttendanceCreateForm): AttendanceCreatePayload {
   return {
     employeeId: parseRequiredNumber(form.employeeId),
@@ -199,7 +247,7 @@ export function mapperAttendanceMarkToForm(mark: AttendanceMarkRaw): AttendanceM
     markType: mark.markType,
     employeeId: String(mark.employeeId),
     statusId: '',
-    costCenter: mark.costCenter != null ? String(mark.costCenter) : '',
+    costCenter: mark.costCenter !== null && mark.costCenter !== undefined ? String(mark.costCenter) : '',
     date: normalizeDateValue(mark.date),
     markTime: normalizeMarkTimeValue(mark.markTime),
     notes: mark.notes ?? '',

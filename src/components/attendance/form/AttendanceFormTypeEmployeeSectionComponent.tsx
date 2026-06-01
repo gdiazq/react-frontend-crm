@@ -73,7 +73,7 @@ export function AttendanceFormTypeEmployeeSectionComponent(props: AttendanceForm
             required
           />
         </div>
-        {isEditMode && !loadingAttendanceMarks && form.markType && editingMarkId == null && (
+        {isEditMode && !loadingAttendanceMarks && form.markType && editingMarkId === null && (
           <p className="text-[11px] text-amber-600 dark:text-amber-400">
             Esta asistencia aún no tiene una marca de este tipo. Se creará una nueva.
           </p>
