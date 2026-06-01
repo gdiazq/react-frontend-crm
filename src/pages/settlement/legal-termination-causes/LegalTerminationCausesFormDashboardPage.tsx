@@ -15,13 +15,8 @@ import {
   mapperUpdateLegalTerminationCausePayload,
 } from '@/mappers'
 import { useStoreLegalTerminationCauses } from '@/store'
-import type { LegalTerminationCauseCreatePayload, LegalTerminationCauseUpdatePayload } from '@/types'
+import type { LegalTerminationCauseFormField } from '@/types'
 import { legalTerminationCausesCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: LegalTerminationCauseCreatePayload }
-  | { mode: 'update', payload: LegalTerminationCauseUpdatePayload }
-  | null
 
 export default function SettlementsTerminationFormDashboardPage() {
   const navigate = useNavigate()
@@ -32,7 +27,6 @@ export default function SettlementsTerminationFormDashboardPage() {
 
   const [form, setForm] = useState({ ...initialCreateLegalTerminationCauseForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const loadingLegalTerminationCauseDetail = useStoreLegalTerminationCauses((s) => s.operationLoading.detail)
   const detailError = useStoreLegalTerminationCauses((s) => s.operationStatus.detail.error)
@@ -93,7 +87,7 @@ export default function SettlementsTerminationFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialCreateLegalTerminationCauseForm) => (value: string) => {
+  const handleChangeField = (field: LegalTerminationCauseFormField) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
@@ -102,26 +96,21 @@ export default function SettlementsTerminationFormDashboardPage() {
     event.preventDefault()
     if (!validateAll()) return
 
-    if (isEditMode) {
-      setPendingAction({ mode: 'update', payload: mapperUpdateLegalTerminationCausePayload(editLegalTerminationCauseId, form) })
-    } else {
-      setPendingAction({ mode: 'create', payload: mapperCreateLegalTerminationCausePayload(form) })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
+    if (saving) return
+    if (!validateAll()) return
 
-    const success = pendingAction.mode === 'create'
-      ? await createLegalTerminationCause(pendingAction.payload)
-      : await updateLegalTerminationCause(pendingAction.payload)
+    const success = isEditMode
+      ? await updateLegalTerminationCause(mapperUpdateLegalTerminationCausePayload(editLegalTerminationCauseId, form))
+      : await createLegalTerminationCause(mapperCreateLegalTerminationCausePayload(form))
 
     if (success) {
       navigate(AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES)
@@ -129,10 +118,9 @@ export default function SettlementsTerminationFormDashboardPage() {
     }
 
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? `¿Deseas guardar los cambios de la causa ${form.name}?`
     : `¿Deseas crear la causa ${form.name}?`
   const heroWords = headerTitle.trim().split(/\s+/).filter(Boolean)

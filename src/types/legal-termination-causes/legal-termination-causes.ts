@@ -31,6 +31,8 @@ export interface LegalTerminationCauseCreateForm {
   description: string
 }
 
+export type LegalTerminationCauseFormField = keyof LegalTerminationCauseCreateForm
+
 export interface LegalTerminationCauseCreatePayload {
   name: string
   description?: string
@@ -74,6 +76,19 @@ export interface LegalTerminationCausesQueryParams {
   updatedTo: string
   sortBy: LegalTerminationCausesSortBy
   sortDir: LegalTerminationCausesSortDir
+}
+
+export interface LegalTerminationCausesFilterForm {
+  activeId: string
+  createdFrom: string
+  createdTo: string
+  updatedFrom: string
+  updatedTo: string
+}
+
+export interface LegalTerminationCausesFilterSelectOption {
+  label: string
+  value: string
 }
 
 export interface LegalTerminationCausePagedResponse {

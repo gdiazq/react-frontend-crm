@@ -1,12 +1,23 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableRow, TableSortState } from '@/components'
-import { AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_EDIT, PermissionAction, PermissionModule, SortDirection } from '@/constant'
+import type { TableRow } from '@/components'
+import { AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { legalTerminationCausesTableColumns, legalTerminationCausesTableColumnIndex, legalTerminationCausesTableSortByColumn } from '@/factories'
 import { useStoreLegalTerminationCauses } from '@/store'
 import { useHasPermission } from '@/hooks'
 import type { LegalTerminationCauseTableRow } from '@/types'
-import { createLegalTerminationCausesActions, createTableCustomRenderer, renderStatusBadge, renderViewDetailButton } from '@/utils'
+import {
+  createLegalTerminationCausesActions,
+  createRowsById,
+  createTableCustomRenderer,
+  createTableSortState,
+  findRowById,
+  isTableRowActive,
+  renderStatusBadge,
+  renderViewDetailButton,
+  resolveNextTableSortDir,
+} from '@/utils'
 import type { DropdownAction } from '@/utils'
 
 const NAME_COLUMN_INDEX = legalTerminationCausesTableColumnIndex.name
@@ -31,39 +42,38 @@ export function LegalTerminationCausesListTableComponent(props: LegalTermination
   const goToPage = useStoreLegalTerminationCauses((s) => s.goToPage)
   const canToggleStatus = useHasPermission(PermissionModule.LegalTerminationCause, PermissionAction.Update)
   const { actionViewDetail, actionUpdateLegalTerminationCause, actionToggleStatus } = createLegalTerminationCausesActions()
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const resolveLegalTerminationCauseRow = (rowId: string) => findRowById(rowsById, rowId)
+  const resolveRowActive = (rowId: string) => isTableRowActive(resolveLegalTerminationCauseRow(rowId))
 
-  const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
   const resolveRowActions = (row: LegalTerminationCauseTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [
       actionViewDetail(() => onViewDetail(row)),
       actionUpdateLegalTerminationCause(() => navigate(`${AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_EDIT}=${row.id}`)),
     ]
-    if (canToggleStatus) actions.push(actionToggleStatus(row.active === true, () => onToggleStatus(row)))
+    if (canToggleStatus) actions.push(actionToggleStatus(isTableRowActive(row), () => onToggleStatus(row)))
     return actions
   }
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const row = findRowById(tableRow.id)
+    const row = resolveLegalTerminationCauseRow(tableRow.id)
     return row ? resolveRowActions(row) : []
   }
   const renderCustomCell = createTableCustomRenderer({
     [NAME_COLUMN_INDEX]: ({ row, value }) => renderViewDetailButton(value, () => {
-      const legalCauseRow = findRowById(row.id)
+      const legalCauseRow = resolveLegalTerminationCauseRow(row.id)
       if (legalCauseRow) onViewDetail(legalCauseRow)
     }),
-    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(Boolean(findRowById(row.id)?.active)),
+    [STATUS_COLUMN_INDEX]: ({ row }) => renderStatusBadge(resolveRowActive(row.id)),
   })
 
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = legalTerminationCausesTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortLegalTerminationCauses(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => legalTerminationCausesTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, legalTerminationCausesTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>

@@ -5,7 +5,14 @@ import {
   RightSidebarComponent,
   SelectComponent,
 } from '@/components'
+import {
+  mapperEmptyLegalTerminationCausesFilters,
+  mapperLegalTerminationCausesFiltersFromQuery,
+  mapperLegalTerminationCausesFiltersPayload,
+  mapperLegalTerminationCausesSelectOptions,
+} from '@/mappers'
 import { useStoreLegalTerminationCauses, useStoreSelects } from '@/store'
+import type { LegalTerminationCausesFilterForm } from '@/types'
 
 interface LegalTerminationCausesListFiltersSidebarComponentProps {
   open: boolean
@@ -27,32 +34,26 @@ export function LegalTerminationCausesListFiltersSidebarComponent(props: LegalTe
   const statusOptions = useStoreSelects((s) => s.statusOptions)
   const loadingStatusOptions = useStoreSelects((s) => s.loadingStatusOptions)
 
-  const [filters, setFilters] = useState(() => ({
-    activeId: queryParams.active,
-    createdFrom: queryParams.createdFrom,
-    createdTo: queryParams.createdTo,
-    updatedFrom: queryParams.updatedFrom,
-    updatedTo: queryParams.updatedTo,
-  }))
+  const [filters, setFilters] = useState<LegalTerminationCausesFilterForm>(() => mapperLegalTerminationCausesFiltersFromQuery(queryParams))
 
-  const statusSelectOptions = statusOptions.map((option) => ({ label: option.name, value: String(option.id) }))
+  const statusSelectOptions = mapperLegalTerminationCausesSelectOptions(statusOptions)
   const loadingAny = loadingLegalTerminationCauses || loadingToggleStatus || loadingStatusOptions
 
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+  const handleChangeFilter = (field: keyof LegalTerminationCausesFilterForm, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleApply = async () => {
-    const selectedStatus = statusOptions.find((option) => String(option.id) === filters.activeId)
-    setActiveFilter(selectedStatus ? String(selectedStatus.id) : '')
-    setCreatedDateRange({ createdFrom: filters.createdFrom.trim(), createdTo: filters.createdTo.trim() })
-    setUpdatedDateRange({ updatedFrom: filters.updatedFrom.trim(), updatedTo: filters.updatedTo.trim() })
+    const payload = mapperLegalTerminationCausesFiltersPayload(filters)
+    setActiveFilter(payload.activeId)
+    setCreatedDateRange({ createdFrom: payload.createdFrom, createdTo: payload.createdTo })
+    setUpdatedDateRange({ updatedFrom: payload.updatedFrom, updatedTo: payload.updatedTo })
     await searchLegalTerminationCauses()
     onClose()
   }
 
   const handleClear = async () => {
-    setFilters({ activeId: '', createdFrom: '', createdTo: '', updatedFrom: '', updatedTo: '' })
+    setFilters(mapperEmptyLegalTerminationCausesFilters())
     clearActiveFilter()
     clearCreatedDateRange()
     clearUpdatedDateRange()

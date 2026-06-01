@@ -3,6 +3,7 @@ export type {
   LegalTerminationCauseDetail,
   LegalTerminationCauseDetailView,
   LegalTerminationCauseCreateForm,
+  LegalTerminationCauseFormField,
   LegalTerminationCauseCreatePayload,
   LegalTerminationCauseUpdatePayload,
   LegalTerminationCauseCreateResponse,
@@ -10,6 +11,8 @@ export type {
   LegalTerminationCausesSortBy,
   LegalTerminationCausesSortDir,
   LegalTerminationCausesPagination,
+  LegalTerminationCausesFilterForm,
+  LegalTerminationCausesFilterSelectOption,
   LegalTerminationCausesQueryParams,
   LegalTerminationCausePagedResponse,
 } from './legal-termination-causes'

@@ -1,11 +1,8 @@
 import { DetailSectionHeaderComponent, InputComponent } from '@/components'
-import type { initialCreateLegalTerminationCauseForm } from '@/factories'
-
-type LegalTerminationCauseFormShape = typeof initialCreateLegalTerminationCauseForm
-type LegalTerminationCauseFormField = keyof LegalTerminationCauseFormShape
+import type { LegalTerminationCauseCreateForm, LegalTerminationCauseFormField } from '@/types'
 
 interface LegalTerminationCausesFormDataSectionComponentProps {
-  form: LegalTerminationCauseFormShape
+  form: LegalTerminationCauseCreateForm
   errors: Partial<Record<LegalTerminationCauseFormField, string>>
   onChangeField: (field: LegalTerminationCauseFormField) => (value: string) => void
   onValidation: (field: LegalTerminationCauseFormField) => () => void

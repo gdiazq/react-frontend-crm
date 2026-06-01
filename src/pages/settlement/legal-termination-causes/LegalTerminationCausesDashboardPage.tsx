@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   AlertMessageComponent,
   LegalTerminationCausesListDetailSidebarComponent,
@@ -9,7 +8,6 @@ import {
   SaveConfirmComponent,
   StatsOverviewCardsComponent,
 } from '@/components'
-import { AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES } from '@/constant'
 import { legalTerminationCausesTableColumnIndex } from '@/factories'
 import messages from '@/messages/messages'
 import { useStoreLegalTerminationCauses, useStoreSelects } from '@/store'
@@ -18,7 +16,6 @@ import type { LegalTerminationCauseTableRow } from '@/types'
 const NAME_COLUMN_INDEX = legalTerminationCausesTableColumnIndex.name
 
 export default function SettlementsTerminationDashboardPage() {
-  const navigate = useNavigate()
   const pagination = useStoreLegalTerminationCauses((s) => s.pagination)
   const loadingLegalTerminationCauses = useStoreLegalTerminationCauses((s) => s.operationLoading.list)
   const loadingToggleStatus = useStoreLegalTerminationCauses((s) => s.operationLoading.toggle)
@@ -64,7 +61,6 @@ export default function SettlementsTerminationDashboardPage() {
     setConfirmOpen(false)
     setPendingToggleRow(null)
     await getLegalTerminationCauses()
-    navigate(AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     setActionsMessage(
       `${legalTerminationCauseName} ${

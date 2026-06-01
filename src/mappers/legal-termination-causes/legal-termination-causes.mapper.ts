@@ -4,6 +4,8 @@ import type {
   LegalTerminationCauseCreatePayload,
   LegalTerminationCauseDetail,
   LegalTerminationCauseDetailView,
+  LegalTerminationCausesFilterForm,
+  LegalTerminationCausesFilterSelectOption,
   LegalTerminationCausePagedResponse,
   LegalTerminationCauseRaw,
   LegalTerminationCauseTableRow,
@@ -42,6 +44,40 @@ export function mapperLegalTerminationCausesQueryParams(result: LegalTermination
   appendString(params, 'updatedFrom', result.updatedFrom)
   appendString(params, 'updatedTo', result.updatedTo)
   return params
+}
+
+export function mapperLegalTerminationCausesFiltersFromQuery(result: LegalTerminationCausesQueryParams): LegalTerminationCausesFilterForm {
+  return {
+    activeId: result.active,
+    createdFrom: result.createdFrom,
+    createdTo: result.createdTo,
+    updatedFrom: result.updatedFrom,
+    updatedTo: result.updatedTo,
+  }
+}
+
+export function mapperEmptyLegalTerminationCausesFilters(): LegalTerminationCausesFilterForm {
+  return {
+    activeId: '',
+    createdFrom: '',
+    createdTo: '',
+    updatedFrom: '',
+    updatedTo: '',
+  }
+}
+
+export function mapperLegalTerminationCausesFiltersPayload(filters: LegalTerminationCausesFilterForm): LegalTerminationCausesFilterForm {
+  return {
+    activeId: filters.activeId,
+    createdFrom: filters.createdFrom.trim(),
+    createdTo: filters.createdTo.trim(),
+    updatedFrom: filters.updatedFrom.trim(),
+    updatedTo: filters.updatedTo.trim(),
+  }
+}
+
+export function mapperLegalTerminationCausesSelectOptions(options: Array<{ id: boolean | number | string, name: string }>): LegalTerminationCausesFilterSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
 }
 
 export function mapperLegalTerminationCauseDetailView(detail: LegalTerminationCauseDetail | null): LegalTerminationCauseDetailView | null {

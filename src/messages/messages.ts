@@ -18,6 +18,7 @@ export default {
         toggleDisabledSuccess: 'Motivo deshabilitado correctamente.',
         createLegalTerminationCauseSuccess: 'Motivo creado correctamente.',
         updateLegalTerminationCauseSuccess: 'Motivo actualizado correctamente.',
+        exportSuccess: 'Reporte descargado correctamente.',
       },
       errors: {
         loadError: 'No se pudo cargar la lista de motivos de terminacion.',
@@ -29,6 +30,8 @@ export default {
         updateLegalTerminationCauseError: 'No se pudo actualizar el motivo de terminacion.',
         invalidStatusLegalTerminationCauseId: 'El id del motivo de terminacion no es valido.',
         toggleStatusError: 'No se pudo actualizar el estado del motivo de terminacion.',
+        exportError: 'No se pudo descargar el reporte.',
+        importError: 'No se pudo realizar la carga masiva.',
       },
     },
   },

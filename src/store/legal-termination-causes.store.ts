@@ -14,6 +14,8 @@ import { legalTerminationCausesService } from '@/services'
 import type { LegalTerminationCausesStore } from '@/types'
 import {
   createOperationStatusHelpers,
+  downloadBlobFile,
+  formatCsvImportSummary,
   initialOperationLoading,
   initialOperationStatus,
   resolveErrorMessage,
@@ -31,6 +33,8 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
     legalTerminationCausesRows: [...initialLegalTerminationCausesRows],
     pagination: { ...initialLegalTerminationCausesPagination },
     queryParams: { ...initialLegalTerminationCausesQueryParams },
+    exportingCsv: false,
+    importingCsv: false,
     operationLoading: initialOperationLoading(),
     operationStatus: initialOperationStatus(),
 
@@ -266,6 +270,41 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         return false
       } finally {
         setOpLoading('toggle', false)
+      }
+    },
+
+    exportLegalTerminationCausesCsv: async () => {
+      if (get().exportingCsv) return false
+
+      try {
+        set({ exportingCsv: true })
+        clearOp('list')
+        const csvBlob = await legalTerminationCausesService.exportLegalTerminationCausesCsv()
+        downloadBlobFile(csvBlob, 'legal-termination-causes.csv')
+        setOpSuccess('list', messages.legalTerminationCauses.status.success.exportSuccess)
+        return true
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.exportError), error)
+        return false
+      } finally {
+        set({ exportingCsv: false })
+      }
+    },
+
+    importLegalTerminationCausesCsv: async (file: File) => {
+      if (get().importingCsv) return null
+
+      try {
+        set({ importingCsv: true })
+        clearOp('list')
+        const result = await legalTerminationCausesService.importLegalTerminationCausesCsv(file)
+        await get().getLegalTerminationCauses()
+        return formatCsvImportSummary(result)
+      } catch (error) {
+        setOpError('list', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.importError), error)
+        return null
+      } finally {
+        set({ importingCsv: false })
       }
     },
 

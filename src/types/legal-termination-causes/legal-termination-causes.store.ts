@@ -17,6 +17,8 @@ export interface LegalTerminationCausesStore {
   legalTerminationCausesRows: LegalTerminationCauseTableRow[]
   pagination: LegalTerminationCausesPagination
   queryParams: LegalTerminationCausesQueryParams
+  exportingCsv: boolean
+  importingCsv: boolean
   operationLoading: Record<OperationKey, boolean>
   operationStatus: Record<OperationKey, OperationStatus>
   getLegalTerminationCauses: () => Promise<void>
@@ -36,6 +38,8 @@ export interface LegalTerminationCausesStore {
   createLegalTerminationCause: (payload: LegalTerminationCauseCreatePayload) => Promise<boolean>
   updateLegalTerminationCause: (payload: LegalTerminationCauseUpdatePayload) => Promise<boolean>
   toggleLegalTerminationCauseStatus: (legalTerminationCauseId: string, nextStatus: boolean) => Promise<boolean>
+  exportLegalTerminationCausesCsv: () => Promise<boolean>
+  importLegalTerminationCausesCsv: (file: File) => Promise<string | null>
   clearLegalTerminationCauseDetail: () => void
   clearOperationStatus: (key: OperationKey) => void
   clearAllOperationStatus: () => void

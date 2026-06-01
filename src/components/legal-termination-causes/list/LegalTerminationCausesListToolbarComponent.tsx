@@ -7,9 +7,7 @@ import {
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_SETTLEMENTS_TERMINATION_CAUSES_CREATE } from '@/constant'
-import { legalTerminationCausesService } from '@/services'
 import { useStoreLegalTerminationCauses } from '@/store'
-import { downloadBlobFile, formatCsvImportSummary } from '@/utils'
 
 interface LegalTerminationCausesListToolbarComponentProps {
   onOpenFilters: () => void
@@ -21,57 +19,37 @@ export function LegalTerminationCausesListToolbarComponent(props: LegalTerminati
   const navigate = useNavigate()
   const search = useStoreLegalTerminationCauses((s) => s.queryParams.search)
   const loading = useStoreLegalTerminationCauses((s) => s.operationLoading.list)
+  const exportingCsv = useStoreLegalTerminationCauses((s) => s.exportingCsv)
+  const importingCsv = useStoreLegalTerminationCauses((s) => s.importingCsv)
   const setSearch = useStoreLegalTerminationCauses((s) => s.setSearch)
   const searchLegalTerminationCauses = useStoreLegalTerminationCauses((s) => s.searchLegalTerminationCauses)
-  const getLegalTerminationCauses = useStoreLegalTerminationCauses((s) => s.getLegalTerminationCauses)
+  const exportLegalTerminationCausesCsv = useStoreLegalTerminationCauses((s) => s.exportLegalTerminationCausesCsv)
+  const importLegalTerminationCausesCsv = useStoreLegalTerminationCauses((s) => s.importLegalTerminationCausesCsv)
   const [actionsMessage, setActionsMessage] = useState('')
-  const [downloadingReport, setDownloadingReport] = useState(false)
-  const [uploadingBulk, setUploadingBulk] = useState(false)
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
-  const loadingAny = loading || disabled || downloadingReport || uploadingBulk
+  const loadingAny = loading || disabled || exportingCsv || importingCsv
 
   const handleDownloadReport = async () => {
-    if (downloadingReport) return
-
-    try {
-      setDownloadingReport(true)
-      const csvBlob = await legalTerminationCausesService.exportLegalTerminationCausesCsv()
-      downloadBlobFile(csvBlob, 'legal-termination-causes.csv')
+    if (exportingCsv) return
+    const success = await exportLegalTerminationCausesCsv()
+    if (success) {
       setActionsMessage('Reporte descargado correctamente.')
-    } catch (error) {
-      if (legalTerminationCausesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo descargar el reporte.')
-      } else {
-        setActionsMessage('No se pudo descargar el reporte.')
-      }
-    } finally {
-      setDownloadingReport(false)
     }
   }
 
   const handleBulkUpload = () => {
-    if (uploadingBulk) return
+    if (importingCsv) return
     bulkUploadInputRef.current?.click()
   }
 
   const handleBulkUploadFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     event.target.value = ''
-    if (!file || uploadingBulk) return
+    if (!file || importingCsv) return
 
-    try {
-      setUploadingBulk(true)
-      const result = await legalTerminationCausesService.importLegalTerminationCausesCsv(file)
-      setActionsMessage(formatCsvImportSummary(result))
-      await getLegalTerminationCauses()
-    } catch (error) {
-      if (legalTerminationCausesService.isAxiosError(error)) {
-        setActionsMessage(error.response?.data?.message || 'No se pudo realizar la carga masiva.')
-      } else {
-        setActionsMessage('No se pudo realizar la carga masiva.')
-      }
-    } finally {
-      setUploadingBulk(false)
+    const summary = await importLegalTerminationCausesCsv(file)
+    if (summary) {
+      setActionsMessage(summary)
     }
   }
 
