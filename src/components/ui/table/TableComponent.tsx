@@ -151,7 +151,10 @@ export function TableComponent({
                         >
                           {renderCell
                             ? renderCell(row, cellValue, index, rowIndex)
-                            : (customRenderer != null || internalActionsConfig != null)
+                            : (
+                                (customRenderer !== null && customRenderer !== undefined)
+                                || (internalActionsConfig !== null && internalActionsConfig !== undefined)
+                              )
                               ? (
                                 <TableCellRendererComponent
                                   row={row}

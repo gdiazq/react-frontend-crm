@@ -132,7 +132,7 @@ export function mapperTransferDetailView(detail: TransferDetail | null): Transfe
     toCostCenterNameDisplay: detail.toCostCenterName,
     effectiveDateDisplay: formatDate(detail.effectiveDate),
     reasonDisplay: detail.reason,
-    hrRequestIdDisplay: detail.hrRequestId != null ? String(detail.hrRequestId) : '-',
+    hrRequestIdDisplay: detail.hrRequestId !== null && detail.hrRequestId !== undefined ? String(detail.hrRequestId) : '-',
     createdAtDisplay: formatDate(detail.createdAt),
     updatedAtDisplay: formatDate(detail.updatedAt),
     documents: mapperTransferDocuments(detail.documents),

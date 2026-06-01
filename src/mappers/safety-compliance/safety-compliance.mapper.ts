@@ -67,7 +67,7 @@ export function mapperSafetyComplianceToForm(detail: Pick<SafetyComplianceDetail
 export function mapperCreateSafetyCompliancePayload(form: SafetyComplianceCreateForm): SafetyComplianceCreatePayload {
   const name = form.name.trim()
   const description = form.description.trim()
-  const active = form.active == 'false' ? false : true
+  const active = form.active !== 'false'
 
   return description.length > 0
     ? { name, description, active }
@@ -77,7 +77,7 @@ export function mapperCreateSafetyCompliancePayload(form: SafetyComplianceCreate
 export function mapperUpdateSafetyCompliancePayload(id: number, form: SafetyComplianceCreateForm): SafetyComplianceUpdatePayload {
   const name = form.name.trim()
   const description = form.description.trim()
-  const active = form.active == 'false' ? false : true
+  const active = form.active !== 'false'
 
   return description.length > 0
     ? { id, name, description, active }

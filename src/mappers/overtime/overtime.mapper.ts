@@ -98,7 +98,7 @@ export function mapperOvertimeSelectOptions(options: Array<{ id: number, name: s
 
 export function mapperOvertimeTypeSelectOptions(options: OvertimeTypeRaw[]): OvertimeFormSelectOption[] {
   return options.map((option) => ({
-    label: option.surchargePercent != null ? `${option.name} · ${option.surchargePercent}%` : option.name,
+    label: option.surchargePercent !== null && option.surchargePercent !== undefined ? `${option.name} · ${option.surchargePercent}%` : option.name,
     value: String(option.id),
   }))
 }

@@ -67,7 +67,7 @@ export function mapperNoRehireCauseToForm(detail: Pick<NoRehireCauseDetail, 'nam
 export function mapperCreateNoRehireCausePayload(form: NoRehireCauseCreateForm): NoRehireCauseCreatePayload {
   const name = form.name.trim()
   const description = form.description.trim()
-  const active = form.active == 'false' ? false : true
+  const active = form.active !== 'false'
 
   return description.length > 0
     ? { name, description, active }
@@ -77,7 +77,7 @@ export function mapperCreateNoRehireCausePayload(form: NoRehireCauseCreateForm):
 export function mapperUpdateNoRehireCausePayload(id: number, form: NoRehireCauseCreateForm): NoRehireCauseUpdatePayload {
   const name = form.name.trim()
   const description = form.description.trim()
-  const active = form.active == 'false' ? false : true
+  const active = form.active !== 'false'
 
   return description.length > 0
     ? { id, name, description, active }

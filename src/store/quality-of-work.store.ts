@@ -73,15 +73,15 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
         set({ qualityOfWorkDetail: null })
         clearOp('detail')
         const data = await qualityOfWorkService.getQualityOfWorkDetail(parsedQualityOfWorkId)
-        if (requestId != latestQualityOfWorkDetailRequestId) return null
+        if (requestId !== latestQualityOfWorkDetailRequestId) return null
         set({ qualityOfWorkDetail: data })
         return data
       } catch (error) {
-        if (requestId != latestQualityOfWorkDetailRequestId) return null
+        if (requestId !== latestQualityOfWorkDetailRequestId) return null
         setOpError('detail', resolveErrorMessage(error, messages.qualityOfWork.status.errors.detailLoadError), error)
         return null
       } finally {
-        if (requestId == latestQualityOfWorkDetailRequestId) {
+        if (requestId === latestQualityOfWorkDetailRequestId) {
           setOpLoading('detail', false)
         }
       }
@@ -230,8 +230,8 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
         return false
       }
 
-      const previousRow = get().qualityOfWorkRows.find((row) => row.id == qualityOfWorkId)
-      const previousRaw = get().qualityOfWorkRaw.find((item) => item.id == parsedQualityOfWorkId)
+      const previousRow = get().qualityOfWorkRows.find((row) => row.id === qualityOfWorkId)
+      const previousRaw = get().qualityOfWorkRaw.find((item) => item.id === parsedQualityOfWorkId)
       if (!previousRow || !previousRaw) {
         setOpError('toggle', messages.qualityOfWork.status.errors.invalidStatusId)
         return false
@@ -242,10 +242,10 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
         clearOp('toggle')
         set((state) => ({
           qualityOfWorkRaw: state.qualityOfWorkRaw.map((item) =>
-            item.id == parsedQualityOfWorkId ? { ...item, active: nextStatus } : item,
+            item.id === parsedQualityOfWorkId ? { ...item, active: nextStatus } : item,
           ),
           qualityOfWorkRows: state.qualityOfWorkRows.map((row) => {
-            if (row.id != qualityOfWorkId) return row
+            if (row.id !== qualityOfWorkId) return row
             return {
               ...row,
               active: nextStatus,
@@ -271,10 +271,10 @@ export const useStoreQualityOfWork = create<QualityOfWorkStore>()((set, get) => 
       } catch (error) {
         set((state) => ({
           qualityOfWorkRaw: state.qualityOfWorkRaw.map((item) =>
-            item.id == parsedQualityOfWorkId ? { ...item, active: previousRaw.active } : item,
+            item.id === parsedQualityOfWorkId ? { ...item, active: previousRaw.active } : item,
           ),
           qualityOfWorkRows: state.qualityOfWorkRows.map((row) => {
-            if (row.id != qualityOfWorkId) return row
+            if (row.id !== qualityOfWorkId) return row
             return {
               ...row,
               active: previousRaw.active,

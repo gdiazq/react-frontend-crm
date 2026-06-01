@@ -73,15 +73,15 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         set({ legalTerminationCauseDetail: null })
         clearOp('detail')
         const data = await legalTerminationCausesService.getLegalTerminationCauseDetail(parsedLegalTerminationCauseId)
-        if (requestId != latestLegalTerminationCauseDetailRequestId) return null
+        if (requestId !== latestLegalTerminationCauseDetailRequestId) return null
         set({ legalTerminationCauseDetail: data })
         return data
       } catch (error) {
-        if (requestId != latestLegalTerminationCauseDetailRequestId) return null
+        if (requestId !== latestLegalTerminationCauseDetailRequestId) return null
         setOpError('detail', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.detailLoadError), error)
         return null
       } finally {
-        if (requestId == latestLegalTerminationCauseDetailRequestId) {
+        if (requestId === latestLegalTerminationCauseDetailRequestId) {
           setOpLoading('detail', false)
         }
       }
@@ -230,8 +230,8 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         return false
       }
 
-      const previousRow = get().legalTerminationCausesRows.find((row) => row.id == legalTerminationCauseId)
-      const previousRaw = get().legalTerminationCausesRaw.find((item) => item.id == parsedLegalTerminationCauseId)
+      const previousRow = get().legalTerminationCausesRows.find((row) => row.id === legalTerminationCauseId)
+      const previousRaw = get().legalTerminationCausesRaw.find((item) => item.id === parsedLegalTerminationCauseId)
       if (!previousRow || !previousRaw) {
         setOpError('toggle', messages.legalTerminationCauses.status.errors.invalidStatusLegalTerminationCauseId)
         return false
@@ -241,14 +241,14 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
-          legalTerminationCausesRaw: state.legalTerminationCausesRaw.map((item) => (item.id == parsedLegalTerminationCauseId ? { ...item, active: nextStatus } : item)),
+          legalTerminationCausesRaw: state.legalTerminationCausesRaw.map((item) => (item.id === parsedLegalTerminationCauseId ? { ...item, active: nextStatus } : item)),
           legalTerminationCausesRows: state.legalTerminationCausesRows.map((row) => {
-            if (row.id != legalTerminationCauseId) return row
+            if (row.id !== legalTerminationCauseId) return row
             return {
               ...row,
               active: nextStatus,
               values: row.values.map((value, index) => {
-                if (index != legalTerminationCausesTableColumnIndex.status) return value
+                if (index !== legalTerminationCausesTableColumnIndex.status) return value
                 return nextStatus ? messages.legalTerminationCauses.ui.statusActive : messages.legalTerminationCauses.ui.statusInactive
               }),
             }
@@ -259,8 +259,8 @@ export const useStoreLegalTerminationCauses = create<LegalTerminationCausesStore
         return true
       } catch (error) {
         set((state) => ({
-          legalTerminationCausesRaw: state.legalTerminationCausesRaw.map((item) => (item.id == parsedLegalTerminationCauseId ? previousRaw : item)),
-          legalTerminationCausesRows: state.legalTerminationCausesRows.map((row) => (row.id == legalTerminationCauseId ? previousRow : row)),
+          legalTerminationCausesRaw: state.legalTerminationCausesRaw.map((item) => (item.id === parsedLegalTerminationCauseId ? previousRaw : item)),
+          legalTerminationCausesRows: state.legalTerminationCausesRows.map((row) => (row.id === legalTerminationCauseId ? previousRow : row)),
         }))
         setOpError('toggle', resolveErrorMessage(error, messages.legalTerminationCauses.status.errors.toggleStatusError), error)
         return false

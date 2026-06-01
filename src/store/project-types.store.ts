@@ -77,15 +77,15 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
         set({ projectTypeDetail: null })
         clearOp('detail')
         const data = await projectTypesService.getProjectTypeDetail(parsedProjectTypeId)
-        if (requestId != latestProjectTypeDetailRequestId) return null
+        if (requestId !== latestProjectTypeDetailRequestId) return null
         set({ projectTypeDetail: data })
         return data
       } catch (error) {
-        if (requestId != latestProjectTypeDetailRequestId) return null
+        if (requestId !== latestProjectTypeDetailRequestId) return null
         setOpError('detail', resolveErrorMessage(error, messages.projectTypes.status.errors.detailLoadError), error)
         return null
       } finally {
-        if (requestId == latestProjectTypeDetailRequestId) {
+        if (requestId === latestProjectTypeDetailRequestId) {
           setOpLoading('detail', false)
         }
       }
@@ -234,8 +234,8 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
         return false
       }
 
-      const previousRow = get().projectTypesRows.find((row) => row.id == projectTypeId)
-      const previousRaw = get().projectTypesRaw.find((item) => item.id == parsedProjectTypeId)
+      const previousRow = get().projectTypesRows.find((row) => row.id === projectTypeId)
+      const previousRaw = get().projectTypesRaw.find((item) => item.id === parsedProjectTypeId)
       if (!previousRow || !previousRaw) {
         setOpError('toggle', messages.projectTypes.status.errors.invalidStatusProjectTypeId)
         return false
@@ -245,14 +245,14 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
         setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
-          projectTypesRaw: state.projectTypesRaw.map((item) => (item.id == parsedProjectTypeId ? { ...item, active: nextStatus } : item)),
+          projectTypesRaw: state.projectTypesRaw.map((item) => (item.id === parsedProjectTypeId ? { ...item, active: nextStatus } : item)),
           projectTypesRows: state.projectTypesRows.map((row) => {
-            if (row.id != projectTypeId) return row
+            if (row.id !== projectTypeId) return row
             return {
               ...row,
               active: nextStatus,
               values: row.values.map((value, index) => {
-                if (index != projectTypesTableColumnIndex.status) return value
+                if (index !== projectTypesTableColumnIndex.status) return value
                 return nextStatus ? messages.projectTypes.ui.statusActive : messages.projectTypes.ui.statusInactive
               }),
             }
@@ -263,8 +263,8 @@ export const useStoreProjectTypes = create<ProjectTypesStore>()((set, get) => {
         return true
       } catch (error) {
         set((state) => ({
-          projectTypesRaw: state.projectTypesRaw.map((item) => (item.id == parsedProjectTypeId ? previousRaw : item)),
-          projectTypesRows: state.projectTypesRows.map((row) => (row.id == projectTypeId ? previousRow : row)),
+          projectTypesRaw: state.projectTypesRaw.map((item) => (item.id === parsedProjectTypeId ? previousRaw : item)),
+          projectTypesRows: state.projectTypesRows.map((row) => (row.id === projectTypeId ? previousRow : row)),
         }))
         setOpError('toggle', resolveErrorMessage(error, messages.projectTypes.status.errors.toggleStatusError), error)
         return false

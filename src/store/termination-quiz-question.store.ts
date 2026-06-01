@@ -73,15 +73,15 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
         set({ terminationQuizQuestionDetail: null })
         clearOp('detail')
         const data = await terminationQuizQuestionService.getTerminationQuizQuestionDetail(parsedId)
-        if (requestId != latestDetailRequestId) return null
+        if (requestId !== latestDetailRequestId) return null
         set({ terminationQuizQuestionDetail: data })
         return data
       } catch (error) {
-        if (requestId != latestDetailRequestId) return null
+        if (requestId !== latestDetailRequestId) return null
         setOpError('detail', resolveErrorMessage(error, messages.terminationQuizQuestion.status.errors.detailLoadError), error)
         return null
       } finally {
-        if (requestId == latestDetailRequestId) {
+        if (requestId === latestDetailRequestId) {
           setOpLoading('detail', false)
         }
       }
@@ -222,8 +222,8 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
         return false
       }
 
-      const previousRow = get().terminationQuizQuestionRows.find((row) => row.id == id)
-      const previousRaw = get().terminationQuizQuestionRaw.find((item) => item.id == parsedId)
+      const previousRow = get().terminationQuizQuestionRows.find((row) => row.id === id)
+      const previousRaw = get().terminationQuizQuestionRaw.find((item) => item.id === parsedId)
       if (!previousRow || !previousRaw) {
         setOpError('toggle', messages.terminationQuizQuestion.status.errors.invalidStatusId)
         return false
@@ -234,10 +234,10 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
         clearOp('toggle')
         set((state) => ({
           terminationQuizQuestionRaw: state.terminationQuizQuestionRaw.map((item) =>
-            item.id == parsedId ? { ...item, active: nextStatus } : item,
+            item.id === parsedId ? { ...item, active: nextStatus } : item,
           ),
           terminationQuizQuestionRows: state.terminationQuizQuestionRows.map((row) => {
-            if (row.id != id) return row
+            if (row.id !== id) return row
             return {
               ...row,
               active: nextStatus,
@@ -263,10 +263,10 @@ export const useStoreTerminationQuizQuestion = create<TerminationQuizQuestionSto
       } catch (error) {
         set((state) => ({
           terminationQuizQuestionRaw: state.terminationQuizQuestionRaw.map((item) =>
-            item.id == parsedId ? { ...item, active: previousRaw.active } : item,
+            item.id === parsedId ? { ...item, active: previousRaw.active } : item,
           ),
           terminationQuizQuestionRows: state.terminationQuizQuestionRows.map((row) => {
-            if (row.id != id) return row
+            if (row.id !== id) return row
             return {
               ...row,
               active: previousRaw.active,

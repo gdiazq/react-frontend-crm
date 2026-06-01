@@ -46,7 +46,9 @@ export function DetailHeroComponent({
     eyebrowParts.push(<span key="status">{eyebrowStatus}</span>)
   }
 
-  const progressPct = stat?.progress != null ? Math.max(0, Math.min(100, stat.progress)) : null
+  const progressPct = stat?.progress !== null && stat?.progress !== undefined
+    ? Math.max(0, Math.min(100, stat.progress))
+    : null
   const titleTopMargin = eyebrowParts.length > 0 ? 'mt-3' : ''
 
   return (

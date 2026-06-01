@@ -67,7 +67,7 @@ export function mapperProjectTypeToForm(detail: Pick<ProjectTypeDetail, 'name' |
 export function mapperCreateProjectTypePayload(form: ProjectTypeCreateForm): ProjectTypeCreatePayload {
   const name = form.name.trim()
   const description = form.description.trim()
-  const active = form.active == 'false' ? false : true
+  const active = form.active !== 'false'
 
   return description.length > 0
     ? { name, description, active }
@@ -77,7 +77,7 @@ export function mapperCreateProjectTypePayload(form: ProjectTypeCreateForm): Pro
 export function mapperUpdateProjectTypePayload(projectTypeId: number, form: ProjectTypeCreateForm): ProjectTypeUpdatePayload {
   const name = form.name.trim()
   const description = form.description.trim()
-  const active = form.active == 'false' ? false : true
+  const active = form.active !== 'false'
 
   return description.length > 0
     ? { id: projectTypeId, name, description, active }

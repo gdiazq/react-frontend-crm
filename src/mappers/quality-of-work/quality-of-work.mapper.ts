@@ -67,7 +67,7 @@ export function mapperQualityOfWorkToForm(detail: Pick<QualityOfWorkDetail, 'nam
 export function mapperCreateQualityOfWorkPayload(form: QualityOfWorkCreateForm): QualityOfWorkCreatePayload {
   const name = form.name.trim()
   const description = form.description.trim()
-  const active = form.active == 'false' ? false : true
+  const active = form.active !== 'false'
 
   return description.length > 0
     ? { name, description, active }
@@ -77,7 +77,7 @@ export function mapperCreateQualityOfWorkPayload(form: QualityOfWorkCreateForm):
 export function mapperUpdateQualityOfWorkPayload(id: number, form: QualityOfWorkCreateForm): QualityOfWorkUpdatePayload {
   const name = form.name.trim()
   const description = form.description.trim()
-  const active = form.active == 'false' ? false : true
+  const active = form.active !== 'false'
 
   return description.length > 0
     ? { id, name, description, active }

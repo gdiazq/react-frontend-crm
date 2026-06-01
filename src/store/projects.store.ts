@@ -63,15 +63,15 @@ export const useStoreProjects = create<ProjectsStore>()((set, get) => {
         set({ projectDetail: null })
         clearOp('detail')
         const data = await projectsService.getProjectDetail(parsedProjectId)
-        if (requestId != latestProjectDetailRequestId) return null
+        if (requestId !== latestProjectDetailRequestId) return null
         set({ projectDetail: data })
         return data
       } catch (error) {
-        if (requestId != latestProjectDetailRequestId) return null
+        if (requestId !== latestProjectDetailRequestId) return null
         setOpError('detail', resolveErrorMessage(error, messages.projects.status.errors.detailLoadError), error)
         return null
       } finally {
-        if (requestId == latestProjectDetailRequestId) {
+        if (requestId === latestProjectDetailRequestId) {
           setOpLoading('detail', false)
         }
       }

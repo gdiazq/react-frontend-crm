@@ -85,7 +85,7 @@ export function mapperSettlementDetailView(detail: SettlementDetail | null): Set
     noReHiredCauseNameDisplay: detail.noReHiredCauseName ?? '-',
     terminationDocumentUrl: detail.terminationDocumentUrl,
     observationsDisplay: detail.observations ?? '-',
-    hrRequestIdDisplay: detail.hrRequestId != null ? String(detail.hrRequestId) : '-',
+    hrRequestIdDisplay: detail.hrRequestId !== null && detail.hrRequestId !== undefined ? String(detail.hrRequestId) : '-',
     createdAtDisplay: formatDate(detail.createdAt),
     updatedAtDisplay: formatDate(detail.updatedAt),
     documents: mapperSettlementDocuments(detail.documents),
@@ -169,8 +169,8 @@ export function mapperSettlementDetailToForm(detail: SettlementDetail): Settleme
     qualityOfWorkId: String(detail.qualityOfWorkId),
     safetyComplianceId: String(detail.safetyComplianceId),
     rehireEligible: detail.rehireEligible ? 'true' : 'false',
-    noReHiredCauseId: detail.noReHiredCauseId != null ? String(detail.noReHiredCauseId) : '',
+    noReHiredCauseId: detail.noReHiredCauseId !== null && detail.noReHiredCauseId !== undefined ? String(detail.noReHiredCauseId) : '',
     observations: detail.observations ?? '',
-    hrRequestId: detail.hrRequestId != null ? String(detail.hrRequestId) : '',
+    hrRequestId: detail.hrRequestId !== null && detail.hrRequestId !== undefined ? String(detail.hrRequestId) : '',
   }
 }

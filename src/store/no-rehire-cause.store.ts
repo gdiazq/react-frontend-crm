@@ -73,15 +73,15 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
         set({ noRehireCauseDetail: null })
         clearOp('detail')
         const data = await noRehireCauseService.getNoRehireCauseDetail(parsedNoRehireCauseId)
-        if (requestId != latestNoRehireCauseDetailRequestId) return null
+        if (requestId !== latestNoRehireCauseDetailRequestId) return null
         set({ noRehireCauseDetail: data })
         return data
       } catch (error) {
-        if (requestId != latestNoRehireCauseDetailRequestId) return null
+        if (requestId !== latestNoRehireCauseDetailRequestId) return null
         setOpError('detail', resolveErrorMessage(error, messages.noRehireCause.status.errors.detailLoadError), error)
         return null
       } finally {
-        if (requestId == latestNoRehireCauseDetailRequestId) {
+        if (requestId === latestNoRehireCauseDetailRequestId) {
           setOpLoading('detail', false)
         }
       }
@@ -214,8 +214,8 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
         return false
       }
 
-      const previousRow = get().noRehireCauseRows.find((row) => row.id == noRehireCauseId)
-      const previousRaw = get().noRehireCauseRaw.find((item) => item.id == parsedNoRehireCauseId)
+      const previousRow = get().noRehireCauseRows.find((row) => row.id === noRehireCauseId)
+      const previousRaw = get().noRehireCauseRaw.find((item) => item.id === parsedNoRehireCauseId)
       if (!previousRow || !previousRaw) {
         setOpError('toggle', messages.noRehireCause.status.errors.invalidStatusId)
         return false
@@ -226,10 +226,10 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
         clearOp('toggle')
         set((state) => ({
           noRehireCauseRaw: state.noRehireCauseRaw.map((item) =>
-            item.id == parsedNoRehireCauseId ? { ...item, active: nextStatus } : item,
+            item.id === parsedNoRehireCauseId ? { ...item, active: nextStatus } : item,
           ),
           noRehireCauseRows: state.noRehireCauseRows.map((row) => {
-            if (row.id != noRehireCauseId) return row
+            if (row.id !== noRehireCauseId) return row
             return {
               ...row,
               active: nextStatus,
@@ -255,10 +255,10 @@ export const useStoreNoRehireCause = create<NoRehireCauseStore>()((set, get) => 
       } catch (error) {
         set((state) => ({
           noRehireCauseRaw: state.noRehireCauseRaw.map((item) =>
-            item.id == parsedNoRehireCauseId ? { ...item, active: previousRaw.active } : item,
+            item.id === parsedNoRehireCauseId ? { ...item, active: previousRaw.active } : item,
           ),
           noRehireCauseRows: state.noRehireCauseRows.map((row) => {
-            if (row.id != noRehireCauseId) return row
+            if (row.id !== noRehireCauseId) return row
             return {
               ...row,
               active: previousRaw.active,

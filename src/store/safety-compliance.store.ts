@@ -73,15 +73,15 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
         set({ safetyComplianceDetail: null })
         clearOp('detail')
         const data = await safetyComplianceService.getSafetyComplianceDetail(parsedSafetyComplianceId)
-        if (requestId != latestSafetyComplianceDetailRequestId) return null
+        if (requestId !== latestSafetyComplianceDetailRequestId) return null
         set({ safetyComplianceDetail: data })
         return data
       } catch (error) {
-        if (requestId != latestSafetyComplianceDetailRequestId) return null
+        if (requestId !== latestSafetyComplianceDetailRequestId) return null
         setOpError('detail', resolveErrorMessage(error, messages.safetyCompliance.status.errors.detailLoadError), error)
         return null
       } finally {
-        if (requestId == latestSafetyComplianceDetailRequestId) {
+        if (requestId === latestSafetyComplianceDetailRequestId) {
           setOpLoading('detail', false)
         }
       }
@@ -214,8 +214,8 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
         return false
       }
 
-      const previousRow = get().safetyComplianceRows.find((row) => row.id == safetyComplianceId)
-      const previousRaw = get().safetyComplianceRaw.find((item) => item.id == parsedSafetyComplianceId)
+      const previousRow = get().safetyComplianceRows.find((row) => row.id === safetyComplianceId)
+      const previousRaw = get().safetyComplianceRaw.find((item) => item.id === parsedSafetyComplianceId)
       if (!previousRow || !previousRaw) {
         setOpError('toggle', messages.safetyCompliance.status.errors.invalidStatusId)
         return false
@@ -226,10 +226,10 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
         clearOp('toggle')
         set((state) => ({
           safetyComplianceRaw: state.safetyComplianceRaw.map((item) =>
-            item.id == parsedSafetyComplianceId ? { ...item, active: nextStatus } : item,
+            item.id === parsedSafetyComplianceId ? { ...item, active: nextStatus } : item,
           ),
           safetyComplianceRows: state.safetyComplianceRows.map((row) => {
-            if (row.id != safetyComplianceId) return row
+            if (row.id !== safetyComplianceId) return row
             return {
               ...row,
               active: nextStatus,
@@ -255,10 +255,10 @@ export const useStoreSafetyCompliance = create<SafetyComplianceStore>()((set, ge
       } catch (error) {
         set((state) => ({
           safetyComplianceRaw: state.safetyComplianceRaw.map((item) =>
-            item.id == parsedSafetyComplianceId ? { ...item, active: previousRaw.active } : item,
+            item.id === parsedSafetyComplianceId ? { ...item, active: previousRaw.active } : item,
           ),
           safetyComplianceRows: state.safetyComplianceRows.map((row) => {
-            if (row.id != safetyComplianceId) return row
+            if (row.id !== safetyComplianceId) return row
             return {
               ...row,
               active: previousRaw.active,

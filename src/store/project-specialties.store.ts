@@ -77,15 +77,15 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         set({ projectSpecialtyDetail: null })
         clearOp('detail')
         const data = await projectSpecialtiesService.getProjectSpecialtyDetail(parsedProjectSpecialtyId)
-        if (requestId != latestProjectSpecialtyDetailRequestId) return null
+        if (requestId !== latestProjectSpecialtyDetailRequestId) return null
         set({ projectSpecialtyDetail: data })
         return data
       } catch (error) {
-        if (requestId != latestProjectSpecialtyDetailRequestId) return null
+        if (requestId !== latestProjectSpecialtyDetailRequestId) return null
         setOpError('detail', resolveErrorMessage(error, messages.projectSpecialties.status.errors.detailLoadError), error)
         return null
       } finally {
-        if (requestId == latestProjectSpecialtyDetailRequestId) {
+        if (requestId === latestProjectSpecialtyDetailRequestId) {
           setOpLoading('detail', false)
         }
       }
@@ -234,8 +234,8 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         return false
       }
 
-      const previousRow = get().projectSpecialtiesRows.find((row) => row.id == projectSpecialtyId)
-      const previousRaw = get().projectSpecialtiesRaw.find((item) => item.id == parsedProjectSpecialtyId)
+      const previousRow = get().projectSpecialtiesRows.find((row) => row.id === projectSpecialtyId)
+      const previousRaw = get().projectSpecialtiesRaw.find((item) => item.id === parsedProjectSpecialtyId)
       if (!previousRow || !previousRaw) {
         setOpError('toggle', messages.projectSpecialties.status.errors.invalidStatusProjectSpecialtyId)
         return false
@@ -245,14 +245,14 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         setOpLoading('toggle', true)
         clearOp('toggle')
         set((state) => ({
-          projectSpecialtiesRaw: state.projectSpecialtiesRaw.map((item) => (item.id == parsedProjectSpecialtyId ? { ...item, active: nextStatus } : item)),
+          projectSpecialtiesRaw: state.projectSpecialtiesRaw.map((item) => (item.id === parsedProjectSpecialtyId ? { ...item, active: nextStatus } : item)),
           projectSpecialtiesRows: state.projectSpecialtiesRows.map((row) => {
-            if (row.id != projectSpecialtyId) return row
+            if (row.id !== projectSpecialtyId) return row
             return {
               ...row,
               active: nextStatus,
               values: row.values.map((value, index) => {
-                if (index != projectSpecialtiesTableColumnIndex.status) return value
+                if (index !== projectSpecialtiesTableColumnIndex.status) return value
                 return nextStatus ? messages.projectSpecialties.ui.statusActive : messages.projectSpecialties.ui.statusInactive
               }),
             }
@@ -263,8 +263,8 @@ export const useStoreProjectSpecialties = create<ProjectSpecialtiesStore>()((set
         return true
       } catch (error) {
         set((state) => ({
-          projectSpecialtiesRaw: state.projectSpecialtiesRaw.map((item) => (item.id == parsedProjectSpecialtyId ? previousRaw : item)),
-          projectSpecialtiesRows: state.projectSpecialtiesRows.map((row) => (row.id == projectSpecialtyId ? previousRow : row)),
+          projectSpecialtiesRaw: state.projectSpecialtiesRaw.map((item) => (item.id === parsedProjectSpecialtyId ? previousRaw : item)),
+          projectSpecialtiesRows: state.projectSpecialtiesRows.map((row) => (row.id === projectSpecialtyId ? previousRow : row)),
         }))
         setOpError('toggle', resolveErrorMessage(error, messages.projectSpecialties.status.errors.toggleStatusError), error)
         return false
