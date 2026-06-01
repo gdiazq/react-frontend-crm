@@ -24,7 +24,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
   let latestOvertimeTypesRequestId = 0
   let latestProjectCostCenterOptionsRequestId = 0
 
-  const { setOpError, clearOp, setOpLoading } = createOperationStatusHelpers(set)
+  const { setOpError, setOpSuccess, clearOp, setOpLoading } = createOperationStatusHelpers(set)
 
   return {
     overtimeRows: [...initialOvertimeRows],
@@ -223,12 +223,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
         setOpLoading('create', true)
         clearOp('create')
         await overtimeService.createOvertime(payload)
-        set((state) => ({
-          operationStatus: {
-            ...state.operationStatus,
-            create: { error: null, success: messages.overtime.status.success.createOvertimeSuccess, errorBack: null },
-          },
-        }))
+        setOpSuccess('create', messages.overtime.status.success.createOvertimeSuccess)
         return true
       } catch (error) {
         setOpError('create', resolveErrorMessage(error, messages.overtime.status.errors.createOvertimeError), error)
@@ -248,12 +243,7 @@ export const useStoreOvertime = create<OvertimeStore>()((set, get) => {
         setOpLoading('update', true)
         clearOp('update')
         await overtimeService.updateOvertime(payload)
-        set((state) => ({
-          operationStatus: {
-            ...state.operationStatus,
-            update: { error: null, success: messages.overtime.status.success.updateOvertimeSuccess, errorBack: null },
-          },
-        }))
+        setOpSuccess('update', messages.overtime.status.success.updateOvertimeSuccess)
         return true
       } catch (error) {
         setOpError('update', resolveErrorMessage(error, messages.overtime.status.errors.updateOvertimeError), error)

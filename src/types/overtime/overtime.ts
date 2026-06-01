@@ -42,6 +42,25 @@ export interface OvertimeCreateForm {
   reason: string
 }
 
+export type OvertimeFormField = keyof OvertimeCreateForm
+export type OvertimeTimeField = 'startTime' | 'endTime'
+
+export interface OvertimeFormSelectOption {
+  label: string
+  value: string
+}
+
+export interface OvertimeFilterForm {
+  employeeId: string
+  costCenter: string
+  statusId: string
+  dateFrom: string
+  dateTo: string
+  overtimeTypeId: string
+}
+
+export type OvertimeFilterPayload = OvertimeFilterForm
+
 export interface OvertimeCreatePayload {
   employeeId: number
   overtimeTypeId: number
@@ -85,6 +104,7 @@ export interface OvertimeTableRow {
   employeeId: number
   costCenter?: number | null
   overtimeTypeId: number
+  displayName: string
   values: string[]
 }
 

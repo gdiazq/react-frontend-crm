@@ -3,19 +3,15 @@ import {
   InputComponent,
   SelectComponent,
 } from '@/components'
-import type { initialOvertimeForm } from '@/factories'
-
-type OvertimeFormShape = typeof initialOvertimeForm
-type OvertimeFormField = keyof OvertimeFormShape
-type SelectOption = { label: string, value: string }
+import type { OvertimeCreateForm, OvertimeFormField, OvertimeFormSelectOption } from '@/types'
 
 interface OvertimeFormEmployeeTypeSectionComponentProps {
-  form: OvertimeFormShape
+  form: OvertimeCreateForm
   errors: Partial<Record<OvertimeFormField, string>>
   isEditMode: boolean
   editEmployeeLabel: string
-  employeeOptions: SelectOption[]
-  overtimeTypeOptions: SelectOption[]
+  employeeOptions: OvertimeFormSelectOption[]
+  overtimeTypeOptions: OvertimeFormSelectOption[]
   loadingEmployees: boolean
   loadingOvertimeTypes: boolean
   onChangeField: (field: OvertimeFormField) => (value: string) => void

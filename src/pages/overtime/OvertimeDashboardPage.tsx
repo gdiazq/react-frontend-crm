@@ -7,14 +7,12 @@ import {
   OvertimeListToolbarComponent,
   StatsOverviewCardsComponent,
 } from '@/components'
-import { overtimeTableColumnIndex } from '@/factories'
+import { mapperOvertimeTableDisplayName } from '@/mappers'
 import {
   useStoreAttendanceSelects,
   useStoreOvertime,
 } from '@/store'
 import type { OvertimeTableRow } from '@/types'
-
-const EMPLOYEE_NAME_COLUMN_INDEX = overtimeTableColumnIndex.employeeName
 
 export default function OvertimeDashboardPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -43,7 +41,7 @@ export default function OvertimeDashboardPage() {
 
   const handleViewDetail = (row: OvertimeTableRow) => {
     setDetailRowId(row.id)
-    setDetailName(String(row.values[EMPLOYEE_NAME_COLUMN_INDEX] ?? 'Hora extra'))
+    setDetailName(mapperOvertimeTableDisplayName(row))
   }
 
   const handleCloseDetail = () => {

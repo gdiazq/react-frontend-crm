@@ -1,11 +1,8 @@
 import { DetailSectionHeaderComponent } from '@/components'
-import type { initialOvertimeForm } from '@/factories'
-
-type OvertimeFormShape = typeof initialOvertimeForm
-type OvertimeFormField = keyof OvertimeFormShape
+import type { OvertimeCreateForm, OvertimeFormField } from '@/types'
 
 interface OvertimeFormReasonSectionComponentProps {
-  form: OvertimeFormShape
+  form: OvertimeCreateForm
   errors: Partial<Record<OvertimeFormField, string>>
   onChangeField: (field: OvertimeFormField) => (value: string) => void
   onValidation: (field: OvertimeFormField) => () => void

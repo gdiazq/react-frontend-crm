@@ -1,11 +1,11 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PaginationComponent, TableComponent } from '@/components'
-import type { TableSortState } from '@/components'
+import messages from '@/messages/messages'
 import {
   AUTH_ROUTE_OVERTIME_EDIT,
   PermissionAction,
   PermissionModule,
-  SortDirection,
 } from '@/constant'
 import { overtimeTableColumns, overtimeTableColumnIndex, overtimeTableSortByColumn } from '@/factories'
 import { useStoreOvertime } from '@/store'
@@ -13,9 +13,13 @@ import { useHasPermission } from '@/hooks'
 import type { OvertimeTableRow, TableRow } from '@/types'
 import {
   createOvertimeActions,
+  createRowsById,
+  createTableSortState,
   createTableCustomRenderer,
+  findRowById,
   renderEmployeeApprovalStatus,
   renderViewDetailButton,
+  resolveNextTableSortDir,
 } from '@/utils'
 import type { DropdownAction } from '@/utils'
 
@@ -40,7 +44,8 @@ export function OvertimeListTableComponent({ onViewDetail }: OvertimeListTableCo
 
   const { actionViewDetail, actionUpdateOvertime } = createOvertimeActions()
 
-  const findRowById = (rowId: string) => rows.find((row) => row.id === rowId) ?? null
+  const rowsById = useMemo(() => createRowsById(rows), [rows])
+  const resolveOvertimeRow = (rowId: string) => findRowById(rowsById, rowId)
 
   const resolveRowActions = (row: OvertimeTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
@@ -51,7 +56,7 @@ export function OvertimeListTableComponent({ onViewDetail }: OvertimeListTableCo
   }
 
   const resolveRowActionsFromTableRow = (tableRow: TableRow): DropdownAction[] => {
-    const row = findRowById(tableRow.id)
+    const row = resolveOvertimeRow(tableRow.id)
     if (!row) return []
     return resolveRowActions(row)
   }
@@ -59,7 +64,7 @@ export function OvertimeListTableComponent({ onViewDetail }: OvertimeListTableCo
   const renderCustomCell = createTableCustomRenderer({
     [EMPLOYEE_NAME_COLUMN_INDEX]: ({ row, value }) =>
       renderViewDetailButton(value, () => {
-        const overtimeRow = findRowById(row.id)
+        const overtimeRow = resolveOvertimeRow(row.id)
         if (overtimeRow) onViewDetail(overtimeRow)
       }),
     [STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
@@ -68,14 +73,11 @@ export function OvertimeListTableComponent({ onViewDetail }: OvertimeListTableCo
   const handleSortChange = async (columnIndex: number) => {
     const sortBy = overtimeTableSortByColumn[columnIndex]
     if (!sortBy) return
-    const nextSortDir = queryParams.sortBy === sortBy && queryParams.sortDir === SortDirection.Asc
-      ? SortDirection.Desc
-      : SortDirection.Asc
+    const nextSortDir = resolveNextTableSortDir(queryParams.sortBy, queryParams.sortDir, sortBy)
     await sortOvertime(sortBy, nextSortDir)
   }
 
-  const activeSortColumn = SORTABLE_COLUMNS.find((index) => overtimeTableSortByColumn[index] === queryParams.sortBy) ?? null
-  const sortState: TableSortState = { columnIndex: activeSortColumn, direction: queryParams.sortDir }
+  const sortState = createTableSortState(SORTABLE_COLUMNS, overtimeTableSortByColumn, queryParams.sortBy, queryParams.sortDir)
 
   return (
     <>
@@ -83,7 +85,7 @@ export function OvertimeListTableComponent({ onViewDetail }: OvertimeListTableCo
         columns={overtimeTableColumns}
         rows={rows}
         loading={loading}
-        emptyMessage="No hay registros de horas extras."
+        emptyMessage={messages.overtime.ui.emptyList}
         preserveHeaderCase
         customRenderer={renderCustomCell}
         actionsConfig={{

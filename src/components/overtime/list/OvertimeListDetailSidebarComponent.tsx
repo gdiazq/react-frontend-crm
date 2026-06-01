@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { DetailSidebarComponent, OvertimeDetailComponent } from '@/components'
 import { AUTH_ROUTE_OVERTIME_EDIT, PermissionAction, PermissionModule } from '@/constant'
 import { mapperOvertimeDetailView } from '@/mappers'
+import messages from '@/messages/messages'
 import { useStoreOvertime } from '@/store'
 import { useHasPermission } from '@/hooks'
 
@@ -39,7 +40,7 @@ export function OvertimeListDetailSidebarComponent({
     ? `Detalle de ${detailView.employeeName}`
     : fallbackName
       ? `Detalle de ${fallbackName}`
-      : 'Detalle de hora extra'
+      : messages.overtime.ui.detailTitleFallback
 
   return (
     <DetailSidebarComponent open={rowId !== null} title={title} onClose={handleClose}>

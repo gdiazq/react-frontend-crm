@@ -3,11 +3,15 @@ import type {
   OvertimeCreatePayload,
   OvertimeDetail,
   OvertimeDetailView,
+  OvertimeFilterForm,
+  OvertimeFilterPayload,
+  OvertimeFormSelectOption,
   OvertimePagedResponse,
   OvertimePagination,
   OvertimeQueryParams,
   OvertimeRaw,
   OvertimeTableRow,
+  OvertimeTypeRaw,
   OvertimeUpdatePayload,
 } from '@/types'
 import { formatDate, formatDateTime, formatNumber, parseTimeInput } from '@/utils'
@@ -67,6 +71,7 @@ export function mapperOvertimeRows(result: OvertimeRaw[]): OvertimeTableRow[] {
     employeeId: item.employeeId,
     costCenter: item.costCenter,
     overtimeTypeId: item.overtimeTypeId,
+    displayName: item.employeeName || '',
     values: [
       item.employeeName || '-',
       formatOptionalNumber(item.costCenter),
@@ -81,6 +86,64 @@ export function mapperOvertimeRows(result: OvertimeRaw[]): OvertimeTableRow[] {
       '',
     ],
   }))
+}
+
+export function mapperOvertimeTableDisplayName(row: OvertimeTableRow | null) {
+  return row?.displayName?.trim() || 'Hora extra'
+}
+
+export function mapperOvertimeSelectOptions(options: Array<{ id: number, name: string }>): OvertimeFormSelectOption[] {
+  return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperOvertimeTypeSelectOptions(options: OvertimeTypeRaw[]): OvertimeFormSelectOption[] {
+  return options.map((option) => ({
+    label: option.surchargePercent != null ? `${option.name} · ${option.surchargePercent}%` : option.name,
+    value: String(option.id),
+  }))
+}
+
+export function mapperOvertimeEditEmployeeLabel(
+  detail: OvertimeDetail | null,
+  employeeOptions: OvertimeFormSelectOption[],
+  employeeId: string,
+) {
+  return detail?.employeeName
+    || employeeOptions.find((option) => option.value === employeeId)?.label
+    || 'Trabajador'
+}
+
+export function mapperOvertimeFiltersFromQuery(queryParams: OvertimeQueryParams): OvertimeFilterForm {
+  return {
+    employeeId: queryParams.employeeId,
+    costCenter: queryParams.costCenter,
+    statusId: queryParams.statusId,
+    dateFrom: queryParams.dateFrom,
+    dateTo: queryParams.dateTo,
+    overtimeTypeId: queryParams.overtimeTypeId,
+  }
+}
+
+export function mapperOvertimeFiltersPayload(filters: OvertimeFilterForm): OvertimeFilterPayload {
+  return {
+    employeeId: filters.employeeId.trim(),
+    costCenter: filters.costCenter.trim(),
+    statusId: filters.statusId.trim(),
+    dateFrom: filters.dateFrom.trim(),
+    dateTo: filters.dateTo.trim(),
+    overtimeTypeId: filters.overtimeTypeId.trim(),
+  }
+}
+
+export function mapperEmptyOvertimeFilters(): OvertimeFilterForm {
+  return {
+    employeeId: '',
+    costCenter: '',
+    statusId: '',
+    dateFrom: '',
+    dateTo: '',
+    overtimeTypeId: '',
+  }
 }
 
 export function mapperOvertimePagination(result: OvertimePagedResponse): OvertimePagination {

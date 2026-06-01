@@ -3,18 +3,15 @@ import {
   DetailSectionHeaderComponent,
   InputComponent,
 } from '@/components'
-import type { initialOvertimeForm } from '@/factories'
-
-type OvertimeFormShape = typeof initialOvertimeForm
-type OvertimeFormField = keyof OvertimeFormShape
+import type { OvertimeCreateForm, OvertimeFormField, OvertimeTimeField } from '@/types'
 
 interface OvertimeFormScheduleSectionComponentProps {
-  form: OvertimeFormShape
+  form: OvertimeCreateForm
   errors: Partial<Record<OvertimeFormField, string>>
   isEditMode: boolean
   onChangeField: (field: OvertimeFormField) => (value: string) => void
   onValidation: (field: OvertimeFormField) => () => void
-  onNormalizeTime: (field: 'startTime' | 'endTime') => void
+  onNormalizeTime: (field: OvertimeTimeField) => void
 }
 
 function SubSectionLabel({ number, title }: { number: string, title: string }) {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertMessageComponent,
@@ -11,16 +11,18 @@ import {
 import { AUTH_ROUTE_OVERTIME } from '@/constant'
 import { initialOvertimeForm } from '@/factories'
 import { useFormValidation } from '@/hooks'
-import { mapperCreateOvertimePayload, mapperOvertimeDetailToForm, mapperUpdateOvertimePayload } from '@/mappers'
+import {
+  mapperCreateOvertimePayload,
+  mapperOvertimeDetailToForm,
+  mapperOvertimeEditEmployeeLabel,
+  mapperOvertimeSelectOptions,
+  mapperOvertimeTypeSelectOptions,
+  mapperUpdateOvertimePayload,
+} from '@/mappers'
 import { useStoreAttendanceSelects, useStoreOvertime } from '@/store'
-import type { OvertimeCreatePayload, OvertimeUpdatePayload } from '@/types'
+import type { OvertimeFormField, OvertimeTimeField } from '@/types'
 import { normalizeTimeInput } from '@/utils'
 import { overtimeCreateValidationRules } from '@/validators'
-
-type PendingAction =
-  | { mode: 'create', payload: OvertimeCreatePayload }
-  | { mode: 'update', payload: OvertimeUpdatePayload }
-  | null
 
 export default function OvertimeFormDashboardPage() {
   const navigate = useNavigate()
@@ -31,7 +33,6 @@ export default function OvertimeFormDashboardPage() {
 
   const [form, setForm] = useState({ ...initialOvertimeForm })
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
   const overtimeDetail = useStoreOvertime((s) => s.overtimeDetail)
   const overtimeTypes = useStoreOvertime((s) => s.overtimeTypes)
@@ -69,20 +70,9 @@ export default function OvertimeFormDashboardPage() {
   const submitLabel = isEditMode ? 'Guardar cambios' : 'Crear hora extra'
   const submitLoadingLabel = isEditMode ? 'Guardando cambios...' : 'Creando hora extra...'
 
-  const employeeSelectOptions = useMemo(
-    () => attendanceEmployeeOptions.map((opt) => ({ label: opt.name, value: String(opt.id) })),
-    [attendanceEmployeeOptions],
-  )
-  const overtimeTypeSelectOptions = useMemo(
-    () => overtimeTypes.map((opt) => ({
-      label: opt.surchargePercent != null ? `${opt.name} · ${opt.surchargePercent}%` : opt.name,
-      value: String(opt.id),
-    })),
-    [overtimeTypes],
-  )
-  const editEmployeeLabel = overtimeDetail?.employeeName
-    || employeeSelectOptions.find((option) => option.value === form.employeeId)?.label
-    || 'Trabajador'
+  const employeeSelectOptions = mapperOvertimeSelectOptions(attendanceEmployeeOptions)
+  const overtimeTypeSelectOptions = mapperOvertimeTypeSelectOptions(overtimeTypes)
+  const editEmployeeLabel = mapperOvertimeEditEmployeeLabel(overtimeDetail, employeeSelectOptions, form.employeeId)
 
   useEffect(() => {
     void getOvertimeTypes()
@@ -116,12 +106,12 @@ export default function OvertimeFormDashboardPage() {
     clearOperationStatus('update')
   }
 
-  const handleChangeField = (field: keyof typeof initialOvertimeForm) => (value: string) => {
+  const handleChangeField = (field: OvertimeFormField) => (value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (submitErrorMessage || submitSuccessMessage) clearSubmitStatus()
   }
 
-  const handleNormalizeTime = (field: 'startTime' | 'endTime') => {
+  const handleNormalizeTime = (field: OvertimeTimeField) => {
     setForm((prev) => ({ ...prev, [field]: normalizeTimeInput(prev[field]) }))
   }
 
@@ -129,36 +119,27 @@ export default function OvertimeFormDashboardPage() {
     event.preventDefault()
     if (!validateAll()) return
 
-    if (isEditMode) {
-      const payload = mapperUpdateOvertimePayload(editOvertimeId, form)
-      setPendingAction({ mode: 'update', payload })
-    } else {
-      const payload = mapperCreateOvertimePayload(form)
-      setPendingAction({ mode: 'create', payload })
-    }
     setConfirmOpen(true)
   }
 
   const handleCloseConfirm = () => {
     if (saving) return
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
   const handleConfirmSave = async () => {
-    if (!pendingAction || saving) return
-    const success = pendingAction.mode === 'create'
-      ? await createOvertime(pendingAction.payload)
-      : await updateOvertime(pendingAction.payload)
+    if (saving || !validateAll()) return
+    const success = isEditMode
+      ? await updateOvertime(mapperUpdateOvertimePayload(editOvertimeId, form))
+      : await createOvertime(mapperCreateOvertimePayload(form))
     if (success) {
       navigate(AUTH_ROUTE_OVERTIME)
       return
     }
     setConfirmOpen(false)
-    setPendingAction(null)
   }
 
-  const confirmMessage = pendingAction?.mode === 'update'
+  const confirmMessage = isEditMode
     ? '¿Deseas enviar la modificación de esta hora extra?'
     : '¿Deseas crear esta hora extra?'
   const heroEyebrow = isEditMode ? 'EXPEDIENTE · EDICIÓN' : 'EXPEDIENTE · NUEVO'
@@ -255,7 +236,7 @@ export default function OvertimeFormDashboardPage() {
 
       <SaveConfirmComponent
         open={confirmOpen}
-        title={pendingAction?.mode === 'update' ? 'Confirmar actualización de hora extra' : 'Confirmar creación de hora extra'}
+        title={isEditMode ? 'Confirmar actualización de hora extra' : 'Confirmar creación de hora extra'}
         message={confirmMessage}
         confirmLabel={submitLabel}
         cancelLabel="Cancelar"

@@ -350,6 +350,7 @@ export default {
       actionViewDetail: 'Ver detalle',
       updateOvertime: 'Editar hora extra',
       detailTitleFallback: 'Detalle de hora extra',
+      emptyList: 'No hay registros de horas extras.',
     },
     status: {
       success: {

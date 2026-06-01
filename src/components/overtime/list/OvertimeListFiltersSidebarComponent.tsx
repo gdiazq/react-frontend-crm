@@ -6,9 +6,17 @@ import {
   SelectComponent,
 } from '@/components'
 import {
+  mapperEmptyOvertimeFilters,
+  mapperOvertimeFiltersFromQuery,
+  mapperOvertimeFiltersPayload,
+  mapperOvertimeSelectOptions,
+  mapperOvertimeTypeSelectOptions,
+} from '@/mappers'
+import {
   useStoreAttendanceSelects,
   useStoreOvertime,
 } from '@/store'
+import type { OvertimeFilterForm } from '@/types'
 
 interface OvertimeListFiltersSidebarComponentProps {
   open: boolean
@@ -40,40 +48,31 @@ export function OvertimeListFiltersSidebarComponent({
   const attendanceEmployeeOptions = useStoreAttendanceSelects((s) => s.attendanceEmployeeOptions)
   const loadingEmployeeOptions = useStoreAttendanceSelects((s) => s.loadingAttendanceEmployeeOptions)
 
-  const [filters, setFilters] = useState(() => ({
-    employeeId: queryParams.employeeId,
-    costCenter: queryParams.costCenter,
-    statusId: queryParams.statusId,
-    dateFrom: queryParams.dateFrom,
-    dateTo: queryParams.dateTo,
-    overtimeTypeId: queryParams.overtimeTypeId,
-  }))
+  const [filters, setFilters] = useState<OvertimeFilterForm>(() => mapperOvertimeFiltersFromQuery(queryParams))
 
-  const employeeSelectOptions = attendanceEmployeeOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const costCenterSelectOptions = projectCostCenterOptions.map((option) => ({ label: option.name, value: String(option.id) }))
-  const overtimeTypeSelectOptions = overtimeTypes.map((option) => ({
-    label: option.surchargePercent != null ? `${option.name} · ${option.surchargePercent}%` : option.name,
-    value: String(option.id),
-  }))
+  const employeeSelectOptions = mapperOvertimeSelectOptions(attendanceEmployeeOptions)
+  const costCenterSelectOptions = mapperOvertimeSelectOptions(projectCostCenterOptions)
+  const overtimeTypeSelectOptions = mapperOvertimeTypeSelectOptions(overtimeTypes)
 
   const loadingAny = loadingOvertime || loadingOvertimeTypes || loadingEmployeeOptions || loadingCostCenterOptions
 
-  const handleChangeFilter = (field: keyof typeof filters, value: string) => {
+  const handleChangeFilter = (field: keyof OvertimeFilterForm, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleApply = async () => {
-    setEmployeeFilter(filters.employeeId)
-    setCostCenterFilter(filters.costCenter.trim())
-    setStatusFilter(filters.statusId.trim())
-    setDateRange({ dateFrom: filters.dateFrom.trim(), dateTo: filters.dateTo.trim() })
-    setOvertimeTypeFilter(filters.overtimeTypeId)
+    const payload = mapperOvertimeFiltersPayload(filters)
+    setEmployeeFilter(payload.employeeId)
+    setCostCenterFilter(payload.costCenter)
+    setStatusFilter(payload.statusId)
+    setDateRange({ dateFrom: payload.dateFrom, dateTo: payload.dateTo })
+    setOvertimeTypeFilter(payload.overtimeTypeId)
     await searchOvertime()
     onClose()
   }
 
   const handleClear = async () => {
-    setFilters({ employeeId: '', costCenter: '', statusId: '', dateFrom: '', dateTo: '', overtimeTypeId: '' })
+    setFilters(mapperEmptyOvertimeFilters())
     clearEmployeeFilter()
     clearCostCenterFilter()
     clearStatusFilter()
