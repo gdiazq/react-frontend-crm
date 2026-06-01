@@ -175,7 +175,7 @@ function AnnexDetailContent({
         <div className="grid gap-x-10 md:grid-cols-2">
           <DetailFieldCardComponent
             title="ID solicitud"
-            value={detail.hrRequestId != null ? String(detail.hrRequestId) : '—'}
+            value={detail.hrRequestId !== null && detail.hrRequestId !== undefined ? String(detail.hrRequestId) : '—'}
             mono
           />
           <DetailFieldCardComponent title="Requiere aprobación" value={detail.requireApprovalDisplay} />
