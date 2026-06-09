@@ -20,7 +20,7 @@ export const PermissionModule = {
   Overtime: 'OVERTIME',
   Annex: 'ANNEX',
   Transfer: 'TRANSFER',
-  Settlement: 'SETTLEMENT',
+  Settlement: 'TERMINATION',
   Project: 'PROJECT',
   ProjectType: 'PROJECT_TYPE',
   ProjectSpecialty: 'PROJECT_SPECIALTY',
@@ -28,7 +28,7 @@ export const PermissionModule = {
   LegalTerminationCause: 'LEGAL_TERMINATION_CAUSE',
   QualityOfWork: 'QUALITY_OF_WORK',
   SafetyCompliance: 'SAFETY_COMPLIANCE',
-  NoRehireCause: 'NO_REHIRE_CAUSE',
+  NoRehireCause: 'NO_RE_HIRED_CAUSE',
   TerminationQuizQuestion: 'TERMINATION_QUIZ_QUESTION',
   Calendar: 'CALENDAR',
 } as const
