@@ -69,17 +69,17 @@ export const selectsService = {
   },
 
   getVisitorOptions: async () => {
-    const { data } = await axiosInstance.get<SelectVisitorOption[]>('/rrhh/employee/select/visitors')
+    const { data } = await axiosInstance.get<SelectVisitorOption[]>('/rrhh/contract/select/visitors')
     return data
   },
 
   getSupervisorOptions: async () => {
-    const { data } = await axiosInstance.get<SelectSupervisorOption[]>('/rrhh/employee/select/supervisors')
+    const { data } = await axiosInstance.get<SelectSupervisorOption[]>('/rrhh/contract/select/supervisors')
     return data
   },
 
   getCompanyRepresentativeOptions: async () => {
-    const { data } = await axiosInstance.get<SelectCompanyRepresentativeOption[]>('/rrhh/employee/select/company-representatives')
+    const { data } = await axiosInstance.get<SelectCompanyRepresentativeOption[]>('/rrhh/contract/select/company-representatives')
     return data
   },
 
