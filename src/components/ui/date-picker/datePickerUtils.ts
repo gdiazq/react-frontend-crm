@@ -27,6 +27,13 @@ export function formatDateLabel(value?: string | null): string {
   }).format(date)
 }
 
+export function buildDropdownBounds(min?: string, max?: string): { startMonth: Date, endMonth: Date } {
+  const today = new Date()
+  const startMonth = parseDateValue(min) ?? new Date(today.getFullYear() - 100, 0, 1)
+  const endMonth = parseDateValue(max) ?? new Date(today.getFullYear() + 10, 11, 31)
+  return { startMonth, endMonth }
+}
+
 export function buildDateDisabledMatchers(min?: string, max?: string): Matcher[] | undefined {
   const disabled: Matcher[] = []
   const minDate = parseDateValue(min)
@@ -68,4 +75,14 @@ export const calendarClassNames = {
   range_end: '[&>button]:accent-bg [&>button]:text-white',
   outside: '[&>button]:text-slate-300 dark:[&>button]:text-slate-700',
   disabled: '[&>button]:cursor-not-allowed [&>button]:text-slate-300 [&>button]:line-through dark:[&>button]:text-slate-700',
+}
+
+export const calendarDropdownClassNames = {
+  ...calendarClassNames,
+  caption_label: 'r-md inline-flex items-center gap-1 border border-slate-200 bg-white px-2.5 py-1 text-[13px] font-medium text-slate-800 transition hover:border-slate-300 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-white/20',
+  dropdowns: 'flex items-center justify-center gap-2',
+  dropdown_root: 'relative inline-flex items-center',
+  dropdown: 'absolute inset-0 z-10 w-full cursor-pointer appearance-none opacity-0',
+  months_dropdown: 'capitalize',
+  years_dropdown: 'num',
 }

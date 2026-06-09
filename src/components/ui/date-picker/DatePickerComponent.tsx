@@ -3,7 +3,8 @@ import { DayPicker } from 'react-day-picker'
 import { es } from 'react-day-picker/locale'
 import {
   buildDateDisabledMatchers,
-  calendarClassNames,
+  buildDropdownBounds,
+  calendarDropdownClassNames,
   formatDateLabel,
   formatDateValue,
   parseDateValue,
@@ -38,6 +39,7 @@ export function DatePickerComponent({
   const containerRef = useRef<HTMLDivElement>(null)
   const selectedDate = parseDateValue(value)
   const displayValue = formatDateLabel(value)
+  const { startMonth, endMonth } = buildDropdownBounds(min, max)
 
   const closeDropdown = useCallback(() => {
     setOpen(false)
@@ -121,11 +123,15 @@ export function DatePickerComponent({
             mode="single"
             selected={selectedDate}
             onSelect={handleSelectDate}
+            defaultMonth={selectedDate}
             locale={es}
             weekStartsOn={1}
             autoFocus
+            captionLayout="dropdown"
+            startMonth={startMonth}
+            endMonth={endMonth}
             disabled={buildDateDisabledMatchers(min, max)}
-            classNames={calendarClassNames}
+            classNames={calendarDropdownClassNames}
           />
           <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-white/10">
             <button type="button" className="num text-[11px] text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100" onClick={handleClear}>
