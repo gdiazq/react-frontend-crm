@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  AlertMessageComponent,
   RequestsListDetailSidebarComponent,
   RequestsListFiltersSidebarComponent,
   RequestsListTableComponent,
@@ -15,7 +14,7 @@ import {
   mapperRequestRejectSuccessMessage,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreEmployeeSelects, useStoreRequests } from '@/store'
+import { useStoreEmployeeSelects, useStoreRequests, useStoreToast } from '@/store'
 import type { RequestTableRow } from '@/types'
 
 export default function RequestsDashboardPage() {
@@ -35,6 +34,8 @@ export default function RequestsDashboardPage() {
   const getHrRequestTypeOptions = useStoreEmployeeSelects((s) => s.getHrRequestTypeOptions)
   const clearHrRequestTypeOptionsStatus = useStoreEmployeeSelects((s) => s.clearHrRequestTypeOptionsStatus)
 
+  const pushToast = useStoreToast((s) => s.pushToast)
+
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [selectedDetailRow, setSelectedDetailRow] = useState<RequestTableRow | null>(null)
   const [confirmApproveOpen, setConfirmApproveOpen] = useState(false)
@@ -42,13 +43,30 @@ export default function RequestsDashboardPage() {
   const [confirmRejectOpen, setConfirmRejectOpen] = useState(false)
   const [pendingRejectRow, setPendingRejectRow] = useState<RequestTableRow | null>(null)
   const [rejectDetail, setRejectDetail] = useState('')
-  const [actionsMessage, setActionsMessage] = useState('')
 
   useEffect(() => {
     void getRequests()
     void getApprovalEmployeeStatusOptions()
     void getHrRequestTypeOptions()
   }, [getRequests, getApprovalEmployeeStatusOptions, getHrRequestTypeOptions])
+
+  useEffect(() => {
+    if (!listError) return
+    pushToast({ message: listError, tone: 'error' })
+    clearOperationStatus('list')
+  }, [listError, pushToast, clearOperationStatus])
+
+  useEffect(() => {
+    if (!approvalEmployeeStatusOptionsErrorMessage) return
+    pushToast({ message: approvalEmployeeStatusOptionsErrorMessage, tone: 'error' })
+    clearApprovalEmployeeStatusOptionsStatus()
+  }, [approvalEmployeeStatusOptionsErrorMessage, pushToast, clearApprovalEmployeeStatusOptionsStatus])
+
+  useEffect(() => {
+    if (!hrRequestTypeOptionsErrorMessage) return
+    pushToast({ message: hrRequestTypeOptionsErrorMessage, tone: 'error' })
+    clearHrRequestTypeOptionsStatus()
+  }, [hrRequestTypeOptionsErrorMessage, pushToast, clearHrRequestTypeOptionsStatus])
 
   const handleApproveRequest = (row: RequestTableRow) => {
     setPendingApproveRow(row)
@@ -76,7 +94,7 @@ export default function RequestsDashboardPage() {
     setConfirmApproveOpen(false)
     setPendingApproveRow(null)
     await getRequests()
-    setActionsMessage(mapperRequestApproveSuccessMessage(pendingApproveRow))
+    pushToast({ message: mapperRequestApproveSuccessMessage(pendingApproveRow), tone: 'success' })
   }
 
   const handleCloseConfirmReject = () => {
@@ -96,7 +114,7 @@ export default function RequestsDashboardPage() {
     setPendingRejectRow(null)
     setRejectDetail('')
     await getRequests()
-    setActionsMessage(mapperRequestRejectSuccessMessage(pendingRejectRow))
+    pushToast({ message: mapperRequestRejectSuccessMessage(pendingRejectRow), tone: 'success' })
   }
 
   const confirmApproveMessage = mapperRequestApproveConfirmMessage(pendingApproveRow)
@@ -125,42 +143,10 @@ export default function RequestsDashboardPage() {
         showRatios={false}
       />
 
-      {listError && (
-        <AlertMessageComponent
-          message={listError}
-          tone="error"
-          onClose={() => clearOperationStatus('list')}
-        />
-      )}
-
-      {approvalEmployeeStatusOptionsErrorMessage && (
-        <AlertMessageComponent
-          message={approvalEmployeeStatusOptionsErrorMessage}
-          tone="error"
-          onClose={clearApprovalEmployeeStatusOptionsStatus}
-        />
-      )}
-
-      {hrRequestTypeOptionsErrorMessage && (
-        <AlertMessageComponent
-          message={hrRequestTypeOptionsErrorMessage}
-          tone="error"
-          onClose={clearHrRequestTypeOptionsStatus}
-        />
-      )}
-
       <RequestsListToolbarComponent
         disabled={loadingAction}
         onOpenFilters={() => setFiltersOpen(true)}
       />
-
-      {actionsMessage && (
-        <AlertMessageComponent
-          message={actionsMessage}
-          tone="info"
-          onClose={() => setActionsMessage('')}
-        />
-      )}
 
       <RequestsListTableComponent
         onViewDetail={setSelectedDetailRow}
