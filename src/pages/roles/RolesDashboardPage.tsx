@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  AlertMessageComponent,
   RolesListDetailSidebarComponent,
   RolesListFiltersSidebarComponent,
   RolesListTableComponent,
@@ -9,7 +8,7 @@ import {
   StatsOverviewCardsComponent,
 } from '@/components'
 import { mapperRoleRowStatus, mapperRoleTableDisplayName, mapperRoleToggleSuccessMessage } from '@/mappers'
-import { useStoreRoles, useStoreSelects } from '@/store'
+import { useStoreRoles, useStoreSelects, useStoreToast } from '@/store'
 import type { RoleTableRow } from '@/types'
 
 export default function RolesDashboardPage() {
@@ -25,16 +24,35 @@ export default function RolesDashboardPage() {
   const getStatusOptions = useStoreSelects((s) => s.getStatusOptions)
   const clearStatusOptionsStatus = useStoreSelects((s) => s.clearStatusOptionsStatus)
 
+  const pushToast = useStoreToast((s) => s.pushToast)
+
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [selectedDetailRowId, setSelectedDetailRowId] = useState<string | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<RoleTableRow | null>(null)
-  const [actionsMessage, setActionsMessage] = useState('')
 
   useEffect(() => {
     void getRoles()
     void getStatusOptions()
   }, [getRoles, getStatusOptions])
+
+  useEffect(() => {
+    if (!listError) return
+    pushToast({ message: listError, tone: 'error' })
+    clearOperationStatus('list')
+  }, [listError, pushToast, clearOperationStatus])
+
+  useEffect(() => {
+    if (!toggleError) return
+    pushToast({ message: toggleError, tone: 'error' })
+    clearOperationStatus('toggle')
+  }, [toggleError, pushToast, clearOperationStatus])
+
+  useEffect(() => {
+    if (!statusOptionsErrorMessage) return
+    pushToast({ message: statusOptionsErrorMessage, tone: 'error' })
+    clearStatusOptionsStatus()
+  }, [statusOptionsErrorMessage, pushToast, clearStatusOptionsStatus])
 
   const handleToggleStatus = (row: RoleTableRow) => {
     setPendingToggleRow(row)
@@ -57,8 +75,7 @@ export default function RolesDashboardPage() {
     setConfirmOpen(false)
     setPendingToggleRow(null)
     await getRoles()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    setActionsMessage(mapperRoleToggleSuccessMessage(pendingToggleRow, nextStatus))
+    pushToast({ message: mapperRoleToggleSuccessMessage(pendingToggleRow, nextStatus), tone: 'success' })
   }
 
   const confirmMessage = pendingToggleRow
@@ -84,37 +101,10 @@ export default function RolesDashboardPage() {
         active={pagination.active}
       />
 
-      {(listError || toggleError) && (
-        <AlertMessageComponent
-          message={(listError || toggleError)!}
-          tone="error"
-          onClose={() => {
-            if (listError) clearOperationStatus('list')
-            if (toggleError) clearOperationStatus('toggle')
-          }}
-        />
-      )}
-
-      {statusOptionsErrorMessage && (
-        <AlertMessageComponent
-          message={statusOptionsErrorMessage}
-          tone="error"
-          onClose={clearStatusOptionsStatus}
-        />
-      )}
-
       <RolesListToolbarComponent
         onOpenFilters={() => setFiltersOpen(true)}
         disabled={loadingToggleStatus}
       />
-
-      {actionsMessage && (
-        <AlertMessageComponent
-          message={actionsMessage}
-          tone="info"
-          onClose={() => setActionsMessage('')}
-        />
-      )}
 
       <RolesListTableComponent
         onViewDetail={(row) => setSelectedDetailRowId(row.id)}

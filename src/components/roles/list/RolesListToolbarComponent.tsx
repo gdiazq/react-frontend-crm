@@ -1,14 +1,13 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  AlertMessageComponent,
   ButtonComponent,
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_ROLES_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import { useHasPermission } from '@/hooks'
-import { useStoreRoles } from '@/store'
+import { useStoreRoles, useStoreToast } from '@/store'
 
 interface RolesListToolbarComponentProps {
   onOpenFilters: () => void
@@ -27,7 +26,7 @@ export function RolesListToolbarComponent(props: RolesListToolbarComponentProps)
   const searchRoles = useStoreRoles((s) => s.searchRoles)
   const exportRolesCsv = useStoreRoles((s) => s.exportRolesCsv)
   const importRolesCsv = useStoreRoles((s) => s.importRolesCsv)
-  const [actionsMessage, setActionsMessage] = useState('')
+  const pushToast = useStoreToast((s) => s.pushToast)
   const bulkUploadInputRef = useRef<HTMLInputElement | null>(null)
   const loadingAny = loading || disabled || exportingCsv || importingCsv
 
@@ -35,7 +34,7 @@ export function RolesListToolbarComponent(props: RolesListToolbarComponentProps)
     if (exportingCsv) return
     const success = await exportRolesCsv()
     if (success) {
-      setActionsMessage('Reporte descargado correctamente.')
+      pushToast({ message: 'Reporte descargado correctamente.', tone: 'success' })
     }
   }
 
@@ -51,7 +50,7 @@ export function RolesListToolbarComponent(props: RolesListToolbarComponentProps)
 
     const summary = await importRolesCsv(file)
     if (summary) {
-      setActionsMessage(summary)
+      pushToast({ message: summary, tone: 'info' })
     }
   }
 
@@ -93,7 +92,6 @@ export function RolesListToolbarComponent(props: RolesListToolbarComponentProps)
         </div>
       </form>
       <input ref={bulkUploadInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(event) => { void handleBulkUploadFileChange(event) }} />
-      {actionsMessage && <AlertMessageComponent message={actionsMessage} tone="info" onClose={() => setActionsMessage('')} />}
     </>
   )
 }

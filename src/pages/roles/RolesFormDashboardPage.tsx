@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  AlertMessageComponent,
   ButtonComponent,
   RolesFormDataSectionComponent,
   RolesFormPermissionsSectionComponent,
@@ -19,7 +18,7 @@ import {
   mapperUpdateRolePayload,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreAuth, useStoreRoles, useStoreSelects } from '@/store'
+import { useStoreAuth, useStoreRoles, useStoreSelects, useStoreToast } from '@/store'
 import { rolesCreateValidationRules } from '@/validators'
 
 export default function RolesFormDashboardPage() {
@@ -52,6 +51,8 @@ export default function RolesFormDashboardPage() {
   const permissionOptionsErrorMessage = useStoreSelects((s) => s.permissionOptionsErrorMessage)
   const getPermissionOptions = useStoreSelects((s) => s.getPermissionOptions)
   const clearPermissionOptionsStatus = useStoreSelects((s) => s.clearPermissionOptionsStatus)
+
+  const pushToast = useStoreToast((s) => s.pushToast)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, rolesCreateValidationRules)
 
@@ -111,6 +112,25 @@ export default function RolesFormDashboardPage() {
     }
   }, [editRoleId, getRoleDetail, isEditMode])
 
+  useEffect(() => {
+    if (!permissionOptionsErrorMessage) return
+    pushToast({ message: permissionOptionsErrorMessage, tone: 'error' })
+    clearPermissionOptionsStatus()
+  }, [permissionOptionsErrorMessage, pushToast, clearPermissionOptionsStatus])
+
+  useEffect(() => {
+    if (!detailError) return
+    pushToast({ message: detailError, tone: 'error' })
+    clearOperationStatus('detail')
+  }, [detailError, pushToast, clearOperationStatus])
+
+  useEffect(() => {
+    if (!submitErrorMessage) return
+    pushToast({ message: submitErrorMessage, tone: 'error' })
+    clearOperationStatus('create')
+    clearOperationStatus('update')
+  }, [submitErrorMessage, pushToast, clearOperationStatus])
+
   const clearSubmitStatus = () => {
     clearOperationStatus('create')
     clearOperationStatus('update')
@@ -167,6 +187,10 @@ export default function RolesFormDashboardPage() {
       : await createRole(mapperCreateRolePayload(form), permissionIds)
 
     if (success) {
+      const successMessage = isEditMode
+        ? messages.roles.status.success.updateRoleSuccess
+        : messages.roles.status.success.createRoleSuccess
+      pushToast({ message: successMessage, tone: 'success' })
       try {
         await getCurrentUser()
       } catch {
@@ -199,38 +223,6 @@ export default function RolesFormDashboardPage() {
           {headerDescription}
         </p>
       </header>
-
-      {permissionOptionsErrorMessage && (
-        <AlertMessageComponent
-          message={permissionOptionsErrorMessage}
-          tone="error"
-          onClose={clearPermissionOptionsStatus}
-        />
-      )}
-
-      {isEditMode && detailError && (
-        <AlertMessageComponent
-          message={detailError}
-          tone="error"
-          onClose={() => clearOperationStatus('detail')}
-        />
-      )}
-
-      {submitErrorMessage && (
-        <AlertMessageComponent
-          message={submitErrorMessage}
-          tone="error"
-          onClose={clearSubmitStatus}
-        />
-      )}
-
-      {submitSuccessMessage && (
-        <AlertMessageComponent
-          message={submitSuccessMessage}
-          tone="success"
-          onClose={clearSubmitStatus}
-        />
-      )}
 
       <form className="space-y-10" onSubmit={handleSubmit}>
         {isEditMode && loadingRoleDetail && (
