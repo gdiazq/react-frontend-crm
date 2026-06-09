@@ -14,6 +14,7 @@ interface ContractsFormBaseSectionComponentProps {
   errors: Partial<Record<ContractFormField, string>>
   isEditMode: boolean
   employeeOptions: SelectOption[]
+  costCenterOptions: SelectOption[]
   contractTypeOptions: SelectOption[]
   safetyGroupOptions: SelectOption[]
   onChangeField: (field: ContractFormField) => (value: string) => void
@@ -36,6 +37,7 @@ export function ContractsFormBaseSectionComponent(props: ContractsFormBaseSectio
     errors,
     isEditMode,
     employeeOptions,
+    costCenterOptions,
     contractTypeOptions,
     safetyGroupOptions,
     onChangeField,
@@ -57,6 +59,15 @@ export function ContractsFormBaseSectionComponent(props: ContractsFormBaseSectio
             disabled={isEditMode}
             onValueChange={onChangeField('employeeId')}
             onValidation={onValidation('employeeId')}
+            required
+          />
+          <SelectComponent
+            value={form.costCenter}
+            label="Centro de costo"
+            options={costCenterOptions}
+            error={errors.costCenter}
+            onValueChange={onChangeField('costCenter')}
+            onValidation={onValidation('costCenter')}
             required
           />
           <InputComponent

@@ -6,6 +6,7 @@ import type { ContractSelectsStore } from '@/types'
 
 export const useStoreContractSelects = create<ContractSelectsStore>()((set) => ({
   employeeWithoutContractOptions: [],
+  costCenterOptions: [],
   contractTypeFilterOptions: [],
   contractStatusFilterOptions: [],
   contractTypeOptions: [],
@@ -67,6 +68,7 @@ export const useStoreContractSelects = create<ContractSelectsStore>()((set) => (
 
       const [
         employeesWithoutContract,
+        costCenters,
         contractTypes,
         safetyGroups,
         companies,
@@ -78,6 +80,7 @@ export const useStoreContractSelects = create<ContractSelectsStore>()((set) => (
         transportTypes,
       ] = await Promise.all([
         contractSelectsService.getEmployeeWithoutContractOptions(),
+        contractSelectsService.getCostCenterOptions(),
         contractSelectsService.getContractTypeOptions(),
         contractSelectsService.getSafetyGroupOptions(),
         contractSelectsService.getCompanyOptions(),
@@ -91,6 +94,7 @@ export const useStoreContractSelects = create<ContractSelectsStore>()((set) => (
 
       set({
         employeeWithoutContractOptions: mapperContractSelectOptions(employeesWithoutContract),
+        costCenterOptions: mapperContractSelectOptions(costCenters),
         contractTypeOptions: mapperContractSelectOptions(contractTypes),
         safetyGroupOptions: mapperContractSelectOptions(safetyGroups),
         companyOptions: mapperContractSelectOptions(companies),

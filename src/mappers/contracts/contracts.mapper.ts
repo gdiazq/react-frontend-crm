@@ -161,6 +161,7 @@ function mapperContractDocuments(documents: ContractDetail['documents']): Contra
 export function mapperCreateContractPayload(form: ContractCreateForm): ContractCreatePayload {
   return {
     employeeId: parseRequiredNumber(form.employeeId),
+    costCenter: parseRequiredNumber(form.costCenter),
     name: form.name.trim(),
     contractNumber: form.contractNumber.trim(),
     contractTypeId: parseRequiredNumber(form.contractTypeId),
@@ -186,6 +187,7 @@ export function mapperUpdateContractPayload(contractId: number, form: ContractCr
   return {
     id: contractId,
     employeeId: parseRequiredNumber(form.employeeId),
+    costCenter: parseRequiredNumber(form.costCenter),
     name: form.name.trim(),
     contractNumber: form.contractNumber.trim(),
     contractTypeId: parseRequiredNumber(form.contractTypeId),
@@ -210,6 +212,7 @@ export function mapperUpdateContractPayload(contractId: number, form: ContractCr
 export function mapperContractDetailToForm(detail: ContractDetail): ContractCreateForm {
   return {
     employeeId: String(detail.employeeId),
+    costCenter: String(detail.costCenter ?? ''),
     name: detail.name ?? '',
     contractNumber: detail.contractNumber ?? '',
     contractTypeId: String(detail.contractType?.id ?? detail.contractTypeId ?? ''),

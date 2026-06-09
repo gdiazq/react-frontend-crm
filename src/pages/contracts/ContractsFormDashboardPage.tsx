@@ -56,6 +56,7 @@ export default function ContractsFormDashboardPage() {
   const updateContract = useStoreContracts((s) => s.updateContract)
 
   const employeeWithoutContractOptions = useStoreContractSelects((s) => s.employeeWithoutContractOptions)
+  const costCenterOptions = useStoreContractSelects((s) => s.costCenterOptions)
   const contractTypeOptions = useStoreContractSelects((s) => s.contractTypeOptions)
   const safetyGroupOptions = useStoreContractSelects((s) => s.safetyGroupOptions)
   const companyOptions = useStoreContractSelects((s) => s.companyOptions)
@@ -91,6 +92,7 @@ export default function ContractsFormDashboardPage() {
     label: editEmployeeLabel,
     fallbackLabel: `Trabajador #${form.employeeId}`,
   })
+  const selectCostCenters = mapperContractFormSelectOptions(costCenterOptions)
   const selectContractTypes = mapperContractFormSelectOptions(contractTypeOptions)
   const selectSafetyGroups = mapperContractFormSelectOptions(safetyGroupOptions)
   const selectCompanies = mapperContractFormSelectOptions(companyOptions)
@@ -293,6 +295,7 @@ export default function ContractsFormDashboardPage() {
           errors={errors}
           isEditMode={isEditMode}
           employeeOptions={selectEmployees}
+          costCenterOptions={selectCostCenters}
           contractTypeOptions={selectContractTypes}
           safetyGroupOptions={selectSafetyGroups}
           onChangeField={handleFieldValueChange}

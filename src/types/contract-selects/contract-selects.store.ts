@@ -2,6 +2,7 @@ import type { ContractSelectOption } from './contract-selects'
 
 export interface ContractSelectsStore {
   employeeWithoutContractOptions: ContractSelectOption[]
+  costCenterOptions: ContractSelectOption[]
   contractTypeFilterOptions: ContractSelectOption[]
   contractStatusFilterOptions: ContractSelectOption[]
   contractTypeOptions: ContractSelectOption[]

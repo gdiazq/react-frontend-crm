@@ -10,6 +10,11 @@ export const contractSelectsService = {
     return data
   },
 
+  getCostCenterOptions: async () => {
+    const { data } = await axiosInstance.get<ContractSelectOption[]>('/project/select/cost-centers')
+    return data
+  },
+
   getContractTypeOptions: async () => {
     const { data } = await axiosInstance.get<ContractSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/contract-types`)
     return data

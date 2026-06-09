@@ -6,6 +6,7 @@ export const contractsCreateValidationRules: Record<string, ValidationRule> = {
     required: true,
     custom: (value: string) => (Number.isInteger(Number(value)) && Number(value) > 0 ? null : 'Selecciona un trabajador'),
   },
+  costCenter: selectRequiredRule('el centro de costo'),
   name: { required: true, minLength: 3 },
   contractNumber: { required: true, minLength: 2 },
   contractTypeId: selectRequiredRule('el tipo de contrato'),

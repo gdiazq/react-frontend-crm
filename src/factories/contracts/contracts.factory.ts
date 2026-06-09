@@ -73,6 +73,7 @@ export const initialContractsQueryParams: ContractsQueryParams = {
 
 export const initialCreateContractForm: ContractCreateForm = {
   employeeId: '',
+  costCenter: '',
   name: '',
   contractNumber: '',
   contractTypeId: '',

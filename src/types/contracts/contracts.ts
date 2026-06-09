@@ -21,6 +21,7 @@ export interface ContractRaw {
 
 export interface ContractCreateForm {
   employeeId: string
+  costCenter: string
   name: string
   contractNumber: string
   contractTypeId: string
@@ -64,6 +65,7 @@ export type ContractsFilterPayload = ContractsFilterForm
 
 export interface ContractCreatePayload {
   employeeId: number
+  costCenter: number
   name: string
   contractNumber: string
   contractTypeId: number
@@ -87,6 +89,7 @@ export interface ContractCreatePayload {
 export interface ContractUpdatePayload {
   id: number
   employeeId: number
+  costCenter: number
   name: string
   contractNumber: string
   contractTypeId: number
@@ -126,6 +129,7 @@ export interface ContractDocument {
 export interface ContractDetail {
   id: number
   employeeId: number
+  costCenter?: number | null
   employeeName?: string | null
   employeeIdentification?: string | null
   name: string
