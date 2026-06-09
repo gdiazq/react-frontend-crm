@@ -35,7 +35,7 @@ import {
   PermissionAction,
   PermissionModule,
 } from '@/constant'
-import { NavbarComponent, NotificationPanel, SidebarComponent } from '@/components'
+import { NavbarComponent, NotificationPanel, SidebarComponent, ToastViewportComponent } from '@/components'
 import {
   useStoreAuth,
   useStoreCalendar,
@@ -534,6 +534,8 @@ export function LayoutPrivateDefault() {
         onArchive={handleArchive}
         formatTimestamp={formatNotificationTimestamp}
       />
+
+      <ToastViewportComponent />
     </main>
   )
 }

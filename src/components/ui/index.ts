@@ -1,4 +1,5 @@
 export * from './alert/AlertMessageComponent'
+export * from './toast/ToastViewportComponent'
 export * from './avatar/AvatarInitialsComponent'
 export * from './button/ButtonComponent'
 export * from './button/GitHubLoginButtonComponent'
