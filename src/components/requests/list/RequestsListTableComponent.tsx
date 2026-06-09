@@ -45,7 +45,8 @@ export function RequestsListTableComponent(props: RequestsListTableComponentProp
   const loadingRequests = useStoreRequests((s) => s.operationLoading.list)
   const goToPage = useStoreRequests((s) => s.goToPage)
   const sortRequests = useStoreRequests((s) => s.sortRequests)
-  const canUpdate = useHasPermission(PermissionModule.HrRequest, PermissionAction.Update)
+  const canApprove = useHasPermission(PermissionModule.HrRequest, PermissionAction.Approve)
+  const canReject = useHasPermission(PermissionModule.HrRequest, PermissionAction.Reject)
   const { actionViewDetail, actionApproveRequest, actionRejectRequest } = createRequestsActions()
 
   const rowsById = useMemo(() => createRowsById(requestsRows), [requestsRows])
@@ -53,9 +54,9 @@ export function RequestsListTableComponent(props: RequestsListTableComponentProp
 
   const resolveRowActions = (row: RequestTableRow): DropdownAction[] => {
     const actions: DropdownAction[] = [actionViewDetail(() => onViewDetail(row))]
-    if (canUpdate && !isFinalRequestStatus(row.statusId)) {
-      actions.push(actionApproveRequest(() => onApprove(row)))
-      actions.push(actionRejectRequest(() => onReject(row)))
+    if (!isFinalRequestStatus(row.statusId)) {
+      if (canApprove) actions.push(actionApproveRequest(() => onApprove(row)))
+      if (canReject) actions.push(actionRejectRequest(() => onReject(row)))
     }
     return actions
   }

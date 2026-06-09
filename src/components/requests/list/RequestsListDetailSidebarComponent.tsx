@@ -33,9 +33,10 @@ export function RequestsListDetailSidebarComponent(props: RequestsListDetailSide
     onClose()
   }
 
-  const canUpdate = useHasPermission(PermissionModule.HrRequest, PermissionAction.Update)
+  const canApprove = useHasPermission(PermissionModule.HrRequest, PermissionAction.Approve)
+  const canReject = useHasPermission(PermissionModule.HrRequest, PermissionAction.Reject)
   const requestDetailView = mapperRequestDetailView(requestDetail)
-  const canAct = canUpdate && row ? !isFinalRequestStatus(row.statusId) : false
+  const isActionable = row ? !isFinalRequestStatus(row.statusId) : false
   const fallbackName = row?.displayName ?? ''
   const title = mapperRequestDetailTitle(requestDetailView, fallbackName)
 
@@ -47,8 +48,8 @@ export function RequestsListDetailSidebarComponent(props: RequestsListDetailSide
         loading={loadingRequestDetail}
         errorMessage={detailError}
         onRetry={() => { if (row) void getRequestDetail(row.id) }}
-        onApprove={canAct && row ? () => onApprove(row) : undefined}
-        onReject={canAct && row ? () => onReject(row) : undefined}
+        onApprove={isActionable && canApprove && row ? () => onApprove(row) : undefined}
+        onReject={isActionable && canReject && row ? () => onReject(row) : undefined}
       />
     </DetailSidebarComponent>
   )

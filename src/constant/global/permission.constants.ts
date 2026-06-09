@@ -3,6 +3,8 @@ export const PermissionAction = {
   Create: 'canCreate',
   Update: 'canUpdate',
   Delete: 'canDelete',
+  Approve: 'canApprove',
+  Reject: 'canReject',
 } as const
 
 export type PermissionAction = typeof PermissionAction[keyof typeof PermissionAction]

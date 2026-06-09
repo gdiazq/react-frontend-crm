@@ -21,6 +21,8 @@ export interface ModulePermission {
   canCreate?: boolean
   canUpdate?: boolean
   canDelete?: boolean
+  canApprove?: boolean
+  canReject?: boolean
 }
 
 export interface CsvImportError {

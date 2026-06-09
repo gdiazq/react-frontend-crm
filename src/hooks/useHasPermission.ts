@@ -7,6 +7,8 @@ const actionByPermissionType: Record<PermissionActionValue, string> = {
   canCreate: 'CREATE',
   canUpdate: 'UPDATE',
   canDelete: 'DELETE',
+  canApprove: 'APPROVE',
+  canReject: 'REJECT',
 }
 
 const checkPermission = (
