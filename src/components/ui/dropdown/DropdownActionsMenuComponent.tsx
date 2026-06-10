@@ -94,7 +94,9 @@ export function DropdownActionsMenuComponent({
       const toneClass =
         action.tone === 'danger'
           ? 'text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-900/20'
-          : 'text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5'
+          : action.tone === 'success'
+            ? 'text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-900/20'
+            : 'text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/5'
       return (
         <button
           key={action.id}

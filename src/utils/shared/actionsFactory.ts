@@ -3,7 +3,7 @@ import messages from '@/messages/messages'
 export interface DropdownAction {
   id: string
   label: string
-  tone?: 'default' | 'danger'
+  tone?: 'default' | 'danger' | 'success'
   handler: () => void
 }
 
@@ -41,7 +41,7 @@ export function createEmployeesActions() {
     return {
       id: 'toggle-status',
       label: enabled ? messages.employees.ui.actionDisableEmployee : messages.employees.ui.actionEnableEmployee,
-      tone: enabled ? 'danger' : 'default',
+      tone: enabled ? 'danger' : 'success',
       handler,
     }
   }
