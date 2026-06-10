@@ -34,7 +34,7 @@ export const projectsService = {
 
   getCostCenterEmployees: async (costCenter: number, queryParams: ProjectCostCenterEmployeesQueryParams) => {
     const { data } = await axiosInstance.get<ProjectCostCenterEmployeesPagedResponse>(
-      `/project/project/cost-center/${costCenter}/employees/paged`,
+      `/project/project/cost-center/${costCenter}/contracts/paged`,
       { params: mapperProjectCostCenterEmployeesQueryParams(queryParams) },
     )
     return data
