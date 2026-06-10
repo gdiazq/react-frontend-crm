@@ -83,8 +83,6 @@ export interface ProjectTableRow {
 export interface ProjectCostCenterEmployeeTableRow {
   id: string
   values: string[]
-  active?: boolean
-  hasContract?: boolean
 }
 
 export type ProjectsSortBy =
@@ -137,19 +135,21 @@ export interface ProjectPagedResponse {
 
 export interface ProjectCostCenterEmployeeRaw {
   id: number
-  userId?: number | null
-  identification: string
-  firstName: string
-  paternalLastName: string
-  maternalLastName: string
-  corporateEmail?: string | null
-  phone?: string | null
-  statusName?: string | null
+  employeeId: number
+  employeeName: string
+  employeeIdentification: string
+  name: string
+  contractNumber: string
+  contractType: string
+  contractStatus: string
+  approvalStatus?: string | null
+  company: string
+  jobTitle: string
   costCenter: number
   projectName?: string | null
-  active: boolean
-  rehireEligible: boolean
-  hasContract: boolean
+  baseSalary?: string | null
+  startDate?: string | null
+  endDate?: string | null
   createdAt: string
   updatedAt?: string | null
 }
@@ -157,9 +157,7 @@ export interface ProjectCostCenterEmployeeRaw {
 export type ProjectCostCenterEmployeesSortBy =
   | 'createdAt'
   | 'updatedAt'
-  | 'identification'
-  | 'firstName'
-  | 'statusName'
+  | 'startDate'
 
 export type ProjectCostCenterEmployeesSortDir = 'asc' | 'desc'
 

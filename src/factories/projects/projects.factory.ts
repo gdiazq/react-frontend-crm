@@ -83,25 +83,23 @@ export const initialProjectsQueryParams: ProjectsQueryParams = {
 export const projectCostCenterEmployeesTableColumns: string[] = [
   'Identificación',
   'Trabajador',
-  'Email',
-  'Teléfono',
-  'Estado',
-  'Activo',
-  'Contrato',
+  'N° contrato',
+  'Tipo contrato',
+  'Estado contrato',
+  'Estado aprobación',
+  'Cargo',
+  'Inicio',
   'Creado',
 ]
 
 export const projectCostCenterEmployeesTableColumnIndex = {
-  status: 4,
-  active: 5,
-  contract: 6,
+  contractStatus: 4,
+  approvalStatus: 5,
 }
 
 export const projectCostCenterEmployeesTableSortByColumn: Partial<Record<number, ProjectCostCenterEmployeesSortBy>> = {
-  0: 'identification',
-  1: 'firstName',
-  4: 'statusName',
-  7: 'createdAt',
+  7: 'startDate',
+  8: 'createdAt',
 }
 
 export const initialProjectCostCenterEmployeesRows: ProjectCostCenterEmployeeTableRow[] = []

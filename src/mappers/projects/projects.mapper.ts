@@ -90,23 +90,18 @@ export function mapperProjectOptionName(
   return optionsById.get(optionId) || fallback
 }
 
-function resolveEmployeeFullName(item: ProjectCostCenterEmployeeRaw): string {
-  return [item.firstName, item.paternalLastName, item.maternalLastName].filter(Boolean).join(' ').trim() || '-'
-}
-
 export function mapperProjectCostCenterEmployeesRows(result: ProjectCostCenterEmployeeRaw[]): ProjectCostCenterEmployeeTableRow[] {
   return result.map((item) => ({
     id: String(item.id),
-    active: item.active,
-    hasContract: item.hasContract,
     values: [
-      item.identification || '-',
-      resolveEmployeeFullName(item),
-      item.corporateEmail || '-',
-      item.phone || '-',
-      item.statusName || '-',
-      item.active ? messages.projects.ui.statusActive : messages.projects.ui.statusInactive,
-      item.hasContract ? 'Sí' : 'No',
+      item.employeeIdentification || '-',
+      item.employeeName || '-',
+      item.contractNumber || '-',
+      item.contractType || '-',
+      item.contractStatus || '-',
+      item.approvalStatus || '-',
+      item.jobTitle || '-',
+      formatDate(item.startDate || '', '-'),
       formatDate(item.createdAt, '-'),
     ],
   }))

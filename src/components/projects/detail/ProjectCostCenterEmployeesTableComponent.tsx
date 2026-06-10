@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { PaginationComponent, TableComponent } from '@/components'
 import {
   projectCostCenterEmployeesTableColumns,
@@ -8,18 +7,15 @@ import {
 import messages from '@/messages/messages'
 import { useStoreProjects } from '@/store'
 import {
-  createRowsById,
   createTableSortState,
   createTableCustomRenderer,
-  findRowById,
-  isTableRowActive,
-  renderStatusBadge,
+  renderContractStatus,
+  renderEmployeeApprovalStatus,
   resolveNextTableSortDir,
 } from '@/utils'
 
-const STATE_COLUMN_INDEX = projectCostCenterEmployeesTableColumnIndex.status
-const ACTIVE_COLUMN_INDEX = projectCostCenterEmployeesTableColumnIndex.active
-const CONTRACT_COLUMN_INDEX = projectCostCenterEmployeesTableColumnIndex.contract
+const CONTRACT_STATUS_COLUMN_INDEX = projectCostCenterEmployeesTableColumnIndex.contractStatus
+const APPROVAL_STATUS_COLUMN_INDEX = projectCostCenterEmployeesTableColumnIndex.approvalStatus
 const SORTABLE_COLUMNS = Object.keys(projectCostCenterEmployeesTableSortByColumn).map((index) => Number(index))
 
 interface ProjectCostCenterEmployeesTableComponentProps {
@@ -37,25 +33,11 @@ export function ProjectCostCenterEmployeesTableComponent({ costCenter }: Project
   const sortCostCenterEmployees = useStoreProjects((s) => s.sortCostCenterEmployees)
   const goToCostCenterEmployeesPage = useStoreProjects((s) => s.goToCostCenterEmployeesPage)
 
-  // Derived lookup for callbacks that receive the generic TableRow shape.
-  const rowsById = useMemo(() => createRowsById(rows), [rows])
-  const resolveEmployeeRow = (rowId: string) => findRowById(rowsById, rowId)
-  const resolveRowActive = (rowId: string) => isTableRowActive(resolveEmployeeRow(rowId))
-  const resolveRowHasContract = (rowId: string) => resolveEmployeeRow(rowId)?.hasContract === true
   const validCostCenter = Number.isInteger(costCenter) && costCenter !== null && costCenter > 0
 
   const renderCustomCell = createTableCustomRenderer({
-    [ACTIVE_COLUMN_INDEX]: ({ row }) => renderStatusBadge(resolveRowActive(row.id)),
-    [CONTRACT_COLUMN_INDEX]: ({ row }) => renderStatusBadge(resolveRowHasContract(row.id), { activeLabel: 'Sí', inactiveLabel: 'No' }),
-    [STATE_COLUMN_INDEX]: ({ value }) => {
-      const text = String(value ?? '')
-      if (!text || text === '-') return null
-      return (
-        <span className="inline-flex items-center r-md border border-slate-300 px-2 py-0.5 text-[11px] text-slate-700 dark:border-white/15 dark:text-slate-200">
-          {text}
-        </span>
-      )
-    },
+    [CONTRACT_STATUS_COLUMN_INDEX]: ({ value }) => renderContractStatus(value),
+    [APPROVAL_STATUS_COLUMN_INDEX]: ({ value }) => renderEmployeeApprovalStatus(value),
   })
 
   const handleSortChange = async (columnIndex: number) => {
