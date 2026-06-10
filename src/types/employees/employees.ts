@@ -338,6 +338,7 @@ export interface EmployeesQueryParams {
   search: string
   active: string
   statusId: string
+  hasContract: string
   createdFrom: string
   createdTo: string
   sortBy: EmployeesSortBy

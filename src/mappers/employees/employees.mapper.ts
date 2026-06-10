@@ -10,6 +10,7 @@ import type {
   EmployeeRaw,
   EmployeeSelectOption,
   EmployeeTableRow,
+  EmployeeYesNoOption,
   EmployeesPagination,
   EmployeesQueryParams,
 } from '@/types'
@@ -20,6 +21,10 @@ import { formatDate } from '@/utils'
 
 export function mapperEmployeeFormSelectOptions(options: Array<EmployeeSelectOption | { id: boolean, name: string }>) {
   return options.map((option) => ({ label: option.name, value: String(option.id) }))
+}
+
+export function mapperEmployeeYesNoSelectOptions(options: EmployeeYesNoOption[]) {
+  return options.map((option) => ({ label: option.name, value: String(option.value) }))
 }
 
 export function mapperEmployeeAvailableUserSelectOptions(options: EmployeeAvailableUserOption[]) {
@@ -125,6 +130,7 @@ export function mapperEmployeesQueryParams(queryParams: EmployeesQueryParams): R
   appendString(params, 'search', queryParams.search)
   appendBooleanString(params, 'active', queryParams.active)
   appendParsedId(params, 'statusId', queryParams.statusId)
+  appendBooleanString(params, 'hasContract', queryParams.hasContract)
   appendString(params, 'createdFrom', queryParams.createdFrom)
   appendString(params, 'createdTo', queryParams.createdTo)
   return params

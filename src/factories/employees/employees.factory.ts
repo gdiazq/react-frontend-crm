@@ -52,6 +52,7 @@ export const initialEmployeesQueryParams: EmployeesQueryParams = {
   search: '',
   active: '',
   statusId: '',
+  hasContract: '',
   createdFrom: '',
   createdTo: '',
   sortBy: 'createdAt',

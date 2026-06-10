@@ -79,6 +79,7 @@ export default function EmployeesDashboardPage() {
   const approvalEmployeeStatusOptionsErrorMessage = useStoreEmployeeSelects((s) => s.approvalEmployeeStatusOptionsErrorMessage)
   const getApprovalEmployeeStatusOptions = useStoreEmployeeSelects((s) => s.getApprovalEmployeeStatusOptions)
   const clearApprovalEmployeeStatusOptionsStatus = useStoreEmployeeSelects((s) => s.clearApprovalEmployeeStatusOptionsStatus)
+  const getYesNoOptions = useStoreEmployeeSelects((s) => s.getYesNoOptions)
 
   // Derived lookups and select options.
   const employeesRowsById = useMemo(() => createRowsById(employeesRows), [employeesRows])
@@ -89,7 +90,8 @@ export default function EmployeesDashboardPage() {
     void getEmployees()
     void getStatusOptions()
     void getApprovalEmployeeStatusOptions()
-  }, [getApprovalEmployeeStatusOptions, getEmployees, getStatusOptions])
+    void getYesNoOptions()
+  }, [getApprovalEmployeeStatusOptions, getEmployees, getStatusOptions, getYesNoOptions])
 
   const handleViewDetail = (row: EmployeeTableRow) => {
     setSelectedDetailRowId(row.id)

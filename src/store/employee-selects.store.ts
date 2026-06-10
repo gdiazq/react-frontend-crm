@@ -28,12 +28,14 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
   transferToCostCenterOptions: [],
   approvalEmployeeStatusOptions: [],
   hrRequestTypeOptions: [],
+  yesNoOptions: [],
   loadingFormOptions: false,
   loadingCommuneOptions: false,
   loadingCityOptions: false,
   loadingTransferToCostCenterOptions: false,
   loadingApprovalEmployeeStatusOptions: false,
   loadingHrRequestTypeOptions: false,
+  loadingYesNoOptions: false,
   formOptionsErrorMessage: null,
   communeOptionsErrorMessage: null,
   cityOptionsErrorMessage: null,
@@ -254,6 +256,18 @@ export const useStoreEmployeeSelects = create<EmployeeSelectsStore>()((set) => (
       }
     } finally {
       set({ loadingHrRequestTypeOptions: false })
+    }
+  },
+
+  getYesNoOptions: async () => {
+    try {
+      set({ loadingYesNoOptions: true, errorBack: null })
+      const data = await employeeSelectsService.getYesNoOptions()
+      set({ yesNoOptions: data })
+    } catch (error) {
+      set({ errorBack: error })
+    } finally {
+      set({ loadingYesNoOptions: false })
     }
   },
 

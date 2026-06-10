@@ -148,6 +148,10 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
     set((state) => ({ queryParams: { ...state.queryParams, statusId } }))
   },
 
+  setHasContractFilter: (hasContract: string) => {
+    set((state) => ({ queryParams: { ...state.queryParams, hasContract } }))
+  },
+
   setCreatedDateRange: ({ createdFrom, createdTo }) => {
     set((state) => ({ queryParams: { ...state.queryParams, createdFrom, createdTo } }))
   },
@@ -158,6 +162,10 @@ export const useStoreEmployees = create<EmployeesStore>()((set, get) => {
 
   clearApprovalStatusFilter: () => {
     set((state) => ({ queryParams: { ...state.queryParams, statusId: '' } }))
+  },
+
+  clearHasContractFilter: () => {
+    set((state) => ({ queryParams: { ...state.queryParams, hasContract: '' } }))
   },
 
   clearCreatedDateRange: () => {

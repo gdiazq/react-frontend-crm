@@ -34,9 +34,11 @@ export interface EmployeesStore {
   setSearch: (value: string) => void
   setActiveFilter: (active: string) => void
   setApprovalStatusFilter: (statusId: string) => void
+  setHasContractFilter: (hasContract: string) => void
   setCreatedDateRange: (payload: { createdFrom: string, createdTo: string }) => void
   clearActiveFilter: () => void
   clearApprovalStatusFilter: () => void
+  clearHasContractFilter: () => void
   clearCreatedDateRange: () => void
   searchEmployees: () => Promise<void>
   sortEmployees: (sortBy: EmployeesSortBy, sortDir: EmployeesSortDir) => Promise<void>

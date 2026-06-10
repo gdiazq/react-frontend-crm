@@ -1,4 +1,4 @@
-import type { EmployeeSelectOption } from './employee-selects'
+import type { EmployeeSelectOption, EmployeeYesNoOption } from './employee-selects'
 
 export interface EmployeeSelectsStore {
   identificationTypeOptions: EmployeeSelectOption[]
@@ -24,12 +24,14 @@ export interface EmployeeSelectsStore {
   transferToCostCenterOptions: EmployeeSelectOption[]
   approvalEmployeeStatusOptions: EmployeeSelectOption[]
   hrRequestTypeOptions: EmployeeSelectOption[]
+  yesNoOptions: EmployeeYesNoOption[]
   loadingFormOptions: boolean
   loadingCommuneOptions: boolean
   loadingCityOptions: boolean
   loadingTransferToCostCenterOptions: boolean
   loadingApprovalEmployeeStatusOptions: boolean
   loadingHrRequestTypeOptions: boolean
+  loadingYesNoOptions: boolean
   formOptionsErrorMessage: string | null
   communeOptionsErrorMessage: string | null
   cityOptionsErrorMessage: string | null
@@ -43,6 +45,7 @@ export interface EmployeeSelectsStore {
   getCityOptions: (communeId: number) => Promise<void>
   getApprovalEmployeeStatusOptions: () => Promise<void>
   getHrRequestTypeOptions: () => Promise<void>
+  getYesNoOptions: () => Promise<void>
   clearFormOptionsStatus: () => void
   clearCommuneOptionsStatus: () => void
   clearCityOptionsStatus: () => void

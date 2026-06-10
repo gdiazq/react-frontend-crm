@@ -1,12 +1,17 @@
 import axios from 'axios'
 import { axiosInstance } from '@/config'
-import type { EmployeeSelectOption } from '@/types'
+import type { EmployeeSelectOption, EmployeeYesNoOption } from '@/types'
 
 const RRHH_SELECTS_BASE_PATH = '/rrhh/select'
 
 export const employeeSelectsService = {
   getIdentificationTypeOptions: async () => {
     const { data } = await axiosInstance.get<EmployeeSelectOption[]>(`${RRHH_SELECTS_BASE_PATH}/identification-types`)
+    return data
+  },
+
+  getYesNoOptions: async () => {
+    const { data } = await axiosInstance.get<EmployeeYesNoOption[]>(`${RRHH_SELECTS_BASE_PATH}/yes-no`)
     return data
   },
 
