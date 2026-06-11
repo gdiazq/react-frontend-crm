@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  AlertMessageComponent,
   ButtonComponent,
   SaveConfirmComponent,
   UsersFormDataSectionComponent,
@@ -16,7 +15,7 @@ import {
   mapperUserRoleSelectOptions,
 } from '@/mappers'
 import messages from '@/messages/messages'
-import { useStoreSelects, useStoreUsers } from '@/store'
+import { useStoreSelects, useStoreToast, useStoreUsers } from '@/store'
 import { usersCreateValidationRules } from '@/validators'
 
 export default function UsersFormDashboardPage() {
@@ -46,6 +45,8 @@ export default function UsersFormDashboardPage() {
   const createUser = useStoreUsers((s) => s.createUser)
   const updateUser = useStoreUsers((s) => s.updateUser)
   const clearOperationStatus = useStoreUsers((s) => s.clearOperationStatus)
+
+  const pushToast = useStoreToast((s) => s.pushToast)
 
   const { errors, validateAll, onValidation } = useFormValidation(form, usersCreateValidationRules)
 
@@ -99,6 +100,25 @@ export default function UsersFormDashboardPage() {
     }
   }, [editUserId, getUserDetail, isEditMode])
 
+  useEffect(() => {
+    if (!roleOptionsErrorMessage) return
+    pushToast({ message: roleOptionsErrorMessage, tone: 'error' })
+    clearRoleOptionsStatus()
+  }, [roleOptionsErrorMessage, pushToast, clearRoleOptionsStatus])
+
+  useEffect(() => {
+    if (!detailError) return
+    pushToast({ message: detailError, tone: 'error' })
+    clearOperationStatus('detail')
+  }, [detailError, pushToast, clearOperationStatus])
+
+  useEffect(() => {
+    if (!submitErrorMessage) return
+    pushToast({ message: submitErrorMessage, tone: 'error' })
+    clearOperationStatus('create')
+    clearOperationStatus('update')
+  }, [submitErrorMessage, pushToast, clearOperationStatus])
+
   const clearSubmitStatus = () => {
     clearOperationStatus('create')
     clearOperationStatus('update')
@@ -130,6 +150,10 @@ export default function UsersFormDashboardPage() {
       : await createUser(mapperCreateUserPayload(form))
 
     if (success) {
+      pushToast({
+        message: isEditMode ? messages.users.status.success.updateUserSuccess : messages.users.status.success.createUserSuccess,
+        tone: 'success',
+      })
       navigate(AUTH_ROUTE_USERS)
       return
     }
@@ -167,38 +191,6 @@ export default function UsersFormDashboardPage() {
           {headerDescription}
         </p>
       </header>
-
-      {roleOptionsErrorMessage && (
-        <AlertMessageComponent
-          message={roleOptionsErrorMessage}
-          tone="error"
-          onClose={clearRoleOptionsStatus}
-        />
-      )}
-
-      {isEditMode && detailError && (
-        <AlertMessageComponent
-          message={detailError}
-          tone="error"
-          onClose={() => clearOperationStatus('detail')}
-        />
-      )}
-
-      {submitErrorMessage && (
-        <AlertMessageComponent
-          message={submitErrorMessage}
-          tone="error"
-          onClose={clearSubmitStatus}
-        />
-      )}
-
-      {submitSuccessMessage && (
-        <AlertMessageComponent
-          message={submitSuccessMessage}
-          tone="success"
-          onClose={clearSubmitStatus}
-        />
-      )}
 
       <form
         className="space-y-10"

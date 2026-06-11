@@ -1,14 +1,13 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  AlertMessageComponent,
   ButtonComponent,
   InputComponent,
   ToolbarActionsDropdownComponent,
 } from '@/components'
 import { AUTH_ROUTE_USERS_CREATE, PermissionAction, PermissionModule } from '@/constant'
 import { useHasPermission } from '@/hooks'
-import { useStoreUsers } from '@/store'
+import { useStoreToast, useStoreUsers } from '@/store'
 
 interface UsersListToolbarComponentProps {
   onOpenFilters: () => void
@@ -27,14 +26,14 @@ export function UsersListToolbarComponent({ onOpenFilters, disabled = false }: U
   const searchUsers = useStoreUsers((s) => s.searchUsers)
   const exportUsersCsv = useStoreUsers((s) => s.exportUsersCsv)
   const importUsersCsv = useStoreUsers((s) => s.importUsersCsv)
-  const [actionsMessage, setActionsMessage] = useState('')
+  const pushToast = useStoreToast((s) => s.pushToast)
   const loadingAny = loading || disabled || exportingCsv || importingCsv
 
   const handleDownloadReport = async () => {
     if (exportingCsv) return
     const success = await exportUsersCsv()
     if (success) {
-      setActionsMessage('Reporte descargado correctamente.')
+      pushToast({ message: 'Reporte descargado correctamente.', tone: 'success' })
     }
   }
 
@@ -50,7 +49,7 @@ export function UsersListToolbarComponent({ onOpenFilters, disabled = false }: U
 
     const summary = await importUsersCsv(file)
     if (summary) {
-      setActionsMessage(summary)
+      pushToast({ message: summary, tone: 'info' })
     }
   }
 
@@ -107,10 +106,6 @@ export function UsersListToolbarComponent({ onOpenFilters, disabled = false }: U
         className="hidden"
         onChange={(event) => { void handleBulkUploadFileChange(event) }}
       />
-
-      {actionsMessage && (
-        <AlertMessageComponent message={actionsMessage} tone="info" onClose={() => setActionsMessage('')} />
-      )}
     </>
   )
 }

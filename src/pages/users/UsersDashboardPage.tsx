@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  AlertMessageComponent,
   SaveConfirmComponent,
   StatsOverviewCardsComponent,
   UsersListDetailSidebarComponent,
@@ -9,7 +8,7 @@ import {
   UsersListToolbarComponent,
 } from '@/components'
 import { mapperUserRowStatus, mapperUserTableDisplayName, mapperUserToggleSuccessMessage } from '@/mappers'
-import { useStoreSelects, useStoreUsers } from '@/store'
+import { useStoreSelects, useStoreToast, useStoreUsers } from '@/store'
 import type { UserTableRow } from '@/types'
 
 export default function UsersDashboardPage() {
@@ -25,17 +24,36 @@ export default function UsersDashboardPage() {
   const getUsersFilterOptions = useStoreSelects((s) => s.getUsersFilterOptions)
   const clearUsersFilterOptionsStatus = useStoreSelects((s) => s.clearUsersFilterOptionsStatus)
 
+  const pushToast = useStoreToast((s) => s.pushToast)
+
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [detailRowId, setDetailRowId] = useState<string | null>(null)
   const [detailName, setDetailName] = useState('')
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingToggleRow, setPendingToggleRow] = useState<UserTableRow | null>(null)
-  const [actionsMessage, setActionsMessage] = useState('')
 
   useEffect(() => {
     void getUsers()
     void getUsersFilterOptions()
   }, [getUsers, getUsersFilterOptions])
+
+  useEffect(() => {
+    if (!listError) return
+    pushToast({ message: listError, tone: 'error' })
+    clearOperationStatus('list')
+  }, [listError, pushToast, clearOperationStatus])
+
+  useEffect(() => {
+    if (!toggleError) return
+    pushToast({ message: toggleError, tone: 'error' })
+    clearOperationStatus('toggle')
+  }, [toggleError, pushToast, clearOperationStatus])
+
+  useEffect(() => {
+    if (!usersFilterOptionsErrorMessage) return
+    pushToast({ message: usersFilterOptionsErrorMessage, tone: 'error' })
+    clearUsersFilterOptionsStatus()
+  }, [usersFilterOptionsErrorMessage, pushToast, clearUsersFilterOptionsStatus])
 
   const handleViewDetail = (row: UserTableRow) => {
     setDetailRowId(row.id)
@@ -68,8 +86,7 @@ export default function UsersDashboardPage() {
     setConfirmOpen(false)
     setPendingToggleRow(null)
     await getUsers()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    setActionsMessage(mapperUserToggleSuccessMessage(pendingToggleRow, nextStatus))
+    pushToast({ message: mapperUserToggleSuccessMessage(pendingToggleRow, nextStatus), tone: 'success' })
   }
 
   const confirmMessage = pendingToggleRow
@@ -95,30 +112,7 @@ export default function UsersDashboardPage() {
         active={pagination.active}
       />
 
-      {(listError || toggleError) && (
-        <AlertMessageComponent
-          message={(listError || toggleError)!}
-          tone="error"
-          onClose={() => {
-            if (listError) clearOperationStatus('list')
-            if (toggleError) clearOperationStatus('toggle')
-          }}
-        />
-      )}
-
-      {usersFilterOptionsErrorMessage && (
-        <AlertMessageComponent
-          message={usersFilterOptionsErrorMessage}
-          tone="error"
-          onClose={clearUsersFilterOptionsStatus}
-        />
-      )}
-
       <UsersListToolbarComponent onOpenFilters={() => setFiltersOpen(true)} disabled={loadingToggleStatus} />
-
-      {actionsMessage && (
-        <AlertMessageComponent message={actionsMessage} tone="info" onClose={() => setActionsMessage('')} />
-      )}
 
       <UsersListTableComponent
         onViewDetail={handleViewDetail}
